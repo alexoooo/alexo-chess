@@ -88,12 +88,12 @@ public class BrainTeaser {
 //                new MctsSchedulerImpl.Factory()
 //        );
         Player player = new MctsPlayer(
-                new MctsNodeImpl.Factory<Ucb1TunedValue>(),
+                new MctsNodeImpl.Factory<>(),
                 new Ucb1TunedValue.Factory(),
                 new MctsRolloutImpl(false),
                 new Ucb1TunedValue.VisitSelector(),
                 new MctsCaptureHeuristic(),
-                new NullTransTable<Ucb1TunedValue>(),
+                new NullTransTable<>(),
                 new MctsSchedulerImpl.Factory()
         );
 
@@ -118,7 +118,7 @@ public class BrainTeaser {
         State  state  = State.fromFen(
                 // endgame test
 //                "8/8/8/k7/8/8/3R4/7K w "
-                "8/8/4k3/8/8/4K3/6P1/8 w - - 0 1" // bm e4, f4
+//                "8/8/4k3/8/8/4K3/6P1/8 w - - 0 1" // bm e4, f4
 
                 // my
 //                "r2kq2r/pb2ppbp/1p4p1/2ppP3/1n3P2/2NPQN2/PPP3PP/1KR2B1R w kq"
@@ -149,7 +149,7 @@ public class BrainTeaser {
 
                 // easy
 //                "1rbq1rk1/p1b1nppp/1p2p3/8/1B1pN3/P2B4/1P3PPP/2RQ1R1K w" // bm Nf6+ (325,000)
-//                "7k/5K2/5P1p/3p4/6P1/3p4/8/8 w" // bm g5 (+100,000 -2250000)
+                "7k/5K2/5P1p/3p4/6P1/3p4/8/8 w" // bm g5 (+100,000 -2250000)
 //                "8/6B1/p5p1/Pp4kp/1P5r/5P1Q/4q1PK/8 w" // bm Qxh4 (1,825,000)
 
                 // mid
