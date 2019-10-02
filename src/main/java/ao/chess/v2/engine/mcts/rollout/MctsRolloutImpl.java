@@ -26,6 +26,9 @@ public class MctsRolloutImpl
     private final int     nSims;
     private final boolean opt;
 
+//    private int[]   nextMoves = new int[ Move.MAX_PER_PLY ];
+//    private int[]   moves     = new int[ Move.MAX_PER_PLY ];
+
 
     //--------------------------------------------------------------------
     public MctsRolloutImpl(boolean optimize)
@@ -41,7 +44,8 @@ public class MctsRolloutImpl
 
 
     //--------------------------------------------------------------------
-    @Override public double monteCarloPlayout(
+    @Override
+    public double monteCarloPlayout(
             State fromState, MctsHeuristic heuristic)
     {
         double sum = 0;
@@ -55,6 +59,7 @@ public class MctsRolloutImpl
         }
         return sum / nSims;
     }
+
 
     private double computeMonteCarloPlayout(
             State fromState, MctsHeuristic heuristic) {

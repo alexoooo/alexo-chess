@@ -10,7 +10,7 @@ import ao.chess.v2.state.State;
 public interface MctsRollout
 {
     //--------------------------------------------------------------------
-    public double monteCarloPlayout(
+    double monteCarloPlayout(
             State fromState, MctsHeuristic heuristitc);
 
 

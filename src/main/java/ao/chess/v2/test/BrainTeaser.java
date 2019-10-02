@@ -27,7 +27,7 @@ import java.util.List;
 public class BrainTeaser {
     //--------------------------------------------------------------------
     public static void main(String[] args) {
-        int time = 24 * 60 * 60 * 1000;
+        int time = 7 * 24 * 60 * 60 * 1000;
 //        int time = 10 * 60 * 1000;
 
         MctsPlayer mctsPrototype = new MctsPlayer(

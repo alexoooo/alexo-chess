@@ -19,6 +19,7 @@ import java.util.concurrent.*;
 public class MultiMctsPlayer implements Player
 {
     //-----------------------------------------------------------------------------------------------------------------
+//    private final static int reportPeriod = 300_000;
     private final static int reportPeriod = 60_000;
 
     private final List<MctsPlayer> players;
@@ -131,11 +132,11 @@ public class MultiMctsPlayer implements Player
                 playerMoveScoreSum += moveScore;
             }
 
-//            if (playerMoveScoreSum > 0) {
-//                for (int moveIndex = 0; moveIndex < legalMoves.length; moveIndex++) {
-//                    scores[playerIndex][moveIndex] /= playerMoveScoreSum;
-//                }
-//            }
+            if (playerMoveScoreSum > 0) {
+                for (int moveIndex = 0; moveIndex < legalMoves.length; moveIndex++) {
+                    scores[playerIndex][moveIndex] /= playerMoveScoreSum;
+                }
+            }
 
             totalScore += playerMoveScoreSum;
         }
@@ -159,10 +160,10 @@ public class MultiMctsPlayer implements Player
         cumulativeScore += totalScore;
         String message = String.format(
 //                "threads %d | positions %,d | max move %,d | cumulative %,d | depth %d - %d | %s",
-                "threads %d | positions %,d | max move %,d | depth %d - %d | %s",
+                "threads %d | positions %,d | max move %.2f | depth %d - %d | %s",
                 players.size(),
                 (int) totalScore,
-                (int) maxMoveScore,
+                maxMoveScore,
 //                (long) cumulativeScore,
                 minDepth,
                 maxDepth,

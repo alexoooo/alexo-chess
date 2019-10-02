@@ -15,9 +15,7 @@ public class MctsCaptureHeuristic
 {
     //--------------------------------------------------------------------
     @Override public double firstPlayUrgency(int move) {
-        return Move.isCapture(move)
-                ? 1500 + Math.random() / 10000
-                : 1000 + Math.random() / 10000;
+        return (Move.isCapture(move) ? 1500 : 1000) + Math.random();
     }
 
 
