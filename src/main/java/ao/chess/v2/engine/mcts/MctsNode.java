@@ -27,6 +27,11 @@ public interface MctsNode<V extends MctsValue<V>>
 
     void addStates(LongCollection to);
 
+    int maxDepth();
+    int minDepth();
+    int leafCount();
+    int nodeCount();
+
 
     //--------------------------------------------------------------------
     interface Factory

@@ -19,8 +19,12 @@ import java.util.concurrent.*;
 public class MultiMctsPlayer implements Player
 {
     //-----------------------------------------------------------------------------------------------------------------
+    private final static int reportPeriod = 60_000;
+
     private final List<MctsPlayer> players;
     private final ExecutorService executor;
+
+    private double cumulativeScore = 0;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -51,8 +55,31 @@ public class MultiMctsPlayer implements Player
             return oracleAction;
         }
 
+//        int bestMove = searchForBestMove(position, timePerMove, legalMoves);
+
         MctsScheduler scheduler = new MctsSchedulerImpl.Factory()
-                .newScheduler(timeLeft, timePerMove, timeIncrement);
+              .newScheduler(timeLeft, timePerMove, timeIncrement);
+        int bestMove;
+        do {
+            bestMove = searchForBestMove(position, Math.min(reportPeriod, timePerMove), legalMoves);
+        }
+        while (scheduler.shouldContinue());
+
+        for (var player : players) {
+            player.notifyMoveInternal(position, bestMove);
+        }
+        return bestMove;
+    }
+
+
+    @SuppressWarnings("SameParameterValue")
+    private int searchForBestMove(
+            State position,
+            int searchTime,
+            int[] legalMoves
+    ) {
+        MctsScheduler scheduler = new MctsSchedulerImpl.Factory().newScheduler(
+                searchTime, searchTime, searchTime);
 
         List<Callable<MctsNode>> internalMoves = new ArrayList<>();
         for (MctsPlayer player : players) {
@@ -71,11 +98,7 @@ public class MultiMctsPlayer implements Player
             throw new Error(e);
         }
 
-        int bestMove = selectBestMove(legalMoves, rootNodes);
-        for (var player : players) {
-            player.notifyMoveInternal(position, bestMove);
-        }
-        return bestMove;
+        return selectBestMove(legalMoves, rootNodes);
     }
 
 
@@ -83,21 +106,38 @@ public class MultiMctsPlayer implements Player
             int[] legalMoves,
             List<MctsNode> rootNodes
     ) {
+        double totalScore = 0;
+        int minDepth = Integer.MAX_VALUE;
+        int maxDepth = 0;
+
         double[][] scores = new double[players.size()][legalMoves.length];
         for (int playerIndex = 0; playerIndex < players.size(); playerIndex++) {
             double playerMoveScoreSum = 0;
             for (int moveIndex = 0; moveIndex < legalMoves.length; moveIndex++) {
+                int action = legalMoves[moveIndex];
+
+                MctsNode rootNode = rootNodes.get(playerIndex);
+                MctsNode actionNode = rootNode.childMatching(action);
+
+                int playerMinDepth = actionNode.minDepth();
+                minDepth = Math.min(minDepth, playerMinDepth);
+
+                int playerMaxDepth = actionNode.maxDepth();
+                maxDepth = Math.max(maxDepth, playerMaxDepth);
+
                 double moveScore = players.get(playerIndex)
-                        .moveScoreInternal(rootNodes.get(playerIndex), legalMoves[moveIndex]);
+                        .moveScoreInternal(rootNode, legalMoves[moveIndex]);
                 scores[playerIndex][moveIndex] = moveScore;
                 playerMoveScoreSum += moveScore;
             }
 
-            if (playerMoveScoreSum > 0) {
-                for (int moveIndex = 0; moveIndex < legalMoves.length; moveIndex++) {
-                    scores[playerIndex][moveIndex] /= playerMoveScoreSum;
-                }
-            }
+//            if (playerMoveScoreSum > 0) {
+//                for (int moveIndex = 0; moveIndex < legalMoves.length; moveIndex++) {
+//                    scores[playerIndex][moveIndex] /= playerMoveScoreSum;
+//                }
+//            }
+
+            totalScore += playerMoveScoreSum;
         }
 
         double maxMoveScore = 0;
@@ -114,13 +154,31 @@ public class MultiMctsPlayer implements Player
             }
         }
 
-        return legalMoves[maxMoveIndex];
+        int bestMove = legalMoves[maxMoveIndex];
+
+        cumulativeScore += totalScore;
+        String message = String.format(
+//                "threads %d | positions %,d | max move %,d | cumulative %,d | depth %d - %d | %s",
+                "threads %d | positions %,d | max move %,d | depth %d - %d | %s",
+                players.size(),
+                (int) totalScore,
+                (int) maxMoveScore,
+//                (long) cumulativeScore,
+                minDepth,
+                maxDepth,
+                Move.toString(bestMove));
+        Io.display(message);
+        System.out.println(message);
+
+        return bestMove;
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
     private int oracleAction(State from, int[] legalMoves) {
-        if (from.pieceCount() > 5) return -1;
+        if (from.pieceCount() > 5) {
+            return -1;
+        }
 
         boolean canDraw     = false;
         int     bestOutcome = 0;

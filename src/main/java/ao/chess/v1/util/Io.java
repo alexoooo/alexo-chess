@@ -46,10 +46,12 @@ public class Io
     //--------------------------------------------------------------------
     public static void display(Object text)
     {
-        displayLines.addFirst(text.toString());
+//        displayLines.addFirst(text.toString());
+        displayLines.addLast(text.toString());
 
         if (displayLines.size() > 1000) {
-            displayLines.removeLast();
+//            displayLines.removeLast();
+            displayLines.removeFirst();
         }
 
         SwingUtilities.invokeLater(() ->

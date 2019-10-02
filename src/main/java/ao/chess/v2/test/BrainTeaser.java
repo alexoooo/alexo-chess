@@ -2,14 +2,18 @@ package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.mcts.heuristic.MctsCaptureHeuristic;
+import ao.chess.v2.engine.mcts.heuristic.MctsHeuristicImpl;
 import ao.chess.v2.engine.mcts.node.MctsNodeImpl;
 import ao.chess.v2.engine.mcts.player.MctsPlayer;
+import ao.chess.v2.engine.mcts.player.MultiMctsPlayer;
 import ao.chess.v2.engine.mcts.rollout.MctsRolloutImpl;
 import ao.chess.v2.engine.mcts.scheduler.MctsSchedulerImpl;
 import ao.chess.v2.engine.mcts.transposition.NullTransTable;
 import ao.chess.v2.engine.mcts.value.Ucb1TunedValue;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
+
+import java.util.List;
 
 /**
  * User: aostrovsky
@@ -25,6 +29,27 @@ public class BrainTeaser {
     public static void main(String[] args) {
         int time = 24 * 60 * 60 * 1000;
 //        int time = 10 * 60 * 1000;
+
+        MctsPlayer mctsPrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1TunedValue.Factory(),
+                new MctsRolloutImpl(false),
+                new Ucb1TunedValue.VisitSelector(),
+                new MctsHeuristicImpl(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory()
+        );
+
+        MctsPlayer mctsCapturePrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1TunedValue.Factory(),
+                new MctsRolloutImpl(false),
+                new Ucb1TunedValue.VisitSelector(),
+//                new MctsHeuristicImpl(),
+                new MctsCaptureHeuristic(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory()
+        );
 
 //        Player player = new UctPlayer(true);
 //        Player player = new UctPlayer(false);
@@ -88,15 +113,17 @@ public class BrainTeaser {
 //                new NullTransTable<Ucb1TunedValue>(),
 //                new MctsSchedulerImpl.Factory()
 //        );
-        Player player = new MctsPlayer(
-                new MctsNodeImpl.Factory<>(),
-                new Ucb1TunedValue.Factory(),
-                new MctsRolloutImpl(false),
-                new Ucb1TunedValue.VisitSelector(),
-                new MctsCaptureHeuristic(),
-                new NullTransTable<>(),
-                new MctsSchedulerImpl.Factory()
-        );
+
+        Player player = new MultiMctsPlayer(List.of(
+                mctsCapturePrototype.prototype(),
+                mctsCapturePrototype.prototype(),
+                mctsPrototype.prototype(),
+                mctsPrototype.prototype(),
+                mctsPrototype.prototype(),
+                mctsPrototype.prototype(),
+                mctsPrototype.prototype(),
+                mctsPrototype.prototype()
+        ));
 
 //        Player player = new MctsPlayer(
 //                new MctsNodeImpl.Factory<UcbTunedValue>(),
@@ -119,6 +146,7 @@ public class BrainTeaser {
         State  state  = State.fromFen(
                 // Travis game
                 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppp1ppp/8/4p3/7P/8/PPPPPPP1/RNBQKBNR w KQkq e6 0 1"
 
                 // endgame test
 //                "8/8/8/k7/8/8/3R4/7K w "

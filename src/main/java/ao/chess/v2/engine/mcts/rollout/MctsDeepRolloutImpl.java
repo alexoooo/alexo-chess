@@ -130,7 +130,8 @@ public class MctsDeepRolloutImpl
 
                 if (nextCount < 0) { // if leads to mate
                     Move.unApply(move, simState);
-                } else {
+                }
+                else {
                     madeMove = true;
                     break;
                 }

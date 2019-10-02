@@ -13,6 +13,7 @@ import ao.chess.v2.engine.mcts.scheduler.MctsSchedulerImpl;
 import ao.chess.v2.engine.mcts.transposition.NullTransTable;
 import ao.chess.v2.engine.mcts.value.Ucb1TunedValue;
 import ao.chess.v2.engine.simple.RandomPlayer;
+import ao.chess.v2.engine.simple.SimPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -28,21 +29,47 @@ import java.util.List;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 1000;
+    private static final int TIME_PER_MOVE = 3 * 1000;
 
 
     //--------------------------------------------------------------------
     public static void main(String[] args)
     {
-        MctsPlayer a = new MctsPlayer(
+        MctsPlayer mctsProto = new MctsPlayer(
                 new MctsNodeImpl.Factory<>(),
                 new Ucb1TunedValue.Factory(),
                 new MctsRolloutImpl(false),
                 new Ucb1TunedValue.VisitSelector(),
                 new MctsHeuristicImpl(),
                 new NullTransTable<>(),
-                new MctsSchedulerImpl.Factory()
-        );
+                new MctsSchedulerImpl.Factory());
+        MctsPlayer mctsProtoCapture = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1TunedValue.Factory(),
+                new MctsRolloutImpl(false),
+                new Ucb1TunedValue.VisitSelector(),
+                new MctsCaptureHeuristic(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory());
+
+        Player a = new MultiMctsPlayer(List.of(
+                mctsProto.prototype(),
+                mctsProto.prototype(),
+                mctsProto.prototype(),
+                mctsProto.prototype(),
+                mctsProto.prototype(),
+                mctsProto.prototype()));
+
+//        MctsPlayer a = new MctsPlayer(
+//                new MctsNodeImpl.Factory<>(),
+//                new Ucb1TunedValue.Factory(),
+//                new MctsRolloutImpl(false),
+//                new Ucb1TunedValue.VisitSelector(),
+//                new MctsHeuristicImpl(),
+//                new NullTransTable<>(),
+//                new MctsSchedulerImpl.Factory()
+//        );
+
 //        Player a = new RandomPlayer();
 //        Player a = new SimPlayer(false);
 //        Player a = new HeuristicPlayer(
@@ -84,17 +111,25 @@ public class Tournament
 //                new MctsSchedulerImpl.Factory()
 //        );
 
-        MctsPlayer bProto = new MctsPlayer(
-                new MctsNodeImpl.Factory<>(),
-                new Ucb1TunedValue.Factory(),
-                new MctsRolloutImpl(false),
-                new Ucb1TunedValue.VisitSelector(),
-                new MctsHeuristicImpl(),
-                new NullTransTable<>(),
-                new MctsSchedulerImpl.Factory());
+//        Player b = new MultiMctsPlayer(List.of(
+//                mctsProto.prototype(),
+//                mctsProto.prototype(),
+//                mctsProto.prototype(),
+//                mctsProto.prototype(),
+//                mctsProto.prototype(),
+//                mctsProto.prototype(),
+//                mctsProto.prototype(),
+//                mctsProto.prototype(),
+//                mctsProto.prototype()));
         Player b = new MultiMctsPlayer(List.of(
-                bProto.prototype(),
-                bProto.prototype()));
+                mctsProtoCapture.prototype(),
+                mctsProtoCapture.prototype(),
+                mctsProto.prototype(),
+                mctsProto.prototype(),
+                mctsProto.prototype(),
+                mctsProto.prototype(),
+                mctsProto.prototype(),
+                mctsProto.prototype()));
 
         int aWins = 0;
         int bWins = 0;

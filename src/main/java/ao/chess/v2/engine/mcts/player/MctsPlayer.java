@@ -145,9 +145,14 @@ public class MctsPlayer implements Player
     {
         MctsNode root = null;
 
-        if (prevState != null && prevPlay != null) {
-            root = prevPlay.childMatching(
-                    action(prevState, position));
+        if (prevState != null) {
+            if (prevState.equals(position)) {
+                root = previousRootOrNull;
+            }
+            else if (prevPlay != null) {
+                root = prevPlay.childMatching(
+                        action(prevState, position));
+            }
         }
 
         if (root == null) {
@@ -166,7 +171,7 @@ public class MctsPlayer implements Player
                 count++;
             }
 
-            if (count != 0 && count % 10000 == 0) {
+            if (count != 0 && count % 100_000 == 0) {
                 MctsAction bestMove = root.bestMove(sellectors);
                 if (bestMove == null) {
 //                    Io.display( "!! null move?" );
@@ -186,6 +191,9 @@ public class MctsPlayer implements Player
 //        prevPlay = act.node();
 //        prevState = position.prototype();
 //        Move.apply(act.action(), prevState);
+//        prevPlay = root;
+        prevState = position.prototype();
+
         previousRootOrNull = root;
         return root;
     }

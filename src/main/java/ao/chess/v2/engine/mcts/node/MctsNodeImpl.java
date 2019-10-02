@@ -234,38 +234,79 @@ public class MctsNodeImpl<V extends MctsValue<V>>
 
     //--------------------------------------------------------------------
     @Override
-    public String toString() {
-        return //size()       + " | " +
-               uniqueSize() + " | " +
-               depth()      + " | " +
-               value.toString();
+    public int maxDepth() {
+        if (kids == null || kids.length == 0) {
+            return 0;
+        }
+
+        int depth = 0;
+        for (MctsNodeImpl kid : kids) {
+            if (kid == null) continue;
+            depth = Math.max(depth, kid.maxDepth());
+        }
+        return depth + 1;
     }
 
+
+    @Override
+    public int minDepth() {
+        if (kids == null || kids.length == 0) {
+            return 0;
+        }
+
+        int minDepth = Integer.MAX_VALUE;
+        for (MctsNodeImpl kid : kids) {
+            if (kid == null) {
+                return 1;
+            }
+            minDepth = Math.min(minDepth, kid.minDepth());
+        }
+        return minDepth + 1;
+    }
+
+
+    @Override
+    public int leafCount() {
+        if (kids == null) {
+            return 1;
+        }
+
+        int leafCount = 0;
+        for (MctsNodeImpl kid : kids) {
+            if (kid == null) continue;
+            leafCount += kid.leafCount();
+        }
+        return leafCount;
+    }
+
+
+    @Override
+    public int nodeCount() {
+        if (kids == null) return 1;
+
+        int size = 1;
+        for (MctsNodeImpl kid : kids) {
+            if (kid == null) continue;
+            size += kid.nodeCount();
+        }
+        return size;
+    }
+
+
+    //--------------------------------------------------------------------
     private int uniqueSize() {
         LongSet states = new LongOpenHashSet();
         addStates(states);
         return states.size();
     }
 
-    private int depth() {
-        if (kids == null) return 0;
 
-        int depth = 0;
-        for (MctsNodeImpl kid : kids) {
-            if (kid == null) continue;
-            depth = Math.max(depth, kid.depth());
-        }
-        return depth + 1;
-    }
-
-    private int size() {
-        if (kids == null) return 1;
-
-        int size = 1;
-        for (MctsNodeImpl kid : kids) {
-            if (kid == null) continue;
-            size += kid.size();
-        }
-        return size;
+    //--------------------------------------------------------------------
+    @Override
+    public String toString() {
+        return //size()       + " | " +
+               uniqueSize() + " | " +
+               maxDepth()   + " | " +
+               value.toString();
     }
 }
