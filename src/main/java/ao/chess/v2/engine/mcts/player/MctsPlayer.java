@@ -31,6 +31,8 @@ public class MctsPlayer implements Player
     private State              prevState = null;
     private MctsNode           prevPlay  = null;
 
+    private MctsNode previousRootOrNull = null;
+
 
     //--------------------------------------------------------------------
     public <V extends MctsValue<V>>
@@ -52,9 +54,16 @@ public class MctsPlayer implements Player
     }
 
 
-    //--------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------
+    public MctsPlayer prototype() {
+        return new MctsPlayer(nodes, values, rollouts, sellectors, heuristics, transTable, schedulers);
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     @SuppressWarnings("unchecked")
-    @Override public int move(
+    @Override
+    public int move(
             State position,
             int   timeLeft,
             int   timePerMove,
@@ -62,7 +71,7 @@ public class MctsPlayer implements Player
     {
         int oracleAction = oracleAction(position);
         if (oracleAction != -1) {
-            Sched.sleep(2500);
+//            Sched.sleep(2500);
             return oracleAction;
         }
 
@@ -88,24 +97,38 @@ public class MctsPlayer implements Player
                 timeLeft, timePerMove, timeIncrement);
 
         int  count  = 0;
-        long lastReport = System.currentTimeMillis();
+//        long lastReport = System.currentTimeMillis();
         while (scheduler.shouldContinue()) {
-            root.runTrajectory(
-                    position, values, rollouts, transTable, heuristics);
+            for (int i = 0; i < 100; i++) {
+                root.runTrajectory(
+                        position, values, rollouts, transTable, heuristics);
+                count++;
+            }
 
-            if (count++ != 0 && count % 10000 == 0) {
-                long timer  = System.currentTimeMillis() - lastReport;
-                long before = System.currentTimeMillis();
-                Io.display( root );
-                Io.display( root.bestMove(sellectors).information() );
-                Io.display( "took " + timer + " | " +
-                        (System.currentTimeMillis() - before) );
-                lastReport = System.currentTimeMillis();
+            if (count != 0 && count % 10000 == 0) {
+//                long timer  = System.currentTimeMillis() - lastReport;
+//                long before = System.currentTimeMillis();
+//                Io.display( root );
+                MctsAction bestMove = root.bestMove(sellectors);
+                if (bestMove == null) {
+                    break;
+                }
+                else {
+                    Io.display( root.bestMove(sellectors).information() );
+                }
+
+//                Io.display( "took " + timer + " | " +
+//                        (System.currentTimeMillis() - before) );
+//                lastReport = System.currentTimeMillis();
             }
         }
 
         MctsAction act = root.bestMove(sellectors);
-        if (act == null) return -1; // game is done
+        if (act == null) {
+            prevPlay = null;
+            prevState = null;
+            return -1; // game is done
+        }
 
         prevPlay = act.node();
         prevState = position.prototype();
@@ -114,6 +137,87 @@ public class MctsPlayer implements Player
         return act.action();
     }
 
+
+    //-----------------------------------------------------------------------------------------------------------------
+    MctsNode moveInternal(
+            State position,
+            MctsScheduler scheduler)
+    {
+        MctsNode root = null;
+
+        if (prevState != null && prevPlay != null) {
+            root = prevPlay.childMatching(
+                    action(prevState, position));
+        }
+
+        if (root == null) {
+            root = nodes.newNode(position, values);
+            transTable.retain( LongLists.EMPTY_LIST );
+        }
+        else {
+            Io.display("Recycling " + root);
+        }
+
+        int count = 0;
+        while (scheduler.shouldContinue()) {
+            for (int i = 0; i < 100; i++) {
+                root.runTrajectory(
+                        position, values, rollouts, transTable, heuristics);
+                count++;
+            }
+
+            if (count != 0 && count % 10000 == 0) {
+                MctsAction bestMove = root.bestMove(sellectors);
+                if (bestMove == null) {
+//                    Io.display( "!! null move?" );
+                    prevState = null;
+                    prevPlay = null;
+                    break;
+                }
+                else {
+                    Io.display( root.bestMove(sellectors).information() );
+                }
+            }
+        }
+
+//        MctsAction act = root.bestMove(sellectors);
+//        if (act == null) return -1; // game is done
+//
+//        prevPlay = act.node();
+//        prevState = position.prototype();
+//        Move.apply(act.action(), prevState);
+        previousRootOrNull = root;
+        return root;
+    }
+
+
+    void notifyMoveInternal(State position, int action) {
+        if (previousRootOrNull == null) {
+            return;
+        }
+
+        prevPlay = previousRootOrNull.childMatching(action);
+        prevState = position.prototype();
+        Move.apply(action, prevState);
+    }
+
+
+    void clearInternal() {
+        previousRootOrNull = null;
+        prevPlay = null;
+        prevState = null;
+    }
+
+
+    double moveScoreInternal(
+            MctsNode node,
+            int move
+    ) {
+        return node.moveScore(move, sellectors);
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     private int oracleAction(State from) {
         if (from.pieceCount() > 5) return -1;
 

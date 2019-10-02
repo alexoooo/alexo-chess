@@ -12,26 +12,27 @@ import it.unimi.dsi.fastutil.longs.LongCollection;
 public interface MctsNode<V extends MctsValue<V>>
 {
     //--------------------------------------------------------------------
-    public void runTrajectory(
+    void runTrajectory(
             State                 fromProtoState,
             MctsValue.Factory<V>  values,
             MctsRollout           mcRollout,
             TranspositionTable<V> transpositionTable,
             MctsHeuristic         heuristic);
 
-    public MctsAction<V> bestMove(MctsSelector<V> selector);
+    MctsAction<V> bestMove(MctsSelector<V> selector);
 
-    public MctsNode childMatching(int action);
+    double moveScore(int action, MctsSelector<V> selector);
 
-    public void addStates(LongCollection to);
+    MctsNode childMatching(int action);
+
+    void addStates(LongCollection to);
 
 
     //--------------------------------------------------------------------
-    public static interface Factory
-            <//N extends MctsNode<N>,
-             V extends MctsValue<V>>
+    interface Factory
+            <V extends MctsValue<V>>
     {
-        public MctsNode<V>/*N*/ newNode(
+        MctsNode<V>/*N*/ newNode(
                 State                state,
                 MctsValue.Factory<V> valueFactory);
     }

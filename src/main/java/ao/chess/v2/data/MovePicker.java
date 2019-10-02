@@ -43,6 +43,10 @@ public class MovePicker
     //--------------------------------------------------------------------
     public static int[] pickRandom(int nMoves)
     {
+        if (nMoves == -1) {
+            System.out.println("buh");
+        }
+
         return allPicks[ nMoves                               ]
                        [ (int)(lastPick[nMoves]++ % picsPerN) ];
     }

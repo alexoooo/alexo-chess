@@ -10,7 +10,5 @@ import java.util.Comparator;
 public interface MctsSelector<V extends MctsValue<V>>
         extends Comparator<V>
 {
-//    public static interface Factory<V extends MctsValue<V>> {
-//        public MctsSelector<V> newSelector();
-//    }
+    double asDouble(V value);
 }

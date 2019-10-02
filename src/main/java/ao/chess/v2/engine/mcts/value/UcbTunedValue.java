@@ -66,5 +66,10 @@ public class UcbTunedValue implements MctsValue<UcbTunedValue>
                 UcbTunedValue a, UcbTunedValue b) {
             return a.visits - b.visits;
         }
+
+        @Override
+        public double asDouble(UcbTunedValue value) {
+            return value.visits;
+        }
     }
 }

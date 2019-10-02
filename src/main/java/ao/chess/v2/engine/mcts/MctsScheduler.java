@@ -8,13 +8,13 @@ package ao.chess.v2.engine.mcts;
 public interface MctsScheduler
 {
     //--------------------------------------------------------------------
-    public boolean shouldContinue();
+    boolean shouldContinue();
 
 
     //--------------------------------------------------------------------
-    public static interface Factory
+    interface Factory
     {
-        public MctsScheduler newScheduler(
+        MctsScheduler newScheduler(
                                 int timeLeft,
                                 int timePerMove,
                                 int timeIncrement);

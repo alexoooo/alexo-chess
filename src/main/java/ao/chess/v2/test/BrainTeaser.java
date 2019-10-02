@@ -23,7 +23,8 @@ import ao.chess.v2.state.State;
 public class BrainTeaser {
     //--------------------------------------------------------------------
     public static void main(String[] args) {
-        int    time   = 24 * 60 * 60 * 1000;
+        int time = 24 * 60 * 60 * 1000;
+//        int time = 10 * 60 * 1000;
 
 //        Player player = new UctPlayer(true);
 //        Player player = new UctPlayer(false);
@@ -116,6 +117,9 @@ public class BrainTeaser {
 //        Player player = new TransPlayer();
 
         State  state  = State.fromFen(
+                // Travis game
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
                 // endgame test
 //                "8/8/8/k7/8/8/3R4/7K w "
 //                "8/8/4k3/8/8/4K3/6P1/8 w - - 0 1" // bm e4, f4
@@ -149,7 +153,7 @@ public class BrainTeaser {
 
                 // easy
 //                "1rbq1rk1/p1b1nppp/1p2p3/8/1B1pN3/P2B4/1P3PPP/2RQ1R1K w" // bm Nf6+ (325,000)
-                "7k/5K2/5P1p/3p4/6P1/3p4/8/8 w" // bm g5 (+100,000 -2250000)
+//                "7k/5K2/5P1p/3p4/6P1/3p4/8/8 w" // bm g5 (+100,000 -2250000)
 //                "8/6B1/p5p1/Pp4kp/1P5r/5P1Q/4q1PK/8 w" // bm Qxh4 (1,825,000)
 
                 // mid

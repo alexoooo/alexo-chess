@@ -1,7 +1,5 @@
 package ao.chess.v2.engine.mcts.node;
 
-import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
-import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.mcts.*;
 import ao.chess.v2.engine.mcts.message.MctsAction;
 import ao.chess.v2.state.Move;
@@ -84,7 +82,7 @@ public class MctsNodeImpl<V extends MctsValue<V>>
 
         MctsNodeImpl<V> leaf = path.get( path.size() - 1 );
         if (leaf.kids == null) {
-            leaf.initiateKids(cursor/*, transpositionTable*/);
+            leaf.initiateKids(cursor);
         }
 
         backupMcValue(path,
@@ -141,10 +139,8 @@ public class MctsNodeImpl<V extends MctsValue<V>>
     }
 
     @SuppressWarnings("unchecked")
-    private void initiateKids(
-            State                 fromState/*,
-            TranspositionTable<V> transTable*/) {
-        acts = fromState.legalMoves(/*transTable*/);
+    private void initiateKids(State fromState) {
+        acts = fromState.legalMoves();
         kids = (acts == null)
                ? null : new MctsNodeImpl[ acts.length ];
     }
@@ -173,9 +169,11 @@ public class MctsNodeImpl<V extends MctsValue<V>>
     //--------------------------------------------------------------------
     @Override
     public MctsAction<V> bestMove(MctsSelector<V> selector) {
-        if (kids == null || kids.length == 0) return null;
+        if (kids == null || kids.length == 0) {
+            return null;
+        }
 
-        int             bestAct = -1;
+        int bestAct = -1;
         MctsNodeImpl<V> bestKid = null;
         for (int i = 0, kidsLength = kids.length; i < kidsLength; i++) {
             MctsNodeImpl<V> kid = kids[i];
@@ -187,6 +185,21 @@ public class MctsNodeImpl<V extends MctsValue<V>>
             }
         }
         return new MctsAction<V>(bestAct, bestKid);
+    }
+
+
+    @Override
+    public double moveScore(int action, MctsSelector<V> selector) {
+        if (kids == null || kids.length == 0) {
+            return Double.NaN;
+        }
+
+        for (int i = 0; i < acts.length; i++) {
+            if (acts[i] == action) {
+                return selector.asDouble(kids[i].value);
+            }
+        }
+        return Double.NaN;
     }
 
 

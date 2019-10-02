@@ -4,6 +4,10 @@ import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -29,6 +33,8 @@ public class Io
 //        }
     }
 
+    private static Deque<String> displayLines = new ConcurrentLinkedDeque<>();
+
 
     //--------------------------------------------------------------------
     private static final BufferedReader reader =
@@ -40,8 +46,14 @@ public class Io
     //--------------------------------------------------------------------
     public static void display(Object text)
     {
-        textArea.setText(text + "\n" + textArea.getText());
-//        System.out.println(text);
+        displayLines.addFirst(text.toString());
+
+        if (displayLines.size() > 1000) {
+            displayLines.removeLast();
+        }
+
+        SwingUtilities.invokeLater(() ->
+                textArea.setText(String.join("\n", displayLines)));
     }
 
 

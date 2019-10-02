@@ -70,12 +70,22 @@ public class Ucb1Value2 implements MctsValue<Ucb1Value2>
         @Override public int compare(Ucb1Value2 a, Ucb1Value2 b) {
             return a.visits - b.visits;
         }
+
+        @Override
+        public double asDouble(Ucb1Value2 value) {
+            return value.visits;
+        }
     }
 
     public static class MeanSelector
             implements MctsSelector<Ucb1Value2> {
         @Override public int compare(Ucb1Value2 a, Ucb1Value2 b) {
             return Double.compare(a.averageReward(), b.averageReward());
+        }
+
+        @Override
+        public double asDouble(Ucb1Value2 value) {
+            return value.averageReward();
         }
     }
 }

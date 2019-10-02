@@ -168,6 +168,7 @@ public class State
     //--------------------------------------------------------------------
     private static State INITIAL = fromFen(
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
     public static State initial() {
         return INITIAL.prototype();
     }
@@ -270,7 +271,7 @@ public class State
     public int legalMoves(
             int[] moves/*, TranspositionTable transTable*/)
     {
-        int pseudoMoves[] = new int[ Move.MAX_PER_PLY ];
+        int[] pseudoMoves = new int[ Move.MAX_PER_PLY ];
         int nPseudoMoves  = moves(pseudoMoves);
         if (nPseudoMoves == -1) return -1;
 
@@ -1344,10 +1345,12 @@ public class State
                 Zobrist.toggleReversibleMoves(
                         staticHashCode(), reversibleMoves));
     }
+
     public long staticHashCode() {
         return nextToActPostprocess(
                 zobristPiecesEnPassantCastles());
     }
+
     private long zobristPiecesEnPassantCastles() {
         long zobrist = 0;
 
@@ -1360,11 +1363,13 @@ public class State
 
         return addZobristCastles(zobrist);
     }
+
     private long nextToActPostprocess(long zobrist) {
         return (nextToAct == Colour.WHITE && zobrist < 0 ||
                 nextToAct == Colour.BLACK && zobrist >= 0)
                ? -zobrist : zobrist;
     }
+
     private long addZobristPieces(
             long zobrist, Colour side) {
         long[] pieces =
@@ -1387,6 +1392,7 @@ public class State
         }
         return zobrist;
     }
+
     private long addZobristCastles(long zobrist) {
         if ((castles & WHITE_K_CASTLE) != 0) {
             zobrist = Zobrist.toggleCastle(

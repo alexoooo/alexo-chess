@@ -86,6 +86,11 @@ public class Ucbt2Value implements MctsValue<Ucbt2Value>
                 Ucbt2Value a, Ucbt2Value b) {
             return a.visits - b.visits;
         }
+
+        @Override
+        public double asDouble(Ucbt2Value value) {
+            return value.visits;
+        }
     }
 
     public static class MeanSelector
@@ -93,6 +98,11 @@ public class Ucbt2Value implements MctsValue<Ucbt2Value>
         @Override public int compare(
                 Ucbt2Value a, Ucbt2Value b) {
             return Double.compare(a.mean(), b.mean());
+        }
+
+        @Override
+        public double asDouble(Ucbt2Value value) {
+            return value.visits;
         }
     }
 }

@@ -7,11 +7,15 @@ import ao.chess.v2.state.State;
  * Date: 14-Sep-2009
  * Time: 3:58:17 PM
  */
-public interface Player
+public interface Player extends AutoCloseable
 {
-    public int move(
+    int move(
             State position,
             int   timeLeft,
             int   timePerMove,
             int   timeIncrement);
+
+
+    @Override
+    default void close() {}
 }
