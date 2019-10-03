@@ -32,7 +32,14 @@ public class Ucb1Value implements MctsValue<Ucb1Value>
     }
 
 
+
     //--------------------------------------------------------------------
+    @Override
+    public int visits() {
+        return visits;
+    }
+
+
     private double averageReward() {
         return sum / visits;
     }

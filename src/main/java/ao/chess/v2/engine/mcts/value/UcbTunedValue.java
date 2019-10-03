@@ -33,15 +33,22 @@ public class UcbTunedValue implements MctsValue<UcbTunedValue>
 
 
     //--------------------------------------------------------------------
-    @Override public void update(double winRate)
+    @Override
+    public int visits() {
+        return visits;
+    }
+
+
+    @Override
+    public void update(double winRate)
     {
         sum += winRate;
         visits++;
     }
 
 
-    //--------------------------------------------------------------------
-    @Override public double confidenceBound(
+    @Override
+    public double confidenceBound(
             UcbTunedValue transpositionValue,
             UcbTunedValue withRespectToParent)
     {

@@ -26,6 +26,8 @@ public class MctsDeepRolloutImpl
     //--------------------------------------------------------------------
     private final int nSims;
 
+    private final int[] moves = new int[Move.MAX_PER_PLY];
+
 
     //--------------------------------------------------------------------
     public MctsDeepRolloutImpl()
@@ -43,16 +45,34 @@ public class MctsDeepRolloutImpl
     @Override public double monteCarloPlayout(
             State position, MctsHeuristic heuristic)
     {
+        int depth = 0;
+
         Colour fromPov = position.nextToAct();
         State  state   = position;
         while (! state.isDrawnBy50MovesRule())
         {
-            int move = bestMove(state, heuristic);
+            int move;
+
+            if (depth < 2) {
+                move = bestMove(state, heuristic);
+            }
+            else {
+                int nMoves = position.legalMoves(moves);
+                if (nMoves == 0) {
+                    move = -1;
+                }
+                else {
+                    move = moves[(int) (Math.random() * nMoves)];
+                }
+            }
+
             if (move == -1) {
                 return state.knownOutcome()
                         .valueFor( fromPov );
             }
             Move.apply(move, state);
+
+            depth++;
         }
         return 0.5;
     }
@@ -61,9 +81,11 @@ public class MctsDeepRolloutImpl
     //--------------------------------------------------------------------
     private int bestMove(State position, MctsHeuristic heuristic)
     {
-        int[] moves  = new int[Move.MAX_PER_PLY];
-        int   nMoves = position.legalMoves(moves);
-        if (nMoves == 0) return -1;
+//        int[] moves  = new int[Move.MAX_PER_PLY];
+        int nMoves = position.legalMoves(moves);
+        if (nMoves == 0) {
+            return -1;
+        }
 
         State    state       = position.prototype();
         int   [] count       = new int   [ nMoves ];
@@ -95,7 +117,7 @@ public class MctsDeepRolloutImpl
         for (int m = 0; m < nMoves; m++) {
             double ev = expectation[ m ] / count[ m ];
             if (ev > maxEv) {
-                maxEv      = ev;
+                maxEv      = ev + Math.random() / 1000;
                 maxEvIndex = m;
             }
         }
@@ -118,10 +140,10 @@ public class MctsDeepRolloutImpl
             int     move;
             boolean madeMove = false;
 
-//            int[] moveOrder = heuristic.orderMoves(
-//                    simState, moves, nMoves);
-//            for (int moveIndex : moveOrder)
-            for (int moveIndex = 0; moveIndex < nMoves; moveIndex++)
+            int[] moveOrder = heuristic.orderMoves(
+                    simState, moves, nMoves);
+            for (int moveIndex : moveOrder)
+//            for (int moveIndex = 0; moveIndex < nMoves; moveIndex++)
             {
                 move = Move.apply(moves[ moveIndex ], simState);
 

@@ -1,6 +1,5 @@
 package ao.chess.v2.engine.mcts;
 
-import ao.chess.v2.engine.mcts.value.Ucb1Value;
 
 /**
  * User: alex
@@ -10,18 +9,21 @@ import ao.chess.v2.engine.mcts.value.Ucb1Value;
 public interface MctsValue<T extends MctsValue<T>>
 {
     //--------------------------------------------------------------------
+    int visits();
+
+
     /**
      * @param winRate [0, 1]
      */
-    public void   update(double winRate);
+    void update(double winRate);
 
-    public double confidenceBound(
+    double confidenceBound(
             T transpositionValue,
             T withRespectToParent);
 
 
     //--------------------------------------------------------------------
-    public static interface Factory<T extends MctsValue<T>> {
-        public T newValue();
+    interface Factory<T extends MctsValue<T>> {
+        T newValue();
     }
 }

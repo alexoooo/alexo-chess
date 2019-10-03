@@ -22,7 +22,7 @@ public enum Figure
 
 
     //--------------------------------------------------------------------
-    private Figure(String symbol)
+    Figure(String symbol)
     {
         SYMBOL = symbol;
     }

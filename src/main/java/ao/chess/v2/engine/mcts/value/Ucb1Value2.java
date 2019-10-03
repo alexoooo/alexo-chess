@@ -32,7 +32,14 @@ public class Ucb1Value2 implements MctsValue<Ucb1Value2>
     }
 
 
+
     //--------------------------------------------------------------------
+    @Override
+    public int visits() {
+        return visits;
+    }
+
+
     private double averageReward() {
         return sum / visits;
     }
@@ -51,10 +58,10 @@ public class Ucb1Value2 implements MctsValue<Ucb1Value2>
     public double confidenceBound(
             Ucb1Value2 transpositionValue,
             Ucb1Value2 withRespectToParent) {
-        return transpositionValue.averageReward() +
-               (visits == 0 ? 0 :
-                  Math.sqrt((2 * Math.log(
-                          withRespectToParent.visits)) / visits));
+        return averageReward() +
+                (visits == 0
+                ? 1000 + Math.random()
+                : 0.1 * Math.sqrt(Math.log(withRespectToParent.visits) / visits));
     }
 
 

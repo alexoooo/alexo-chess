@@ -6,10 +6,14 @@ import ao.chess.v2.engine.mcts.heuristic.MctsHeuristicImpl;
 import ao.chess.v2.engine.mcts.node.MctsNodeImpl;
 import ao.chess.v2.engine.mcts.player.MctsPlayer;
 import ao.chess.v2.engine.mcts.player.MultiMctsPlayer;
+import ao.chess.v2.engine.mcts.rollout.MaterialFallbackRollout;
+import ao.chess.v2.engine.mcts.rollout.MaterialMixedRollout;
+import ao.chess.v2.engine.mcts.rollout.MaterialPureRollout;
 import ao.chess.v2.engine.mcts.rollout.MctsRolloutImpl;
 import ao.chess.v2.engine.mcts.scheduler.MctsSchedulerImpl;
 import ao.chess.v2.engine.mcts.transposition.NullTransTable;
-import ao.chess.v2.engine.mcts.value.Ucb1TunedValue;
+import ao.chess.v2.engine.mcts.value.Ucb1Value;
+import ao.chess.v2.engine.mcts.value.Ucb1Value2;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 
@@ -27,29 +31,102 @@ import java.util.List;
 public class BrainTeaser {
     //--------------------------------------------------------------------
     public static void main(String[] args) {
-        int time = 7 * 24 * 60 * 60 * 1000;
-//        int time = 10 * 60 * 1000;
+//        int time = 7 * 24 * 60 * 60 * 1000;
+        int time = 10 * 60 * 1000;
 
         MctsPlayer mctsPrototype = new MctsPlayer(
                 new MctsNodeImpl.Factory<>(),
-                new Ucb1TunedValue.Factory(),
+                new Ucb1Value.Factory(),
                 new MctsRolloutImpl(false),
-                new Ucb1TunedValue.VisitSelector(),
+                new Ucb1Value.VisitSelector(),
                 new MctsHeuristicImpl(),
                 new NullTransTable<>(),
                 new MctsSchedulerImpl.Factory()
         );
 
-        MctsPlayer mctsCapturePrototype = new MctsPlayer(
+        MctsPlayer mctsFallbackPrototype = new MctsPlayer(
                 new MctsNodeImpl.Factory<>(),
-                new Ucb1TunedValue.Factory(),
-                new MctsRolloutImpl(false),
-                new Ucb1TunedValue.VisitSelector(),
-//                new MctsHeuristicImpl(),
+                new Ucb1Value.Factory(),
+                new MaterialFallbackRollout(new MctsRolloutImpl(false)),
+                new Ucb1Value.VisitSelector(),
+                new MctsHeuristicImpl(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory()
+        );
+
+        MctsPlayer mctsFallbackDeepPrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value2.Factory(),
+                new MaterialFallbackRollout(new MctsRolloutImpl(false)),
+                new Ucb1Value2.VisitSelector(),
                 new MctsCaptureHeuristic(),
                 new NullTransTable<>(),
                 new MctsSchedulerImpl.Factory()
         );
+
+        MctsPlayer mctsMaterialPurePrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value.Factory(),
+                new MaterialPureRollout(),
+                new Ucb1Value.VisitSelector(),
+                new MctsCaptureHeuristic(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory());
+
+        MctsPlayer mctsMaterialPureDeepPrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value2.Factory(),
+                new MaterialPureRollout(),
+                new Ucb1Value2.VisitSelector(),
+                new MctsCaptureHeuristic(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory());
+
+        MctsPlayer mctsMaterialMixedPrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value.Factory(),
+                new MaterialFallbackRollout(new MaterialMixedRollout()),
+                new Ucb1Value.VisitSelector(),
+                new MctsHeuristicImpl(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory());
+
+        MctsPlayer mctsMaterialMixedRandomPrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value.Factory(),
+                new MaterialFallbackRollout(new MaterialMixedRollout(true)),
+                new Ucb1Value.VisitSelector(),
+                new MctsHeuristicImpl(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory());
+
+        MctsPlayer mctsMaterialMixedDeepPrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value2.Factory(),
+                new MaterialFallbackRollout(new MaterialMixedRollout()),
+                new Ucb1Value2.VisitSelector(),
+                new MctsHeuristicImpl(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory());
+
+        MctsPlayer mctsMaterialMixedRandomDeepPrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value2.Factory(),
+                new MaterialFallbackRollout(new MaterialMixedRollout(true)),
+                new Ucb1Value2.VisitSelector(),
+                new MctsHeuristicImpl(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory());
+
+
+//        MctsPlayer player = new MctsPlayer(
+//                new MctsNodeImpl.Factory<>(),
+//                new Ucb1Value2.Factory(),
+//                new MaterialFallbackRollout(new MaterialMixedRollout()),
+//                new Ucb1Value2.VisitSelector(),
+//                new MctsHeuristicImpl(),
+//                new NullTransTable<>(),
+//                new MctsSchedulerImpl.Factory());
 
 //        Player player = new UctPlayer(true);
 //        Player player = new UctPlayer(false);
@@ -114,34 +191,27 @@ public class BrainTeaser {
 //                new MctsSchedulerImpl.Factory()
 //        );
 
-        Player player = new MultiMctsPlayer(List.of(
-                mctsCapturePrototype.prototype(),
-                mctsCapturePrototype.prototype(),
-                mctsPrototype.prototype(),
-                mctsPrototype.prototype(),
-                mctsPrototype.prototype(),
-                mctsPrototype.prototype(),
-                mctsPrototype.prototype(),
-                mctsPrototype.prototype()
-        ));
+//        Player player = new MultiMctsPlayer(List.of(
+//                mctsCapturePrototype.prototype(),
+////                mctsCapturePrototype.prototype(),
+////                mctsPrototype.prototype(),
+//                mctsPrototype.prototype(),
+//                mctsPrototype.prototype(),
+//                mctsPrototype.prototype(),
+//                mctsPrototype.prototype(),
+//                mctsPrototype.prototype()
+//        ));
 
-//        Player player = new MctsPlayer(
-//                new MctsNodeImpl.Factory<UcbTunedValue>(),
-//                new UcbTunedValue.Factory(),
-//                new MctsRolloutImpl(),
-//                new UcbTunedValue.VisitSelector(),
-//                new MctsHeuristicImpl(),
-//                new MctsSchedulerImpl.Factory()
-//        );
-//        Player player = new MctsPlayer(
-//                new MctsNodeImpl.Factory<UcbTuned2Value>(),
-//                new UcbTuned2Value.Factory(),
-//                new MctsRolloutImpl(),
-//                new UcbTuned2Value.VisitSelector(),
-//                new MctsHeuristicImpl(),
-//                new MctsSchedulerImpl.Factory()
-//        );
-//        Player player = new TransPlayer();
+        Player player = new MultiMctsPlayer(List.of(
+                mctsFallbackPrototype.prototype(),
+                mctsFallbackDeepPrototype.prototype(),
+//                mctsMaterialPurePrototype.prototype(),
+//                mctsMaterialPureDeepPrototype.prototype(),
+                mctsMaterialMixedPrototype.prototype(),
+                mctsMaterialMixedRandomPrototype.prototype(),
+                mctsMaterialMixedDeepPrototype.prototype(),
+                mctsMaterialMixedRandomDeepPrototype.prototype()
+        ));
 
         State  state  = State.fromFen(
                 // Travis game

@@ -35,6 +35,13 @@ public class Ucb1TunedValue implements MctsValue<Ucb1TunedValue>
 
 
     //--------------------------------------------------------------------
+    @Override
+    public int visits() {
+        return visits;
+    }
+
+
+    //--------------------------------------------------------------------
     @Override public void update(double winRate)
     {
         sum        += winRate;

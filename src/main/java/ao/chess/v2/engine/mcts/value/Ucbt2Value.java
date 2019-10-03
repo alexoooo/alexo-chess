@@ -34,8 +34,16 @@ public class Ucbt2Value implements MctsValue<Ucbt2Value>
     }
 
 
+
     //--------------------------------------------------------------------
-    @Override public void update(double winRate)
+    @Override
+    public int visits() {
+        return visits;
+    }
+
+
+    @Override
+    public void update(double winRate)
     {
         sum        += winRate;
         sumSquares += winRate * winRate;
@@ -44,8 +52,8 @@ public class Ucbt2Value implements MctsValue<Ucbt2Value>
     }
 
 
-    //--------------------------------------------------------------------
-    @Override public double confidenceBound(
+    @Override
+    public double confidenceBound(
             Ucbt2Value transpositionValue,
             Ucbt2Value withRespectToParent)
     {
@@ -57,6 +65,7 @@ public class Ucbt2Value implements MctsValue<Ucbt2Value>
                     * Math.min(0.25,
                             varianceBound(mean, trials)));
     }
+
 
     private double mean() {
         return sum / visits;

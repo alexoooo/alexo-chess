@@ -1,19 +1,19 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.heuristic.impl.classification.LinearBinarySingular;
-import ao.chess.v2.engine.heuristic.player.HeuristicPlayer;
 import ao.chess.v2.engine.mcts.heuristic.MctsCaptureHeuristic;
 import ao.chess.v2.engine.mcts.heuristic.MctsHeuristicImpl;
 import ao.chess.v2.engine.mcts.node.MctsNodeImpl;
 import ao.chess.v2.engine.mcts.player.MctsPlayer;
 import ao.chess.v2.engine.mcts.player.MultiMctsPlayer;
+import ao.chess.v2.engine.mcts.rollout.MaterialFallbackRollout;
+import ao.chess.v2.engine.mcts.rollout.MaterialMixedRollout;
+import ao.chess.v2.engine.mcts.rollout.MaterialPureRollout;
 import ao.chess.v2.engine.mcts.rollout.MctsRolloutImpl;
 import ao.chess.v2.engine.mcts.scheduler.MctsSchedulerImpl;
 import ao.chess.v2.engine.mcts.transposition.NullTransTable;
-import ao.chess.v2.engine.mcts.value.Ucb1TunedValue;
-import ao.chess.v2.engine.simple.RandomPlayer;
-import ao.chess.v2.engine.simple.SimPlayer;
+import ao.chess.v2.engine.mcts.value.Ucb1Value;
+import ao.chess.v2.engine.mcts.value.Ucb1Value2;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -35,30 +35,105 @@ public class Tournament
     //--------------------------------------------------------------------
     public static void main(String[] args)
     {
-        MctsPlayer mctsProto = new MctsPlayer(
+        MctsPlayer mctsPrototype = new MctsPlayer(
                 new MctsNodeImpl.Factory<>(),
-                new Ucb1TunedValue.Factory(),
+                new Ucb1Value.Factory(),
                 new MctsRolloutImpl(false),
-                new Ucb1TunedValue.VisitSelector(),
+                new Ucb1Value.VisitSelector(),
                 new MctsHeuristicImpl(),
                 new NullTransTable<>(),
-                new MctsSchedulerImpl.Factory());
-        MctsPlayer mctsProtoCapture = new MctsPlayer(
+                new MctsSchedulerImpl.Factory()
+        );
+
+        MctsPlayer mctsFallbackPrototype = new MctsPlayer(
                 new MctsNodeImpl.Factory<>(),
-                new Ucb1TunedValue.Factory(),
-                new MctsRolloutImpl(false),
-                new Ucb1TunedValue.VisitSelector(),
+                new Ucb1Value.Factory(),
+                new MaterialFallbackRollout(new MctsRolloutImpl(false)),
+                new Ucb1Value.VisitSelector(),
+                new MctsHeuristicImpl(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory()
+        );
+
+        MctsPlayer mctsFallbackDeepPrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value2.Factory(),
+                new MaterialFallbackRollout(new MctsRolloutImpl(false)),
+                new Ucb1Value2.VisitSelector(),
+                new MctsCaptureHeuristic(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory()
+        );
+
+        MctsPlayer mctsMaterialPurePrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value.Factory(),
+                new MaterialPureRollout(),
+                new Ucb1Value.VisitSelector(),
                 new MctsCaptureHeuristic(),
                 new NullTransTable<>(),
                 new MctsSchedulerImpl.Factory());
 
+        MctsPlayer mctsMaterialPureDeepPrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value2.Factory(),
+                new MaterialPureRollout(),
+                new Ucb1Value2.VisitSelector(),
+                new MctsCaptureHeuristic(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory());
+
+        MctsPlayer mctsMaterialMixedPrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value.Factory(),
+                new MaterialFallbackRollout(new MaterialMixedRollout()),
+                new Ucb1Value.VisitSelector(),
+                new MctsHeuristicImpl(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory());
+
+        MctsPlayer mctsMaterialMixedRandomPrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value.Factory(),
+                new MaterialFallbackRollout(new MaterialMixedRollout(true)),
+                new Ucb1Value.VisitSelector(),
+                new MctsHeuristicImpl(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory());
+
+        MctsPlayer mctsMaterialMixedDeepPrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value2.Factory(),
+                new MaterialFallbackRollout(new MaterialMixedRollout()),
+                new Ucb1Value2.VisitSelector(),
+                new MctsHeuristicImpl(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory());
+
+        MctsPlayer mctsMaterialMixedRandomDeepPrototype = new MctsPlayer(
+                new MctsNodeImpl.Factory<>(),
+                new Ucb1Value2.Factory(),
+                new MaterialFallbackRollout(new MaterialMixedRollout(true)),
+                new Ucb1Value2.VisitSelector(),
+                new MctsHeuristicImpl(),
+                new NullTransTable<>(),
+                new MctsSchedulerImpl.Factory());
+
         Player a = new MultiMctsPlayer(List.of(
-                mctsProto.prototype(),
-                mctsProto.prototype(),
-                mctsProto.prototype(),
-                mctsProto.prototype(),
-                mctsProto.prototype(),
-                mctsProto.prototype()));
+                mctsPrototype.prototype(),
+                mctsPrototype.prototype(),
+                mctsPrototype.prototype(),
+                mctsPrototype.prototype(),
+                mctsPrototype.prototype(),
+                mctsPrototype.prototype()));
+//        Player a = new MctsPlayer(
+//                new MctsNodeImpl.Factory<>(),
+//                new Ucb1Value2.Factory(),
+//                new MaterialFallbackRollout(new MaterialMixedRollout()),
+//                new Ucb1Value2.VisitSelector(),
+//                new MctsHeuristicImpl(),
+//                new NullTransTable<>(),
+//                new MctsSchedulerImpl.Factory());
 
 //        MctsPlayer a = new MctsPlayer(
 //                new MctsNodeImpl.Factory<>(),
@@ -121,15 +196,24 @@ public class Tournament
 //                mctsProto.prototype(),
 //                mctsProto.prototype(),
 //                mctsProto.prototype()));
+
         Player b = new MultiMctsPlayer(List.of(
-                mctsProtoCapture.prototype(),
-                mctsProtoCapture.prototype(),
-                mctsProto.prototype(),
-                mctsProto.prototype(),
-                mctsProto.prototype(),
-                mctsProto.prototype(),
-                mctsProto.prototype(),
-                mctsProto.prototype()));
+                mctsFallbackPrototype.prototype(),
+                mctsFallbackDeepPrototype.prototype(),
+                mctsMaterialMixedPrototype.prototype(),
+                mctsMaterialMixedRandomPrototype.prototype(),
+                mctsMaterialMixedDeepPrototype.prototype(),
+                mctsMaterialMixedRandomDeepPrototype.prototype()
+        ));
+//        MctsPlayer b = new MctsPlayer(
+//                new MctsNodeImpl.Factory<>(),
+//                new Ucb1Value2.Factory(),
+//                new MaterialPureRollout(),
+//                new Ucb1Value2.VisitSelector(),
+//                new MctsHeuristicImpl(),
+//                new NullTransTable<>(),
+//                new MctsSchedulerImpl.Factory()
+//        );
 
         int aWins = 0;
         int bWins = 0;

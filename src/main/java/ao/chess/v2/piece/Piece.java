@@ -85,9 +85,9 @@ public enum Piece implements BoardPiece
     private final Figure     FIGURE;
     private final BoardPiece MOVES;
 
-    private Piece(Colour     colour,
-                  Figure     figure,
-                  BoardPiece moves)
+    Piece(Colour     colour,
+          Figure     figure,
+          BoardPiece moves)
     {
         COLOUR = colour;
         FIGURE = figure;
@@ -106,6 +106,7 @@ public enum Piece implements BoardPiece
                     pieceLocation, occupied, notOccupied,
                     proponent, notProponent, opponent);
     }
+
 
     public Colour colour()
     {

@@ -9,7 +9,6 @@ import ao.chess.v2.engine.mcts.message.MctsAction;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import ao.util.math.rand.Rand;
-import ao.util.time.Sched;
 import it.unimi.dsi.fastutil.longs.LongLists;
 
 /**
@@ -106,6 +105,7 @@ public class MctsPlayer implements Player
             }
 
             if (count != 0 && count % 10000 == 0) {
+//            if (count != 0 && count % 10 == 0) {
 //                long timer  = System.currentTimeMillis() - lastReport;
 //                long before = System.currentTimeMillis();
 //                Io.display( root );

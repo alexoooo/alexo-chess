@@ -50,6 +50,7 @@ public class MctsNodeImpl<V extends MctsValue<V>>
 
     //--------------------------------------------------------------------
     public boolean isUnvisited() {
+//        return acts == null || value.visits() < 15;
         return acts == null;
     }
 
