@@ -25,7 +25,7 @@ public class MultiMctsPlayer implements Player
     private final List<MctsPlayer> players;
     private final ExecutorService executor;
 
-    private double cumulativeScore = 0;
+//    private double cumulativeScore = 0;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -107,17 +107,19 @@ public class MultiMctsPlayer implements Player
             int[] legalMoves,
             List<MctsNode> rootNodes
     ) {
-        double totalScore = 0;
+//        double totalScore = 0;
+        int totalNodes = 0;
         int minDepth = Integer.MAX_VALUE;
         int maxDepth = 0;
 
         double[][] scores = new double[players.size()][legalMoves.length];
         for (int playerIndex = 0; playerIndex < players.size(); playerIndex++) {
+            MctsNode rootNode = rootNodes.get(playerIndex);
+
             double playerMoveScoreSum = 0;
             for (int moveIndex = 0; moveIndex < legalMoves.length; moveIndex++) {
                 int action = legalMoves[moveIndex];
 
-                MctsNode rootNode = rootNodes.get(playerIndex);
                 MctsNode actionNode = rootNode.childMatching(action);
 
                 int playerMinDepth = actionNode.minDepth();
@@ -138,7 +140,8 @@ public class MultiMctsPlayer implements Player
                 }
             }
 
-            totalScore += playerMoveScoreSum;
+//            totalScore += playerMoveScoreSum;
+            totalNodes += rootNode.nodeCount();
         }
 
         double maxMoveScore = 0;
@@ -153,17 +156,20 @@ public class MultiMctsPlayer implements Player
                 maxMoveScore = moveScoreSum;
                 maxMoveIndex = moveIndex;
             }
+
+//            System.out.println(" > " +
+//                    (moveScoreSum / players.size()) + " | " + Move.toString(legalMoves[moveIndex]));
         }
 
         int bestMove = legalMoves[maxMoveIndex];
 
-        cumulativeScore += totalScore;
+//        cumulativeScore += totalScore;
         String message = String.format(
 //                "threads %d | positions %,d | max move %,d | cumulative %,d | depth %d - %d | %s",
-                "threads %d | positions %,d | max move %.2f | depth %d - %d | %s",
+                "threads %d | nodes %,d | confidence %.2f | depth %d - %d | %s",
                 players.size(),
-                (int) totalScore,
-                maxMoveScore,
+                totalNodes,
+                (maxMoveScore / players.size()) * 100,
 //                (long) cumulativeScore,
                 minDepth,
                 maxDepth,

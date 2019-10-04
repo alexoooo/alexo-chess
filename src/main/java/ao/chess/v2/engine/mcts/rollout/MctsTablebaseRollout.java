@@ -31,6 +31,13 @@ public class MctsTablebaseRollout
 
 
     //--------------------------------------------------------------------
+    @Override
+    public MctsRollout prototype() {
+        return this;
+    }
+
+
+    //--------------------------------------------------------------------
     @Override public double monteCarloPlayout(
             State fromState, MctsHeuristic heuristic)
     {

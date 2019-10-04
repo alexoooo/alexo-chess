@@ -1,11 +1,16 @@
 package ao.chess.v2.engine.mcts.rollout;
 
+import ao.chess.v1.util.Io;
+import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
+import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
+import ao.chess.v2.engine.heuristic.material.MaterialEvaluation;
 import ao.chess.v2.engine.mcts.MctsHeuristic;
 import ao.chess.v2.engine.mcts.MctsRollout;
+import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
-import ao.chess.v2.piece.Colour;
+import ao.util.math.rand.Rand;
 
 /**
  * User: alex
@@ -26,8 +31,8 @@ public class MctsRolloutImpl
     private final int     nSims;
     private final boolean opt;
 
-//    private int[]   nextMoves = new int[ Move.MAX_PER_PLY ];
-//    private int[]   moves     = new int[ Move.MAX_PER_PLY ];
+    private int[] nextMoves = new int[ Move.MAX_PER_PLY ];
+    private int[] moves = new int[ Move.MAX_PER_PLY ];
 
 
     //--------------------------------------------------------------------
@@ -40,6 +45,13 @@ public class MctsRolloutImpl
     {
         nSims = accuracy;
         opt   = optimize;
+    }
+
+
+    //--------------------------------------------------------------------
+    @Override
+    public MctsRollout prototype() {
+        return new MctsRolloutImpl(nSims, opt);
     }
 
 
@@ -66,14 +78,16 @@ public class MctsRolloutImpl
         Colour  pov       = fromState.nextToAct();
         State   simState  = fromState;
         int     nextCount = 0;
-        int[]   nextMoves = new int[ Move.MAX_PER_PLY ];
-        int[]   moves     = new int[ Move.MAX_PER_PLY ];
         int     nMoves    = simState.moves(moves);
         Outcome outcome   = null;
 
         boolean wasDrawnBy50MovesRule = false;
         do
         {
+            if (opt && simState.pieceCount() <= 5) {
+                return oracleValue(simState, pov, moves, nMoves);
+            }
+
 //            if (! Representation.unpackStream(
 //                    Representation.packStream(
 //                            simState)).equals( simState )) {
@@ -87,7 +101,6 @@ public class MctsRolloutImpl
             int[] moveOrder = heuristic.orderMoves(
                     simState, moves, nMoves);
             for (int moveIndex : moveOrder)
-//            for (int moveIndex = 0; moveIndex < nMoves; moveIndex++)
             {
                 move = Move.apply(moves[ moveIndex ], simState);
 
@@ -118,7 +131,12 @@ public class MctsRolloutImpl
         while (! (wasDrawnBy50MovesRule =
                     simState.isDrawnBy50MovesRule()));
         if (wasDrawnBy50MovesRule) {
-            outcome = Outcome.DRAW;
+            if (opt) {
+                return MaterialEvaluation.evaluate(simState, pov);
+            }
+            else {
+                outcome = Outcome.DRAW;
+            }
         }
 
 //        if (opt) {
@@ -128,5 +146,49 @@ public class MctsRolloutImpl
         return outcome == null
                ? Double.NaN
                : outcome.valueFor( pov );
+    }
+
+
+    private double oracleValue(
+            State from,
+            Colour pov,
+            int[] moves,
+            int nMoves
+    ) {
+        boolean canDraw     = false;
+        int     bestOutcome = 0;
+        int     bestMove    = -1;
+        for (int legalMove : from.legalMoves()) {
+            Move.apply(legalMove, from);
+            DeepOutcome outcome = DeepOracle.INSTANCE.see(from);
+            Move.unApply(legalMove, from);
+            if (outcome == null || outcome.isDraw()) {
+                canDraw = true;
+                continue;
+            }
+
+            if (outcome.outcome().winner() == from.nextToAct()) {
+                if (bestOutcome <= 0 ||
+                        bestOutcome > outcome.plyDistance() ||
+                        (bestOutcome == outcome.plyDistance() &&
+                                Rand.nextBoolean())) {
+                    Io.display(outcome.outcome() + " in " +
+                            outcome.plyDistance() + " with " +
+                            Move.toString(legalMove));
+                    bestOutcome = outcome.plyDistance();
+                    bestMove    = legalMove;
+                }
+            } else if (! canDraw && bestOutcome <= 0
+                    && bestOutcome > -outcome.plyDistance()) {
+                Io.display(outcome.outcome() + " in " +
+                        outcome.plyDistance() + " with " +
+                        Move.toString(legalMove));
+                bestOutcome = -outcome.plyDistance();
+                bestMove    = legalMove;
+            }
+        }
+
+        return (bestOutcome <= 0 && canDraw)
+                ? -1 : bestMove;
     }
 }

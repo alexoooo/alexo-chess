@@ -8,11 +8,20 @@ import ao.chess.v2.state.State;
 
 
 public class MaterialFallbackRollout implements MctsRollout {
+    private static final double epsilon = 0.000_001;
+
     private final MctsRollout delegate;
 
 
     public MaterialFallbackRollout(MctsRollout delegate) {
         this.delegate = delegate;
+    }
+
+
+    @Override
+    public MctsRollout prototype() {
+        return new MaterialFallbackRollout(
+                delegate.prototype());
     }
 
 
@@ -23,7 +32,7 @@ public class MaterialFallbackRollout implements MctsRollout {
     ) {
         double value = delegate.monteCarloPlayout(fromState, heuristitc);
 
-        return value != 0.5
+        return Math.abs(value - 0.5) < epsilon
                 ? value
                 : MaterialEvaluation.evaluate(fromState);
     }

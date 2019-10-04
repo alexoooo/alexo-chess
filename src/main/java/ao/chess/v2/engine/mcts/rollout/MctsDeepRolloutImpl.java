@@ -41,6 +41,12 @@ public class MctsDeepRolloutImpl
     }
 
 
+    @Override
+    public MctsRollout prototype() {
+        return new MctsDeepRolloutImpl(nSims);
+    }
+
+
     //--------------------------------------------------------------------
     @Override public double monteCarloPlayout(
             State position, MctsHeuristic heuristic)

@@ -27,6 +27,10 @@ public class MctsPlayer implements Player
     private final MctsScheduler.Factory schedulers;
     private final TranspositionTable    transTable;
 
+    private final String name;
+
+    private final int[] moves  = new int[ Move.MAX_PER_PLY ];
+
     private State              prevState = null;
     private MctsNode           prevPlay  = null;
 
@@ -34,14 +38,35 @@ public class MctsPlayer implements Player
 
 
     //--------------------------------------------------------------------
-    public <V extends MctsValue<V>>
-            MctsPlayer(MctsNode.Factory<V>   nodeFactory,
-                       MctsValue.Factory<V>  valueFactory,
-                       MctsRollout           rollOutInstance,
-                       MctsSelector<V>       selectorInstance,
-                       MctsHeuristic         heuristicInstance,
-                       TranspositionTable<V> transpositionTable,
-                       MctsScheduler.Factory schedulerFactory)
+    public <V extends MctsValue<V>> MctsPlayer(
+            MctsNode.Factory<V>   nodeFactory,
+            MctsValue.Factory<V>  valueFactory,
+            MctsRollout           rollOutInstance,
+            MctsSelector<V>       selectorInstance,
+            MctsHeuristic         heuristicInstance,
+            TranspositionTable<V> transpositionTable,
+            MctsScheduler.Factory schedulerFactory)
+    {
+        this(nodeFactory,
+                valueFactory,
+                rollOutInstance,
+                selectorInstance,
+                heuristicInstance,
+                transpositionTable,
+                schedulerFactory,
+                "");
+    }
+
+
+    public <V extends MctsValue<V>> MctsPlayer(
+            MctsNode.Factory<V>   nodeFactory,
+            MctsValue.Factory<V>  valueFactory,
+            MctsRollout           rollOutInstance,
+            MctsSelector<V>       selectorInstance,
+            MctsHeuristic         heuristicInstance,
+            TranspositionTable<V> transpositionTable,
+            MctsScheduler.Factory schedulerFactory,
+            String name)
     {
         nodes       = nodeFactory;
         values      = valueFactory;
@@ -50,12 +75,22 @@ public class MctsPlayer implements Player
         heuristics  = heuristicInstance;
         transTable  = transpositionTable;
         schedulers  = schedulerFactory;
+
+        this.name = name;
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
     public MctsPlayer prototype() {
-        return new MctsPlayer(nodes, values, rollouts, sellectors, heuristics, transTable, schedulers);
+        return new MctsPlayer(
+                nodes,
+                values,
+                rollouts.prototype(),
+                sellectors,
+                heuristics,
+                transTable,
+                schedulers,
+                name);
     }
 
 
@@ -160,7 +195,8 @@ public class MctsPlayer implements Player
             transTable.retain( LongLists.EMPTY_LIST );
         }
         else {
-            Io.display("Recycling " + root);
+            MctsAction act = root.bestMove(sellectors);
+            Io.display( "Recycling " + root + " | " + (act == null ? "" : act.information()) + " | " + name);
         }
 
         int count = 0;
@@ -270,8 +306,7 @@ public class MctsPlayer implements Player
     //--------------------------------------------------------------------
     private int action(State from, State to)
     {
-        int[] moves  = new int[ Move.MAX_PER_PLY ];
-        int   nMoves = from.moves( moves );
+        int nMoves = from.moves( moves );
 
         for (int i = 0; i < nMoves; i++) {
             int move = Move.apply(moves[i], from);

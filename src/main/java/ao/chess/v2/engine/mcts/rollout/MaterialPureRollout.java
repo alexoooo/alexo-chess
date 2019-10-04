@@ -8,6 +8,12 @@ import ao.chess.v2.state.State;
 
 public class MaterialPureRollout implements MctsRollout {
     @Override
+    public MctsRollout prototype() {
+        return this;
+    }
+
+
+    @Override
     public double monteCarloPlayout(
             State fromState,
             MctsHeuristic heuristitc

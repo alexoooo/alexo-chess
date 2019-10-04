@@ -29,6 +29,13 @@ public enum MaterialEvaluation {
     public static double evaluate(
             State state
     ) {
+        return evaluate(state, state.nextToAct());
+    }
+
+    public static double evaluate(
+            State state,
+            Colour nextToAct
+    ) {
         double whiteSum = 0;
         double blackSum = 0;
 
@@ -53,7 +60,7 @@ public enum MaterialEvaluation {
         }
 
         double materialSum =
-                state.nextToAct() == Colour.WHITE
+                nextToAct == Colour.WHITE
                 ? whiteSum - blackSum
                 : blackSum - whiteSum;
 

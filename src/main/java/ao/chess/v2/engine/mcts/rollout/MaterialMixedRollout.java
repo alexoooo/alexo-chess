@@ -29,6 +29,13 @@ public class MaterialMixedRollout implements MctsRollout {
 
 
     //--------------------------------------------------------------------
+    @Override
+    public MctsRollout prototype() {
+        return new MaterialMixedRollout(opt);
+    }
+
+
+    //--------------------------------------------------------------------
     @Override public double monteCarloPlayout(
             State position, MctsHeuristic heuristic)
     {
@@ -44,7 +51,7 @@ public class MaterialMixedRollout implements MctsRollout {
             }
             Move.apply(move, state);
         }
-        return 0.5;
+        return MaterialEvaluation.evaluate(state);
     }
 
 

@@ -274,6 +274,9 @@ public class Move
     public static boolean isPromotion(int move) {
         return promotion(move) != 0;
     }
+    public static boolean isMobility(int move) {
+        return moveType(move) == MoveType.MOBILITY;
+    }
 
 
     //--------------------------------------------------------------------

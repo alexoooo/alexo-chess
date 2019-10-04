@@ -33,9 +33,9 @@ public class MctsNodeImpl<V extends MctsValue<V>>
 
 
     //--------------------------------------------------------------------
-    private V                 value;
+    private V                 value; // TODO: inline to save memory
     private long              stateHash;
-    private int[]             acts;
+    private int[]             acts; // TODO: externalize to save memory
     private MctsNodeImpl<V>[] kids;
 
 
@@ -50,7 +50,7 @@ public class MctsNodeImpl<V extends MctsValue<V>>
 
     //--------------------------------------------------------------------
     public boolean isUnvisited() {
-//        return acts == null || value.visits() < 15;
+//        return acts == null || value.visits() < 1024;
         return acts == null;
     }
 
@@ -185,6 +185,11 @@ public class MctsNodeImpl<V extends MctsValue<V>>
                 bestAct = acts[i];
             }
         }
+
+        if (bestKid == null) {
+            return null;
+        }
+
         return new MctsAction<V>(bestAct, bestKid);
     }
 

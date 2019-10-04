@@ -9,10 +9,11 @@ import ao.chess.v2.state.State;
  */
 public interface MctsRollout
 {
+    MctsRollout prototype();
+
     //--------------------------------------------------------------------
     double monteCarloPlayout(
             State fromState, MctsHeuristic heuristitc);
-
 
     //--------------------------------------------------------------------
 //    public static interface Factory {

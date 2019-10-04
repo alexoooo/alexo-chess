@@ -4,7 +4,6 @@ import ao.chess.v2.test.bandit.Bandit;
 import ao.chess.v2.test.bandit.Gambler;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 
 /**
@@ -42,20 +41,18 @@ public class MucbtGambler implements Gambler
     //--------------------------------------------------------------------
     @Override public void play()
     {
-        Arrays.sort(inWinrateOrder, new Comparator<Integer>() {
-            @Override public int compare(Integer a, Integer b) {
-                double meanA =
-                        (invocations[a] == 0)
-                        ? Double.NEGATIVE_INFINITY
-                        : (rewardSum[a] / invocations[a]);
+        Arrays.sort(inWinrateOrder, (a, b) -> {
+            double meanA =
+                    (invocations[a] == 0)
+                    ? Double.NEGATIVE_INFINITY
+                    : (rewardSum[a] / invocations[a]);
 
-                double meanB =
-                        (invocations[b] == 0)
-                        ? Double.NEGATIVE_INFINITY
-                        : (rewardSum[b] / invocations[b]);
+            double meanB =
+                    (invocations[b] == 0)
+                    ? Double.NEGATIVE_INFINITY
+                    : (rewardSum[b] / invocations[b]);
 
-                return Double.compare(meanB, meanA); // descending
-            }
+            return Double.compare(meanB, meanA); // descending
         });
 
         int nextArmIndex = -1;
