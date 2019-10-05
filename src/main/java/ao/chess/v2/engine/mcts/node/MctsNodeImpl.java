@@ -310,8 +310,7 @@ public class MctsNodeImpl<V extends MctsValue<V>>
     //--------------------------------------------------------------------
     @Override
     public String toString() {
-        return //size()       + " | " +
-               uniqueSize() + " | " +
+        return nodeCount()       + " | " +
                maxDepth()   + " | " +
                value.toString();
     }

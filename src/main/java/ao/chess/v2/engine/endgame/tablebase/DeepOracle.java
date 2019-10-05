@@ -46,7 +46,7 @@ public class DeepOracle
 
     //--------------------------------------------------------------------
     public static final DeepOracle INSTANCE =
-            new DeepOracle(4);
+            new DeepOracle(3);
 
 
     //--------------------------------------------------------------------

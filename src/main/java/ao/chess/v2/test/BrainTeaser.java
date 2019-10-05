@@ -20,8 +20,8 @@ import java.util.List;
 public class BrainTeaser {
     //--------------------------------------------------------------------
     public static void main(String[] args) {
-        int time = 7 * 24 * 60 * 60 * 1000;
-//        int time = 10 * 60 * 1000;
+//        int time = 7 * 24 * 60 * 60 * 1000;
+        int time = 10 * 60 * 1000;
 
 //        Player player = new MultiMctsPlayer(List.of(
 //                mctsCapturePrototype.prototype(),
@@ -45,22 +45,88 @@ public class BrainTeaser {
 //                mctsMaterialMixedRandomDeepPrototype.prototype()
 //        ));
         Player player = new MultiMctsPlayer(List.of(
-//                MctsPrototypes.mctsFallbackOptPrototype.prototype(),
-//                MctsPrototypes.mctsFallbackOpt2Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackOpt4Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackOpt8Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackOpt16Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt32Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt64Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt128Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt256Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt512Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt1024Prototype.prototype()
+                MctsPrototypes.mctsFallbackOptPrototype.prototype(),
+                MctsPrototypes.mctsFallbackOpt2Prototype.prototype(),
+                MctsPrototypes.mctsFallbackOpt4Prototype.prototype(),
+                MctsPrototypes.mctsFallbackOpt8Prototype.prototype(),
+                MctsPrototypes.mctsFallbackOpt16Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt32Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt64Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt128Prototype.prototype(),
+//                MctsPrototypes.mctsMaterialMixedPrototype.prototype(),
+                MctsPrototypes.mctsMaterialMixedRandomPrototype.prototype(),
+                MctsPrototypes.mctsMaterialMixedRandomPrototype.prototype(),
+                MctsPrototypes.mctsMaterialMixedRandomPrototype.prototype()
+//                MctsPrototypes.mctsMaterialMixedDeepPrototype.prototype()
+//                MctsPrototypes.mctsFallbackOpt256Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt512Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt1024Prototype.prototype()
         ));
 
         State  state  = State.fromFen(
                 // Travis game
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
+                // Mable game (white)
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1"
+//                "rnbqkbnr/1ppppppp/p7/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/1ppppppp/p7/8/3P4/2P5/PP2PPPP/RNBQKBNR b KQkq - 0 1"
+//                "rnbqkbnr/1pppp1pp/p7/5p2/3P4/2P5/PP2PPPP/RNBQKBNR w KQkq f6 0 1"
+//                "rnbqkbnr/1pppp1pp/p7/5p2/3P4/2P5/PP1NPPPP/R1BQKBNR b KQkq - 0 1"
+//                "rnbqkbnr/2ppp1pp/p7/1p3p2/3P4/2P2P2/PP1NP1PP/R1BQKBNR b KQkq - 0 1"
+//                "rnbqkbnr/2ppp1pp/p7/1p6/3P1p2/2P2P2/PP1NP1PP/R1BQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/2ppp1pp/p7/1p6/3PNp2/2P2P2/PP2P1PP/R1BQKBNR b KQkq - 0 1"
+//                "rnbqkbnr/2ppp1p1/p6p/1p6/3PNp2/2P2P2/PP2P1PP/R1BQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/2ppp1p1/p6p/1p6/3PNB2/2P2P2/PP2P1PP/R2QKBNR b KQkq - 0 1"
+//                "rn1qkbnr/1bppp1p1/p6p/1p6/3PNB2/2P2P2/PP2P1PP/R2QKBNR w KQkq - 0 1"
+//                "rn1qkbnr/1bppp1p1/p6p/1p6/3PNB2/2P2P2/PP2P1PP/RQ2KBNR b KQkq - 0 1"
+//                "rn1qkbnr/2ppp1p1/p6p/1p6/3PbB2/2P2P2/PP2P1PP/RQ2KBNR w KQkq - 0 1"
+//                "rn1qkbnr/2ppp1p1/p6p/1p6/3PQB2/2P2P2/PP2P1PP/R3KBNR b KQkq - 0 1"
+//                "rn1qkbnr/2p1p1p1/p6p/1p1p4/3PQB2/2P2P2/PP2P1PP/R3KBNR w KQkq d6 0 1"
+//                "rn1qkbnr/2p1p1p1/p5Qp/1p1p4/3P1B2/2P2P2/PP2P1PP/R3KBNR b KQkq - 0 1"
+//                "rn1q1bnr/2pkp1p1/p6p/1p1p1Q2/3P1B2/2P2P2/PP2P1PP/R3KBNR b KQ - 2 2"
+//                "rn1q1bnr/2pk2p1/p3p2p/1p1p1Q2/3P1B2/2P2P2/PP2P1PP/R3KBNR w KQ - 2 2"
+//                "rn1q1bnr/2pk1Qp1/p3p2p/1p1p4/3P1B2/2P2P2/PP2P1PP/R3KBNR b KQ - 2 2"
+//                "rn3bnr/2pkqQp1/p3p2p/1p1p4/3P1B2/2P2P2/PP2P1PP/R3KBNR w KQ - 2 2"
+//                "rn3bnr/2pkq1p1/p3p1Qp/1p1p4/3P1B2/2P2P2/PP2P1PP/R3KBNR b KQ - 2 2"
+//                "rn3bnr/2pk2p1/p3p1Qp/1p1p4/3P1B1q/2P2P2/PP2P1PP/R3KBNR w KQ - 2 2"
+//                "rn3bnr/2pk2p1/p3p1Qp/1p1p4/3P1B1q/2P2PP1/PP2P2P/R3KBNR b KQ - 2 2"
+//                "rn3bnr/2pk2p1/p3p1Qp/1p1p4/3P1q2/2P2PP1/PP2P2P/R3KBNR w KQ - 2 2"
+//                "rn3bnr/2pk2p1/p3p1Qp/1p1p4/3P1P2/2P2P2/PP2P2P/R3KBNR b KQ - 2 2"
+//                "rn3b1r/2pkn1p1/p3p1Qp/1p1p4/3P1P2/2P2P2/PP2P2P/R3KBNR w KQ - 2 2"
+//                "rn3b1r/2pknQp1/p3p2p/1p1p4/3P1P2/2P2P2/PP2P2P/R3KBNR b KQ - 2 2"
+//                "rn3b1r/2p1nQp1/p2kp2p/1p1p4/3P1P2/2P2P2/PP2P2P/R3KBNR w KQ - 2 2"
+//                "rn3b1r/2p1nQp1/p2kp2p/1p1p4/3P1P2/2P2P1B/PP2P2P/R3K1NR b KQ - 2 2"
+//                "rn3b1r/2p1nQp1/p1k1p2p/1p1p4/3P1P2/2P2P1B/PP2P2P/R3K1NR w KQ - 2 2"
+//                "rn3b1r/2p1nQp1/p1k1B2p/1p1p4/3P1P2/2P2P2/PP2P2P/R3K1NR b KQ - 2 2"
+//                "rn3b1r/2p1nQp1/pk2B2p/1p1p4/3P1P2/2P2P2/PP2P2P/R3K1NR w KQ - 2 2"
+//                "rn3b1r/2p1nQp1/pk2B2p/1p1p4/3P1P2/2P2P2/PP2P2P/2KR2NR b - - 3 2"
+//                "rn3b1r/4nQp1/pkp1B2p/1p1p4/3P1P2/2P2P2/PP2P2P/2KR2NR w - - 3 2"
+//                "rn3b1r/4nQp1/pkp1B2p/1p1p1P2/3P4/2P2P2/PP2P2P/2KR2NR b - - 3 2"
+//                "rn3b1r/4nQ2/pkp1B2p/1p1p1Pp1/3P4/2P2P2/PP2P2P/2KR2NR w - g6 3 2"
+//                "rn3b1r/4nQ2/pkp1BP1p/1p1p2p1/3P4/2P2P2/PP2P2P/2KR2NR b - - 3 2"
+//                "rn3b1r/4nQ2/p1p1BP1p/kp1p2p1/3P4/2P2P2/PP2P2P/2KR2NR w - - 3 2"
+//                "rn3b1r/4PQ2/p1p1B2p/kp1p2p1/3P4/2P2P2/PP2P2P/2KR2NR b - - 3 2"
+//                "rn5r/4bQ2/p1p1B2p/kp1p2p1/3P4/2P2P2/PP2P2P/2KR2NR w - - 3 2"
+//                "rn5r/4Q3/p1p1B2p/kp1p2p1/3P4/2P2P2/PP2P2P/2KR2NR b - - 3 2"
+//                "rn5r/4Q3/p3B2p/kppp2p1/3P4/2P2P2/PP2P2P/2KR2NR w - - 3 2"
+//                "rn5r/4Q3/p6p/kppB2p1/3P4/2P2P2/PP2P2P/2KR2NR b - - 3 2"
+//                "rn5r/4Q3/p6p/1ppB2p1/k2P4/2P2P2/PP2P2P/2KR2NR w - - 3 2"
+//                "rn5r/4Q3/p6p/1ppB2p1/k2P4/1PP2P2/P3P2P/2KR2NR b - - 3 2"
+//                "rn5r/4Q3/p6p/1ppB2p1/3P4/kPP2P2/P3P2P/2KR2NR w - - 3 2"
+//                "Bn5r/4Q3/p6p/1pp3p1/3P4/kPP2P2/P3P2P/2KR2NR b - - 3 2"
+//                "Bn5r/4Q3/p6p/1pp3p1/3P4/1PP2P2/k3P2P/2KR2NR w - - 3 2"
+//                "Bn5r/Q7/p6p/1pp3p1/3P4/1PP2P2/k3P2P/2KR2NR b - - 3 2"
+//                "Bn5r/Q7/p6p/1p4p1/3p4/1PP2P2/k3P2P/2KR2NR w - - 3 2"
+//                "n6r/8/p6p/1p4p1/3Q4/1PP2P2/k3P2P/2KR2NR b - - 4 3"
+//                "n3r3/8/p6p/1p4p1/3Q4/1PP2P2/k3P2P/2KR2NR w - - 4 3"
+//                "n3r3/8/p6p/1p4p1/1P1Q4/2P2P2/k3P2P/2KR2NR b - - 4 3"
+//                "n3r3/8/p6p/1p4p1/1P1Q4/k1P2P2/4P2P/2KR2NR w - - 4 3"
+//                "n3r3/8/p6p/1p4p1/1P1QP3/k1P2P2/7P/2KR2NR b - e3 4 3"
+//                "4r3/8/pn5p/1p4p1/1P1QP3/k1P2P2/7P/2KR2NR w - - 4 3"
+//                "4r3/8/pQ5p/1p4p1/1P2P3/k1P2P2/7P/2KR2NR b - - 4 3"
+                "4r3/8/1Q5p/pp4p1/1P2P3/k1P2P2/7P/2KR2NR w - - 4 3"
 
                 // endgame test
 //                "8/8/8/k7/8/8/3R4/7K w "
@@ -94,7 +160,7 @@ public class BrainTeaser {
 
                 // easy
 //                "1rbq1rk1/p1b1nppp/1p2p3/8/1B1pN3/P2B4/1P3PPP/2RQ1R1K w" // bm Nf6+ (325,000)
-                "7k/5K2/5P1p/3p4/6P1/3p4/8/8 w" // bm g5 (+100,000 -2250000)
+//                "7k/5K2/5P1p/3p4/6P1/3p4/8/8 w" // bm g5 (+100,000 -2250000)
 //                "8/6B1/p5p1/Pp4kp/1P5r/5P1Q/4q1PK/8 w" // bm Qxh4 (1,825,000)
 
                 // mid

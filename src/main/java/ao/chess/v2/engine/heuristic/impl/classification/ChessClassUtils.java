@@ -22,7 +22,7 @@ public class ChessClassUtils
     public static RealList encodeByMaterial(State state)
     {
         double[] coding = new double[
-                2 * state.pieceCount() + 1 + 1 ];
+                2 * state.pieceCount() + 4 ];
 
         // bias
         coding[ coding.length - 1 ] = 1;
@@ -30,6 +30,9 @@ public class ChessClassUtils
         // next-to-act
         coding[ coding.length - 2 ] = AiModelUtils.sgn(
                 state.nextToAct() == Colour.WHITE);
+
+        coding[ coding.length - 3 ] = state.reversibleMoves();
+        coding[ coding.length - 4 ] = state.enPassantFile();
 
         int nextIndex = 0;
         for (BoardLocation orderedLocation : state.material().keySet())

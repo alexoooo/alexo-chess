@@ -2,6 +2,7 @@ package ao.chess.v2.state;
 
 import ao.chess.v2.piece.Colour;
 
+
 /**
  * User: alexo
  * Date: Feb 22, 2009
@@ -13,6 +14,8 @@ public enum Outcome
     DRAW,
     WHITE_WINS,
     BLACK_WINS;
+
+    public static final Outcome[] values = values();
 
 
     //--------------------------------------------------------------------

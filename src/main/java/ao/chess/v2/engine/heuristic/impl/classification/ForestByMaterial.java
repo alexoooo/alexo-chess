@@ -1,10 +1,8 @@
 package ao.chess.v2.engine.heuristic.impl.classification;
 
-import ao.ai.classify.linear.PassiveAggressive;
-import ao.ai.ml.model.algo.OnlineBinaryScoreLearner;
-import ao.ai.ml.model.input.RealList;
-import ao.ai.ml.model.output.BinaryClass;
-import ao.ai.ml.model.output.BinaryScoreClass;
+
+import ao.ai.classify.online.forest.OnlineRandomForest;
+import ao.ai.ml.model.output.MultiClass;
 import ao.chess.v2.engine.heuristic.MoveHeuristic;
 import ao.chess.v2.engine.run.Config;
 import ao.chess.v2.piece.Piece;
@@ -21,28 +19,24 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.Serializable;
 
-/**
- * User: AO
- * Date: Oct 16, 2010
- * Time: 8:46:56 PM
- */
-public class LinearByMaterial
+
+public class ForestByMaterial
         implements MoveHeuristic, Serializable
 {
     //--------------------------------------------------------------------
-    private static final long serialVersionUID = 2010 * 10 * 31;
+    private static final long serialVersionUID = 2019_10_05;
 
     private static final Logger LOG =
-            Logger.getLogger(LinearByMaterial.class);
+            Logger.getLogger(ForestByMaterial.class);
 
     private static final File dir = Config.dir(
-            "lookup/heuristic/linear-mat-pa");
+            "lookup/heuristic/forest-mat-pa");
 
 
     //------------------------------------------------------------------------
     private final String id;
 
-    private final Int2ObjectMap<OnlineBinaryScoreLearner<RealList>>
+    private final Int2ObjectMap<OnlineRandomForest>
             materialToLearner;
 
     private final Int2ObjectMap<Multiset<Piece>>
@@ -50,22 +44,21 @@ public class LinearByMaterial
 
 
     //------------------------------------------------------------------------
-    public LinearByMaterial(String id)
+    public ForestByMaterial(String id)
     {
         this.id = id;
 
-        Int2ObjectMap<OnlineBinaryScoreLearner<RealList>> rememberedLearners
+        Int2ObjectMap<OnlineRandomForest> rememberedLearners
                 = PersistentObjects.retrieve( new File(dir, id) );
 
         materialToLearner = ((rememberedLearners == null)
-                   ? new Int2ObjectOpenHashMap
-                            <OnlineBinaryScoreLearner<RealList>>()
-                   : rememberedLearners);
+                ? new Int2ObjectOpenHashMap<>()
+                : rememberedLearners);
     }
 
-    private OnlineBinaryScoreLearner<RealList> newLearner()
+    private OnlineRandomForest newLearner()
     {
-        return new PassiveAggressive();
+        return new OnlineRandomForest();
     }
 
 
@@ -75,14 +68,21 @@ public class LinearByMaterial
     {
         int undo = Move.apply( move, state );
 
-        OnlineBinaryScoreLearner<RealList> learner = lookup(state);
+        OnlineRandomForest learner = lookup(
+                state);
 
-        BinaryScoreClass classification =
+        MultiClass classification =
                 learner.classify(ChessClassUtils.encodeByMaterial(state));
 
         Move.unApply(undo, state);
 
-        return classification.positiveScore();
+        Outcome outcome = Outcome.values[classification.best()];
+
+        return outcome == Outcome.DRAW
+                ? 0.5
+                : outcome.winner() == state.nextToAct()
+                ? 1
+                : 0;
     }
 
 
@@ -92,24 +92,23 @@ public class LinearByMaterial
     {
         int undo = Move.apply( move, fromState );
 
-        OnlineBinaryScoreLearner<RealList> learner = lookup(
+        OnlineRandomForest learner = lookup(
                 fromState);
 
         learner.learn(
                 ChessClassUtils.encodeByMaterial(fromState),
-                BinaryClass.create(outcome.winner() ==
-                        fromState.nextToAct().invert()));
+                MultiClass.create(outcome.ordinal()));
 
         Move.unApply(undo, fromState);
     }
 
 
     //------------------------------------------------------------------------
-    private OnlineBinaryScoreLearner<RealList> lookup(State state)
+    private OnlineRandomForest lookup(State state)
     {
         int tally = state.tallyAllMaterial();
 
-        OnlineBinaryScoreLearner<RealList> learner =
+        OnlineRandomForest learner =
                 materialToLearner.get(tally);
 
         Multiset<Piece> pieceMultiset =
@@ -156,6 +155,6 @@ public class LinearByMaterial
     @Override
     public String toString()
     {
-        return "LinearByMaterial: " + materialToLearner.size();
+        return "ForestByMaterial: " + materialToLearner.size();
     }
 }

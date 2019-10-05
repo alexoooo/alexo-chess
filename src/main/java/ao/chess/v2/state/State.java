@@ -1030,8 +1030,12 @@ public class State
         material(locationToPiece, bPieces, Colour.BLACK);
         return locationToPiece;
     }
-    private void material(Map<BoardLocation, Piece> addTo,
-                          long[] pieces, Colour col) {
+
+    private void material(
+            Map<BoardLocation, Piece> addTo,
+            long[] pieces,
+            Colour col
+    ) {
         for (Figure f : Figure.VALUES) {
             long bb = pieces[ f.ordinal() ];
             while (bb != 0) {

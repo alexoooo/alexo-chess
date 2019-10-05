@@ -38,6 +38,7 @@ public class HeuristicTrainer
 //        MoveHeuristic heuristic = DoubleWinTally.retrieve(id);
 //        MoveHeuristic heuristic = ClassByMove.retrieve(id);
         MoveHeuristic heuristic = new LinearByMaterial( id );
+//        MoveHeuristic heuristic = new ForestByMaterial( id );
         Stopwatch     timer     = new Stopwatch();
 
         System.out.println("Starting with: " + heuristic);
@@ -57,8 +58,8 @@ public class HeuristicTrainer
         System.out.println("Self-training");
         for (int i = 0; i < Integer.MAX_VALUE; i++)
         {
-//            trainingRound( heuristic, false );
-            trainingRound( heuristic, true );
+            trainingRound( heuristic, false );
+//            trainingRound( heuristic, true );
 
             if ((i + 1) % 1000 == 0) {
                 System.out.println((i + 1) + " took " + timer);
@@ -74,7 +75,7 @@ public class HeuristicTrainer
     public static void trainingRound(
             MoveHeuristic heuristic, boolean randomize)
     {
-        List<State> stateHistory  = new ArrayList<State>();
+        List<State> stateHistory  = new ArrayList<>();
         IntList     actionHistory = new IntArrayList();
 
         Player whitePlayer = new HeuristicPlayer(heuristic);
@@ -99,13 +100,13 @@ public class HeuristicTrainer
             System.out.println( outcome + ": " +
                     (outcome == Outcome.WHITE_WINS
                     ? whitePlayer : blackPlayer));
-        }
 
-        for (int i = 0; i < stateHistory.size(); i++) {
-            heuristic.update(
-                    stateHistory .get( i ),
-                    actionHistory.get( i ),
-                    outcome);
+            for (int i = 0; i < stateHistory.size(); i++) {
+                heuristic.update(
+                        stateHistory .get( i ),
+                        actionHistory.get( i ),
+                        outcome);
+            }
         }
     }
 

@@ -11,13 +11,13 @@ import ao.chess.v2.state.State;
 public interface MoveHeuristic
 {
     //--------------------------------------------------------------------
-    public double evaluate(State state, int move);
+    double evaluate(State state, int move);
 
 
     //--------------------------------------------------------------------
-    public void update(State fromState, int move, Outcome outcome);
+    void update(State fromState, int move, Outcome outcome);
 
 
     //--------------------------------------------------------------------
-    public void persist();
+    void persist();
 }
