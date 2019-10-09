@@ -1,13 +1,10 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.mcts.player.MultiMctsPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
-
-import java.util.List;
 
 /**
  * User: aostrovsky
@@ -17,12 +14,45 @@ import java.util.List;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 2 * 1000;
+    private static final int TIME_PER_MOVE = 1_000;
 
 
     //--------------------------------------------------------------------
     public static void main(String[] args)
     {
+//        Player a = MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep2Opt192Prototype.prototype();
+
+//        Player a = MctsPrototypes.mctsFallbackDeep4Opt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype();
+
+//        Player a = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep4Opt192Prototype.prototype();
+
+//        Player a = MctsPrototypes.mctsFallbackDeep6Opt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
+
+//        Player a = MctsPrototypes.mctsFallbackDeep7Opt192Prototype.prototype();
+////        Player b = MctsPrototypes.mctsFallbackDeep8Opt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep2Opt192Prototype.prototype();
+
+//        Player a = MctsPrototypes.mctsFallbackDeep6Opt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep2Opt192Prototype.prototype();
+
+//        Player a = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep4Opt192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeep6Opt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeep7Opt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep6Opt192Prototype.prototype();
+
+//        Player a = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep5Tune192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeep5Tune192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
+        Player a = MctsPrototypes.mctsFallbackDeep10Tune192Prototype.prototype();
+        Player b = MctsPrototypes.mctsFallbackDeep5Tune192Prototype.prototype();
+
 //        Player a = new MultiMctsPlayer(List.of(
 //                mctsPrototype.prototype(),
 //                mctsPrototype.prototype(),
@@ -46,13 +76,13 @@ public class Tournament
 //                MctsPrototypes.mctsMaterialMixedRandomPrototype.prototype(),
 //                MctsPrototypes.mctsMaterialMixedDeepPrototype.prototype(),
 //                MctsPrototypes.mctsMaterialMixedRandomDeepPrototype.prototype()));
-        Player a = new MultiMctsPlayer(List.of(
-                MctsPrototypes.mctsFallbackOptPrototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt2Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt4Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt8Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt16Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt32Prototype.prototype()));
+//        Player a = new MultiMctsPlayer(List.of(
+//                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype()));
 //        Player a = new MctsPlayer(
 //                new MctsNodeImpl.Factory<>(),
 //                new Ucb1Value2.Factory(),
@@ -80,7 +110,8 @@ public class Tournament
 
 //        Player b = new SimPlayer(false);
 //        Player b = new HeuristicPlayer(
-////                        new SimpleWinTally("test"));
+//                LinearByMaterial.retrieve("test"),
+//                true);
 //                new LinearBinarySingular("test"));
 //        Player b = new RandomPlayer();
 //        Player b = new TransPlayer();
@@ -114,26 +145,15 @@ public class Tournament
 //        );
 
 //        Player b = new MultiMctsPlayer(List.of(
-//                mctsProto.prototype(),
-//                mctsProto.prototype(),
-//                mctsProto.prototype(),
-//                mctsProto.prototype(),
-//                mctsProto.prototype(),
-//                mctsProto.prototype(),
-//                mctsProto.prototype(),
-//                mctsProto.prototype(),
-//                mctsProto.prototype()));
-
-        Player b = new MultiMctsPlayer(List.of(
-                MctsPrototypes.mctsFallbackOptPrototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt2Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt4Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt8Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt16Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt32Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt64Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt128Prototype.prototype()
-        ));
+//                MctsPrototypes.mctsFallbackOptPrototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt2Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt4Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt8Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt16Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt32Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt64Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt128Prototype.prototype()
+//        ));
 //        MctsPlayer b = new MctsPlayer(
 //                new MctsNodeImpl.Factory<>(),
 //                new Ucb1Value2.Factory(),

@@ -21,7 +21,8 @@ public class BrainTeaser {
     //--------------------------------------------------------------------
     public static void main(String[] args) {
 //        int time = 7 * 24 * 60 * 60 * 1000;
-        int time = 10 * 60 * 1000;
+//        int time = 10 * 60 * 1000;
+        int time = 60 * 60 * 1000;
 
 //        Player player = new MultiMctsPlayer(List.of(
 //                mctsCapturePrototype.prototype(),
@@ -45,27 +46,32 @@ public class BrainTeaser {
 //                mctsMaterialMixedRandomDeepPrototype.prototype()
 //        ));
         Player player = new MultiMctsPlayer(List.of(
-                MctsPrototypes.mctsFallbackOptPrototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt2Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt4Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt8Prototype.prototype(),
-                MctsPrototypes.mctsFallbackOpt16Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackOpt32Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackOpt64Prototype.prototype(),
 //                MctsPrototypes.mctsFallbackOpt128Prototype.prototype(),
-//                MctsPrototypes.mctsMaterialMixedPrototype.prototype(),
-                MctsPrototypes.mctsMaterialMixedRandomPrototype.prototype(),
-                MctsPrototypes.mctsMaterialMixedRandomPrototype.prototype(),
-                MctsPrototypes.mctsMaterialMixedRandomPrototype.prototype()
-//                MctsPrototypes.mctsMaterialMixedDeepPrototype.prototype()
-//                MctsPrototypes.mctsFallbackOpt256Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackOpt512Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackOpt1024Prototype.prototype()
+//                MctsPrototypes.mctsFallbackOpt128Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt128Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackOpt128Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeepOpt256Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeepOpt256Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeepOpt256Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeepOpt256Prototype.prototype()
+                MctsPrototypes.mctsFallbackDeepOpt192Prototype.prototype(),
+                MctsPrototypes.mctsFallbackDeep2Opt192Prototype.prototype(),
+                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype(),
+                MctsPrototypes.mctsFallbackDeep4Opt192Prototype.prototype(),
+                MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype(),
+                MctsPrototypes.mctsFallbackDeep6Opt192Prototype.prototype(),
+                MctsPrototypes.mctsFallbackDeep7Opt192Prototype.prototype(),
+                MctsPrototypes.mctsFallbackDeep8Opt192Prototype.prototype()
         ));
 
         State  state  = State.fromFen(
                 // Travis game
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 0 1"
+                "rnbqkbnr/ppp1pppp/8/3p4/8/5N2/PPPPPPPP/RNBQKB1R w KQkq d6 0 1"
+//                "rnbqkbnr/ppp1pppp/8/3p4/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1"
+//                "rnbqkbnr/ppp2ppp/8/3pp3/8/8/PPPPPPPP/RNBQKBNR w KQkq e6 0 1"
+//                "rnbqkbnr/ppp2ppp/8/3pp3/1P6/8/P1PPPPPP/RNBQKBNR b KQkq b3 0 1"
 
                 // Mable game (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -126,7 +132,25 @@ public class BrainTeaser {
 //                "n3r3/8/p6p/1p4p1/1P1QP3/k1P2P2/7P/2KR2NR b - e3 4 3"
 //                "4r3/8/pn5p/1p4p1/1P1QP3/k1P2P2/7P/2KR2NR w - - 4 3"
 //                "4r3/8/pQ5p/1p4p1/1P2P3/k1P2P2/7P/2KR2NR b - - 4 3"
-                "4r3/8/1Q5p/pp4p1/1P2P3/k1P2P2/7P/2KR2NR w - - 4 3"
+//                "4r3/8/1Q5p/pp4p1/1P2P3/k1P2P2/7P/2KR2NR w - - 4 3"
+//                "4r3/8/1Q5p/pp4p1/1P2P3/k1P2P2/4N2P/2KR3R b - - 4 3"
+//                "r3/8/1Q5p/1p4p1/pP2P3/k1P2P2/4N2P/2KR3R w - - 4 3"
+//                "r7/8/7p/1Q4p1/pP2P3/k1P2P2/4N2P/2KR3R b - - 0 3"
+//                "r7/8/7p/1Q6/pP2P1p1/k1P2P2/4N2P/2KR3R w - - 0 3"
+//                "r7/8/7p/8/pP2P1p1/k1PQ1P2/4N2P/2KR3R b - - 0 3"
+//                "r7/8/7p/8/pP2P3/k1PQ1p2/4N2P/2KR3R w - - 0 3"
+//                "r7/8/7p/8/pP2P3/k1P2Q2/4N2P/2KR3R b - - 0 3"
+//                "5r2/8/7p/8/pP2P3/k1P2Q2/4N2P/2KR3R w - - 0 3"
+//                "5Q2/8/7p/8/pP2P3/k1P5/4N2P/2KR3R b - - 0 3"
+//                "5Q2/8/7p/8/pP2P3/1kP5/4N2P/2KR3R w - - 0 3"
+//                "1Q6/8/7p/8/pP2P3/1kP5/4N2P/2KR3R b - - 0 3"
+//                "1Q6/8/8/7p/pP2P3/1kP5/4N2P/2KR3R w - - 0 3"
+//                "1Q6/8/8/7p/pP1NP3/1kP5/7P/2KR3R b - - 0 3"
+//                "1Q6/8/8/7p/pP1NP3/2k5/7P/2KR3R w - - 0 3"
+//                "1Q6/8/8/7p/pP2P3/2k5/4N2P/2KR3R b - - 0 3"
+//                "1Q6/8/8/7p/pP2P3/1k6/4N2P/2KR3R w - - 0 3"
+//                "1Q6/8/8/7p/pP2P2P/1k6/4N3/2KR3R b - h3 0 3"
+//                "1Q6/8/8/7p/1P2P2P/pk6/4N3/2KR3R w - - 0 3"
 
                 // endgame test
 //                "8/8/8/k7/8/8/3R4/7K w "

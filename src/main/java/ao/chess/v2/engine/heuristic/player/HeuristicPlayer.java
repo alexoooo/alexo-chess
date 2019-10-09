@@ -14,11 +14,17 @@ public class HeuristicPlayer implements Player
 {
     //--------------------------------------------------------------------
     private final MoveHeuristic HEURISTIC;
+    private final boolean opt;
 
 
     //--------------------------------------------------------------------
     public HeuristicPlayer(MoveHeuristic heuristic) {
+        this(heuristic, false);
+    }
+
+    public HeuristicPlayer(MoveHeuristic heuristic, boolean opt) {
         HEURISTIC = heuristic;
+        this.opt = opt;
     }
 
 
@@ -29,15 +35,15 @@ public class HeuristicPlayer implements Player
             int   timePerMove,
             int   timeIncrement)
     {
-        double   total      = 0;
-        int   [] legalMoves = position.legalMoves();
+//        double   total      = 0;
+        int[] legalMoves = position.legalMoves();
         if (legalMoves == null || legalMoves.length == 0) return -1;
 
         double[] moveValues = new double[ legalMoves.length ];
         for (int i = 0; i < legalMoves.length; i++) {
             double value = HEURISTIC.evaluate(position, legalMoves[i]);
             moveValues[i] = value;
-            total += value;
+//            total += value;
         }
 
         int    maxMove      = -1;
@@ -46,10 +52,17 @@ public class HeuristicPlayer implements Player
 //            double probability = moveValues[ i ] / total;
 //            double value       = Rand.nextDouble( probability );
 //            double value       = moveValues[ i ];
-            double value       =
-                    moveValues[ i ] + Rand.nextDouble(0.0001);
 
-            if (maxMoveValue < value) {
+            double value;
+            if (opt) {
+                value = moveValues[ i ];
+            }
+            else {
+                value = moveValues[ i ] * Rand.nextDouble();
+            }
+
+            if (maxMoveValue < value ||
+                    maxMoveValue == value && Rand.nextBoolean()) {
                 maxMoveValue = value;
                 maxMove      = legalMoves[ i ];
             }

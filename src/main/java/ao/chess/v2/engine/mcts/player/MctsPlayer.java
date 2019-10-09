@@ -9,6 +9,7 @@ import ao.chess.v2.engine.mcts.message.MctsAction;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import ao.util.math.rand.Rand;
+import ao.util.time.Sched;
 import it.unimi.dsi.fastutil.longs.LongLists;
 
 /**
@@ -105,7 +106,12 @@ public class MctsPlayer implements Player
     {
         int oracleAction = oracleAction(position);
         if (oracleAction != -1) {
-//            Sched.sleep(2500);
+            prevState = null;
+            prevPlay = null;
+
+            // NB: some kind of UI race condition?
+            Sched.sleep(100);
+
             return oracleAction;
         }
 
@@ -263,7 +269,9 @@ public class MctsPlayer implements Player
 
     //-----------------------------------------------------------------------------------------------------------------
     private int oracleAction(State from) {
-        if (from.pieceCount() > 5) return -1;
+        if (from.pieceCount() > DeepOracle.instancePieceCount) {
+            return -1;
+        }
 
         boolean canDraw     = false;
         int     bestOutcome = 0;
@@ -282,24 +290,24 @@ public class MctsPlayer implements Player
                         bestOutcome > outcome.plyDistance() ||
                         (bestOutcome == outcome.plyDistance() &&
                             Rand.nextBoolean())) {
-                    Io.display(outcome.outcome() + " in " +
-                                outcome.plyDistance() + " with " +
-                                Move.toString(legalMove));
                     bestOutcome = outcome.plyDistance();
                     bestMove    = legalMove;
                 }
-            } else if (! canDraw && bestOutcome <= 0
+            }
+            else if (! canDraw && bestOutcome <= 0
                             && bestOutcome > -outcome.plyDistance()) {
-                Io.display(outcome.outcome() + " in " +
-                                outcome.plyDistance() + " with " +
-                                Move.toString(legalMove));
                 bestOutcome = -outcome.plyDistance();
                 bestMove    = legalMove;
             }
         }
 
-        return (bestOutcome <= 0 && canDraw)
-                ? -1 : bestMove;
+        if (bestOutcome <= 0 && canDraw) {
+            return -1;
+        }
+
+        Io.display("Tablebase in " + bestOutcome);
+
+        return bestMove;
     }
 
 

@@ -50,9 +50,8 @@
         <dependency>
             <groupId>ao.ai</groupId>
             <artifactId>ai-classification</artifactId>
-            <!--<version>0.0.4</version>-->
-            <!--<version>0.0.5-SNAPSHOT</version>-->
-            <version>0.0.7</version>
+            <!-- <version>0.0.7</version>-->
+            <version>0.0.8-SNAPSHOT</version>
         </dependency>
 
         <dependency>

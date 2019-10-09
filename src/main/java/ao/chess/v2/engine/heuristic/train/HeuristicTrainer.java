@@ -37,7 +37,7 @@ public class HeuristicTrainer
 //        MoveHeuristic heuristic = SimpleWinTally.retrieve(id);
 //        MoveHeuristic heuristic = DoubleWinTally.retrieve(id);
 //        MoveHeuristic heuristic = ClassByMove.retrieve(id);
-        MoveHeuristic heuristic = new LinearByMaterial( id );
+        MoveHeuristic heuristic = LinearByMaterial.retrieve( id );
 //        MoveHeuristic heuristic = new ForestByMaterial( id );
         Stopwatch     timer     = new Stopwatch();
 
@@ -58,28 +58,37 @@ public class HeuristicTrainer
         System.out.println("Self-training");
         for (int i = 0; i < Integer.MAX_VALUE; i++)
         {
-            trainingRound( heuristic, false );
+//            int attempts = 0;
+            boolean winner;
+            do {
+                winner = trainingRound( heuristic, true );
+//                winner = trainingRound( heuristic, false );
+//                attempts++;
+            }
+            while (! winner);
+
+//            System.out.println("attempts: " + attemps);
 //            trainingRound( heuristic, true );
 
-            if ((i + 1) % 1000 == 0) {
-                System.out.println((i + 1) + " took " + timer);
-                timer = new Stopwatch();
-
+            if ((i + 1) % 1000 == 0)
+            {
                 heuristic.persist();
+                System.out.println((i + 1) + " took " + timer + " - " + heuristic);
+                timer = new Stopwatch();
             }
         }
     }
 
 
     //--------------------------------------------------------------------
-    public static void trainingRound(
+    public static boolean trainingRound(
             MoveHeuristic heuristic, boolean randomize)
     {
         List<State> stateHistory  = new ArrayList<>();
         IntList     actionHistory = new IntArrayList();
 
-        Player whitePlayer = new HeuristicPlayer(heuristic);
-        Player blackPlayer = new HeuristicPlayer(heuristic);
+        Player whitePlayer = new HeuristicPlayer(heuristic, Rand.nextBoolean());
+        Player blackPlayer = new HeuristicPlayer(heuristic, Rand.nextBoolean());
 
         if (randomize)
         {
@@ -97,9 +106,9 @@ public class HeuristicTrainer
                 stateHistory, actionHistory);
 
         if (outcome != Outcome.DRAW) {
-            System.out.println( outcome + ": " +
-                    (outcome == Outcome.WHITE_WINS
-                    ? whitePlayer : blackPlayer));
+//            System.out.println( outcome + ": " +
+//                    (outcome == Outcome.WHITE_WINS
+//                    ? whitePlayer : blackPlayer));
 
             for (int i = 0; i < stateHistory.size(); i++) {
                 heuristic.update(
@@ -107,7 +116,10 @@ public class HeuristicTrainer
                         actionHistory.get( i ),
                         outcome);
             }
+
+            return true;
         }
+        return false;
     }
 
 

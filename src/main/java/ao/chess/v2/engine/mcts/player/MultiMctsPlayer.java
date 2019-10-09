@@ -10,6 +10,7 @@ import ao.chess.v2.engine.mcts.scheduler.MctsSchedulerImpl;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import ao.util.math.rand.Rand;
+import ao.util.time.Sched;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +54,10 @@ public class MultiMctsPlayer implements Player
         int oracleAction = oracleAction(position, legalMoves);
         if (oracleAction != -1) {
             players.forEach(MctsPlayer::clearInternal);
+
+            // NB: some kind of UI race condition?
+            Sched.sleep(100);
+
             return oracleAction;
         }
 
@@ -183,7 +188,7 @@ public class MultiMctsPlayer implements Player
 
     //-----------------------------------------------------------------------------------------------------------------
     private int oracleAction(State from, int[] legalMoves) {
-        if (from.pieceCount() > 5) {
+        if (from.pieceCount() > DeepOracle.instancePieceCount) {
             return -1;
         }
 
@@ -220,8 +225,13 @@ public class MultiMctsPlayer implements Player
             }
         }
 
-        return (bestOutcome <= 0 && canDraw)
-                ? -1 : bestMove;
+        if (bestOutcome <= 0 && canDraw) {
+            return -1;
+        }
+
+        Io.display("Tablebase in " + bestOutcome);
+
+        return bestMove;
     }
 
 

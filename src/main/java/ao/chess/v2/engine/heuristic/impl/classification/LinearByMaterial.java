@@ -7,19 +7,22 @@ import ao.ai.ml.model.output.BinaryClass;
 import ao.ai.ml.model.output.BinaryScoreClass;
 import ao.chess.v2.engine.heuristic.MoveHeuristic;
 import ao.chess.v2.engine.run.Config;
+import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Piece;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
-import ao.util.persist.PersistentObjects;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Multiset;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntIterator;
 import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.Serializable;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 /**
  * User: AO
@@ -39,31 +42,62 @@ public class LinearByMaterial
             "lookup/heuristic/linear-mat-pa");
 
 
+    public static LinearByMaterial retrieve(String id)
+    {
+        try
+        {
+            return retrieveChecked(id);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private static LinearByMaterial retrieveChecked(String id) throws IOException
+    {
+        Path inFile = new File(dir, id).toPath();
+        LinearByMaterial instance = new LinearByMaterial(id);
+
+        if (! Files.exists(inFile)) {
+            return instance;
+        }
+
+        try (InputStream in = Files.newInputStream(inFile);
+                ObjectInputStream ois = new ObjectInputStream(in))
+        {
+            int size = ois.readInt();
+            for (int i = 0; i < size; i++) {
+                int key = ois.readInt();
+                PassiveAggressive pa = PassiveAggressive.restore(ois);
+                instance.materialToLearner.put(key, pa);
+            }
+        }
+
+        return instance;
+    }
+
+
     //------------------------------------------------------------------------
     private final String id;
 
-    private final Int2ObjectMap<OnlineBinaryScoreLearner<RealList>>
+    private final Int2ObjectMap<PassiveAggressive>
             materialToLearner;
 
-    private final Int2ObjectMap<Multiset<Piece>>
-            materialToPieces = new Int2ObjectOpenHashMap<Multiset<Piece>>();
+//    private final Int2ObjectMap<Multiset<Piece>>
+//            materialToPieces = new Int2ObjectOpenHashMap<>();
 
 
     //------------------------------------------------------------------------
     public LinearByMaterial(String id)
     {
         this.id = id;
-
-        Int2ObjectMap<OnlineBinaryScoreLearner<RealList>> rememberedLearners
-                = PersistentObjects.retrieve( new File(dir, id) );
-
-        materialToLearner = ((rememberedLearners == null)
-                   ? new Int2ObjectOpenHashMap
-                            <OnlineBinaryScoreLearner<RealList>>()
-                   : rememberedLearners);
+        materialToLearner = new Int2ObjectOpenHashMap<>();
     }
 
-    private OnlineBinaryScoreLearner<RealList> newLearner()
+
+    private PassiveAggressive newLearner()
     {
         return new PassiveAggressive();
     }
@@ -82,7 +116,10 @@ public class LinearByMaterial
 
         Move.unApply(undo, state);
 
-        return classification.positiveScore();
+        double whiteWinScore = classification.positiveScore();
+        return state.nextToAct() == Colour.WHITE
+                ? whiteWinScore
+                : -whiteWinScore;
     }
 
 
@@ -90,17 +127,15 @@ public class LinearByMaterial
     @Override
     public void update(State fromState, int move, Outcome outcome)
     {
-        int undo = Move.apply( move, fromState );
+//        int undo = Move.apply( move, fromState );
 
-        OnlineBinaryScoreLearner<RealList> learner = lookup(
-                fromState);
+        OnlineBinaryScoreLearner<RealList> learner = lookup(fromState);
 
         learner.learn(
                 ChessClassUtils.encodeByMaterial(fromState),
-                BinaryClass.create(outcome.winner() ==
-                        fromState.nextToAct().invert()));
+                BinaryClass.create(outcome.winner() == Colour.WHITE));
 
-        Move.unApply(undo, fromState);
+//        Move.unApply(undo, fromState);
     }
 
 
@@ -109,7 +144,7 @@ public class LinearByMaterial
     {
         int tally = state.tallyAllMaterial();
 
-        OnlineBinaryScoreLearner<RealList> learner =
+        PassiveAggressive learner =
                 materialToLearner.get(tally);
 
         Multiset<Piece> pieceMultiset =
@@ -126,17 +161,17 @@ public class LinearByMaterial
             learner = newLearner();
             materialToLearner.put(tally, learner);
 
-            materialToPieces.put(tally, pieceMultiset);
+//            materialToPieces.put(tally, pieceMultiset);
         }
         else
         {
-            Multiset<Piece> existingPieces =
-                    materialToPieces.get( tally );
-
-            if (! existingPieces.equals( pieceMultiset ))
-            {
-                System.out.println("!!! PIECE TALLY COLLISION !!!");
-            }
+//            Multiset<Piece> existingPieces =
+//                    materialToPieces.get( tally );
+//
+//            if (! existingPieces.equals( pieceMultiset ))
+//            {
+//                System.out.println("!!! PIECE TALLY COLLISION !!!");
+//            }
         }
 
         return learner;
@@ -148,7 +183,37 @@ public class LinearByMaterial
     public void persist()
     {
         LOG.debug("persisting " + id + " with " + materialToLearner.size());
-        PersistentObjects.persist(materialToLearner, new File(dir, id));
+        try
+        {
+            persistChecked();
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private void persistChecked() throws IOException
+    {
+        Path outFile = new File(dir, id).toPath();
+
+        Files.createDirectories(outFile.getParent());
+
+        try (OutputStream out = Files.newOutputStream(
+                outFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+                ObjectOutputStream oos = new ObjectOutputStream(out))
+        {
+            oos.writeInt(materialToLearner.size());
+
+            IntIterator iterator = materialToLearner.keySet().iterator();
+            while (iterator.hasNext()) {
+                int next = iterator.nextInt();
+                oos.writeInt(next);
+                PassiveAggressive pa = materialToLearner.get(next);
+                PassiveAggressive.persist(pa, oos);
+            }
+        }
     }
 
 

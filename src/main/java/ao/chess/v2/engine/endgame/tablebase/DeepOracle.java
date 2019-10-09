@@ -45,15 +45,17 @@ public class DeepOracle
 
 
     //--------------------------------------------------------------------
+    public static final int instancePieceCount = 3;
+
     public static final DeepOracle INSTANCE =
-            new DeepOracle(3);
+            new DeepOracle(instancePieceCount);
 
 
     //--------------------------------------------------------------------
     private final Int2ObjectMap<DeepMaterialOracle> oracles =
             new Int2ObjectOpenHashMap<DeepMaterialOracle>();
 
-    private final int                               pieceCount;
+    private final int pieceCount;
 
 
     //--------------------------------------------------------------------
