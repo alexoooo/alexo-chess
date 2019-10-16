@@ -1,5 +1,6 @@
 package ao.chess.v2.engine.mcts.rollout;
 
+import ao.chess.v2.engine.heuristic.material.MaterialEvaluation;
 import ao.chess.v2.engine.mcts.MctsHeuristic;
 import ao.chess.v2.engine.mcts.MctsRollout;
 import ao.chess.v2.piece.Colour;
@@ -16,39 +17,59 @@ public class MctsDeepRolloutImpl
     implements MctsRollout
 {
     //--------------------------------------------------------------------
-//    public static class Factory implements MctsRollout.Factory {
-//        @Override public MctsRollout newRollout() {
-//            return new MctsRolloutImpl();
-//        }
-//    }
+//    private static final int maxDepth = 2;
+    private static final int maxDepth = 999;
+//    private static final int minDepth = 10;
+    private static final int minDepth = 1;
 
 
     //--------------------------------------------------------------------
-    private final int nSims;
+    private final int iterations;
+    private final int repetitions;
 
     private final int[] moves = new int[Move.MAX_PER_PLY];
+    private final double[] expectation = new double[Move.MAX_PER_PLY];
 
 
     //--------------------------------------------------------------------
     public MctsDeepRolloutImpl()
     {
-        this(1);
+        this(1, 1);
     }
 
-    public MctsDeepRolloutImpl(int accuracy)
+
+    public MctsDeepRolloutImpl(int repetitions, int iterations)
     {
-        nSims = accuracy;
+        this.repetitions = repetitions;
+        this.iterations = iterations;
     }
 
 
     @Override
     public MctsRollout prototype() {
-        return new MctsDeepRolloutImpl(nSims);
+        return new MctsDeepRolloutImpl(repetitions, iterations);
     }
 
 
     //--------------------------------------------------------------------
-    @Override public double monteCarloPlayout(
+    @Override
+    public double monteCarloPlayout(
+            State fromState, MctsHeuristic heuristic)
+    {
+        double sum = 0;
+        for (int i = 0; i < repetitions; i++) {
+            State curState =
+                    (i == (repetitions - 1))
+                            ? fromState
+                            : fromState.prototype();
+
+            sum += monteCarloPlayoutIteration(curState, heuristic);
+        }
+        return sum / repetitions;
+    }
+
+
+    private double monteCarloPlayoutIteration(
             State position, MctsHeuristic heuristic)
     {
         int depth = 0;
@@ -59,7 +80,7 @@ public class MctsDeepRolloutImpl
         {
             int move;
 
-            if (depth < 2) {
+            if (depth > minDepth && depth < maxDepth) {
                 move = bestMove(state, heuristic);
             }
             else {
@@ -80,48 +101,51 @@ public class MctsDeepRolloutImpl
 
             depth++;
         }
-        return 0.5;
+        return MaterialEvaluation.evaluate(state, fromPov);
     }
 
 
     //--------------------------------------------------------------------
     private int bestMove(State position, MctsHeuristic heuristic)
     {
-//        int[] moves  = new int[Move.MAX_PER_PLY];
         int nMoves = position.legalMoves(moves);
         if (nMoves == 0) {
             return -1;
         }
 
+        Colour fromPov = position.nextToAct();
+
         State    state       = position.prototype();
-        int   [] count       = new int   [ nMoves ];
-        double[] expectation = new double[ nMoves ];
-        for (int i = 0; i < nSims; i++) {
-            for (int m = 0; m < nMoves; m++)
-            {
+//        int   [] count       = new int   [ nMoves ];
+//        double[] expectation = new double[ nMoves ];
+        for (int m = 0; m < nMoves; m++) {
+            expectation[m] = 0;
+            for (int i = 0; i < iterations; i++) {
                 int move = Move.apply(moves[m], state);
                 expectation[m] += computeMonteCarloPlayout(
-                        state, heuristic);
+                        state, heuristic, fromPov);
                 Move.unApply(move, state);
-                count[ m ]++;
+//                count[ m ]++;
             }
         }
 
-        return optimize(nMoves, moves, count, expectation);
+        return optimize(nMoves/*, moves, count, expectation*/);
     }
 
 
     //--------------------------------------------------------------------
     private int optimize(
-            int      nMoves,
-            int   [] moves,
-            int   [] count,
-            double[] expectation)
+            int      nMoves//,
+//            int   [] moves,
+//            int   [] count,
+//            double[] expectation
+    )
     {
         double maxEv      = -1;
         int    maxEvIndex = -1;
         for (int m = 0; m < nMoves; m++) {
-            double ev = expectation[ m ] / count[ m ];
+//            double ev = expectation[ m ] / count[ m ];
+            double ev = expectation[ m ]/* / nSims*/;
             if (ev > maxEv) {
                 maxEv      = ev + Math.random() / 1000;
                 maxEvIndex = m;
@@ -133,13 +157,15 @@ public class MctsDeepRolloutImpl
 
     //--------------------------------------------------------------------
     private double computeMonteCarloPlayout(
-            State fromState, MctsHeuristic heuristic) {
+            State fromState,
+            MctsHeuristic heuristic,
+            Colour fromPov
+    ) {
         State   simState  = fromState.prototype();
         int     nextCount = 0;
         int[]   nextMoves = new int[ Move.MAX_PER_PLY ];
         int[]   moves     = new int[ Move.MAX_PER_PLY ];
         int     nMoves    = simState.moves(moves);
-        Outcome outcome   = Outcome.DRAW;
 
         do
         {
@@ -149,7 +175,6 @@ public class MctsDeepRolloutImpl
             int[] moveOrder = heuristic.orderMoves(
                     simState, moves, nMoves);
             for (int moveIndex : moveOrder)
-//            for (int moveIndex = 0; moveIndex < nMoves; moveIndex++)
             {
                 move = Move.apply(moves[ moveIndex ], simState);
 
@@ -164,11 +189,12 @@ public class MctsDeepRolloutImpl
                     break;
                 }
             }
+
             if (! madeMove) {
-                outcome = simState.isInCheck(simState.nextToAct())
-                          ? Outcome.loses(simState.nextToAct())
-                          : Outcome.DRAW;
-                break;
+                Outcome outcome = simState.isInCheck(simState.nextToAct())
+                        ? Outcome.loses(simState.nextToAct())
+                        : Outcome.DRAW;
+                return outcome.valueFor(fromPov);
             }
 
             {
@@ -180,8 +206,6 @@ public class MctsDeepRolloutImpl
         }
         while (! simState.isDrawnBy50MovesRule());
 
-        return outcome == null
-               ? Double.NaN
-               : outcome.valueFor( simState.nextToAct() );
+        return MaterialEvaluation.evaluate(simState, fromPov);
     }
 }

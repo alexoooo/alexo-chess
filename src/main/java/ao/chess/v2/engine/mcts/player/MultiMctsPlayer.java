@@ -126,6 +126,9 @@ public class MultiMctsPlayer implements Player
                 int action = legalMoves[moveIndex];
 
                 MctsNode actionNode = rootNode.childMatching(action);
+                if (actionNode == null) {
+                    continue;
+                }
 
                 int playerMinDepth = actionNode.minDepth();
                 minDepth = Math.min(minDepth, playerMinDepth);

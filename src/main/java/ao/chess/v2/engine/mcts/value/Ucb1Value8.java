@@ -59,7 +59,7 @@ public class Ucb1Value8 implements MctsValue<Ucb1Value8>
     //--------------------------------------------------------------------
     @Override
     public double confidenceBound(
-            Ucb1Value8 transpositionValue,
+            int parentChoices,
             Ucb1Value8 withRespectToParent) {
         return averageReward() +
                 (visits == 0

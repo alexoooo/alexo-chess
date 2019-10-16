@@ -34,7 +34,6 @@ public class Ucbt2Value implements MctsValue<Ucbt2Value>
     }
 
 
-
     //--------------------------------------------------------------------
     @Override
     public int visits() {
@@ -54,7 +53,7 @@ public class Ucbt2Value implements MctsValue<Ucbt2Value>
 
     @Override
     public double confidenceBound(
-            Ucbt2Value transpositionValue,
+            int parentChoices,
             Ucbt2Value withRespectToParent)
     {
         int    trials = withRespectToParent.visits;

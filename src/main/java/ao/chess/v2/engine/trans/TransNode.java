@@ -1,13 +1,10 @@
 package ao.chess.v2.engine.trans;
 
 import ao.chess.v2.engine.mcts.MctsHeuristic;
-import ao.chess.v2.engine.mcts.MctsNode;
 import ao.chess.v2.engine.mcts.MctsRollout;
 import ao.chess.v2.engine.mcts.MctsSelector;
-import ao.chess.v2.engine.mcts.rollout.MctsRolloutImpl;
 import ao.chess.v2.engine.mcts.heuristic.MctsFpuHeuristic;
-import ao.chess.v2.engine.mcts.message.MctsAction;
-import ao.chess.v2.engine.mcts.node.MctsNodeImpl;
+import ao.chess.v2.engine.mcts.rollout.MctsRolloutImpl;
 import ao.chess.v2.engine.mcts.value.Ucb1TunedValue;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
@@ -112,7 +109,7 @@ public class TransNode
             } else if (path.contains(kid)) {
                 continue;
             } else {
-                banditValue = kid.value.confidenceBound(null, value);
+                banditValue = kid.value.confidenceBound(kids.length, value);
             }
 
             if (banditValue > greatestValue) {

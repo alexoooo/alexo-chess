@@ -3,22 +3,18 @@ package ao.chess.v2.engine.mcts.value;
 import ao.chess.v2.engine.mcts.MctsSelector;
 import ao.chess.v2.engine.mcts.MctsValue;
 
-/**
- * User: aostrovsky
- * Date: 30-Sep-2009
- * Time: 5:14:28 PM
- */
-public class Ucb1TunedValue implements MctsValue<Ucb1TunedValue>
+
+public class Ucb1TunedValue11 implements MctsValue<Ucb1TunedValue11>
 {
     //--------------------------------------------------------------------
-//    private static final double exploration = 1.0;
+    private static final double exploration = 0.11;
 
 
     //--------------------------------------------------------------------
     public static class Factory
-            implements MctsValue.Factory<Ucb1TunedValue> {
-        @Override public Ucb1TunedValue newValue() {
-            return new Ucb1TunedValue();
+            implements MctsValue.Factory<Ucb1TunedValue11> {
+        @Override public Ucb1TunedValue11 newValue() {
+            return new Ucb1TunedValue11();
         }
     }
 
@@ -30,7 +26,7 @@ public class Ucb1TunedValue implements MctsValue<Ucb1TunedValue>
 
 
     //--------------------------------------------------------------------
-    public Ucb1TunedValue()
+    public Ucb1TunedValue11()
     {
         sum        = 0;
         sumSquares = 0;
@@ -59,12 +55,12 @@ public class Ucb1TunedValue implements MctsValue<Ucb1TunedValue>
     @Override
     public double confidenceBound(
             int parentChoices,
-            Ucb1TunedValue withRespectToParent)
+            Ucb1TunedValue11 withRespectToParent)
     {
         int    trials = withRespectToParent.visits;
         double mean   = mean();
         return mean
-                + Math.sqrt(
+                + exploration * Math.sqrt(
                     (Math.log(trials) / visits)
                     * Math.min(0.25,
                             varianceBound(mean, trials)));
@@ -93,27 +89,27 @@ public class Ucb1TunedValue implements MctsValue<Ucb1TunedValue>
 
     //--------------------------------------------------------------------
     public static class VisitSelector
-            implements MctsSelector<Ucb1TunedValue> {
+            implements MctsSelector<Ucb1TunedValue11> {
         @Override public int compare(
-                Ucb1TunedValue a, Ucb1TunedValue b) {
+                Ucb1TunedValue11 a, Ucb1TunedValue11 b) {
             return a.visits - b.visits;
         }
 
         @Override
-        public double asDouble(Ucb1TunedValue value) {
+        public double asDouble(Ucb1TunedValue11 value) {
             return value.visits;
         }
     }
 
     public static class MeanSelector
-            implements MctsSelector<Ucb1TunedValue> {
+            implements MctsSelector<Ucb1TunedValue11> {
         @Override public int compare(
-                Ucb1TunedValue a, Ucb1TunedValue b) {
+                Ucb1TunedValue11 a, Ucb1TunedValue11 b) {
             return Double.compare(a.mean(), b.mean());
         }
 
         @Override
-        public double asDouble(Ucb1TunedValue value) {
+        public double asDouble(Ucb1TunedValue11 value) {
             return value.mean();
         }
     }

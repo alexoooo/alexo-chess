@@ -54,7 +54,7 @@ public class Ucb1TunedValue5 implements MctsValue<Ucb1TunedValue5>
     //--------------------------------------------------------------------
     @Override
     public double confidenceBound(
-            Ucb1TunedValue5 transpositionValue,
+            int parentChoices,
             Ucb1TunedValue5 withRespectToParent)
     {
         int    trials = withRespectToParent.visits;

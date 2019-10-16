@@ -14,7 +14,7 @@ import ao.chess.v2.state.State;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 1_000;
+    private static final int TIME_PER_MOVE = 10_000;
 
 
     //--------------------------------------------------------------------
@@ -50,8 +50,41 @@ public class Tournament
 //        Player b = MctsPrototypes.mctsFallbackDeep5Tune192Prototype.prototype();
 //        Player a = MctsPrototypes.mctsFallbackDeep5Tune192Prototype.prototype();
 //        Player b = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
-        Player a = MctsPrototypes.mctsFallbackDeep10Tune192Prototype.prototype();
-        Player b = MctsPrototypes.mctsFallbackDeep5Tune192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeep10Tune192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep5Tune192Prototype.prototype();
+
+//        Player a = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep05Tune192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeep2Tune192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeep3Tune192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep2Tune192Prototype.prototype();
+
+        // TBD
+//        Player a = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep09Tune192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeep11Tune192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
+
+//        Player a = MctsPrototypes.mctsFallbackDeepLargeOpt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep5LargeOpt192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeep5LargeOpt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep1LargeOpt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep2LargeOpt192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeep1LargeOpt192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeepOpt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeepLargeOpt192Prototype.prototype();
+
+//        Player a = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeepTune192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep2LargeOpt192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
+        Player a = MctsPrototypes.mctsFallbackDeepTune192Prototype.prototype();
+        Player b = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
+//        Player a = MctsPrototypes.mctsFallbackDeep2LargeOpt192Prototype.prototype();
+//        Player b = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
 
 //        Player a = new MultiMctsPlayer(List.of(
 //                mctsPrototype.prototype(),

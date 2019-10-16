@@ -16,12 +16,11 @@ public interface MctsNode<V extends MctsValue<V>>
             State                 fromProtoState,
             MctsValue.Factory<V>  values,
             MctsRollout           mcRollout,
-            TranspositionTable<V> transpositionTable,
             MctsHeuristic         heuristic);
 
     MctsAction<V> bestMove(MctsSelector<V> selector);
-
     double moveScore(int action, MctsSelector<V> selector);
+    int[] rankMoves(MctsSelector<V> selector);
 
     MctsNode childMatching(int action);
 
@@ -37,7 +36,7 @@ public interface MctsNode<V extends MctsValue<V>>
     interface Factory
             <V extends MctsValue<V>>
     {
-        MctsNode<V>/*N*/ newNode(
+        MctsNode<V> newNode(
                 State                state,
                 MctsValue.Factory<V> valueFactory);
     }

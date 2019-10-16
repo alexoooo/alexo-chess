@@ -18,7 +18,7 @@ public interface MctsValue<T extends MctsValue<T>>
     void update(double winRate);
 
     double confidenceBound(
-            T transpositionValue,
+            int parentChoices,
             T withRespectToParent);
 
 

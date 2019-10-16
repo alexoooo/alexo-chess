@@ -10,7 +10,9 @@ import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import ao.util.math.rand.Rand;
 import ao.util.time.Sched;
-import it.unimi.dsi.fastutil.longs.LongLists;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * User: alex
@@ -19,14 +21,23 @@ import it.unimi.dsi.fastutil.longs.LongLists;
  */
 public class MctsPlayer implements Player
 {
-    //--------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------
+//    private static final int batchSize = 100;
+    private static final int batchSize = 10;
+
+    private static final int logFrequency = 100_000;
+//    private static final int logFrequency = 10;
+
+    private static final int internalLogFrequency = 100_000;
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     private final MctsNode.Factory      nodes;
     private final MctsValue.Factory     values;
     private final MctsRollout           rollouts;
     private final MctsSelector          sellectors;
     private final MctsHeuristic         heuristics;
     private final MctsScheduler.Factory schedulers;
-    private final TranspositionTable    transTable;
 
     private final String name;
 
@@ -45,7 +56,6 @@ public class MctsPlayer implements Player
             MctsRollout           rollOutInstance,
             MctsSelector<V>       selectorInstance,
             MctsHeuristic         heuristicInstance,
-            TranspositionTable<V> transpositionTable,
             MctsScheduler.Factory schedulerFactory)
     {
         this(nodeFactory,
@@ -53,7 +63,6 @@ public class MctsPlayer implements Player
                 rollOutInstance,
                 selectorInstance,
                 heuristicInstance,
-                transpositionTable,
                 schedulerFactory,
                 "");
     }
@@ -65,7 +74,6 @@ public class MctsPlayer implements Player
             MctsRollout           rollOutInstance,
             MctsSelector<V>       selectorInstance,
             MctsHeuristic         heuristicInstance,
-            TranspositionTable<V> transpositionTable,
             MctsScheduler.Factory schedulerFactory,
             String name)
     {
@@ -74,7 +82,6 @@ public class MctsPlayer implements Player
         rollouts    = rollOutInstance;
         sellectors  = selectorInstance;
         heuristics  = heuristicInstance;
-        transTable  = transpositionTable;
         schedulers  = schedulerFactory;
 
         this.name = name;
@@ -89,7 +96,6 @@ public class MctsPlayer implements Player
                 rollouts.prototype(),
                 sellectors,
                 heuristics,
-                transTable,
                 schedulers,
                 name);
     }
@@ -123,7 +129,6 @@ public class MctsPlayer implements Player
 
         if (root == null) {
             root = nodes.newNode(position, values);
-            transTable.retain( LongLists.EMPTY_LIST );
         } else {
             Io.display("Recycling " + root);
 
@@ -139,13 +144,13 @@ public class MctsPlayer implements Player
         int  count  = 0;
 //        long lastReport = System.currentTimeMillis();
         while (scheduler.shouldContinue()) {
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < batchSize; i++) {
                 root.runTrajectory(
-                        position, values, rollouts, transTable, heuristics);
+                        position, values, rollouts, heuristics);
                 count++;
             }
 
-            if (count != 0 && count % 10000 == 0) {
+            if (count != 0 && count % logFrequency == 0) {
 //            if (count != 0 && count % 10 == 0) {
 //                long timer  = System.currentTimeMillis() - lastReport;
 //                long before = System.currentTimeMillis();
@@ -198,22 +203,33 @@ public class MctsPlayer implements Player
 
         if (root == null) {
             root = nodes.newNode(position, values);
-            transTable.retain( LongLists.EMPTY_LIST );
         }
         else {
-            MctsAction act = root.bestMove(sellectors);
-            Io.display( "Recycling " + root + " | " + (act == null ? "" : act.information()) + " | " + name);
+            MctsAction bestAct = root.bestMove(sellectors);
+            int[] rankedActions = root.rankMoves(sellectors);
+
+            final var rootNotNull = root;
+            String rankedMoveNames = Arrays
+                    .stream(rankedActions)
+                    .mapToObj(move -> String.format("%s (%d)",
+                            Move.toInputNotation(move),
+                            (int) rootNotNull.moveScore(move, sellectors)))
+                    .collect(Collectors.joining(" | "));
+
+            Io.display( "Recycling " + root + " | " +
+                    (bestAct == null ? "" : bestAct.information()) + " | " + name +
+                    "\n" + rankedMoveNames);
         }
 
         int count = 0;
         while (scheduler.shouldContinue()) {
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < batchSize; i++) {
                 root.runTrajectory(
-                        position, values, rollouts, transTable, heuristics);
+                        position, values, rollouts, heuristics);
                 count++;
             }
 
-            if (count != 0 && count % 100_000 == 0) {
+            if (count != 0 && count % internalLogFrequency == 0) {
                 MctsAction bestMove = root.bestMove(sellectors);
                 if (bestMove == null) {
 //                    Io.display( "!! null move?" );

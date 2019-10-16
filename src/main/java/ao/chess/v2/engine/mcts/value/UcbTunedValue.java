@@ -49,7 +49,7 @@ public class UcbTunedValue implements MctsValue<UcbTunedValue>
 
     @Override
     public double confidenceBound(
-            UcbTunedValue transpositionValue,
+            int parentChoices,
             UcbTunedValue withRespectToParent)
     {
         double mean   = sum / visits;

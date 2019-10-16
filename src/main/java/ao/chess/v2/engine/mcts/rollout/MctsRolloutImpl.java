@@ -63,7 +63,7 @@ public class MctsRolloutImpl
         double sum = 0;
         for (int i = 0; i < nSims; i++) {
             State curState =
-                    (i != (nSims - 1))
+                    (i == (nSims - 1))
                     ? fromState
                     : fromState.prototype();
 
@@ -84,9 +84,9 @@ public class MctsRolloutImpl
         boolean wasDrawnBy50MovesRule = false;
         do
         {
-            if (opt && simState.pieceCount() <= 5) {
-                return oracleValue(simState, pov, moves, nMoves);
-            }
+//            if (opt && simState.pieceCount() <= DeepOracle.instancePieceCount) {
+//                return oracleValue(simState, pov, moves, nMoves);
+//            }
 
 //            if (! Representation.unpackStream(
 //                    Representation.packStream(
@@ -109,7 +109,8 @@ public class MctsRolloutImpl
 
                 if (nextCount < 0) { // if leads to mate
                     Move.unApply(move, simState);
-                } else {
+                }
+                else {
                     madeMove = true;
                     break;
                 }
@@ -142,10 +143,11 @@ public class MctsRolloutImpl
 //        if (opt) {
 //            pov = simState.nextToAct();
 //        }
+        if (outcome == null) {
+            return Double.NaN;
+        }
 
-        return outcome == null
-               ? Double.NaN
-               : outcome.valueFor( pov );
+        return outcome.valueFor( pov );
     }
 
 

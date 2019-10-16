@@ -219,21 +219,21 @@ public class State
         prevReversibleMoves = reversibleMoves;
     }
 
-    private State(long[] copyWPieces,
-                  long[] copyBPieces,
-                  byte   copyEnPassants,
-                  byte   copyCastles,
-                  byte   copyReversibleMoves,
-                  Colour copyNextToAct,
-                  byte   copyNumberPieces,
-                  long   copyWhiteBB,
-                  long   copyBlackBB,
-                  byte   copyPrevCastles,
-                  byte   copyPrevReversibleMoves,
-                  byte   copyPrevEnPassants,
-                  long   copyCastlePath,
-                  long   copyPrevCastlePath
-            )
+    private State(
+            long[] copyWPieces,
+            long[] copyBPieces,
+            byte   copyEnPassants,
+            byte   copyCastles,
+            byte   copyReversibleMoves,
+            Colour copyNextToAct,
+            byte   copyNumberPieces,
+            long   copyWhiteBB,
+            long   copyBlackBB,
+            byte   copyPrevCastles,
+            byte   copyPrevReversibleMoves,
+            byte   copyPrevEnPassants,
+            long   copyCastlePath,
+            long   copyPrevCastlePath)
     {
         wPieces = copyWPieces;
         bPieces = copyBPieces;
@@ -261,7 +261,9 @@ public class State
         int[] legalMoves = new int[ Move.MAX_PER_PLY ];
         int   nMoves     = legalMoves(legalMoves/*, transTable*/);
 
-        if (nMoves == -1) return null;
+        if (nMoves == -1) {
+            return null;
+        }
         return Arrays.copyOf(legalMoves, nMoves);
     }
 //    public int legalMoves(int[] moves)
@@ -273,7 +275,9 @@ public class State
     {
         int[] pseudoMoves = new int[ Move.MAX_PER_PLY ];
         int nPseudoMoves  = moves(pseudoMoves);
-        if (nPseudoMoves == -1) return -1;
+        if (nPseudoMoves == -1) {
+            return -1;
+        }
 
         int nextMoveIndex = 0;
         for (int i = 0; i < nPseudoMoves; i++)
@@ -281,8 +285,7 @@ public class State
             int pseudoMove = pseudoMoves[ i ];
             int undoable   = Move.apply(pseudoMove, this);
 
-            if (! isInCheck(nextToAct.invert())/* &&
-                    ! transTable.contains(longHashCode())*/) {
+            if (! isInCheck(nextToAct.invert())) {
                 moves[ nextMoveIndex++ ] = undoable;
             }
 
@@ -1175,21 +1178,21 @@ public class State
     //--------------------------------------------------------------------
     public State prototype()
     {
-        return new State(wPieces.clone(),
-                         bPieces.clone(),
-                         enPassant,
-                         castles,
-                         reversibleMoves,
-                         nextToAct,
-                         nPieces,
-                         whiteBB,
-                         blackBB,
-                         prevCastles,
-                         prevReversibleMoves,
-                         prevEnPassant,
-                         castlePath,
-                         prevCastlePath
-               );
+        return new State(
+                wPieces.clone(),
+                bPieces.clone(),
+                enPassant,
+                castles,
+                reversibleMoves,
+                nextToAct,
+                nPieces,
+                whiteBB,
+                blackBB,
+                prevCastles,
+                prevReversibleMoves,
+                prevEnPassant,
+                castlePath,
+                prevCastlePath);
     }
 
 

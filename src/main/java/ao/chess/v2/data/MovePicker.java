@@ -18,10 +18,13 @@ public class MovePicker
 
 
     //--------------------------------------------------------------------
-    private static final int       picsPerN = 16;
+    private static final int picsPerN = 256;
 
-    private static final long[]    lastPick =
-            new long[ Move.MAX_PER_PLY ];
+//    private static final long[] lastPick =
+//            new long[ Move.MAX_PER_PLY ];
+//    private static AtomicInteger nextIndex = new AtomicInteger();
+    private static volatile long nextIndex = 0;
+
     private static final int[][][] allPicks =
             new int [ Move.MAX_PER_PLY ][][];
 
@@ -41,22 +44,27 @@ public class MovePicker
 
 
     //--------------------------------------------------------------------
+    public static void init() {
+        // trigger static block
+    }
+
+
+    //--------------------------------------------------------------------
+    @SuppressWarnings("NonAtomicOperationOnVolatileField")
     public static int[] pickRandom(int nMoves)
     {
-//        if (nMoves == -1) {
-//            System.out.println("buh");
-//        }
-
-        return allPicks[ nMoves                               ]
-                       [ (int)(lastPick[nMoves]++ % picsPerN) ];
+        return allPicks[ nMoves                 ]
+                       [ (int) (nextIndex++ % picsPerN) ];
     }
 
 
     //--------------------------------------------------------------------
     private static void shuffle(int[] vals)
     {
-        List<Integer> l = new ArrayList<Integer>();
-        for (int v : vals) l.add( v );
+        List<Integer> l = new ArrayList<>();
+        for (int v : vals) {
+            l.add( v );
+        }
         Collections.shuffle(l);
         for (int i = 0; i < vals.length; i++) {
             vals[ i ] = l.get( i );

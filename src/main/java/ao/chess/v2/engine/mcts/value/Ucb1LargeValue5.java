@@ -3,22 +3,19 @@ package ao.chess.v2.engine.mcts.value;
 import ao.chess.v2.engine.mcts.MctsSelector;
 import ao.chess.v2.engine.mcts.MctsValue;
 
-/**
- * User: alex
- * Date: 27-Sep-2009
- * Time: 10:54:23 PM
- */
-public class Ucb1Value3 implements MctsValue<Ucb1Value3>
+
+// https://arxiv.org/pdf/1909.02229.pdf
+public class Ucb1LargeValue5 implements MctsValue<Ucb1LargeValue5>
 {
     //--------------------------------------------------------------------
-    private static final double exploration = 0.2;
+    private static final double exploration = 0.5;
 
 
     //--------------------------------------------------------------------
     public static class Factory
-            implements MctsValue.Factory<Ucb1Value3> {
-        @Override public Ucb1Value3 newValue() {
-            return new Ucb1Value3();
+            implements MctsValue.Factory<Ucb1LargeValue5> {
+        @Override public Ucb1LargeValue5 newValue() {
+            return new Ucb1LargeValue5();
         }
     }
 
@@ -29,7 +26,7 @@ public class Ucb1Value3 implements MctsValue<Ucb1Value3>
 
 
     //--------------------------------------------------------------------
-    public Ucb1Value3()
+    public Ucb1LargeValue5()
     {
         visits = 0;
         sum    = 0;
@@ -59,12 +56,13 @@ public class Ucb1Value3 implements MctsValue<Ucb1Value3>
     //--------------------------------------------------------------------
     @Override
     public double confidenceBound(
-            Ucb1Value3 transpositionValue,
-            Ucb1Value3 withRespectToParent) {
+            int parentChoices,
+            Ucb1LargeValue5 withRespectToParent) {
         return averageReward() +
                 (visits == 0
                 ? 1000 + Math.random()
-                : exploration * Math.sqrt(2 * Math.log(withRespectToParent.visits) / visits));
+                : exploration * Math.sqrt(
+                        2 * Math.log((double) withRespectToParent.visits / parentChoices) / visits));
     }
 
 
@@ -76,25 +74,25 @@ public class Ucb1Value3 implements MctsValue<Ucb1Value3>
 
     //--------------------------------------------------------------------
     public static class VisitSelector
-            implements MctsSelector<Ucb1Value3> {
-        @Override public int compare(Ucb1Value3 a, Ucb1Value3 b) {
+            implements MctsSelector<Ucb1LargeValue5> {
+        @Override public int compare(Ucb1LargeValue5 a, Ucb1LargeValue5 b) {
             return a.visits - b.visits;
         }
 
         @Override
-        public double asDouble(Ucb1Value3 value) {
+        public double asDouble(Ucb1LargeValue5 value) {
             return value.visits;
         }
     }
 
     public static class MeanSelector
-            implements MctsSelector<Ucb1Value3> {
-        @Override public int compare(Ucb1Value3 a, Ucb1Value3 b) {
+            implements MctsSelector<Ucb1LargeValue5> {
+        @Override public int compare(Ucb1LargeValue5 a, Ucb1LargeValue5 b) {
             return Double.compare(a.averageReward(), b.averageReward());
         }
 
         @Override
-        public double asDouble(Ucb1Value3 value) {
+        public double asDouble(Ucb1LargeValue5 value) {
             return value.averageReward();
         }
     }

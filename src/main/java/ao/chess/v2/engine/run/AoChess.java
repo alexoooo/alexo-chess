@@ -83,12 +83,11 @@ public class AoChess {
             } else if (botName.equals("uct")) {
                 Io.display("UCT");
                 bot = new MctsPlayer(
-                        new MctsNodeImpl.Factory<Ucb1TunedValue>(),
+                        new MctsNodeImpl.Factory<>(),
                         new Ucb1TunedValue.Factory(),
                         new MctsRolloutImpl(false),
                         new Ucb1TunedValue.VisitSelector(),
                         new MctsHeuristicImpl(),
-                        new NullTransTable<Ucb1TunedValue>(),
                         new MctsSchedulerImpl.Factory()
                 );
 //                bot = new MctsPlayer(
@@ -124,12 +123,11 @@ public class AoChess {
 //                );
                 Io.display("loading...");
                 bot = new MctsPlayer(
-                        new MctsNodeImpl.Factory<Ucb1TunedValue>(),
+                        new MctsNodeImpl.Factory<>(),
                         new Ucb1TunedValue.Factory(),
                         new MctsRolloutImpl(false),
                         new Ucb1TunedValue.VisitSelector(),
                         new MctsCaptureHeuristic(),
-                        new NullTransTable<Ucb1TunedValue>(),
                         new MctsSchedulerImpl.Factory()
                 );
                 Io.display("done loading!");

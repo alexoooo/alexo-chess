@@ -20,7 +20,7 @@ public enum MaterialEvaluation {
     static {
         material[Figure.PAWN.ordinal()] = 1;
         material[Figure.KNIGHT.ordinal()] = 3;
-        material[Figure.BISHOP.ordinal()] = 3;
+        material[Figure.BISHOP.ordinal()] = 3.25;
         material[Figure.ROOK.ordinal()] = 5;
         material[Figure.QUEEN.ordinal()] = 9;
     }
@@ -64,6 +64,9 @@ public enum MaterialEvaluation {
                 ? whiteSum - blackSum
                 : blackSum - whiteSum;
 
-        return (materialSum + maxMaterial) / maxDenominator;
+        // https://en.wikipedia.org/wiki/Sigmoid_function
+//        double ex = Math.exp(materialSum);
+//        return ex / (ex + 1);
+        return (materialSum / (9 + Math.abs(materialSum)) + 1) / 2;
     }
 }

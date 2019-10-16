@@ -1,11 +1,9 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.mcts.player.MultiMctsPlayer;
+import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
-
-import java.util.List;
 
 
 /**
@@ -20,9 +18,10 @@ import java.util.List;
 public class BrainTeaser {
     //--------------------------------------------------------------------
     public static void main(String[] args) {
-//        int time = 7 * 24 * 60 * 60 * 1000;
+        int time = 7 * 24 * 60 * 60 * 1000;
 //        int time = 10 * 60 * 1000;
-        int time = 60 * 60 * 1000;
+//        int time = 60 * 60 * 1000;
+//        int time = 150 * 60 * 1000;
 
 //        Player player = new MultiMctsPlayer(List.of(
 //                mctsCapturePrototype.prototype(),
@@ -45,33 +44,116 @@ public class BrainTeaser {
 //                mctsMaterialMixedDeepPrototype.prototype(),
 //                mctsMaterialMixedRandomDeepPrototype.prototype()
 //        ));
-        Player player = new MultiMctsPlayer(List.of(
-//                MctsPrototypes.mctsFallbackOpt128Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackOpt128Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackOpt128Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackOpt128Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeepOpt256Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeepOpt256Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeepOpt256Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeepOpt256Prototype.prototype()
-                MctsPrototypes.mctsFallbackDeepOpt192Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep2Opt192Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep4Opt192Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep6Opt192Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep7Opt192Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep8Opt192Prototype.prototype()
-        ));
+//        Player player = new MultiMctsPlayer(List.of(
+////                MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype()
+////                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep5Rand32Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep5Rand32Prototype.prototype()
+////                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep5Rand64Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep5Rand64Prototype.prototype()
+//                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep5Opt128Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep5Rand64Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep5Rand64Prototype.prototype()
+////                MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype()
+////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype()
+//        ));
 
-        State  state  = State.fromFen(
+//        Player player = MctsPrototypes.mctsFallbackDeep2LargeOpt8Prototype.prototype();
+//        Player player = MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype();
+//        Player player = MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype();
+//        Player player = MctsPrototypes.mctsFallbackDeep5Rand8Prototype.prototype();
+//        Player player = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
+//        Player player = MctsPrototypes.mctsFallbackDeep1LargeOpt192Prototype.prototype();
+
+//        Player player = MctsPrototypes.mctsUcb5DeepPrototype.prototype();
+//        Player player = MctsPrototypes.mctsUcb5Deep2x2Prototype.prototype();
+//        Player player = MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype();
+//        Player player = MctsPrototypes.mctsUcb1Deep2x2Prototype.prototype();
+
+//        Player player = new MultiMctsPlayer(List.of(
+////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep1Opt256Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep2Opt128Prototype.prototype(),
+////                MctsPrototypes.mctsFallbackDeep2Opt192Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep5Rand128Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep5Rand128Prototype.prototype()
+////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype(),
+////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype(),
+////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype(),
+////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype(),
+////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype(),
+////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype()
+//        ));
+
+        Player player = new ParallelMctsPlayer(
+                "par",
+                8,
+                0.5,
+                16,
+                false
+        );
+
+        State state = State.fromFen(
+                // Trivial puzzles
+//                "6rk/6pp/3N4/8/8/8/7P/7K w - - 0 1" // N from d6 to f7
+//                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
+//                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
+//                "2r5/2p2k1p/pqp1RB2/2r5/PbQ2N2/1P3PP1/2P3P1/4R2K w - - 1 0"
+//                "6k1/ppp2ppp/8/2n2K1P/2P2P1P/2Bpr3/PP4r1/4RR2 b - - 0 1"
+//                "rnbqkbnr/pp1ppppp/8/2p5/4P3/5P2/PPPP2PP/RNBQKBNR b KQkq - 0 1"
+
                 // Travis game
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-//                "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 0 1"
-                "rnbqkbnr/ppp1pppp/8/3p4/8/5N2/PPPPPPPP/RNBQKB1R w KQkq d6 0 1"
-//                "rnbqkbnr/ppp1pppp/8/3p4/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1"
-//                "rnbqkbnr/ppp2ppp/8/3pp3/8/8/PPPPPPPP/RNBQKBNR w KQkq e6 0 1"
-//                "rnbqkbnr/ppp2ppp/8/3pp3/1P6/8/P1PPPPPP/RNBQKBNR b KQkq b3 0 1"
+//                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+//                "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 1"
+//                "rnbqkbnr/pp1ppppp/8/2p5/4P3/5P2/PPPP2PP/RNBQKBNR b KQkq - 0 1"
+//                "rnbqkbnr/pp1p1ppp/4p3/2p5/4P3/5P2/PPPP2PP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pp1p1ppp/4p3/2p5/4P3/2P2P2/PP1P2PP/RNBQKBNR b KQkq - 0 1"
+
+                // Mable game 2 (black)
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+//                "rnbqkbnr/pppppp1p/6p1/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppp1p/6p1/8/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 0 1"
+//                "rnbqkbnr/ppppp2p/6p1/5p2/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq f6 0 1"
+//                "rnbqkbnr/ppppp2p/6p1/5P2/8/5N2/PPPP1PPP/RNBQKB1R b KQkq - 0 1"
+//                "rnbqkbnr/ppppp2p/8/5p2/8/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 1"
+//                "rnbqkbnr/ppppp2p/8/5p2/8/3B1N2/PPPP1PPP/RNBQK2R b KQkq - 0 1"
+                "rnbqkb1r/ppppp2p/7n/5p2/8/3B1N2/PPPP1PPP/RNBQK2R w KQkq - 0 1"
+//                "rnbqkb1r/ppppp2p/7n/5B2/8/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1" // bad
+//                "rnbqkb1r/ppppp2p/7n/4Np2/8/3B4/PPPP1PPP/RNBQK2R b KQkq - 0 1" // good
+//                "rnbqk2r/ppppp1bp/7n/4Np2/8/3B4/PPPP1PPP/RNBQK2R w KQkq - 0 1"
+//                "rnbqk2r/ppppp1bp/7n/4Np2/5P2/3B4/PPPP2PP/RNBQK2R b KQkq f3 0 1"
 
                 // Mable game (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -151,6 +233,11 @@ public class BrainTeaser {
 //                "1Q6/8/8/7p/pP2P3/1k6/4N2P/2KR3R w - - 0 3"
 //                "1Q6/8/8/7p/pP2P2P/1k6/4N3/2KR3R b - h3 0 3"
 //                "1Q6/8/8/7p/1P2P2P/pk6/4N3/2KR3R w - - 0 3"
+//                "1Q6/8/8/7p/1P1NP2P/pk6/8/2KR3R b - - 0 3"
+//                "1Q6/8/8/7p/1P1NP2P/p7/k7/2KR3R w - - 0 3"
+//                "Q7/8/8/7p/1P1NP2P/p7/k7/2KR3R b - - 0 3"
+//                "Q7/8/8/7p/1P1NP2P/p7/8/k1KR3R w - - 0 3"
+//                "8/8/8/7p/1P1NP2P/Q7/8/k1KR3R b - - 0 3"
 
                 // endgame test
 //                "8/8/8/k7/8/8/3R4/7K w "

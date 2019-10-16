@@ -32,7 +32,7 @@ public class MaterialFallbackRollout implements MctsRollout {
     ) {
         double value = delegate.monteCarloPlayout(fromState, heuristitc);
 
-        return Math.abs(value - 0.5) < epsilon
+        return Math.abs(value - 0.5) > epsilon
                 ? value
                 : MaterialEvaluation.evaluate(fromState);
     }
