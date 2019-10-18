@@ -67,6 +67,12 @@ public enum MaterialEvaluation {
         // https://en.wikipedia.org/wiki/Sigmoid_function
 //        double ex = Math.exp(materialSum);
 //        return ex / (ex + 1);
+
         return (materialSum / (9 + Math.abs(materialSum)) + 1) / 2;
+//        return materialSum == 0
+//                ? 0.5
+//                : materialSum < 0
+//                ? 0.1
+//                : 0.9;
     }
 }

@@ -42,6 +42,14 @@ class ParallelRoot
         return node.bestMove();
     }
 
+    public ParallelNode node() {
+        return node;
+    }
+
+    public void validate() {
+        node.validate();
+    }
+
 
     @Override
     public String toString() {

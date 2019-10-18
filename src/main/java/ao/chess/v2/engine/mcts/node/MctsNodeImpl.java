@@ -192,7 +192,9 @@ public class MctsNodeImpl<V extends MctsValue<V>>
 
         for (int i = 0; i < acts.length; i++) {
             if (acts[i] == action) {
-                return selector.asDouble(kids[i].value);
+                return kids[i] == null
+                        ? 0
+                        : selector.asDouble(kids[i].value);
             }
         }
         return Double.NaN;
@@ -209,7 +211,10 @@ public class MctsNodeImpl<V extends MctsValue<V>>
         for (int i = 0; i < kids.length; i++) {
             kidIndexes.add(i);
         }
-        kidIndexes.sort(Comparator.comparingDouble(index -> -selector.asDouble(kids[index].value)));
+        kidIndexes.sort(Comparator.comparingDouble(index ->
+                kids[index] == null
+                ? Double.MAX_VALUE
+                : -selector.asDouble(kids[index].value)));
 
         int[] ranked = new int[kids.length];
         for (int i = 0; i < kids.length; i++) {

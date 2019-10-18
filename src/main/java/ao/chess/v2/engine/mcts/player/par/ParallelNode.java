@@ -3,6 +3,7 @@ package ao.chess.v2.engine.mcts.player.par;
 
 import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.heuristic.material.MaterialEvaluation;
+import ao.chess.v2.engine.mcts.player.BanditNode;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -14,7 +15,7 @@ import java.util.concurrent.atomic.DoubleAdder;
 import java.util.concurrent.atomic.LongAdder;
 
 
-class ParallelNode {
+class ParallelNode implements BanditNode {
     //-----------------------------------------------------------------------------------------------------------------
 //    private static final double exploration = 0.5;
 //    private static final int rolloutCount = 32;
@@ -50,6 +51,20 @@ class ParallelNode {
     }
 
 
+    public void validate()
+    {
+        // NB: doesn't work when it's about to lose
+//        long childVisits = 0;
+//        for (var child : childNodes) {
+//            childVisits += child.visitCount.sum();
+//        }
+//        long delta = visitCount.sum() - childVisits;
+//        if (delta != 1) {
+//            throw new IllegalStateException("delta = " + delta);
+//        }
+    }
+
+
     //-----------------------------------------------------------------------------------------------------------------
     public void initTrajectory() {
         visitCount.increment();
@@ -64,9 +79,12 @@ class ParallelNode {
         path.clear();
 
         path.add(this);
-        visitCount.increment();
+//        visitCount.increment();
 
-        while (! path.get( path.size() - 1 ).isUnvisitedVirtual())
+//        Colour initialPov = state.nextToAct();
+//        double initialDefaultValue = defaultValue(state, initialPov, context);
+
+        while (! path.get( path.size() - 1 ).isUnvisited())
         {
             ParallelNode node = path.get( path.size() - 1 );
 
@@ -78,10 +96,15 @@ class ParallelNode {
             }
 
             path.add( selectedChild );
-            selectedChild.visitCount.increment();
+//            selectedChild.visitCount.increment();
         }
 
-        double leafValue = monteCarloPlayout(state, context);
+        double leafValue = monteCarloPlayout(
+                state/*, initialPov, initialDefaultValue*/, context);
+        if (! (0 <= leafValue && leafValue <= 1.0)) {
+            throw new IllegalStateException("Bad value: " + leafValue);
+        }
+
         backupMcValue(path, leafValue);
     }
 
@@ -96,30 +119,48 @@ class ParallelNode {
             return null;
         }
 
-        long currentVisitCount = visitCount.sum();
+        double[] moveValueSums = context.valueSums;
+        long[] moveVisitCounts = context.visitCounts;
+        long parentVisitCount = 0;
+        for (int i = 0; i < moveCount; i++) {
+            ParallelNode child = childNodes.get(i);
+            if (child != null) {
+                moveValueSums[i] = child.valueSum.sum();
+
+                long childVisitCount = child.visitCount.sum();
+                moveVisitCounts[i] = childVisitCount;
+                parentVisitCount += childVisitCount;
+            }
+        }
 
         double greatestValue = Double.NEGATIVE_INFINITY;
         int greatestValueIndex = -1;
-        for (int i = 0; i < moveCount; i++) {
+
+        int[] moveOrder = MovePicker.pickRandom(moveCount);
+        for (int i : moveOrder) {
             ParallelNode child = childNodes.get( i );
 
             double banditValue;
             if (child == null || child.isUnvisited()) {
-                if (context.material) {
-                    int move = moves[i];
-                    banditValue = (! Move.isMobility(move) || Move.isPromotion(move) ? 1500 : 1000) +
-                            Math.random();
-                }
-                else {
-                    banditValue = 1000 + context.random.nextDouble();
-                }
+//                if (context.material) {
+//                    int move = moves[i];
+//                    banditValue = (! Move.isMobility(move) || Move.isPromotion(move) ? 1500 : 1000);
+//                }
+//                else {
+                    banditValue = 1000;
+//                }
             }
             else {
-                banditValue = child.confidenceBound(currentVisitCount, context);
+//                banditValue = child.confidenceBound(parentVisitCount, context);
+                banditValue = child.confidenceBound(
+                        parentVisitCount,
+                        moveValueSums[i],
+                        moveVisitCounts[i],
+                        context);
             }
 
             if (banditValue > greatestValue) {
-                greatestValue      = banditValue;
+                greatestValue = banditValue;
                 greatestValueIndex = i;
             }
         }
@@ -158,43 +199,72 @@ class ParallelNode {
 
     private double confidenceBound(
             long parentVisitCount,
+            double valueSumSnapshot,
+            long visitCountSnapshot,
             ParallelContext context
     ) {
-        double currentValueSum = valueSum.sum();
-        long currentVisitCount = visitCount.sum();
+//        double currentValueSum = valueSum.sum();
+//        long currentVisitCount = visitCount.sum();
 
-        double averageReward = currentValueSum / currentVisitCount;
+        double averageReward = valueSumSnapshot / visitCountSnapshot;
 
         return averageReward +
                 context.exploration *
-                        Math.sqrt(2 * Math.log(parentVisitCount) / currentVisitCount);
+                        Math.sqrt(2 * Math.log(parentVisitCount) / visitCountSnapshot);
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
     private double monteCarloPlayout(
             State state,
+//            Colour initialPov,
+//            double initialDefaultValue,
             ParallelContext context)
     {
+        Colour pov = state.nextToAct();
+//        double povInitialDefaultValue =
+//                initialPov == pov
+//                ? initialDefaultValue
+//                : 1.0 - initialDefaultValue;
+
         double sum = 0;
-        for (int i = context.rollouts; i >= 0; i--) {
+        int count = 0;
+        for (int i = context.rollouts - 1; i >= 0; i--) {
             State freshState =
                     (i == 0)
                     ? state
                     : state.prototype();
 
-            sum += computeMonteCarloPlayout(freshState, context);
+            double value = computeMonteCarloPlayout(
+                    freshState, pov/*, povInitialDefaultValue*/, context);
+
+            if (value != 0.5) {
+                sum += value;
+                count++;
+            }
         }
-        return sum / context.rollouts;
+        double expectedValue = count == 0 ? 0.5 : sum / count;
+        return expectedValue;
+//        return Math.abs(expectedValue - 0.5) < 0.0001
+//                ? 0.5
+//                : expectedValue > 0.5
+//                ? 1
+//                : 0;
+
+//        return Math.abs(expectedValue - 0.5) < 0.0001
+//                ? 0.5
+//                : expectedValue > 0.5
+//                ? Math.max(expectedValue, 0.75)
+//                : Math.min(expectedValue, 0.25);
     }
 
 
     private double computeMonteCarloPlayout(
             State state,
+            Colour pov,
+//            double povInitialDefaultValue,
             ParallelContext context
     ) {
-        Colour pov = state.nextToAct();
-
         int[] moves = context.movesA;
         int[] nextMoves = context.movesB;
 
@@ -243,6 +313,10 @@ class ParallelNode {
 
         if (wasDrawnBy50MovesRule) {
             return defaultValue(state, pov, context);
+//            double defaultValue = defaultValue(state, pov, context);
+//            double defaultValueDelta = defaultValue - povInitialDefaultValue;
+//            double ex = Math.exp(defaultValueDelta);
+//            return ex / (ex + 1);
         }
 
         return outcome.valueFor( pov );
@@ -275,12 +349,19 @@ class ParallelNode {
             // NB: negating all rewards so that UCB1 is always maximizing
             reward = 1.0 - reward;
 
-            path.get(i).valueSum.add(reward);
+            ParallelNode node = path.get(i);
+            node.visitCount.increment();
+            node.valueSum.add(reward);
         }
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
+    public long visitCount() {
+        return visitCount.sum();
+    }
+
+
     public int bestMove() {
         if (moves.length == 0) {
             return -1;
@@ -308,20 +389,91 @@ class ParallelNode {
     {
         List<Integer> indexes = new ArrayList<>();
         long[] visitCounts = new long[moves.length];
+        double[] rewardSums = new double[moves.length];
         for (int i = 0; i < moves.length; i++) {
             indexes.add(i);
 
             ParallelNode child = childNodes.get(i);
             visitCounts[i] = (child == null ? 0 : child.visitCount.sum());
+            rewardSums[i] = (child == null ? 0 : child.valueSum.sum() / visitCounts[i]);
         }
 
         indexes.sort(Comparator.comparingLong(a -> -visitCounts[a]));
 
         List<String> moveStats = new ArrayList<>();
         for (int index : indexes) {
-            moveStats.add(Move.toInputNotation(moves[index]) + " (" + visitCounts[index] + ")");
+            moveStats.add(String.format(
+                    "%s (%,d / %.5f)",
+                    Move.toInputNotation(moves[index]),
+                    visitCounts[index],
+                    rewardSums[index]
+            ));
         }
 
-        return visitCount.sum() + " - " + String.join(" | ", moveStats);
+        return String.format("%,d - %s",
+                visitCount.sum(),
+                String.join(" | ", moveStats));
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    @Override
+    public BanditNode childMatching(int action) {
+        for (int i = 0; i < moves.length; i++) {
+            if (moves[i] == action) {
+                return childNodes.get(i);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public int maxDepth() {
+        if (childNodes.isEmpty()) {
+            return 0;
+        }
+
+        int depth = 0;
+        for (BanditNode child : childNodes) {
+            if (child == null) {
+                continue;
+            }
+            depth = Math.max(depth, child.maxDepth());
+        }
+        return depth + 1;
+    }
+
+
+    @Override
+    public int minDepth() {
+        if (childNodes.isEmpty()) {
+            return 0;
+        }
+
+        int minDepth = Integer.MAX_VALUE;
+        for (BanditNode child : childNodes) {
+            if (child == null) {
+                return 1;
+            }
+            minDepth = Math.min(minDepth, child.minDepth());
+        }
+        return minDepth + 1;
+    }
+
+
+    @Override
+    public int nodeCount() {
+        if (childNodes.isEmpty()) {
+            return 1;
+        }
+
+        int size = 1;
+        for (BanditNode kid : childNodes) {
+            if (kid == null) {
+                continue;
+            }
+            size += kid.nodeCount();
+        }
+        return size;
     }
 }

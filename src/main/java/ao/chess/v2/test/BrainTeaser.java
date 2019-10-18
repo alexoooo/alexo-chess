@@ -1,6 +1,7 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
+import ao.chess.v2.engine.mcts.player.BanditPlayer;
 import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
@@ -19,6 +20,7 @@ public class BrainTeaser {
     //--------------------------------------------------------------------
     public static void main(String[] args) {
         int time = 7 * 24 * 60 * 60 * 1000;
+//        int time = 60 * 1000;
 //        int time = 10 * 60 * 1000;
 //        int time = 60 * 60 * 1000;
 //        int time = 150 * 60 * 1000;
@@ -86,7 +88,7 @@ public class BrainTeaser {
 
 //        Player player = MctsPrototypes.mctsFallbackDeep2LargeOpt8Prototype.prototype();
 //        Player player = MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype();
-//        Player player = MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype();
+//        Player player = MctsPrototypes.mctsFallbackDeep5Opt32Prototype.prototype();
 //        Player player = MctsPrototypes.mctsFallbackDeep5Rand8Prototype.prototype();
 //        Player player = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
 //        Player player = MctsPrototypes.mctsFallbackDeep1LargeOpt192Prototype.prototype();
@@ -99,7 +101,7 @@ public class BrainTeaser {
 //        Player player = new MultiMctsPlayer(List.of(
 ////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype(),
 ////                MctsPrototypes.mctsFallbackDeep1Opt256Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype()
 //                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
 //                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
 //                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
@@ -115,13 +117,41 @@ public class BrainTeaser {
 ////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype()
 //        ));
 
-        Player player = new ParallelMctsPlayer(
+        BanditPlayer protoA = new ParallelMctsPlayer(
                 "par",
-                8,
+                3,
                 0.5,
-                16,
+                7,
+                true
+        );
+        BanditPlayer protoB = new ParallelMctsPlayer(
+                "par",
+                3,
+                0.4,
+                15,
+                true
+        );
+        BanditPlayer protoC = new ParallelMctsPlayer(
+                "par",
+                3,
+                0.4,
+                15,
                 false
         );
+//        Player player = new MultiMctsPlayer(List.of(
+//                protoC.prototype(),
+//                protoC.prototype(),
+//                protoC.prototype()
+//        ));
+
+        Player player = new ParallelMctsPlayer(
+                "par",
+                9,
+                0.4,
+                15,
+                false
+        );
+
 
         State state = State.fromFen(
                 // Trivial puzzles
@@ -149,11 +179,16 @@ public class BrainTeaser {
 //                "rnbqkbnr/ppppp2p/6p1/5P2/8/5N2/PPPP1PPP/RNBQKB1R b KQkq - 0 1"
 //                "rnbqkbnr/ppppp2p/8/5p2/8/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 1"
 //                "rnbqkbnr/ppppp2p/8/5p2/8/3B1N2/PPPP1PPP/RNBQK2R b KQkq - 0 1"
-                "rnbqkb1r/ppppp2p/7n/5p2/8/3B1N2/PPPP1PPP/RNBQK2R w KQkq - 0 1"
+//                "rnbqkb1r/ppppp2p/7n/5p2/8/3B1N2/PPPP1PPP/RNBQK2R w KQkq - 0 1"
 //                "rnbqkb1r/ppppp2p/7n/5B2/8/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1" // bad
 //                "rnbqkb1r/ppppp2p/7n/4Np2/8/3B4/PPPP1PPP/RNBQK2R b KQkq - 0 1" // good
 //                "rnbqk2r/ppppp1bp/7n/4Np2/8/3B4/PPPP1PPP/RNBQK2R w KQkq - 0 1"
 //                "rnbqk2r/ppppp1bp/7n/4Np2/5P2/3B4/PPPP2PP/RNBQK2R b KQkq f3 0 1"
+//                "rnbqk2r/ppp1p1bp/3p3n/4Np2/5P2/3B4/PPPP2PP/RNBQK2R w KQkq - 0 1"
+//                "rnbqk2r/ppp1p1bp/3p3n/5p2/5P2/3B1N2/PPPP2PP/RNBQK2R b KQkq - 0 1"
+//                "rn1qk2r/ppp1p1bp/3pb2n/5p2/5P2/3B1N2/PPPP2PP/RNBQK2R w KQkq - 0 1"
+//                "rn1qk2r/ppp1p1bp/3pb2n/5p2/5P1P/3B1N2/PPPP2P1/RNBQK2R b KQkq h3 0 1"
+                "rn1qk2r/ppp1p1bp/3pb3/5p2/5PnP/3B1N2/PPPP2P1/RNBQK2R w KQkq - 0 1"
 
                 // Mable game (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

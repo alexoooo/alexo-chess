@@ -1,6 +1,7 @@
 package ao.chess.v2.engine.mcts;
 
 import ao.chess.v2.engine.mcts.message.MctsAction;
+import ao.chess.v2.engine.mcts.player.BanditNode;
 import ao.chess.v2.state.State;
 import it.unimi.dsi.fastutil.longs.LongCollection;
 
@@ -10,6 +11,7 @@ import it.unimi.dsi.fastutil.longs.LongCollection;
  * Time: 12:59:18 PM
  */
 public interface MctsNode<V extends MctsValue<V>>
+        extends BanditNode
 {
     //--------------------------------------------------------------------
     void runTrajectory(
@@ -22,14 +24,12 @@ public interface MctsNode<V extends MctsValue<V>>
     double moveScore(int action, MctsSelector<V> selector);
     int[] rankMoves(MctsSelector<V> selector);
 
+    @Override
     MctsNode childMatching(int action);
 
     void addStates(LongCollection to);
 
-    int maxDepth();
-    int minDepth();
     int leafCount();
-    int nodeCount();
 
 
     //--------------------------------------------------------------------

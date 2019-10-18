@@ -1,11 +1,11 @@
 package ao.chess.v2.engine.mcts.player;
 
 import ao.chess.v1.util.Io;
-import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
 import ao.chess.v2.engine.mcts.*;
 import ao.chess.v2.engine.mcts.message.MctsAction;
+import ao.chess.v2.engine.mcts.node.MctsNodeImpl;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import ao.util.math.rand.Rand;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * Date: 27-Sep-2009
  * Time: 12:52:02 PM
  */
-public class MctsPlayer implements Player
+public class MctsPlayer implements BanditPlayer
 {
     //-----------------------------------------------------------------------------------------------------------------
 //    private static final int batchSize = 100;
@@ -89,6 +89,7 @@ public class MctsPlayer implements Player
 
 
     //-----------------------------------------------------------------------------------------------------------------
+    @Override
     public MctsPlayer prototype() {
         return new MctsPlayer(
                 nodes,
@@ -185,7 +186,8 @@ public class MctsPlayer implements Player
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    MctsNode moveInternal(
+    @Override
+    public MctsNode moveInternal(
             State position,
             MctsScheduler scheduler)
     {
@@ -257,7 +259,8 @@ public class MctsPlayer implements Player
     }
 
 
-    void notifyMoveInternal(State position, int action) {
+    @Override
+    public void notifyMoveInternal(State position, int action) {
         if (previousRootOrNull == null) {
             return;
         }
@@ -268,18 +271,20 @@ public class MctsPlayer implements Player
     }
 
 
-    void clearInternal() {
+    @Override
+    public void clearInternal() {
         previousRootOrNull = null;
         prevPlay = null;
         prevState = null;
     }
 
 
-    double moveScoreInternal(
-            MctsNode node,
+    @Override
+    public double moveScoreInternal(
+            BanditNode node,
             int move
     ) {
-        return node.moveScore(move, sellectors);
+        return ((MctsNodeImpl) node).moveScore(move, sellectors);
     }
 
 

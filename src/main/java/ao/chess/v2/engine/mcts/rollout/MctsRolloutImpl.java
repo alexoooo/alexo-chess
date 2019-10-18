@@ -69,7 +69,12 @@ public class MctsRolloutImpl
 
             sum += computeMonteCarloPlayout(curState, heuristic);
         }
-        return sum / nSims;
+        double average = sum / nSims;
+        return Math.abs(average - 0.5) < 0.001
+                ? 0.5
+                : average > 0.5
+                ? 0.9
+                : 0.1;
     }
 
 

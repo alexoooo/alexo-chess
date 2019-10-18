@@ -22,11 +22,12 @@ public class SlidingPieces
                      BitBoard.ALL, BitBoard.NIL);
     }
 
-    public static long slide(long piece,
-                             int  deltaRanks,
-                             int  deltaFiles,
-                             long notOccupied,
-                             long opponentPieces)
+    public static long slide(
+            long piece,
+            int  deltaRanks,
+            int  deltaFiles,
+            long notOccupied,
+            long opponentPieces)
     {
         long trail = 0;
         long cursor;

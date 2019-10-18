@@ -5,6 +5,7 @@ import ao.chess.v2.state.Move;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 /**
  * User: alexo
@@ -18,12 +19,13 @@ public class MovePicker
 
 
     //--------------------------------------------------------------------
-    private static final int picsPerN = 256;
+    private static final int picsPerN = 257;
 
 //    private static final long[] lastPick =
 //            new long[ Move.MAX_PER_PLY ];
 //    private static AtomicInteger nextIndex = new AtomicInteger();
-    private static volatile long nextIndex = 0;
+//    private static AtomicLong nextIndex = new AtomicLong();
+    private static final AtomicLongArray lastPick = new AtomicLongArray(Move.MAX_PER_PLY);
 
     private static final int[][][] allPicks =
             new int [ Move.MAX_PER_PLY ][][];
@@ -35,7 +37,9 @@ public class MovePicker
 
             for (int i = 0; i < picsPerN; i++) {
                 int[] picks = availPicks[ i ];
-                for (int j = 0; j < picks.length; j++) picks[j] = j;
+                for (int j = 0; j < picks.length; j++) {
+                    picks[j] = j;
+                }
                 shuffle(picks);
             }
             allPicks[ nMoves ] = availPicks;
@@ -50,11 +54,11 @@ public class MovePicker
 
 
     //--------------------------------------------------------------------
-    @SuppressWarnings("NonAtomicOperationOnVolatileField")
     public static int[] pickRandom(int nMoves)
     {
-        return allPicks[ nMoves                 ]
-                       [ (int) (nextIndex++ % picsPerN) ];
+        long index = lastPick.getAndIncrement(nMoves);
+        return allPicks[ nMoves ]
+                       [ (int) (index % picsPerN) ];
     }
 
 

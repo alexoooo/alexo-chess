@@ -14,6 +14,8 @@ class ParallelContext {
 
     public final int[] movesA = new int[Move.MAX_PER_PLY];
     public final int[] movesB = new int[Move.MAX_PER_PLY];
+    public final double[] valueSums = new double[Move.MAX_PER_PLY];
+    public final long[] visitCounts = new long[Move.MAX_PER_PLY];
 
 
     public final double exploration;

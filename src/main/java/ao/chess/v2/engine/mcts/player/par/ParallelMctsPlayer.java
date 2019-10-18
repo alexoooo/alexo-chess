@@ -2,7 +2,9 @@ package ao.chess.v2.engine.mcts.player.par;
 
 
 import ao.chess.v2.data.MovePicker;
-import ao.chess.v2.engine.Player;
+import ao.chess.v2.engine.mcts.MctsScheduler;
+import ao.chess.v2.engine.mcts.player.BanditNode;
+import ao.chess.v2.engine.mcts.player.BanditPlayer;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 
@@ -14,7 +16,7 @@ import java.util.concurrent.Future;
 
 
 public class ParallelMctsPlayer
-        implements Player
+        implements BanditPlayer
 {
     //-----------------------------------------------------------------------------------------------------------------
     private final static int reportPeriod = 60_000;
@@ -28,7 +30,10 @@ public class ParallelMctsPlayer
     private final int rollouts;
     private final boolean material;
 
-    private final ExecutorService executorService;
+    private ExecutorService executorService;
+
+    private long previousPositionHash = -1;
+    private ParallelRoot previousRoot;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -45,8 +50,6 @@ public class ParallelMctsPlayer
         this.exploration = exploration;
         this.rollouts = rollouts;
         this.material = material;
-
-        executorService = Executors.newFixedThreadPool(threads);
     }
 
 
@@ -58,8 +61,30 @@ public class ParallelMctsPlayer
             int timePerMove,
             int timeIncrement
     ) {
-        MovePicker.init();
-        ParallelRoot root = new ParallelRoot(position);
+        ParallelRoot root = moveInternal(position, timePerMove);
+        return root.bestMove();
+    }
+
+
+    private ParallelRoot moveInternal(
+            State position,
+            int timePerMove
+    ) {
+        if (executorService == null) {
+            MovePicker.init();
+            executorService = Executors.newFixedThreadPool(threads);
+        }
+
+        long positionHash = position.staticHashCode();
+        ParallelRoot root;
+        if (previousRoot != null && previousPositionHash == positionHash) {
+            root = previousRoot;
+        }
+        else {
+            root = new ParallelRoot(position);
+            previousRoot = root;
+            previousPositionHash = positionHash;
+        }
 
         long episodeMillis = Math.min(reportPeriod, timePerMove);
         long deadline = System.currentTimeMillis() + timePerMove;
@@ -87,7 +112,8 @@ public class ParallelMctsPlayer
             }
         }
 
-        return root.bestMove();
+        root.validate();
+        return root;
     }
 
 
@@ -115,10 +141,11 @@ public class ParallelMctsPlayer
         int bestMove = root.bestMove();
 
         String message = String.format(
-                "%s | %d / %.2f / %b | %s | %s",
+                "%s | %d / %.2f / %d / %b | %s | %s",
                 name,
                 threads,
                 exploration,
+                rollouts,
                 material,
                 Move.toString(bestMove),
                 root);
@@ -129,8 +156,48 @@ public class ParallelMctsPlayer
 
     //-----------------------------------------------------------------------------------------------------------------
     @Override
+    public BanditPlayer prototype() {
+        return new ParallelMctsPlayer(
+                name, threads, exploration, rollouts, material);
+    }
+
+
+    @Override
+    public void clearInternal() {
+        previousRoot = null;
+        previousPositionHash = -1;
+    }
+
+
+    @Override
+    public void notifyMoveInternal(State position, int action) {
+        // TODO
+    }
+
+
+    @Override
+    public double moveScoreInternal(BanditNode node, int move) {
+        ParallelNode child = (ParallelNode) node.childMatching(move);
+        return child.visitCount();
+    }
+
+
+    @Override
+    public BanditNode moveInternal(State position, MctsScheduler scheduler) {
+        ParallelRoot root = moveInternal(
+                position,
+                scheduler.timePerMove());
+
+        return root.node();
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    @Override
     public void close() {
-        executorService.shutdown();
+        if (executorService != null) {
+            executorService.shutdown();
+        }
     }
 
 

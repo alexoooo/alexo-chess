@@ -11,12 +11,15 @@ public interface MctsScheduler
     boolean shouldContinue();
 
 
+    int timePerMove();
+
+
     //--------------------------------------------------------------------
     interface Factory
     {
         MctsScheduler newScheduler(
-                                int timeLeft,
-                                int timePerMove,
-                                int timeIncrement);
+                int timeLeft,
+                int timePerMove,
+                int timeIncrement);
     }
 }

@@ -4,7 +4,6 @@ import ao.chess.v1.util.Io;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
-import ao.chess.v2.engine.mcts.MctsNode;
 import ao.chess.v2.engine.mcts.MctsScheduler;
 import ao.chess.v2.engine.mcts.scheduler.MctsSchedulerImpl;
 import ao.chess.v2.state.Move;
@@ -23,14 +22,14 @@ public class MultiMctsPlayer implements Player
 //    private final static int reportPeriod = 300_000;
     private final static int reportPeriod = 60_000;
 
-    private final List<MctsPlayer> players;
+    private final List<BanditPlayer> players;
     private final ExecutorService executor;
 
 //    private double cumulativeScore = 0;
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public MultiMctsPlayer(List<MctsPlayer> players)
+    public MultiMctsPlayer(List<BanditPlayer> players)
     {
         this.players = players;
         executor = Executors.newFixedThreadPool(players.size());
@@ -47,13 +46,13 @@ public class MultiMctsPlayer implements Player
     {
         int[] legalMoves = position.legalMoves();
         if (legalMoves == null || legalMoves.length == 0) {
-            players.forEach(MctsPlayer::clearInternal);
+            players.forEach(BanditPlayer::clearInternal);
             return -1;
         }
 
         int oracleAction = oracleAction(position, legalMoves);
         if (oracleAction != -1) {
-            players.forEach(MctsPlayer::clearInternal);
+            players.forEach(BanditPlayer::clearInternal);
 
             // NB: some kind of UI race condition?
             Sched.sleep(100);
@@ -87,16 +86,16 @@ public class MultiMctsPlayer implements Player
         MctsScheduler scheduler = new MctsSchedulerImpl.Factory().newScheduler(
                 searchTime, searchTime, searchTime);
 
-        List<Callable<MctsNode>> internalMoves = new ArrayList<>();
-        for (MctsPlayer player : players) {
+        List<Callable<BanditNode>> internalMoves = new ArrayList<>();
+        for (BanditPlayer player : players) {
             internalMoves.add(() ->
-                    player.moveInternal(position, scheduler));
+                    player.moveInternal(position.prototype(), scheduler));
         }
 
-        List<MctsNode> rootNodes = new ArrayList<>();
+        List<BanditNode> rootNodes = new ArrayList<>();
         try {
-            List<Future<MctsNode>> roots = executor.invokeAll(internalMoves);
-            for (Future<MctsNode> root : roots) {
+            List<Future<BanditNode>> roots = executor.invokeAll(internalMoves);
+            for (Future<BanditNode> root : roots) {
                 rootNodes.add(root.get());
             }
         }
@@ -110,7 +109,7 @@ public class MultiMctsPlayer implements Player
 
     private int selectBestMove(
             int[] legalMoves,
-            List<MctsNode> rootNodes
+            List<BanditNode> rootNodes
     ) {
 //        double totalScore = 0;
         int totalNodes = 0;
@@ -119,13 +118,13 @@ public class MultiMctsPlayer implements Player
 
         double[][] scores = new double[players.size()][legalMoves.length];
         for (int playerIndex = 0; playerIndex < players.size(); playerIndex++) {
-            MctsNode rootNode = rootNodes.get(playerIndex);
+            BanditNode rootNode = rootNodes.get(playerIndex);
 
             double playerMoveScoreSum = 0;
             for (int moveIndex = 0; moveIndex < legalMoves.length; moveIndex++) {
                 int action = legalMoves[moveIndex];
 
-                MctsNode actionNode = rootNode.childMatching(action);
+                BanditNode actionNode = rootNode.childMatching(action);
                 if (actionNode == null) {
                     continue;
                 }

@@ -233,6 +233,16 @@ public enum MctsPrototypes {
             new MctsSchedulerImpl.Factory(),
             "fallback-random-deep-4-opt-192");
 
+
+    public static final MctsPlayer mctsFallbackDeep4Rand15Prototype = new MctsPlayer(
+            new MctsNodeImpl.Factory<>(),
+            new Ucb1Value4.Factory(),
+            new MctsRolloutImpl(15, false),
+            new Ucb1Value4.VisitSelector(),
+            new MctsCaptureHeuristic(),
+            new MctsSchedulerImpl.Factory(),
+            "ucb1-4-rand-15");
+
     public static final MctsPlayer mctsFallbackDeep5Opt192Prototype = new MctsPlayer(
             new MctsNodeImpl.Factory<>(),
             new Ucb1Value5.Factory(),

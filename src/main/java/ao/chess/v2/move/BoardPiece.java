@@ -8,7 +8,7 @@ package ao.chess.v2.move;
 public interface BoardPiece
 {
     //--------------------------------------------------------------------
-    public long moves(
+    long moves(
             long pieceLocation,
             long occupied,
             long notOccupied,

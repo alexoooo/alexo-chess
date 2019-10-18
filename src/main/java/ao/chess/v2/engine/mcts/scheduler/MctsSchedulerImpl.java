@@ -38,4 +38,9 @@ public class MctsSchedulerImpl implements MctsScheduler
     public boolean shouldContinue() {
         return (System.currentTimeMillis() - startAt) < timePerMove;
     }
+
+    @Override
+    public int timePerMove() {
+        return (int) timePerMove;
+    }
 }
