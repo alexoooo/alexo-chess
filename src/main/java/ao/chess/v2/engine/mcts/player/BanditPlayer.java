@@ -14,7 +14,7 @@ public interface BanditPlayer extends Player {
     void notifyMoveInternal(State position, int action);
 
     double moveScoreInternal(
-            BanditNode node,
+//            BanditNode node,
             int move);
 
     BanditNode moveInternal(

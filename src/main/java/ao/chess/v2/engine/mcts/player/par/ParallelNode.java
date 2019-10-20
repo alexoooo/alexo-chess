@@ -238,7 +238,8 @@ class ParallelNode implements BanditNode {
             double value = computeMonteCarloPlayout(
                     freshState, pov/*, povInitialDefaultValue*/, context);
 
-            if (value != 0.5) {
+//            if (value != 0.5) {
+            {
                 sum += value;
                 count++;
             }

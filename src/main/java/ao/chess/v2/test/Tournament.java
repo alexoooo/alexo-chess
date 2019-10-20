@@ -1,14 +1,18 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.mcts.player.MultiMctsPlayer;
 import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
 
-import java.util.List;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UncheckedIOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 /**
@@ -20,6 +24,9 @@ public class Tournament
 {
     //--------------------------------------------------------------------
     private static final int TIME_PER_MOVE = 10_000;
+
+    private static final boolean recordThinking = true;
+    private static PrintWriter thinkingOut = null;
 
 
     //--------------------------------------------------------------------
@@ -183,25 +190,27 @@ public class Tournament
 //        );
 
 
-        Player a = new ParallelMctsPlayer(
+        ParallelMctsPlayer a = new ParallelMctsPlayer(
                 "par",
                 9,
-                0.4,
-                15,
+                0.3,
+//                1.0,
+                1,
                 false
         );
+        ParallelMctsPlayer b = a.prototype();
 
-        Player b = new MultiMctsPlayer(List.of(
-                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype()
-        ));
+//        Player b = new MultiMctsPlayer(List.of(
+//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
+//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype()
+//        ));
 
 
         int aWins = 0;
@@ -237,6 +246,7 @@ public class Tournament
 
         a.close();
         b.close();
+        closeThinkingIfRequired();
     }
 
 
@@ -257,15 +267,21 @@ public class Tournament
             boolean moveMade = false;
             int move = nextToAct.move(state.prototype(),
                     TIME_PER_MOVE, TIME_PER_MOVE, TIME_PER_MOVE);
-            int undoable = -1;
+            int undoable;
             if (move != -1) {
+                State stateProto = state.prototype();
+
                 undoable = Move.apply(move, state);
                 if (undoable != -1) {
                     moveMade = true;
+
+                    recordThinkingIfRequired(nextToAct, stateProto);
                 }
             }
 
             if (! moveMade) {
+                flushThinkingIfRequired();
+
                 if (state.isInCheck(Colour.WHITE)) {
                     return Outcome.BLACK_WINS;
                 } else if (state.isInCheck(Colour.BLACK)) {
@@ -276,6 +292,59 @@ public class Tournament
 
 //            System.out.println(Move.toString(undoable));
         }
+
+        flushThinkingIfRequired();
         return Outcome.DRAW;
+    }
+
+
+    private static void recordThinkingIfRequired(
+            Player nextToAct,
+            State state
+    ) {
+        if (! recordThinking || ! (nextToAct instanceof ParallelMctsPlayer)) {
+            return;
+        }
+        ParallelMctsPlayer player = (ParallelMctsPlayer) nextToAct;
+
+        if (thinkingOut == null) {
+            var filenamePattern = DateTimeFormatter.ofPattern("yyyyMMdd'_'HHmmss'_'SSS");
+            var timestamp = filenamePattern.format(LocalDateTime.now());
+
+            try {
+                thinkingOut = new PrintWriter(new File(
+                        "lookup/think_" + TIME_PER_MOVE + "_" + timestamp + ".csv"));
+            }
+            catch (FileNotFoundException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
+        StringBuilder str = new StringBuilder();
+
+        str.append(state.toFen());
+
+        for (int move : state.legalMoves()) {
+            str.append('|')
+                    .append(Move.toInputNotation(move))
+                    .append(',')
+                    .append((int) player.moveScoreInternal(move));
+        }
+
+        thinkingOut.println(str);
+    }
+
+
+    private static void flushThinkingIfRequired() {
+        if (thinkingOut != null) {
+            thinkingOut.flush();
+        }
+    }
+
+
+    private static void closeThinkingIfRequired() {
+        if (thinkingOut != null) {
+            thinkingOut.close();
+        }
     }
 }

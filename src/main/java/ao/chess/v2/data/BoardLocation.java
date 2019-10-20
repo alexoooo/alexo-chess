@@ -72,7 +72,7 @@ public enum BoardLocation
 
 
     //------------------------------------------------------------------------
-    private BoardLocation(int rank, int file)
+    BoardLocation(int rank, int file)
     {
         this.rank = rank;
         this.file = file;

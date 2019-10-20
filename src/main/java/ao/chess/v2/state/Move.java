@@ -75,7 +75,7 @@ public class Move
      *      lg 6 = 3  |
      *
      *    Capture {nil, pawn, knight, bishop, rook, queen}
-     *          nill is auto inserted by offsetting the given figure
+     *          nil is auto inserted by offsetting the given figure
      *          value, used to indicate lack of capture figure info
      *      lg 6 = 3  |
      *
@@ -95,8 +95,7 @@ public class Move
      *  ]
      */
 
-    // making this final raises annoying suggestions
-    private static       int TYPE_SHIFT = 0;
+    private static final int TYPE_SHIFT = 0;
     private static final int TYPE_SIZE  = 2;
     private static final int TYPE_MASK  = mask(TYPE_SIZE) << TYPE_SHIFT;
 
@@ -205,18 +204,18 @@ public class Move
         int index = (move & TYPE_MASK) >>> TYPE_SHIFT;
         return MoveType.VALUES[ index ];
     }
-    private static int fromSquareIndex(int move) {
+    public static int fromSquareIndex(int move) {
         return (move & FROM_MASK) >>> FROM_SHIFT;
     }
-    private static int toSquareIndex(int move) {
+    public static int toSquareIndex(int move) {
         return (move & TO_MASK) >>> TO_SHIFT;
     }
-    private static int figure(int move) {
+    public static int figure(int move) {
         return (move & FIGURE_MASK) >>> FIGURE_SHIFT;
 //        int index = (move & FIGURE_MASK) >>> FIGURE_SHIFT;
 //        return Figure.VALUES[ index ];
     }
-    private static int captured(int move) {
+    public static int captured(int move) {
         return ((move & CAPTURE_MASK) >>> CAPTURE_SHIFT) - 1;
 //        int index = (move & CAPTURE_MASK) >>> CAPTURE_SHIFT;
 //        return Figure.VALUES[ index ];
@@ -224,18 +223,18 @@ public class Move
 //    private static int enPassantRank(int move) {
 //        return (move & EN_PASS_MASK) >>> EN_PASS_SHIFT;
 //    }
-    private static int enPassantCapture(int move) {
+    public static int enPassantCapture(int move) {
         return Location.squareIndex(
                 Location.rankIndex(fromSquareIndex(move)),
                 Location.fileIndex(  toSquareIndex(move)));
     }
 
-    private static int promotion(int move) {
+    public static int promotion(int move) {
         return (move & PROMO_MASK) >>> PROMO_SHIFT;
 //        int index = (move & PROMO_MASK) >>> PROMO_SHIFT;
 //        return Figure.VALUES[ index ];
     }
-    private static CastleType castleType(int move) {
+    public static CastleType castleType(int move) {
         int index = (move & CASTLE_MASK) >>> CASTLE_SHIFT;
         return CastleType.VALUES[ index ];
     }
@@ -388,9 +387,10 @@ public class Move
                 toState.castle(castleType(move));
                 return move;
             }
+
+            default:
+                throw new IllegalStateException();
         }
-        System.out.println("unable to handle move");
-        return move;
     }
 
 
@@ -445,8 +445,10 @@ public class Move
                 toState.unCastle(castleType(move));
                 return;
             }
+
+            default:
+                throw new IllegalStateException();
         }
-        System.out.println("unable to handle move");
     }
 
 

@@ -147,20 +147,24 @@ public class BrainTeaser {
         Player player = new ParallelMctsPlayer(
                 "par",
                 9,
-                0.4,
-                15,
+                0.3,
+//                0.2,
+//                1.0,
+//                15,
+//                7,
+//                32,
+                3,
+//                false
                 false
         );
 
 
         State state = State.fromFen(
-                // Trivial puzzles
+                // puzzles
 //                "6rk/6pp/3N4/8/8/8/7P/7K w - - 0 1" // N from d6 to f7
 //                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
-//                "2r5/2p2k1p/pqp1RB2/2r5/PbQ2N2/1P3PP1/2P3P1/4R2K w - - 1 0"
-//                "6k1/ppp2ppp/8/2n2K1P/2P2P1P/2Bpr3/PP4r1/4RR2 b - - 0 1"
-//                "rnbqkbnr/pp1ppppp/8/2p5/4P3/5P2/PPPP2PP/RNBQKBNR b KQkq - 0 1"
+//                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8
 
                 // Travis game
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -188,7 +192,54 @@ public class BrainTeaser {
 //                "rnbqk2r/ppp1p1bp/3p3n/5p2/5P2/3B1N2/PPPP2PP/RNBQK2R b KQkq - 0 1"
 //                "rn1qk2r/ppp1p1bp/3pb2n/5p2/5P2/3B1N2/PPPP2PP/RNBQK2R w KQkq - 0 1"
 //                "rn1qk2r/ppp1p1bp/3pb2n/5p2/5P1P/3B1N2/PPPP2P1/RNBQK2R b KQkq h3 0 1"
-                "rn1qk2r/ppp1p1bp/3pb3/5p2/5PnP/3B1N2/PPPP2P1/RNBQK2R w KQkq - 0 1"
+//                "rn1qk2r/ppp1p1bp/3pb3/5p2/5PnP/3B1N2/PPPP2P1/RNBQK2R w KQkq - 0 1"
+//                "rn1qk2r/ppp1p1bp/3pb3/5p1P/5Pn1/3B1N2/PPPP2P1/RNBQK2R b KQkq - 0 1"
+//                "rn1qk2r/ppp1p1bp/4b3/3p1p1P/5Pn1/3B1N2/PPPP2P1/RNBQK2R w KQkq - 0 1"
+//                "rn1qk2r/ppp1p1bp/4b3/3p1p1P/5PnN/3B4/PPPP2P1/RNBQK2R b KQkq - 0 1"
+//                "rn2k2r/pppqp1bp/4b3/3p1p1P/5PnN/3B4/PPPP2P1/RNBQK2R w KQkq - 0 1"
+//                "rn2k2r/pppqp1bp/4b3/3p1p1P/5PnN/2NB4/PPPP2P1/R1BQK2R b KQkq - 0 1"
+//                "r3k2r/pppqp1bp/n3b3/3p1p1P/5PnN/2NB4/PPPP2P1/R1BQK2R w KQkq - 0 1"
+//                "r3k2r/pppqp1bp/n3b3/3N1p1P/5PnN/3B4/PPPP2P1/R1BQK2R b KQkq - 0 1"
+//                "r3k2r/pppqp1bp/n7/3b1p1P/5PnN/3B4/PPPP2P1/R1BQK2R w KQkq - 0 1"
+//                "r3k2r/pppqp1bp/n7/3b1B1P/5PnN/8/PPPP2P1/R1BQK2R b KQkq - 0 1"
+//                "r3k2r/pppq2bp/n3p3/3b1B1P/5PnN/8/PPPP2P1/R1BQK2R w KQkq - 0 1"
+//                "r3k2r/pppq2bp/n3p3/3b3P/5PBN/8/PPPP2P1/R1BQK2R b KQkq - 0 1"
+//                "r3k2r/pppq2bp/4p3/2nb3P/5PBN/8/PPPP2P1/R1BQK2R w KQkq - 0 1"
+//                "r3k2r/pppq2bp/4p3/2nb3P/P4PBN/8/1PPP2P1/R1BQK2R b KQkq a3 0 1"
+//                "r3k2r/pppq2bp/4p3/3b3P/n4PBN/8/1PPP2P1/R1BQK2R w KQkq - 0 1"
+//                "r3k2r/pppq2bp/4p3/3b3P/n4PBN/8/1PPP2P1/R1BQK1R1 b Qkq - 0 1"
+//                "r3k2r/pppq2bp/4p3/3b3P/5PBN/8/1nPP2P1/R1BQK1R1 w Qkq - 0 1"
+//                "r3k2r/pppq2bp/4p3/3b3P/5PBN/8/1BPP2P1/R2QK1R1 b Qkq - 0 1"
+//                "r3k2r/pppq3p/4p3/3b3P/5PBN/8/1bPP2P1/R2QK1R1 w Qkq - 0 1"
+//                "r3k2r/pppq3p/4p3/3b3P/5PBN/8/1bPP2P1/1R1QK1R1 b kq - 0 1"
+//                "r3k2r/ppp4p/4p3/1q1b3P/5PBN/8/1bPP2P1/1R1QK1R1 w kq - 0 1"
+//                "r3k2r/ppp4p/4p1N1/1q1b3P/5PB1/8/1bPP2P1/1R1QK1R1 b kq - 0 1" // ??
+//                "r3k2r/ppp5/4p1p1/1q1b3P/5PB1/8/1bPP2P1/1R1QK1R1 w kq - 0 1"
+//                "r3k2r/ppp5/4p1P1/1q1b4/5PB1/8/1bPP2P1/1R1QK1R1 b kq - 0 1"
+//                "r4rk1/ppp5/4p1P1/1q1b4/5PB1/8/1bPP2P1/1R1QK1R1 w - - 0 1"
+//                "r4rk1/ppp5/4p1P1/1q1b4/5P2/8/1bPPB1P1/1R1QK1R1 b - - 0 1"
+//                "r4rk1/ppp5/1q2p1P1/3b4/5P2/8/1bPPB1P1/1R1QK1R1 w - - 0 1"
+//                "r4rk1/ppp5/1q2p1P1/3b4/5P2/8/1bPPB1P1/1R1QKR2 b - - 0 1"
+//                "r4rk1/ppp5/1q2p1P1/8/5P2/8/1bPPB1b1/1R1QKR2 w - - 0 1"
+//                "r4rk1/ppp5/1q2p1P1/8/5P2/8/1bPPBRb1/1R1QK3 b - - 0 1"
+//                "r4rk1/ppp5/1q2p1P1/8/4bP2/8/1bPPBR2/1R1QK3 w - - 0 1"
+//                "r4rk1/ppp5/1q2p1P1/8/4bP2/3B4/1bPP1R2/1R1QK3 b - - 0 1"
+//                "r5k1/ppp5/1q2p1P1/8/4br2/3B4/1bPP1R2/1R1QK3 w - - 0 1"
+//                "r5k1/ppp5/1q2p1P1/8/4bR2/3B4/1bPP4/1R1QK3 b - - 0 1"
+//                "r5k1/ppp5/4p1P1/8/4bR2/3B4/1bPP4/1R1QK1q1 w - - 0 1"
+//                "r5k1/ppp5/4p1P1/8/4b3/3B4/1bPP4/1R1QKRq1 b - - 0 1"
+//                "r5k1/ppp5/4p1q1/8/4b3/3B4/1bPP4/1R1QKR2 w - - 0 1"
+//                "r5k1/ppp5/4p1q1/8/4b3/3B4/1RPP4/3QKR2 b - - 0 1"
+//                "r5k1/ppp5/4p1q1/8/8/3b4/1RPP4/3QKR2 w - - 0 1"
+//                "r5k1/ppp5/4p1q1/8/8/3P4/1R1P4/3QKR2 b - - 0 1"
+//                "r5k1/ppp5/4p3/8/8/3q4/1R1P4/3QKR2 w - - 0 1"
+//                "r5k1/ppp5/4p3/8/6Q1/3q4/1R1P4/4KR2 b - - 0 1"
+//                "r6k/ppp5/4p3/8/6Q1/3q4/1R1P4/4KR2 w - - 0 1"
+//                "r6k/ppp5/4p3/8/6Q1/3q4/1R1P4/4K1R1 b - - 0 1"
+//                "r6k/ppp4q/4p3/8/6Q1/8/1R1P4/4K1R1 w - - 0 1"
+//                "r6k/ppp4q/4p3/8/3Q4/8/1R1P4/4K1R1 b - - 0 1"
+//                "r6k/ppp3q1/4p3/8/3Q4/8/1R1P4/4K1R1 w - - 0 1"
+                "r6k/ppp3Q1/4p3/8/8/8/1R1P4/4K1R1 b - - 0 1"
 
                 // Mable game (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

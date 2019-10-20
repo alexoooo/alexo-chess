@@ -136,7 +136,7 @@ public class MultiMctsPlayer implements Player
                 maxDepth = Math.max(maxDepth, playerMaxDepth);
 
                 double moveScore = players.get(playerIndex)
-                        .moveScoreInternal(rootNode, legalMoves[moveIndex]);
+                        .moveScoreInternal(/*rootNode,*/ legalMoves[moveIndex]);
                 scores[playerIndex][moveIndex] = moveScore;
                 playerMoveScoreSum += moveScore;
             }

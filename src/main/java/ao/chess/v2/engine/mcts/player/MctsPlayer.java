@@ -281,9 +281,9 @@ public class MctsPlayer implements BanditPlayer
 
     @Override
     public double moveScoreInternal(
-            BanditNode node,
             int move
     ) {
+        BanditNode node = previousRootOrNull;
         return ((MctsNodeImpl) node).moveScore(move, sellectors);
     }
 

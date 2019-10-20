@@ -156,7 +156,7 @@ public class ParallelMctsPlayer
 
     //-----------------------------------------------------------------------------------------------------------------
     @Override
-    public BanditPlayer prototype() {
+    public ParallelMctsPlayer prototype() {
         return new ParallelMctsPlayer(
                 name, threads, exploration, rollouts, material);
     }
@@ -176,7 +176,8 @@ public class ParallelMctsPlayer
 
 
     @Override
-    public double moveScoreInternal(BanditNode node, int move) {
+    public double moveScoreInternal(int move) {
+        BanditNode node = previousRoot.node();
         ParallelNode child = (ParallelNode) node.childMatching(move);
         return child.visitCount();
     }
