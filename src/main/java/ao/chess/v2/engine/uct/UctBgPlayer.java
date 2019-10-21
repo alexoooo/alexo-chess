@@ -111,12 +111,8 @@ public class UctBgPlayer implements Player
     }
 
 
-    //--------------------------------------------------------------------
-    @Override protected void finalize() throws Throwable {
-        try {
-            exec.shutdownNow();
-        } finally {
-            super.finalize();
-        }
+    @Override
+    public void close() {
+        exec.shutdownNow();
     }
 }

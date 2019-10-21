@@ -24,8 +24,9 @@ public class Location
      * @param fileIndex file of square {0..7}
      * @return {0..63}
      */
-    public static int squareIndex(int rankIndex,
-                                  int fileIndex)
+    public static int squareIndex(
+            int rankIndex,
+            int fileIndex)
     {
         return 8 * rankIndex + fileIndex;
     }

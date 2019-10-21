@@ -31,11 +31,34 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <ao.util.version>2.4.0</ao.util.version>
+
+        <nd4j.backend>nd4j-native-platform</nd4j.backend>
+        <nd4j.version>1.0.0-beta5</nd4j.version>
+        <dl4j.version>1.0.0-beta5</dl4j.version>
+        <rl4j.version>1.0.0-beta5</rl4j.version>
     </properties>
 
 
     <!--====================================================================-->
     <dependencies>
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>${nd4j.backend}</artifactId>
+            <version>${nd4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-core</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.28</version>
+        </dependency>
+
+
+
         <dependency>
             <groupId>ao.util</groupId>
             <artifactId>util-lang</artifactId>
@@ -70,6 +93,9 @@
             <artifactId>sux4j</artifactId>
             <version>2.0</version>
         </dependency>
+
+
+
     </dependencies>
 
 

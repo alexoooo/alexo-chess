@@ -53,6 +53,22 @@ public class MoveExample {
     }
 
 
+    //-----------------------------------------------------------------------------------------------------------------
+    public State state() {
+        return state;
+    }
+
+    public int[] legalMoves() {
+        return legalMoves;
+    }
+
+
+    public double[] moveScores() {
+        return moveScores;
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     public RealList stateInputVector() {
         double[] vector = new double[64 * Figure.VALUES.length];
 
