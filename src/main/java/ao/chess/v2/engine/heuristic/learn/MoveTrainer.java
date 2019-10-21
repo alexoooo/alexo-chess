@@ -8,6 +8,7 @@ import ao.chess.v2.data.Location;
 import ao.chess.v2.piece.Figure;
 import ao.chess.v2.piece.Piece;
 import ao.chess.v2.state.Move;
+import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.inputs.InputType;
@@ -40,15 +41,16 @@ public class MoveTrainer {
     private static final int modelSize = 512;
 
     private static final List<Path> inputs = List.of(
-            Paths.get("lookup/think_train_10000.csv"));
+            Paths.get("lookup/think_train_10000.csv"),
+            Paths.get("lookup/think_10000_20191021_122214_071.csv"));
 
     private static final Path test = Paths.get("lookup/think_test_10000.csv");
 
 
     public static void main(String[] args) {
         OnlineRandomForest forest = new OnlineRandomForest(modelSize);
-        var nn = createNeuralNetwork();
-//        var nn = createNeuralNetwork2();
+//        var nn = createNeuralNetwork();
+        var nn = createNeuralNetwork2();
 
         Consumer<MoveExample> randomLearner = example -> {};
         BiConsumer<MoveExample, Sample> randomTester = (example, sample) -> {
@@ -75,7 +77,7 @@ public class MoveTrainer {
             INDArray input = convertToDataSet(example).getFeatures();
             INDArray output = nn.output(input);
             for (int i = 0; i < Location.COUNT; i++) {
-                double value = output.getDouble(i, 0);
+                double value = Math.max(0, output.getDouble(0, i));
                 sample.set(i, value);
             }
         };
@@ -192,14 +194,15 @@ public class MoveTrainer {
 
 
     public static DataSet convertToDataSet(MoveExample example) {
-        INDArray features = Nd4j.zeros(Location.COUNT, Figure.VALUES.length); // figures
+//        INDArray features = Nd4j.zeros(Location.COUNT, Figure.VALUES.length); // figures
 //        INDArray features = Nd4j.zeros(Location.COUNT * Figure.VALUES.length); // figures
+        INDArray features = Nd4j.zeros(6, 8, 8); // figures
 
-        INDArray labels = Nd4j.zeros(Location.COUNT, 1); // from square
+        INDArray labels = Nd4j.zeros(Location.COUNT); // from square
 
         for (int rank = 0; rank < Location.RANKS; rank++) {
             for (int file = 0; file < Location.FILES; file++) {
-                int index = Location.squareIndex(rank, file);
+//                int index = Location.squareIndex(rank, file);
 
                 Piece piece = example.state().pieceAt(rank, file);
                 if (piece == null) {
@@ -211,10 +214,15 @@ public class MoveTrainer {
 
                 Figure figure = piece.figure();
 
-                features.put(index, figure.ordinal(), value);
+//                features.put(index, figure.ordinal(), value);
+//                features.putScalar(index * Figure.VALUES.length + figure.ordinal(), value);
+                features.put(new int[] {figure.ordinal(), rank, file}, Nd4j.scalar(value));
 //                features.put(new PointIndex[] {new PointIndex(index * Figure.VALUES.length + figure.ordinal())}, value);
             }
         }
+
+        long[] shape = features.shape();
+        features = features.reshape(1, shape[0], shape[1], shape[2]);
 
         double[] locationScores = example.locationScores();
         for (int i = 0; i < example.legalMoves().length; i++) {
@@ -223,8 +231,9 @@ public class MoveTrainer {
 
             double score = locationScores[i];
 
-            labels.put(from, 0, score);
+            labels.put(from, Nd4j.scalar(score));
         }
+        labels = labels.reshape(1, 64);
 
         return new DataSet(features, labels);
     }
@@ -272,29 +281,34 @@ public class MoveTrainer {
 
 
     private static MultiLayerNetwork createNeuralNetwork2() {
+        int numHiddenNodes = 128;
         int seed = 42;
         int height = Location.FILES;
         int width = Location.RANKS;
-        int numOutputs = 1;
         int channels = Figure.VALUES.length;
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .l2(0.005)
-                .activation(Activation.LEAKYRELU)
+//                .l2(0.0005)
                 .weightInit(WeightInit.XAVIER)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(new AdaDelta())
                 .list()
-                .layer(0, convInit("cnn1", channels, 50 ,  new int[]{5, 5}, new int[]{1, 1}, new int[]{0, 0}, 0))
-//                .layer(1, maxPool("maxpool1", new int[]{2,2}))
-//                .layer(2, conv3x3("cnn2", 100, 0))
-//                .layer(3, conv3x3("cnn2", 100, 1))
-//                .layer(4, maxPool("maxool2", new int[]{2,2}))
-//                .layer(5, new DenseLayer.Builder().nOut(500).build())
-                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.L2)
+//                .layer(0, convInit("cnn1", channels, 50 , new int[]{5, 5}, new int[]{1, 1}, new int[]{0, 0}, 0))
+                .layer(0, new ConvolutionLayer.Builder(2, 2)
+                        .nIn(6)
+                        .stride(1, 1)
+                        .nOut(20)
                         .activation(Activation.IDENTITY)
-//                        .nIn(numHiddenNodes)
-                        .nOut(numOutputs).build())
+                        .build())
+                .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+                        .kernelSize(2, 2).stride(1, 1).build())
+                .layer(2, new DenseLayer.Builder().activation(Activation.LEAKYRELU)
+                        .nOut(numHiddenNodes).build())
+                .layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.L2)
+                        .activation(Activation.IDENTITY)
+                        .nIn(numHiddenNodes)
+                        .nOut(64).build())
                 .setInputType(InputType.convolutionalFlat(height, width, channels))
                 .build();
 
