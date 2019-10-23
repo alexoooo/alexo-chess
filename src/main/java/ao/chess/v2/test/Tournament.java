@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 10_000;
+    private static final int TIME_PER_MOVE = 1_000;
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;

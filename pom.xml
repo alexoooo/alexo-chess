@@ -33,6 +33,7 @@
         <ao.util.version>2.4.0</ao.util.version>
 
         <nd4j.backend>nd4j-native-platform</nd4j.backend>
+<!--        <nd4j.backend>nd4j-cuda-10.1-platform</nd4j.backend>-->
         <nd4j.version>1.0.0-beta5</nd4j.version>
         <dl4j.version>1.0.0-beta5</dl4j.version>
         <rl4j.version>1.0.0-beta5</rl4j.version>
@@ -41,6 +42,7 @@
 
     <!--====================================================================-->
     <dependencies>
+        <!-- https://medium.com/@akshaysin_86681/installing-cuda-and-cudnn-on-windows-10-f735585159f7 -->
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>${nd4j.backend}</artifactId>
@@ -52,11 +54,15 @@
             <version>${dl4j.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-cuda-10.1</artifactId>
+            <version>1.0.0-beta5</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.28</version>
         </dependency>
-
 
 
         <dependency>
