@@ -47,35 +47,49 @@ public class MoveTrainer {
 //            Paths.get("lookup/think_train_10000.csv"),
 //            Paths.get("lookup/think_10000_20191021_122214_071.csv"),
 //            Paths.get("lookup/think_1000_20191021_180745_069.csv"),
-            Paths.get("lookup/think_1000_20191022_000732_249-a1sub.csv")//,
-//            Paths.get("lookup/think_1000_20191022_000732_249-a1.csv")//,
-//            Paths.get("lookup/think_1000_20191022_000732_249-a2.csv"),
-//            Paths.get("lookup/think_1000_20191022_000732_249-a3.csv"),
-//            Paths.get("lookup/think_1000_20191022_000732_249-a4.csv"),
-//            Paths.get("lookup/think_1000_20191022_000732_249-a5.csv"),
-//            Paths.get("lookup/think_1000_20191022_000732_249-a6.csv"),
-//            Paths.get("lookup/think_1000_20191022_000732_249-a7.csv"),
-//            Paths.get("lookup/think_1000_20191022_000732_249-a8.csv"),
-//            Paths.get("lookup/think_1000_20191022_000732_249-a9.csv"),
-//            Paths.get("lookup/think_1000_20191022_000732_249-a10.csv"),
-//            Paths.get("lookup/think_1000_20191022_000732_249-a11.csv"),
-//            Paths.get("lookup/think_1000_20191022_000732_249-b.csv"),
-//            Paths.get("lookup/think_1000_20191022_000732_249-c.csv"),
-//            Paths.get("lookup/think_1000_20191022_094039_884.csv")
+//            Paths.get("lookup/think_1000_20191022_000732_249-a1-s.csv")
+            Paths.get("lookup/think_1000_20191022_000732_249-a1.csv"),
+            Paths.get("lookup/think_1000_20191022_000732_249-a2.csv"),
+            Paths.get("lookup/think_1000_20191022_000732_249-a3.csv"),
+            Paths.get("lookup/think_1000_20191022_000732_249-a4.csv"),
+            Paths.get("lookup/think_1000_20191022_000732_249-a5.csv"),
+            Paths.get("lookup/think_1000_20191022_000732_249-a6.csv"),
+            Paths.get("lookup/think_1000_20191022_000732_249-a7.csv"),
+            Paths.get("lookup/think_1000_20191022_000732_249-a8.csv"),
+            Paths.get("lookup/think_1000_20191022_000732_249-a9.csv"),
+            Paths.get("lookup/think_1000_20191022_000732_249-a10.csv"),
+            Paths.get("lookup/think_1000_20191022_000732_249-a11.csv"),
+            Paths.get("lookup/think_1000_20191022_000732_249-b.csv"),
+            Paths.get("lookup/think_1000_20191022_000732_249-c.csv"),
+            Paths.get("lookup/think_1000_20191022_094039_884.csv"),
+            Paths.get("lookup/think_1000_20191022_210003_723.csv")
     );
 
     private static final Path test =
 //        Paths.get("lookup/think_test_10000.csv");
-//            Paths.get("lookup/think_1000_20191021_180745_069.csv");
+            Paths.get("lookup/think_1000_20191021_180745_069.csv");
 //            Paths.get("lookup/think_1000_20191022_000732_249-a1.csv");
-            Paths.get("lookup/think_1000_20191022_000732_249-a1sub.csv");
+//            Paths.get("lookup/think_1000_20191022_000732_249-a1-s.csv");
+
+
+    private static final Path saveFile =
+            Paths.get("lookup/nn_2019-10-23.zip");
 
 
     public static void main(String[] args) {
         OnlineRandomForest forest = new OnlineRandomForest(modelSize);
-//        var nn = createNeuralNetwork();
-        var nn = createNeuralNetwork2();
-//        var nn = createNeuralNetwork3();
+
+        boolean saved = Files.exists(saveFile);
+
+//        MultiLayerNetwork nn = createNeuralNetwork3();
+        MultiLayerNetwork nn;
+        if (saved) {
+            nn = loadNeuralNetwork(saveFile, false);
+        }
+        else {
+//            nn = createNeuralNetwork2();
+            nn = createNeuralNetwork3();
+        }
 
         Consumer<MoveExample> randomLearner = example -> {};
         BiConsumer<MoveExample, Sample> randomTester = (example, sample) -> {
@@ -103,14 +117,13 @@ public class MoveTrainer {
             INDArray output = nn.output(input);
             boolean flip = example.state().nextToAct() == Colour.BLACK;
             for (int i = 0; i < Location.COUNT; i++) {
-                int rank = Location.rankIndex(i);
-                int file = Location.fileIndex(i);
-                int adjustedRank = (flip ? Location.RANKS - rank - 1 : rank);
-                int adjustedFile = (flip ? Location.FILES - file - 1 : file);
-                int adjustedIndex = Location.squareIndex(adjustedRank, adjustedFile);
+                int fromAdjustedIndex = flipIndexIfRequired(i, flip);
+                double fromValue = Math.max(0, output.getDouble(0, fromAdjustedIndex));
+                sample.set(i, fromValue);
 
-                double value = Math.max(0, output.getDouble(0, adjustedIndex));
-                sample.set(i, value);
+                int toAdjustedIndex = fromAdjustedIndex + Location.COUNT;
+                double toValue = Math.max(0, output.getDouble(0, toAdjustedIndex));
+                sample.set(i + Location.COUNT, toValue);
             }
         };
 
@@ -121,10 +134,17 @@ public class MoveTrainer {
         Consumer<MoveExample> learner = nnLearner;
         BiConsumer<MoveExample, Sample> tester = nnTester;
 
+        if (saved) {
+            testOutputs(tester);
+        }
+
         double min = Double.POSITIVE_INFINITY;
-        for (int epoch = 0; epoch < 10_000; epoch++) {
+        for (int epoch = 0; epoch < 5_000; epoch++) {
             for (Path input : inputs) {
                 iterateInputs(epoch, input, learner);
+
+                saveNeuralNetwork(nn, saveFile);
+
                 double error = testOutputs(tester);
 
                 if (min > error) {
@@ -132,6 +152,48 @@ public class MoveTrainer {
                     System.out.println("^^^^ NEW BEST");
                 }
             }
+        }
+    }
+
+
+    private static int flipIndexIfRequired(
+            int locationIndex,
+            boolean flip
+    ) {
+        int rank = Location.rankIndex(locationIndex);
+        int file = Location.fileIndex(locationIndex);
+        int adjustedRank = (flip ? Location.RANKS - rank - 1 : rank);
+        int adjustedFile = (flip ? Location.FILES - file - 1 : file);
+        return Location.squareIndex(adjustedRank, adjustedFile);
+    }
+
+
+    private static void saveNeuralNetwork(
+            MultiLayerNetwork neuralNetwork,
+            Path saveFile
+    ) {
+        try {
+            neuralNetwork.save(saveFile.toFile());
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+
+    private static MultiLayerNetwork loadNeuralNetwork(
+            Path loadFile,
+            boolean readOnly
+    ) {
+        try {
+            System.out.println("> Loading: " + loadFile);
+            long start = System.currentTimeMillis();
+            MultiLayerNetwork nn = MultiLayerNetwork.load(loadFile.toFile(), ! readOnly);
+            System.out.println("> Done, loading took " + (double) (System.currentTimeMillis() - start) / 1000);
+            return nn;
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -195,36 +257,58 @@ public class MoveTrainer {
             Sample sample,
             MoveExample example)
     {
-        double sampleTotal = sample.totalCount();
-
-        double[] locationScores = example.locationScores();
-
-        int actualsCount = 0;
-        double errorSumOfSquares = 0;
-
-        for (int i = 0; i < locationScores.length; i++) {
-            double actual = locationScores[i];
-            if (actual == 0) {
-                continue;
-            }
-            actualsCount++;
-
-            double prediction = sample.get(i) / sampleTotal;
-//                    double prediction = sample.get(i);
-            double error = locationScores[i] - prediction;
-            errorSumOfSquares += error * error;
+        double fromTotal = 0;
+        for (int i = 0; i < Location.COUNT; i++) {
+            fromTotal += sample.get(i);
         }
-        return Math.sqrt(errorSumOfSquares / actualsCount);
-    }
 
+        double toTotal = 0;
+        for (int i = 0; i < Location.COUNT; i++) {
+            toTotal += sample.get(i + Location.COUNT);
+        }
+
+//        double[] fromLocationScores = example.fromLocationScores();
+//        double[] toLocationScores = example.toLocationScores();
+
+        double moveTotal = 0;
+        double[] moveScores = new double[example.legalMoves().length];
+
+        for (int i = 0; i < example.legalMoves().length; i++) {
+            int move = example.legalMoves()[i];
+            int fromIndex = Move.fromSquareIndex(move);
+            double fromPrediction = sample.get(fromIndex) / fromTotal;
+
+            int toIndex = Move.toSquareIndex(move);
+            double toPrediction = sample.get(toIndex + Location.COUNT) / toTotal;
+
+            double moveScore = fromPrediction * toPrediction;
+            moveScores[i] = moveScore;
+            moveTotal += moveScore;
+        }
+
+//        double absErrorSum = 0;
+        double squaredErrorSum = 0;
+        for (int i = 0; i < example.legalMoves().length; i++) {
+            double prediction = moveTotal == 0 ? 0 : moveScores[i] / moveTotal;
+            double actual = example.moveScores()[i];
+            double error = actual - prediction;
+//            absErrorSum += Math.abs(error);
+            squaredErrorSum += error * error;
+        }
+
+        // see: https://en.wikipedia.org/wiki/Mean_absolute_error
+//        return absErrorSum / example.legalMoves().length;
+        return Math.sqrt(squaredErrorSum / example.legalMoves().length);
+    }
 
 
     private static void randomSample(Sample sample) {
-        for (int i = 0; i < modelSize; i++) {
-            sample.learn(MultiClass.create((int) (Math.random() * 64)));
+        for (int i = 0; i < 10_000; i++) {
+            int index = (int) (Math.random() * Location.COUNT);
+            sample.learn(MultiClass.create(index));
+            sample.learn(MultiClass.create(index + Location.COUNT));
         }
     }
-
 
 
     public static DataSet convertToDataSet(MoveExample example) {
@@ -232,7 +316,8 @@ public class MoveTrainer {
 //        INDArray features = Nd4j.zeros(Location.COUNT * Figure.VALUES.length); // figures
         INDArray features = Nd4j.zeros(6, 8, 8); // figures
 
-        INDArray labels = Nd4j.zeros(Location.COUNT); // from square
+        // from square and to square, independent probabilities
+        INDArray labels = Nd4j.zeros(Location.COUNT * 2);
 
         boolean flip = example.state().nextToAct() == Colour.BLACK;
 
@@ -260,36 +345,35 @@ public class MoveTrainer {
             }
         }
 
-        long[] shape = features.shape();
-        features = features.reshape(1, shape[0], shape[1], shape[2]);
+        long[] featureShape = features.shape();
+        INDArray reshapedFeatures = features.reshape(1, featureShape[0], featureShape[1], featureShape[2]);
 
-        double[] locationScores = example.locationScores();
+        double[] fromLocationScores = example.fromLocationScores();
+        double[] toLocationScores = example.toLocationScores();
+
         for (int i = 0; i < example.legalMoves().length; i++) {
             int move = example.legalMoves()[i];
-            int from = Move.fromSquareIndex(move);
 
-            // TODO: sometimes zero??
-            double score =
-                    locationScores.length > from
-                    ? locationScores[from]
+            int fromSquareIndex = Move.fromSquareIndex(move);
+            double fromScore =
+                    fromLocationScores.length > fromSquareIndex
+                    ? fromLocationScores[fromSquareIndex]
                     : 0;
+            int adjustedFrom = flipIndexIfRequired(fromSquareIndex, flip);
+            labels.put(adjustedFrom, Nd4j.scalar(fromScore));
 
-//            if (score == 0) {
-//                System.out.println("foo");
-//            }
-
-            int fromRank = Location.rankIndex(from);
-            int fromFile = Location.fileIndex(from);
-            int adjustedFromRank = (flip ? Location.RANKS - fromRank - 1 : fromRank);
-            int adjustedFromFile = (flip ? Location.FILES - fromFile - 1 : fromFile);
-            int adjustedFrom = Location.squareIndex(adjustedFromRank, adjustedFromFile);
-
-            labels.put(adjustedFrom, Nd4j.scalar(score));
+            int toSquareIndex = Move.toSquareIndex(move);
+            double toScore =
+                    toLocationScores.length > toSquareIndex
+                    ? toLocationScores[toSquareIndex]
+                    : 0;
+            int adjustedTo = flipIndexIfRequired(toSquareIndex, flip);
+            labels.put(adjustedTo + Location.COUNT, Nd4j.scalar(toScore));
         }
 
-        INDArray reshapedLabels = labels.reshape(1, 64);
+        INDArray reshapedLabels = labels.reshape(1, Location.COUNT * 2);
 
-        return new DataSet(features, reshapedLabels);
+        return new DataSet(reshapedFeatures, reshapedLabels);
     }
 
 
@@ -349,7 +433,7 @@ public class MoveTrainer {
                 .layer(4, new DenseLayer.Builder().activation(Activation.LEAKYRELU)
                         .nOut(500).build())
                 .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.L2)
-                        .nOut(64).activation(Activation.IDENTITY).build())
+                        .nOut(Location.COUNT * 2).activation(Activation.IDENTITY).build())
                 .setInputType(InputType.convolutionalFlat(height, width, channels))
                 .build();
 
@@ -373,8 +457,12 @@ public class MoveTrainer {
 //                .l2(0.0001)
                 .weightInit(WeightInit.XAVIER)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+
 //                .updater(new RmsProp(0.0015))
                 .updater(new Adam())
+//                .updater(new AdaDelta())
+//                .updater(new AdaGrad(0.1))
+
                 .list()
 
                 .layer(new ConvolutionLayer.Builder(3, 3)
@@ -399,7 +487,7 @@ public class MoveTrainer {
                         .activation(Activation.LEAKYRELU).nOut(384).build())
 
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)
-                        .nOut(64).activation(Activation.IDENTITY).build())
+                        .nOut(Location.COUNT * 2).activation(Activation.IDENTITY).build())
 
                 .setInputType(InputType.convolutionalFlat(height, width, channels))
                 .build();
@@ -409,25 +497,4 @@ public class MoveTrainer {
 
         return net;
     }
-
-
-    private static ConvolutionLayer convInit(String name, int in, int out, int[] kernel, int[] stride, int[] pad, double bias) {
-        return new ConvolutionLayer.Builder(kernel, stride, pad).name(name).nIn(in).nOut(out).biasInit(bias).build();
-    }
-
-    private static ConvolutionLayer conv3x3(String name, int out, double bias) {
-        return new ConvolutionLayer.Builder(new int[]{3,3}, new int[] {1,1}, new int[] {1,1}).name(name).nOut(out).biasInit(bias).build();
-    }
-
-    private static ConvolutionLayer conv5x5(String name, int out, int[] stride, int[] pad, double bias) {
-        return new ConvolutionLayer.Builder(new int[]{5,5}, stride, pad).name(name).nOut(out).biasInit(bias).build();
-    }
-
-    private static SubsamplingLayer maxPool(String name,  int[] kernel) {
-        return new SubsamplingLayer.Builder(kernel, new int[]{2,2}).name(name).build();
-    }
-
-//    private static  DenseLayer fullyConnected(String name, int out, double bias, double dropOut, Distribution dist) {
-//        return new DenseLayer.Builder().name(name).nOut(out).biasInit(bias).dropOut(dropOut).dist(dist).build();
-//    }
 }

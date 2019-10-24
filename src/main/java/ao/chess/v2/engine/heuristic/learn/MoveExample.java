@@ -91,7 +91,7 @@ public class MoveExample {
     }
 
 
-    public double[] locationScores() {
+    public double[] fromLocationScores() {
         double[] scores = new double[64];
 
         for (int i = 0; i < legalMoves.length; i++) {
@@ -105,8 +105,22 @@ public class MoveExample {
     }
 
 
+    public double[] toLocationScores() {
+        double[] scores = new double[64];
+
+        for (int i = 0; i < legalMoves.length; i++) {
+            int move = legalMoves[i];
+            int from = Move.toSquareIndex(move);
+
+            scores[from] += moveScores[i];
+        }
+
+        return scores;
+    }
+
+
     public List<MultiClass> movePositionSample() {
-        double[] locationScores = locationScores();
+        double[] locationScores = fromLocationScores();
 
         int fromCount = 0;
         for (double locationScore : locationScores) {
