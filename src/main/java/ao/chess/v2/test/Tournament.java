@@ -1,6 +1,7 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
+import ao.chess.v2.engine.heuristic.learn.MoveExample;
 import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
@@ -13,6 +14,7 @@ import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 
 /**
@@ -27,6 +29,7 @@ public class Tournament
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
+    private static MoveExample.Buffer moveExampleBuffer = new MoveExample.Buffer();
 
 
     //--------------------------------------------------------------------
@@ -212,6 +215,9 @@ public class Tournament
 //                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype()
 //        ));
 
+//        Player a = NeuralNetworkPlayer.load(
+//                Paths.get("lookup/nn_2019-10-24.zip"));
+//        Player b = new RandomPlayer();
 
         int aWins = 0;
         int bWins = 0;
@@ -255,6 +261,8 @@ public class Tournament
     {
         State state = State.initial();
 
+        Outcome outcome = Outcome.DRAW;
+
         while (! state.isDrawnBy50MovesRule())
         {
 //            System.out.println("---------------------------------------");
@@ -267,7 +275,7 @@ public class Tournament
             boolean moveMade = false;
             int move = nextToAct.move(state.prototype(),
                     TIME_PER_MOVE, TIME_PER_MOVE, TIME_PER_MOVE);
-            int undoable;
+            int undoable = -1;
             if (move != -1) {
                 State stateProto = state.prototype();
 
@@ -280,21 +288,18 @@ public class Tournament
             }
 
             if (! moveMade) {
-                flushThinkingIfRequired();
-
                 if (state.isInCheck(Colour.WHITE)) {
-                    return Outcome.BLACK_WINS;
-                } else if (state.isInCheck(Colour.BLACK)) {
-                    return Outcome.WHITE_WINS;
+                    outcome = Outcome.BLACK_WINS;
                 }
-                return Outcome.DRAW;
+                else if (state.isInCheck(Colour.BLACK)) {
+                    outcome = Outcome.WHITE_WINS;
+                }
+                break;
             }
-
-//            System.out.println(Move.toString(undoable));
         }
 
-        flushThinkingIfRequired();
-        return Outcome.DRAW;
+        flushThinkingIfRequired(outcome);
+        return outcome;
     }
 
 
@@ -306,6 +311,22 @@ public class Tournament
             return;
         }
         ParallelMctsPlayer player = (ParallelMctsPlayer) nextToAct;
+
+        int[] legalMoves = state.legalMoves();
+
+        double[] moveScores = new double[legalMoves.length];
+        for (int i = 0; i < legalMoves.length; i++) {
+            moveScores[i] = player.moveScoreInternal(legalMoves[i]);
+        }
+
+        moveExampleBuffer.add(state, legalMoves, moveScores);
+    }
+
+
+    private static void flushThinkingIfRequired(Outcome outcome) {
+        if (moveExampleBuffer.isEmpty()) {
+            return;
+        }
 
         if (thinkingOut == null) {
             var filenamePattern = DateTimeFormatter.ofPattern("yyyyMMdd'_'HHmmss'_'SSS");
@@ -320,25 +341,13 @@ public class Tournament
             }
         }
 
-        StringBuilder str = new StringBuilder();
+        List<MoveExample> examples = moveExampleBuffer.build(outcome);
 
-        str.append(state.toFen());
-
-        for (int move : state.legalMoves()) {
-            str.append('|')
-                    .append(Move.toInputNotation(move))
-                    .append(',')
-                    .append((int) player.moveScoreInternal(move));
+        for (MoveExample example : examples) {
+            thinkingOut.println(example.asString());
         }
 
-        thinkingOut.println(str);
-    }
-
-
-    private static void flushThinkingIfRequired() {
-        if (thinkingOut != null) {
-            thinkingOut.flush();
-        }
+        thinkingOut.flush();
     }
 
 

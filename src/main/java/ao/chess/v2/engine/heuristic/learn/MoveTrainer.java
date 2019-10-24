@@ -1,13 +1,9 @@
 package ao.chess.v2.engine.heuristic.learn;
 
-import ao.ai.classify.online.forest.OnlineRandomForest;
-import ao.ai.classify.online.forest.Sample;
-import ao.ai.ml.model.input.RealList;
-import ao.ai.ml.model.output.MultiClass;
 import ao.chess.v2.data.Location;
+import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;
-import ao.chess.v2.piece.Piece;
 import ao.chess.v2.state.Move;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -36,12 +32,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.DoubleSummaryStatistics;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 
 public class MoveTrainer {
-    private static final int modelSize = 1024;
+    private static final boolean bestAction = true;
 
     private static final List<Path> inputs = List.of(
 //            Paths.get("lookup/think_train_10000.csv"),
@@ -73,12 +69,10 @@ public class MoveTrainer {
 
 
     private static final Path saveFile =
-            Paths.get("lookup/nn_2019-10-23.zip");
+            Paths.get("lookup/nn_2019-10-24.zip");
 
 
     public static void main(String[] args) {
-        OnlineRandomForest forest = new OnlineRandomForest(modelSize);
-
         boolean saved = Files.exists(saveFile);
 
 //        MultiLayerNetwork nn = createNeuralNetwork3();
@@ -92,58 +86,36 @@ public class MoveTrainer {
         }
 
         Consumer<MoveExample> randomLearner = example -> {};
-        BiConsumer<MoveExample, Sample> randomTester = (example, sample) -> {
-            randomSample(sample);
-        };
-
-        Consumer<MoveExample> forestLearner = example -> {
-            RealList stateVector = example.stateInputVector();
-            List<MultiClass> movePositionSample = example.movePositionSample();
-            for (MultiClass output : movePositionSample) {
-                forest.learn(stateVector, output);
-            }
-        };
-        BiConsumer<MoveExample, Sample> forestTester = (example, sample) -> {
-            RealList stateVector = example.stateInputVector();
-            forest.sample(stateVector, sample);
-        };
+        Function<MoveExample, double[]> randomTester = MoveTrainer::randomSample;
 
         Consumer<MoveExample> nnLearner = example -> {
             DataSet dataSet = convertToDataSet(example);
             nn.fit(dataSet);
         };
-        BiConsumer<MoveExample, Sample> nnTester = (example, sample) -> {
+        Function<MoveExample, double[]> nnTester = (example) -> {
             INDArray input = convertToDataSet(example).getFeatures();
             INDArray output = nn.output(input);
-            boolean flip = example.state().nextToAct() == Colour.BLACK;
-            for (int i = 0; i < Location.COUNT; i++) {
-                int fromAdjustedIndex = flipIndexIfRequired(i, flip);
-                double fromValue = Math.max(0, output.getDouble(0, fromAdjustedIndex));
-                sample.set(i, fromValue);
 
-                int toAdjustedIndex = fromAdjustedIndex + Location.COUNT;
-                double toValue = Math.max(0, output.getDouble(0, toAdjustedIndex));
-                sample.set(i + Location.COUNT, toValue);
-            }
+            return NeuralCodec.INSTANCE.decodeMoveProbabilities(output, example.state(), example.legalMoves());
         };
 
 //        Consumer<MoveExample> learner = randomLearner;
-//        BiConsumer<MoveExample, Sample> tester = randomTester;
-//        Consumer<MoveExample> learner = forestLearner;
-//        BiConsumer<MoveExample, Sample> tester = forestTester;
+//        Function<MoveExample, double[]> tester = randomTester;
         Consumer<MoveExample> learner = nnLearner;
-        BiConsumer<MoveExample, Sample> tester = nnTester;
+        Function<MoveExample, double[]> tester = nnTester;
 
         if (saved) {
             testOutputs(tester);
         }
 
         double min = Double.POSITIVE_INFINITY;
-        for (int epoch = 0; epoch < 5_000; epoch++) {
+        for (int epoch = 0; epoch < 2; epoch++) {
             for (Path input : inputs) {
                 iterateInputs(epoch, input, learner);
 
-                saveNeuralNetwork(nn, saveFile);
+                if (learner == nnLearner) {
+                    saveNeuralNetwork(nn, saveFile);
+                }
 
                 double error = testOutputs(tester);
 
@@ -223,22 +195,18 @@ public class MoveTrainer {
     }
 
 
-    private static double testOutputs(BiConsumer<MoveExample, Sample> tester)
+    private static double testOutputs(Function<MoveExample, double[]> tester)
     {
         long predictStart = System.currentTimeMillis();
         DoubleSummaryStatistics stats = new DoubleSummaryStatistics();
 
         try (var lines = Files.lines(test)) {
-            Sample sample = new Sample();
-
             lines.forEach(line -> {
                 MoveExample example = new MoveExample(line);
 
-                sample.clear();
+                double[] prediction = tester.apply(example);
 
-                tester.accept(example, sample);
-
-                double error = measureError(sample, example);
+                double error = measureError(prediction, example);
                 stats.accept(error);
             });
         }
@@ -254,99 +222,81 @@ public class MoveTrainer {
 
 
     private static double measureError(
-            Sample sample,
+            double[] predictedMoveProbabilities,
             MoveExample example)
     {
-        double fromTotal = 0;
-        for (int i = 0; i < Location.COUNT; i++) {
-            fromTotal += sample.get(i);
+        if (bestAction) {
+            double bestActualScore = 0;
+            int bestActualIndex = 0;
+            double bestPredictedScore = 0;
+            int bestPredictedIndex = 0;
+
+            for (int i = 0; i < example.moveScores().length; i++) {
+                double actual = example.moveScores()[i];
+                if (actual > bestActualScore) {
+                    bestActualScore = actual;
+                    bestActualIndex = i;
+                }
+
+                double prediction = predictedMoveProbabilities[i];
+                if (prediction > bestPredictedScore) {
+                    bestPredictedScore = prediction;
+                    bestPredictedIndex = i;
+                }
+            }
+
+            return bestActualIndex == bestPredictedIndex
+                    ? 0 : 1;
         }
-
-        double toTotal = 0;
-        for (int i = 0; i < Location.COUNT; i++) {
-            toTotal += sample.get(i + Location.COUNT);
+        else {
+            double squaredErrorSum = 0;
+            for (int i = 0; i < example.legalMoves().length; i++) {
+                double prediction = predictedMoveProbabilities[i];
+                double actual = example.moveScores()[i];
+                double error = actual - prediction;
+                squaredErrorSum += error * error;
+            }
+            return Math.sqrt(squaredErrorSum / example.legalMoves().length);
         }
-
-//        double[] fromLocationScores = example.fromLocationScores();
-//        double[] toLocationScores = example.toLocationScores();
-
-        double moveTotal = 0;
-        double[] moveScores = new double[example.legalMoves().length];
-
-        for (int i = 0; i < example.legalMoves().length; i++) {
-            int move = example.legalMoves()[i];
-            int fromIndex = Move.fromSquareIndex(move);
-            double fromPrediction = sample.get(fromIndex) / fromTotal;
-
-            int toIndex = Move.toSquareIndex(move);
-            double toPrediction = sample.get(toIndex + Location.COUNT) / toTotal;
-
-            double moveScore = fromPrediction * toPrediction;
-            moveScores[i] = moveScore;
-            moveTotal += moveScore;
-        }
-
-//        double absErrorSum = 0;
-        double squaredErrorSum = 0;
-        for (int i = 0; i < example.legalMoves().length; i++) {
-            double prediction = moveTotal == 0 ? 0 : moveScores[i] / moveTotal;
-            double actual = example.moveScores()[i];
-            double error = actual - prediction;
-//            absErrorSum += Math.abs(error);
-            squaredErrorSum += error * error;
-        }
-
-        // see: https://en.wikipedia.org/wiki/Mean_absolute_error
-//        return absErrorSum / example.legalMoves().length;
-        return Math.sqrt(squaredErrorSum / example.legalMoves().length);
     }
 
 
-    private static void randomSample(Sample sample) {
-        for (int i = 0; i < 10_000; i++) {
-            int index = (int) (Math.random() * Location.COUNT);
-            sample.learn(MultiClass.create(index));
-            sample.learn(MultiClass.create(index + Location.COUNT));
+    private static double[] randomSample(MoveExample example) {
+        double[] prediction = new double[example.legalMoves().length];
+
+        double total = 0;
+        for (int i = 0; i < prediction.length; i++) {
+            double value = Math.random();
+            prediction[i] = value;
+            total += value;
         }
+
+        for (int i = 0; i < prediction.length; i++) {
+            prediction[i] /= total;
+        }
+
+        return prediction;
     }
 
 
     public static DataSet convertToDataSet(MoveExample example) {
-//        INDArray features = Nd4j.zeros(Location.COUNT, Figure.VALUES.length); // figures
-//        INDArray features = Nd4j.zeros(Location.COUNT * Figure.VALUES.length); // figures
-        INDArray features = Nd4j.zeros(6, 8, 8); // figures
+        INDArray reshapedFeatures = NeuralCodec.INSTANCE.encodeState(example.state());
 
+        INDArray reshapedLabels =
+                bestAction
+                ? bestActionLabels(example)
+                : allActionLabels(example);
+
+        return new DataSet(reshapedFeatures, reshapedLabels);
+    }
+
+
+    private static INDArray allActionLabels(MoveExample example)
+    {
         // from square and to square, independent probabilities
         INDArray labels = Nd4j.zeros(Location.COUNT * 2);
 
         boolean flip = example.state().nextToAct() == Colour.BLACK;
-
-        for (int rank = 0; rank < Location.RANKS; rank++) {
-            for (int file = 0; file < Location.FILES; file++) {
-//                int index = Location.squareIndex(rank, file);
-
-                Piece piece = example.state().pieceAt(rank, file);
-                if (piece == null) {
-                    continue;
-                }
-
-                boolean isNextToAct = piece.colour() == example.state().nextToAct();
-                double value = (isNextToAct ? 1 : -1);
-
-                Figure figure = piece.figure();
-
-                int adjustedRank = (flip ? Location.RANKS - rank - 1 : rank);
-                int adjustedFile = (flip ? Location.FILES - file - 1 : file);
-
-//                features.put(index, figure.ordinal(), value);
-//                features.putScalar(index * Figure.VALUES.length + figure.ordinal(), value);
-                features.put(new int[] {figure.ordinal(), adjustedRank, adjustedFile}, Nd4j.scalar(value));
-//                features.put(new PointIndex[] {new PointIndex(index * Figure.VALUES.length + figure.ordinal())}, value);
-            }
-        }
-
-        long[] featureShape = features.shape();
-        INDArray reshapedFeatures = features.reshape(1, featureShape[0], featureShape[1], featureShape[2]);
 
         double[] fromLocationScores = example.fromLocationScores();
         double[] toLocationScores = example.toLocationScores();
@@ -357,23 +307,54 @@ public class MoveTrainer {
             int fromSquareIndex = Move.fromSquareIndex(move);
             double fromScore =
                     fromLocationScores.length > fromSquareIndex
-                    ? fromLocationScores[fromSquareIndex]
-                    : 0;
+                            ? fromLocationScores[fromSquareIndex]
+                            : 0;
             int adjustedFrom = flipIndexIfRequired(fromSquareIndex, flip);
             labels.put(adjustedFrom, Nd4j.scalar(fromScore));
 
             int toSquareIndex = Move.toSquareIndex(move);
             double toScore =
                     toLocationScores.length > toSquareIndex
-                    ? toLocationScores[toSquareIndex]
-                    : 0;
+                            ? toLocationScores[toSquareIndex]
+                            : 0;
             int adjustedTo = flipIndexIfRequired(toSquareIndex, flip);
             labels.put(adjustedTo + Location.COUNT, Nd4j.scalar(toScore));
         }
 
-        INDArray reshapedLabels = labels.reshape(1, Location.COUNT * 2);
+        return labels.reshape(1, Location.COUNT * 2);
+    }
 
-        return new DataSet(reshapedFeatures, reshapedLabels);
+
+    private static INDArray bestActionLabels(MoveExample example)
+    {
+        // from square and to square, independent probabilities
+        INDArray labels = Nd4j.zeros(Location.COUNT * 2);
+
+        boolean flip = example.state().nextToAct() == Colour.BLACK;
+
+        double bestMoveScore = 0;
+        int bestMoveIndex = 0;
+
+        for (int i = 0; i < example.moveScores().length; i++) {
+            double moveScore = example.moveScores()[i];
+
+            if (moveScore > bestMoveScore) {
+                bestMoveScore = moveScore;
+                bestMoveIndex = i;
+            }
+        }
+
+        int bestMove = example.legalMoves()[bestMoveIndex];
+
+        int fromSquareIndex = Move.fromSquareIndex(bestMove);
+        int adjustedFrom = flipIndexIfRequired(fromSquareIndex, flip);
+        labels.put(adjustedFrom, Nd4j.scalar(1));
+
+        int toSquareIndex = Move.toSquareIndex(bestMove);
+        int adjustedTo = flipIndexIfRequired(toSquareIndex, flip);
+        labels.put(adjustedTo + Location.COUNT, Nd4j.scalar(1));
+
+        return labels.reshape(1, Location.COUNT * 2);
     }
 
 
