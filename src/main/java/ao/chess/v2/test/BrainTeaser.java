@@ -148,16 +148,15 @@ public class BrainTeaser {
                 "par",
                 9,
                 0.3,
-//                0.2,
-//                1.0,
-//                15,
-//                7,
-//                32,
                 3,
-//                false
                 false
         );
 
+//        Player player = new PuctPlayer(
+//                Paths.get("lookup/nn_2019-10-25.zip"),
+//                2,
+//                4,
+//                0.2);
 
         State state = State.fromFen(
                 // puzzles
@@ -173,6 +172,15 @@ public class BrainTeaser {
 //                "rnbqkbnr/pp1ppppp/8/2p5/4P3/5P2/PPPP2PP/RNBQKBNR b KQkq - 0 1"
 //                "rnbqkbnr/pp1p1ppp/4p3/2p5/4P3/5P2/PPPP2PP/RNBQKBNR w KQkq - 0 1"
 //                "rnbqkbnr/pp1p1ppp/4p3/2p5/4P3/2P2P2/PP1P2PP/RNBQKBNR b KQkq - 0 1"
+//                "rnbqkbnr/pp3ppp/4p3/2pp4/4P3/2P2P2/PP1P2PP/RNBQKBNR w KQkq d6 0 1"
+//                "rnbqkbnr/pp3ppp/4p3/2pP4/8/2P2P2/PP1P2PP/RNBQKBNR b KQkq - 0 1"
+//                "rnbqkbnr/pp3ppp/8/2pp4/8/2P2P2/PP1P2PP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqk1nr/pp3ppp/3b4/2pp4/8/1PP2P2/P2P2PP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqk1nr/pp3ppp/3b4/2pp4/8/1PPP1P2/P5PP/RNBQKBNR b KQkq - 0 1"
+//                "rnb1k1nr/pp3ppp/3b4/2pp4/7q/1PPP1P2/P5PP/RNBQKBNR w KQkq - 0 1"
+//                "rnb1k1nr/pp3ppp/3b4/2pp4/7q/1PPP1PP1/P6P/RNBQKBNR b KQkq - 0 1"
+//                "rnb1k1nr/pp3ppp/8/2pp4/7q/1PPP1Pb1/P6P/RNBQKBNR w KQkq - 0 1"
+                "rnb1k1nr/pp3ppp/8/2pp4/7q/1PPP1Pb1/P2K3P/RNBQ1BNR b kq - 0 1"
 
                 // Mable game 2 (black)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -239,7 +247,7 @@ public class BrainTeaser {
 //                "r6k/ppp4q/4p3/8/6Q1/8/1R1P4/4K1R1 w - - 0 1"
 //                "r6k/ppp4q/4p3/8/3Q4/8/1R1P4/4K1R1 b - - 0 1"
 //                "r6k/ppp3q1/4p3/8/3Q4/8/1R1P4/4K1R1 w - - 0 1"
-                "r6k/ppp3Q1/4p3/8/8/8/1R1P4/4K1R1 b - - 0 1"
+//                "r6k/ppp3Q1/4p3/8/8/8/1R1P4/4K1R1 b - - 0 1"
 
                 // Mable game (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

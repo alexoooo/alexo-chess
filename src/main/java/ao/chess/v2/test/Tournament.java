@@ -197,7 +197,6 @@ public class Tournament
                 "par",
                 9,
                 0.3,
-//                1.0,
                 1,
                 false
         );
@@ -217,6 +216,11 @@ public class Tournament
 
 //        Player a = NeuralNetworkPlayer.load(
 //                Paths.get("lookup/nn_2019-10-24.zip"));
+//        Player b = new PuctPlayer(
+//                Paths.get("lookup/nn_2019-10-25.zip"),
+//                2,
+//                4,
+//                0.2);
 //        Player b = new RandomPlayer();
 
         int aWins = 0;
@@ -342,6 +346,7 @@ public class Tournament
         }
 
         List<MoveExample> examples = moveExampleBuffer.build(outcome);
+        moveExampleBuffer.clear();
 
         for (MoveExample example : examples) {
             thinkingOut.println(example.asString());

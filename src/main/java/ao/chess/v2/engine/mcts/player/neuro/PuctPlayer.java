@@ -1,0 +1,197 @@
+package ao.chess.v2.engine.mcts.player.neuro;
+
+import ao.chess.v2.engine.Player;
+import ao.chess.v2.engine.neuro.NeuralCodec;
+import ao.chess.v2.state.Move;
+import ao.chess.v2.state.State;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.nd4j.linalg.api.ndarray.INDArray;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+
+public class PuctPlayer
+        implements Player
+{
+    //-----------------------------------------------------------------------------------------------------------------
+    private final static int reportPeriod = 1_000;
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    private final Path savedNeuralNetwork;
+    private final int threads;
+    private final double exploration;
+    private final double alpha;
+
+    private final CopyOnWriteArrayList<PuctContext> contexts;
+    private ExecutorService executorService;
+
+    private long previousPositionHash = -1;
+    private PuctNode previousRoot;
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    public PuctPlayer(
+            Path savedNeuralNetwork,
+            int threads,
+            double exploration,
+            double alpha)
+    {
+        this.savedNeuralNetwork = savedNeuralNetwork;
+        this.threads = threads;
+        this.exploration = exploration;
+        this.alpha = alpha;
+
+        contexts = new CopyOnWriteArrayList<>();
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    @Override
+    public int move(
+            State position,
+            int timeLeft,
+            int timePerMove,
+            int timeIncrement
+    ) {
+        initIfRequired();
+
+        PuctNode root = getOrCreateRoot(position);
+
+        long episodeMillis = Math.min(reportPeriod, timePerMove);
+        long deadline = System.currentTimeMillis() + timePerMove;
+
+        List<Future<?>> futures = new ArrayList<>();
+        for (int thread = 0; thread < threads; thread++) {
+            boolean progressThread = thread == 0;
+            PuctContext context = contexts.get(thread);
+            Future<?> future = executorService.submit(() -> {
+                do {
+                    thinkingEpisode(root, context, position, episodeMillis, progressThread);
+                }
+                while (System.currentTimeMillis() < deadline);
+            });
+            futures.add(future);
+        }
+
+        for (Future<?> future : futures) {
+            try {
+                future.get();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return root.bestMove();
+    }
+
+
+    private void thinkingEpisode(
+            PuctNode root,
+            PuctContext context,
+            State state,
+            long episodeMillis,
+            boolean progressThread
+    ) {
+        long episodeDeadline = System.currentTimeMillis() + episodeMillis;
+        do {
+            root.runTrajectory(state.prototype(), context);
+        }
+        while (System.currentTimeMillis() < episodeDeadline);
+
+        if (progressThread) {
+            reportProgress(root);
+        }
+    }
+
+
+    private void initIfRequired() {
+        if (executorService != null) {
+            return;
+        }
+
+//        MovePicker.init();
+        executorService = Executors.newFixedThreadPool(threads);
+
+        for (int i = 0; i < threads; i++) {
+            MultiLayerNetwork nn;
+            try {
+                nn = MultiLayerNetwork.load(savedNeuralNetwork.toFile(), false);
+            }
+            catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            contexts.add(new PuctContext(
+                    nn, exploration, alpha));
+        }
+    }
+
+
+    private PuctNode getOrCreateRoot(State state) {
+        long positionHash = state.staticHashCode();
+
+        if (previousRoot != null && previousPositionHash == positionHash) {
+            return previousRoot;
+        }
+
+        int[] legalMoves = state.legalMoves();
+
+        MultiLayerNetwork nn = contexts.get(0).nn;
+
+        INDArray input = NeuralCodec.INSTANCE.encodeState(state);
+        INDArray output = nn.output(input);
+
+        double[] moveProbabilities = NeuralCodec.INSTANCE
+                .decodeMoveProbabilities(output, state, legalMoves);
+
+        for (int i = 0; i < moveProbabilities.length; i++) {
+            moveProbabilities[i] = (moveProbabilities[i] + alpha) / (1 + alpha * moveProbabilities.length);
+        }
+
+        PuctNode root = new PuctNode(legalMoves, moveProbabilities);
+        root.initRoot();
+
+        previousRoot = root;
+        previousPositionHash = positionHash;
+
+        return root;
+    }
+
+
+    private void reportProgress(
+            PuctNode root
+    ) {
+        int bestMove = root.bestMove();
+
+        String message = String.format(
+                "%s | %d / %.2f / %.2f | %s | %s",
+                savedNeuralNetwork.getFileName(),
+                threads,
+                exploration,
+                alpha,
+                Move.toString(bestMove),
+                root);
+
+//        Io.display(message);
+        System.out.println(message);
+    }
+
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    @Override
+    public void close() {
+        if (executorService != null) {
+            executorService.shutdown();
+        }
+    }
+}

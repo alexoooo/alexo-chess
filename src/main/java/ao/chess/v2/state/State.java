@@ -1115,24 +1115,31 @@ public class State
                ? -1 : enPassant;
     }
 
+
     public boolean isDrawnBy50MovesRule() {
         return reversibleMoves > 100;
     }
 
-    public Outcome knownOutcome() {
-        if (isDrawnBy50MovesRule()) return Outcome.DRAW;
 
-        int moves[] = legalMoves();
+    public Outcome knownOutcome() {
+        if (isDrawnBy50MovesRule()) {
+            return Outcome.DRAW;
+        }
+
+        int[] moves = legalMoves();
         if (moves == null) {
             if (isInCheck( nextToAct() )) {
                 return Outcome.loses( nextToAct() );
-            } else {
-                System.out.println("State: WTF does this mean??!?");
             }
-        } else if (moves.length == 0) {
+            else {
+                throw new IllegalStateException();
+            }
+        }
+        else if (moves.length == 0) {
             if (isInCheck( nextToAct() )) {
                 return Outcome.loses( nextToAct() );
-            } else {
+            }
+            else {
                 return Outcome.DRAW;
             }
         }

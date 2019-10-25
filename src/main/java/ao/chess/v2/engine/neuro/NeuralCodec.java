@@ -44,6 +44,16 @@ public enum NeuralCodec {
     }
 
 
+
+    public double decodeOutcome(
+            INDArray output
+    ) {
+        double value = output.getDouble(0, Location.COUNT * 2);
+        double clipped = Math.max(-1, Math.min(1, value));
+        return (clipped + 1) / 2;
+    }
+
+
     public double[] decodeMoveProbabilities(
             INDArray output,
             State state,

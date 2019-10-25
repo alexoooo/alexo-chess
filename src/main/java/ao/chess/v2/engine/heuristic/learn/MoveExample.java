@@ -154,6 +154,21 @@ public class MoveExample {
     }
 
 
+    public Outcome outcome() {
+        return outcome;
+    }
+
+
+    public double outcomeScore() {
+        if (outcome == Outcome.DRAW) {
+            return 0;
+        }
+
+        return outcome.winner() == state.nextToAct()
+                ? 1 : -1;
+    }
+
+
     //-----------------------------------------------------------------------------------------------------------------
 //    public RealList stateInputVector() {
 //        double[] vector = new double[64 * Figure.VALUES.length];

@@ -30,48 +30,50 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 public class MoveTrainer {
+    //-----------------------------------------------------------------------------------------------------------------
     private static final boolean bestAction = true;
+    private static final boolean measureOutcome = true;
+
+    private static final int seed = 42;
+    private static final Random seededRandom = new Random(seed);
+
 
     private static final List<Path> inputs = List.of(
-//            Paths.get("lookup/think_train_10000.csv"),
-//            Paths.get("lookup/think_10000_20191021_122214_071.csv"),
-//            Paths.get("lookup/think_1000_20191021_180745_069.csv"),
-//            Paths.get("lookup/think_1000_20191022_000732_249-a1-s.csv")
-            Paths.get("lookup/think_1000_20191022_000732_249-a1.csv"),
-            Paths.get("lookup/think_1000_20191022_000732_249-a2.csv"),
-            Paths.get("lookup/think_1000_20191022_000732_249-a3.csv"),
-            Paths.get("lookup/think_1000_20191022_000732_249-a4.csv"),
-            Paths.get("lookup/think_1000_20191022_000732_249-a5.csv"),
-            Paths.get("lookup/think_1000_20191022_000732_249-a6.csv"),
-            Paths.get("lookup/think_1000_20191022_000732_249-a7.csv"),
-            Paths.get("lookup/think_1000_20191022_000732_249-a8.csv"),
-            Paths.get("lookup/think_1000_20191022_000732_249-a9.csv"),
-            Paths.get("lookup/think_1000_20191022_000732_249-a10.csv"),
-            Paths.get("lookup/think_1000_20191022_000732_249-a11.csv"),
-            Paths.get("lookup/think_1000_20191022_000732_249-b.csv"),
-            Paths.get("lookup/think_1000_20191022_000732_249-c.csv"),
-            Paths.get("lookup/think_1000_20191022_094039_884.csv"),
-            Paths.get("lookup/think_1000_20191022_210003_723.csv")
+            Paths.get("lookup/think_1000_20191024_110657_082.csv"),
+            Paths.get("lookup/think_1000_20191024_135020_955.csv"),
+            Paths.get("lookup/think_1000_20191024_202610_148.csv")
     );
 
     private static final Path test =
-//        Paths.get("lookup/think_test_10000.csv");
-            Paths.get("lookup/think_1000_20191021_180745_069.csv");
-//            Paths.get("lookup/think_1000_20191022_000732_249-a1.csv");
-//            Paths.get("lookup/think_1000_20191022_000732_249-a1-s.csv");
+            Paths.get("lookup/test_1000_20191024_190016_544.csv");
 
 
     private static final Path saveFile =
-            Paths.get("lookup/nn_2019-10-24.zip");
+            Paths.get("lookup/nn_2019-10-25.zip");
 
 
+    private static class Prediction {
+        public final double[] actionProbabilities;
+        public final double outcome;
+
+        public Prediction(double[] actionProbabilities, double outcome) {
+            this.actionProbabilities = actionProbabilities;
+            this.outcome = outcome;
+        }
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     public static void main(String[] args) {
         boolean saved = Files.exists(saveFile);
 
@@ -86,30 +88,36 @@ public class MoveTrainer {
         }
 
         Consumer<MoveExample> randomLearner = example -> {};
-        Function<MoveExample, double[]> randomTester = MoveTrainer::randomSample;
+        Function<MoveExample, Prediction> randomTester = MoveTrainer::randomSample;
 
         Consumer<MoveExample> nnLearner = example -> {
             DataSet dataSet = convertToDataSet(example);
             nn.fit(dataSet);
         };
-        Function<MoveExample, double[]> nnTester = (example) -> {
+        Function<MoveExample, Prediction> nnTester = (example) -> {
             INDArray input = convertToDataSet(example).getFeatures();
             INDArray output = nn.output(input);
 
-            return NeuralCodec.INSTANCE.decodeMoveProbabilities(output, example.state(), example.legalMoves());
+            double[] moveProbabilities = NeuralCodec.INSTANCE
+                    .decodeMoveProbabilities(output, example.state(), example.legalMoves());
+
+            double outcome = NeuralCodec.INSTANCE
+                    .decodeOutcome(output);
+
+            return new Prediction(moveProbabilities, outcome);
         };
 
 //        Consumer<MoveExample> learner = randomLearner;
 //        Function<MoveExample, double[]> tester = randomTester;
         Consumer<MoveExample> learner = nnLearner;
-        Function<MoveExample, double[]> tester = nnTester;
+        Function<MoveExample, Prediction> tester = nnTester;
 
         if (saved) {
             testOutputs(tester);
         }
 
         double min = Double.POSITIVE_INFINITY;
-        for (int epoch = 0; epoch < 2; epoch++) {
+        for (int epoch = 0; epoch < 0; epoch++) {
             for (Path input : inputs) {
                 iterateInputs(epoch, input, learner);
 
@@ -128,6 +136,7 @@ public class MoveTrainer {
     }
 
 
+    //-----------------------------------------------------------------------------------------------------------------
     private static int flipIndexIfRequired(
             int locationIndex,
             boolean flip
@@ -177,15 +186,18 @@ public class MoveTrainer {
     ) {
         long trainingStart = System.currentTimeMillis();
 
+        List<MoveExample> examples;
         try (var lines = Files.lines(input)) {
-            lines.forEach(line -> {
-                MoveExample example = new MoveExample(line);
-
-                consumer.accept(example);
-            });
+            examples = lines.map(MoveExample::new).collect(Collectors.toList());
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+
+        Collections.shuffle(examples, seededRandom);
+
+        for (var example : examples) {
+            consumer.accept(example);
         }
 
         System.out.println((epoch + 1) +
@@ -195,7 +207,7 @@ public class MoveTrainer {
     }
 
 
-    private static double testOutputs(Function<MoveExample, double[]> tester)
+    private static double testOutputs(Function<MoveExample, Prediction> tester)
     {
         long predictStart = System.currentTimeMillis();
         DoubleSummaryStatistics stats = new DoubleSummaryStatistics();
@@ -204,7 +216,7 @@ public class MoveTrainer {
             lines.forEach(line -> {
                 MoveExample example = new MoveExample(line);
 
-                double[] prediction = tester.apply(example);
+                Prediction prediction = tester.apply(example);
 
                 double error = measureError(prediction, example);
                 stats.accept(error);
@@ -222,9 +234,17 @@ public class MoveTrainer {
 
 
     private static double measureError(
-            double[] predictedMoveProbabilities,
+            Prediction prediction,
             MoveExample example)
     {
+        if (measureOutcome) {
+            double predicted = prediction.outcome;
+            double actual = example.outcome().valueFor(example.state().nextToAct());
+            return Math.abs(predicted - actual);
+        }
+
+        double[] predictedMoveProbabilities = prediction.actionProbabilities;
+
         if (bestAction) {
             double bestActualScore = 0;
             int bestActualIndex = 0;
@@ -238,9 +258,9 @@ public class MoveTrainer {
                     bestActualIndex = i;
                 }
 
-                double prediction = predictedMoveProbabilities[i];
-                if (prediction > bestPredictedScore) {
-                    bestPredictedScore = prediction;
+                double movePrediction = predictedMoveProbabilities[i];
+                if (movePrediction > bestPredictedScore) {
+                    bestPredictedScore = movePrediction;
                     bestPredictedIndex = i;
                 }
             }
@@ -251,9 +271,9 @@ public class MoveTrainer {
         else {
             double squaredErrorSum = 0;
             for (int i = 0; i < example.legalMoves().length; i++) {
-                double prediction = predictedMoveProbabilities[i];
+                double movePrediction = predictedMoveProbabilities[i];
                 double actual = example.moveScores()[i];
-                double error = actual - prediction;
+                double error = actual - movePrediction;
                 squaredErrorSum += error * error;
             }
             return Math.sqrt(squaredErrorSum / example.legalMoves().length);
@@ -261,7 +281,7 @@ public class MoveTrainer {
     }
 
 
-    private static double[] randomSample(MoveExample example) {
+    private static Prediction randomSample(MoveExample example) {
         double[] prediction = new double[example.legalMoves().length];
 
         double total = 0;
@@ -275,7 +295,7 @@ public class MoveTrainer {
             prediction[i] /= total;
         }
 
-        return prediction;
+        return new Prediction(prediction, Math.random());
     }
 
 
@@ -294,7 +314,7 @@ public class MoveTrainer {
     private static INDArray allActionLabels(MoveExample example)
     {
         // from square and to square, independent probabilities
-        INDArray labels = Nd4j.zeros(Location.COUNT * 2);
+        INDArray labels = Nd4j.zeros(Location.COUNT * 2 + 1);
 
         boolean flip = example.state().nextToAct() == Colour.BLACK;
 
@@ -321,14 +341,16 @@ public class MoveTrainer {
             labels.put(adjustedTo + Location.COUNT, Nd4j.scalar(toScore));
         }
 
-        return labels.reshape(1, Location.COUNT * 2);
+        labels.put(Location.COUNT * 2, Nd4j.scalar(example.outcomeScore()));
+
+        return labels.reshape(1, Location.COUNT * 2 + 1);
     }
 
 
     private static INDArray bestActionLabels(MoveExample example)
     {
         // from square and to square, independent probabilities
-        INDArray labels = Nd4j.zeros(Location.COUNT * 2);
+        INDArray labels = Nd4j.zeros(Location.COUNT * 2 + 1);
 
         boolean flip = example.state().nextToAct() == Colour.BLACK;
 
@@ -354,12 +376,13 @@ public class MoveTrainer {
         int adjustedTo = flipIndexIfRequired(toSquareIndex, flip);
         labels.put(adjustedTo + Location.COUNT, Nd4j.scalar(1));
 
-        return labels.reshape(1, Location.COUNT * 2);
+        labels.put(Location.COUNT * 2, Nd4j.scalar(example.outcomeScore()));
+
+        return labels.reshape(1, Location.COUNT * 2 + 1);
     }
 
 
     private static MultiLayerNetwork createNeuralNetwork() {
-        int seed = 42;
         double learningRate = 0.02;
         int numInputs = Figure.VALUES.length;
         int numHiddenNodes = 200;
@@ -391,7 +414,6 @@ public class MoveTrainer {
 
     // see: https://gist.github.com/maxpumperla/ec437ebc5cc70fee910d15278337ef41
     private static MultiLayerNetwork createNeuralNetwork2() {
-        int seed = 42;
         int height = Location.FILES;
         int width = Location.RANKS;
         int channels = Figure.VALUES.length;
@@ -414,7 +436,7 @@ public class MoveTrainer {
                 .layer(4, new DenseLayer.Builder().activation(Activation.LEAKYRELU)
                         .nOut(500).build())
                 .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.L2)
-                        .nOut(Location.COUNT * 2).activation(Activation.IDENTITY).build())
+                        .nOut(Location.COUNT * 2 + 1).activation(Activation.IDENTITY).build())
                 .setInputType(InputType.convolutionalFlat(height, width, channels))
                 .build();
 
@@ -427,7 +449,6 @@ public class MoveTrainer {
 
     // see: https://pdfs.semanticscholar.org/28a9/fff7208256de548c273e96487d750137c31d.pdf
     private static MultiLayerNetwork createNeuralNetwork3() {
-        int seed = 42;
         int height = Location.FILES;
         int width = Location.RANKS;
         int channels = Figure.VALUES.length;
@@ -468,7 +489,7 @@ public class MoveTrainer {
                         .activation(Activation.LEAKYRELU).nOut(384).build())
 
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)
-                        .nOut(Location.COUNT * 2).activation(Activation.IDENTITY).build())
+                        .nOut(Location.COUNT * 2 + 1).activation(Activation.IDENTITY).build())
 
                 .setInputType(InputType.convolutionalFlat(height, width, channels))
                 .build();
