@@ -180,7 +180,9 @@ public class BrainTeaser {
 //                "rnb1k1nr/pp3ppp/3b4/2pp4/7q/1PPP1P2/P5PP/RNBQKBNR w KQkq - 0 1"
 //                "rnb1k1nr/pp3ppp/3b4/2pp4/7q/1PPP1PP1/P6P/RNBQKBNR b KQkq - 0 1"
 //                "rnb1k1nr/pp3ppp/8/2pp4/7q/1PPP1Pb1/P6P/RNBQKBNR w KQkq - 0 1"
-                "rnb1k1nr/pp3ppp/8/2pp4/7q/1PPP1Pb1/P2K3P/RNBQ1BNR b kq - 0 1"
+//                "rnb1k1nr/pp3ppp/8/2pp4/7q/1PPP1Pb1/P2K3P/RNBQ1BNR b kq - 0 1"
+//                "rnb1k2r/pp2nppp/8/2pp4/7q/1PPP1Pb1/P2K3P/RNBQ1BNR w kq - 0 1"
+                "rnb1k2r/pp2nppp/8/2pp4/7q/1PPP1Pb1/P2KN2P/RNBQ1B1R b kq - 0 1"
 
                 // Mable game 2 (black)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

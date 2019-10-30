@@ -51,7 +51,9 @@ public class MoveTrainer {
     private static final List<Path> inputs = List.of(
             Paths.get("lookup/think_1000_20191024_110657_082.csv"),
             Paths.get("lookup/think_1000_20191024_135020_955.csv"),
-            Paths.get("lookup/think_1000_20191024_202610_148.csv")
+            Paths.get("lookup/think_1000_20191024_202610_148.csv"),
+            Paths.get("lookup/think_1000_20191025_152515_865.csv"),
+            Paths.get("lookup/think_1000_20191025_194455_822.csv")
     );
 
     private static final Path test =
@@ -59,7 +61,8 @@ public class MoveTrainer {
 
 
     private static final Path saveFile =
-            Paths.get("lookup/nn_2019-10-25.zip");
+//            Paths.get("lookup/nn_2019-10-26.zip");
+            Paths.get("lookup/nn_2019-10-26b.zip");
 
 
     private static class Prediction {
@@ -117,7 +120,7 @@ public class MoveTrainer {
         }
 
         double min = Double.POSITIVE_INFINITY;
-        for (int epoch = 0; epoch < 0; epoch++) {
+        for (int epoch = 0; epoch < 1; epoch++) {
             for (Path input : inputs) {
                 iterateInputs(epoch, input, learner);
 

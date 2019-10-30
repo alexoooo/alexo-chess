@@ -202,22 +202,19 @@ public class Tournament
         );
         ParallelMctsPlayer b = a.prototype();
 
-//        Player b = new MultiMctsPlayer(List.of(
-//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep4Rand15Prototype.prototype()
-//        ));
-
 //        Player a = NeuralNetworkPlayer.load(
-//                Paths.get("lookup/nn_2019-10-24.zip"));
-//        Player b = new PuctPlayer(
+//                Paths.get("lookup/nn_2019-10-25.zip"));
+//
+//        Player b = NeuralNetworkPlayer.load(
+//                Paths.get("lookup/nn_2019-10-25b.zip"));
+
+//        Player a = new PuctPlayer(
 //                Paths.get("lookup/nn_2019-10-25.zip"),
+//                2,
+//                4,
+//                0.2);
+//        Player b = new PuctPlayer(
+//                Paths.get("lookup/nn_2019-10-26b.zip"),
 //                2,
 //                4,
 //                0.2);
