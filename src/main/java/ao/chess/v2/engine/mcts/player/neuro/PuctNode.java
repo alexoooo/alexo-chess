@@ -246,6 +246,21 @@ class PuctNode {
     }
 
 
+    public long moveVisits(int move) {
+        PuctNode child = null;
+        for (int i = 0; i < moves.length; i++) {
+            if (moves[i] == move) {
+                child = childNodes.get(i);
+                break;
+            }
+        }
+
+        return child == null
+                ? 0
+                : child.visitCount.longValue();
+    }
+
+
     //-----------------------------------------------------------------------------------------------------------------
     @Override
     public String toString() {

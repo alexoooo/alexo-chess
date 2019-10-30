@@ -1,7 +1,8 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.heuristic.learn.MoveExample;
+import ao.chess.v2.engine.heuristic.learn.MoveHistory;
+import ao.chess.v2.engine.mcts.player.ScoredPlayer;
 import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
@@ -29,7 +30,7 @@ public class Tournament
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
-    private static MoveExample.Buffer moveExampleBuffer = new MoveExample.Buffer();
+    private static MoveHistory.Buffer moveExampleBuffer = new MoveHistory.Buffer();
 
 
     //--------------------------------------------------------------------
@@ -284,7 +285,7 @@ public class Tournament
                 if (undoable != -1) {
                     moveMade = true;
 
-                    recordThinkingIfRequired(nextToAct, stateProto);
+                    recordThinking(nextToAct, stateProto);
                 }
             }
 
@@ -304,14 +305,11 @@ public class Tournament
     }
 
 
-    private static void recordThinkingIfRequired(
+    private static void recordThinking(
             Player nextToAct,
             State state
     ) {
-        if (! recordThinking || ! (nextToAct instanceof ParallelMctsPlayer)) {
-            return;
-        }
-        ParallelMctsPlayer player = (ParallelMctsPlayer) nextToAct;
+        ScoredPlayer player = (ScoredPlayer) nextToAct;
 
         int[] legalMoves = state.legalMoves();
 
@@ -342,10 +340,10 @@ public class Tournament
             }
         }
 
-        List<MoveExample> examples = moveExampleBuffer.build(outcome);
+        List<MoveHistory> examples = moveExampleBuffer.build(outcome);
         moveExampleBuffer.clear();
 
-        for (MoveExample example : examples) {
+        for (MoveHistory example : examples) {
             thinkingOut.println(example.asString());
         }
 

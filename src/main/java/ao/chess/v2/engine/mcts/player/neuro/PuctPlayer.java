@@ -1,6 +1,6 @@
 package ao.chess.v2.engine.mcts.player.neuro;
 
-import ao.chess.v2.engine.Player;
+import ao.chess.v2.engine.mcts.player.ScoredPlayer;
 import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
 
 
 public class PuctPlayer
-        implements Player
+        implements ScoredPlayer
 {
     //-----------------------------------------------------------------------------------------------------------------
     private final static int reportPeriod = 1_000;
@@ -174,7 +174,7 @@ public class PuctPlayer
 
         String message = String.format(
                 "%s | %d / %.2f / %.2f | %s | %s",
-                savedNeuralNetwork.getFileName(),
+                savedNeuralNetwork,
                 threads,
                 exploration,
                 alpha,
@@ -185,6 +185,12 @@ public class PuctPlayer
         System.out.println(message);
     }
 
+
+    //-----------------------------------------------------------------------------------------------------------------
+    @Override
+    public double moveScoreInternal(int move) {
+        return previousRoot.moveVisits(move);
+    }
 
 
     //-----------------------------------------------------------------------------------------------------------------

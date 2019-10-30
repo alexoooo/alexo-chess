@@ -53,7 +53,8 @@ public class MoveTrainer {
             Paths.get("lookup/think_1000_20191024_135020_955.csv"),
             Paths.get("lookup/think_1000_20191024_202610_148.csv"),
             Paths.get("lookup/think_1000_20191025_152515_865.csv"),
-            Paths.get("lookup/think_1000_20191025_194455_822.csv")
+            Paths.get("lookup/think_1000_20191025_194455_822.csv"),
+            Paths.get("lookup/think_1000_20191026_185627_150.csv")
     );
 
     private static final Path test =
@@ -62,7 +63,8 @@ public class MoveTrainer {
 
     private static final Path saveFile =
 //            Paths.get("lookup/nn_2019-10-26.zip");
-            Paths.get("lookup/nn_2019-10-26b.zip");
+//            Paths.get("lookup/nn_2019-10-26b.zip");
+            Paths.get("lookup/nn_2019-10-30.zip");
 
 
     private static class Prediction {
@@ -83,21 +85,21 @@ public class MoveTrainer {
 //        MultiLayerNetwork nn = createNeuralNetwork3();
         MultiLayerNetwork nn;
         if (saved) {
-            nn = loadNeuralNetwork(saveFile, false);
+            nn = NeuralUtils.loadNeuralNetwork(saveFile, false);
         }
         else {
 //            nn = createNeuralNetwork2();
             nn = createNeuralNetwork3();
         }
 
-        Consumer<MoveExample> randomLearner = example -> {};
-        Function<MoveExample, Prediction> randomTester = MoveTrainer::randomSample;
+        Consumer<MoveHistory> randomLearner = example -> {};
+        Function<MoveHistory, Prediction> randomTester = MoveTrainer::randomSample;
 
-        Consumer<MoveExample> nnLearner = example -> {
+        Consumer<MoveHistory> nnLearner = example -> {
             DataSet dataSet = convertToDataSet(example);
             nn.fit(dataSet);
         };
-        Function<MoveExample, Prediction> nnTester = (example) -> {
+        Function<MoveHistory, Prediction> nnTester = (example) -> {
             INDArray input = convertToDataSet(example).getFeatures();
             INDArray output = nn.output(input);
 
@@ -112,8 +114,8 @@ public class MoveTrainer {
 
 //        Consumer<MoveExample> learner = randomLearner;
 //        Function<MoveExample, double[]> tester = randomTester;
-        Consumer<MoveExample> learner = nnLearner;
-        Function<MoveExample, Prediction> tester = nnTester;
+        Consumer<MoveHistory> learner = nnLearner;
+        Function<MoveHistory, Prediction> tester = nnTester;
 
         if (saved) {
             testOutputs(tester);
@@ -125,7 +127,7 @@ public class MoveTrainer {
                 iterateInputs(epoch, input, learner);
 
                 if (learner == nnLearner) {
-                    saveNeuralNetwork(nn, saveFile);
+                    NeuralUtils.saveNeuralNetwork(nn, saveFile);
                 }
 
                 double error = testOutputs(tester);
@@ -152,46 +154,17 @@ public class MoveTrainer {
     }
 
 
-    private static void saveNeuralNetwork(
-            MultiLayerNetwork neuralNetwork,
-            Path saveFile
-    ) {
-        try {
-            neuralNetwork.save(saveFile.toFile());
-        }
-        catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-
-    private static MultiLayerNetwork loadNeuralNetwork(
-            Path loadFile,
-            boolean readOnly
-    ) {
-        try {
-            System.out.println("> Loading: " + loadFile);
-            long start = System.currentTimeMillis();
-            MultiLayerNetwork nn = MultiLayerNetwork.load(loadFile.toFile(), ! readOnly);
-            System.out.println("> Done, loading took " + (double) (System.currentTimeMillis() - start) / 1000);
-            return nn;
-        }
-        catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
 
     private static void iterateInputs(
             int epoch,
             Path input,
-            Consumer<MoveExample> consumer
+            Consumer<MoveHistory> consumer
     ) {
         long trainingStart = System.currentTimeMillis();
 
-        List<MoveExample> examples;
+        List<MoveHistory> examples;
         try (var lines = Files.lines(input)) {
-            examples = lines.map(MoveExample::new).collect(Collectors.toList());
+            examples = lines.map(MoveHistory::new).collect(Collectors.toList());
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -210,14 +183,14 @@ public class MoveTrainer {
     }
 
 
-    private static double testOutputs(Function<MoveExample, Prediction> tester)
+    private static double testOutputs(Function<MoveHistory, Prediction> tester)
     {
         long predictStart = System.currentTimeMillis();
         DoubleSummaryStatistics stats = new DoubleSummaryStatistics();
 
         try (var lines = Files.lines(test)) {
             lines.forEach(line -> {
-                MoveExample example = new MoveExample(line);
+                MoveHistory example = new MoveHistory(line);
 
                 Prediction prediction = tester.apply(example);
 
@@ -238,7 +211,7 @@ public class MoveTrainer {
 
     private static double measureError(
             Prediction prediction,
-            MoveExample example)
+            MoveHistory example)
     {
         if (measureOutcome) {
             double predicted = prediction.outcome;
@@ -284,7 +257,7 @@ public class MoveTrainer {
     }
 
 
-    private static Prediction randomSample(MoveExample example) {
+    private static Prediction randomSample(MoveHistory example) {
         double[] prediction = new double[example.legalMoves().length];
 
         double total = 0;
@@ -302,7 +275,7 @@ public class MoveTrainer {
     }
 
 
-    public static DataSet convertToDataSet(MoveExample example) {
+    public static DataSet convertToDataSet(MoveHistory example) {
         INDArray reshapedFeatures = NeuralCodec.INSTANCE.encodeState(example.state());
 
         INDArray reshapedLabels =
@@ -314,7 +287,7 @@ public class MoveTrainer {
     }
 
 
-    private static INDArray allActionLabels(MoveExample example)
+    private static INDArray allActionLabels(MoveHistory example)
     {
         // from square and to square, independent probabilities
         INDArray labels = Nd4j.zeros(Location.COUNT * 2 + 1);
@@ -350,7 +323,7 @@ public class MoveTrainer {
     }
 
 
-    private static INDArray bestActionLabels(MoveExample example)
+    private static INDArray bestActionLabels(MoveHistory example)
     {
         // from square and to square, independent probabilities
         INDArray labels = Nd4j.zeros(Location.COUNT * 2 + 1);
@@ -451,7 +424,7 @@ public class MoveTrainer {
 
 
     // see: https://pdfs.semanticscholar.org/28a9/fff7208256de548c273e96487d750137c31d.pdf
-    private static MultiLayerNetwork createNeuralNetwork3() {
+    public static MultiLayerNetwork createNeuralNetwork3() {
         int height = Location.FILES;
         int width = Location.RANKS;
         int channels = Figure.VALUES.length;

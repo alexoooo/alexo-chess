@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
-public class MoveExample {
+public class MoveHistory {
     //-----------------------------------------------------------------------------------------------------------------
     public static class Buffer
     {
@@ -35,11 +35,11 @@ public class MoveExample {
         }
 
 
-        public List<MoveExample> build(Outcome outcome)
+        public List<MoveHistory> build(Outcome outcome)
         {
             return fragments
                     .stream()
-                    .map(fragment -> new MoveExample(
+                    .map(fragment -> new MoveHistory(
                             fragment.state, fragment.legalMoves, fragment.moveScores, outcome))
                     .collect(Collectors.toList());
         }
@@ -70,7 +70,7 @@ public class MoveExample {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public MoveExample(State state, int[] legalMoves, double[] moveScores, Outcome outcome) {
+    public MoveHistory(State state, int[] legalMoves, double[] moveScores, Outcome outcome) {
         this.state = state;
         this.legalMoves = legalMoves;
         this.moveScores = moveScores;
@@ -78,7 +78,7 @@ public class MoveExample {
     }
 
 
-    public MoveExample(String line) {
+    public MoveHistory(String line) {
         String[] parts = line.split(Pattern.quote("|"));
 
         int fenDelimiter = parts[0].indexOf(',');

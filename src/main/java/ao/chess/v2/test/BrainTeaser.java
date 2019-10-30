@@ -148,7 +148,8 @@ public class BrainTeaser {
                 "par",
                 9,
                 0.3,
-                3,
+//                3,
+                1,
                 false
         );
 

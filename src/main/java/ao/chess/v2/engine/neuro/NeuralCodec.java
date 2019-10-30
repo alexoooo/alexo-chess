@@ -85,6 +85,12 @@ public enum NeuralCodec {
 
         for (int i = 0; i < legalMoveCount; i++) {
             int move = legalMoves[i];
+
+            if (Move.isPromotion(move) && Figure.VALUES[Move.promotion(move)] != Figure.QUEEN) {
+                // NB: under-promotions are not considered
+                continue;
+            }
+
             int fromIndex = Move.fromSquareIndex(move);
             double fromPrediction = fromScores[fromIndex] / fromTotal;
 
