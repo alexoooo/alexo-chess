@@ -2,9 +2,12 @@ package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.mcts.player.BanditPlayer;
+import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
 import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
+
+import java.nio.file.Paths;
 
 
 /**
@@ -144,20 +147,20 @@ public class BrainTeaser {
 //                protoC.prototype()
 //        ));
 
-        Player player = new ParallelMctsPlayer(
-                "par",
-                9,
-                0.3,
-//                3,
-                1,
-                false
-        );
+//        Player player = new ParallelMctsPlayer(
+//                "par",
+//                9,
+//                0.3,
+////                3,
+//                1,
+//                false
+//        );
 
-//        Player player = new PuctPlayer(
-//                Paths.get("lookup/nn_2019-10-25.zip"),
-//                2,
-//                4,
-//                0.2);
+        Player player = new PuctPlayer(
+                Paths.get("lookup/gen/4/nn.zip"),
+                2,
+                4,
+                0.2);
 
         State state = State.fromFen(
                 // puzzles
@@ -165,6 +168,7 @@ public class BrainTeaser {
 //                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8
+                "8/2k2p2/2b3p1/P1p1Np2/1p3b2/1P1K4/5r2/R3R3 b - - 0 1" // b from c6 to b5
 
                 // Travis game
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -183,7 +187,7 @@ public class BrainTeaser {
 //                "rnb1k1nr/pp3ppp/8/2pp4/7q/1PPP1Pb1/P6P/RNBQKBNR w KQkq - 0 1"
 //                "rnb1k1nr/pp3ppp/8/2pp4/7q/1PPP1Pb1/P2K3P/RNBQ1BNR b kq - 0 1"
 //                "rnb1k2r/pp2nppp/8/2pp4/7q/1PPP1Pb1/P2K3P/RNBQ1BNR w kq - 0 1"
-                "rnb1k2r/pp2nppp/8/2pp4/7q/1PPP1Pb1/P2KN2P/RNBQ1B1R b kq - 0 1"
+//                "rnb1k2r/pp2nppp/8/2pp4/7q/1PPP1Pb1/P2KN2P/RNBQ1B1R b kq - 0 1"
 
                 // Mable game 2 (black)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

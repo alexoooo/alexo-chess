@@ -18,6 +18,11 @@ import java.util.stream.IntStream;
 
 class PuctNode {
     //-----------------------------------------------------------------------------------------------------------------
+    private static final double minimumGuess = 0.1;
+    private static final double maximumGuess = 0.9;
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     private final int[] moves;
     private final double[] predictions;
 
@@ -147,7 +152,7 @@ class PuctNode {
         }
 
         double outcome = NeuralCodec.INSTANCE.decodeOutcome(output);
-        context.estimatedValue = Math.max(0.1, Math.min(0.9, outcome));
+        context.estimatedValue = Math.max(minimumGuess, Math.min(maximumGuess, outcome));
         return true;
     }
 
@@ -181,10 +186,10 @@ class PuctNode {
         for (int i = 0; i < moveCount; i++) {
             long moveVisits = moveVisitCounts[i];
 
-            // NB: default to zero if unvisited as in Alpha Zero
+            // NB: default to minimumGuess if unvisited, similar to Alpha Zero
             double averageOutcome =
                     moveVisits == 0
-                    ? 0
+                    ? minimumGuess
                     : moveValueSums[i] / moveVisits;
 
             double prediction = predictions[i];

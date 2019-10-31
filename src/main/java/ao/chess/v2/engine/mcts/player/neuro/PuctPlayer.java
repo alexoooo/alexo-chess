@@ -69,25 +69,34 @@ public class PuctPlayer
         long episodeMillis = Math.min(reportPeriod, timePerMove);
         long deadline = System.currentTimeMillis() + timePerMove;
 
-        List<Future<?>> futures = new ArrayList<>();
-        for (int thread = 0; thread < threads; thread++) {
-            boolean progressThread = thread == 0;
-            PuctContext context = contexts.get(thread);
-            Future<?> future = executorService.submit(() -> {
-                do {
-                    thinkingEpisode(root, context, position, episodeMillis, progressThread);
-                }
-                while (System.currentTimeMillis() < deadline);
-            });
-            futures.add(future);
-        }
-
-        for (Future<?> future : futures) {
-            try {
-                future.get();
+        if (threads == 1) {
+            PuctContext context = contexts.get(0);
+            do {
+                thinkingEpisode(root, context, position, episodeMillis, true);
             }
-            catch (Exception e) {
-                e.printStackTrace();
+            while (System.currentTimeMillis() < deadline);
+        }
+        else {
+            List<Future<?>> futures = new ArrayList<>();
+            for (int thread = 0; thread < threads; thread++) {
+                boolean progressThread = thread == 0;
+                PuctContext context = contexts.get(thread);
+                Future<?> future = executorService.submit(() -> {
+                    do {
+                        thinkingEpisode(root, context, position, episodeMillis, progressThread);
+                    }
+                    while (System.currentTimeMillis() < deadline);
+                });
+                futures.add(future);
+            }
+
+            for (Future<?> future : futures) {
+                try {
+                    future.get();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -115,12 +124,13 @@ public class PuctPlayer
 
 
     private void initIfRequired() {
-        if (executorService != null) {
+        if (! contexts.isEmpty()) {
             return;
         }
 
-//        MovePicker.init();
-        executorService = Executors.newFixedThreadPool(threads);
+        if (threads != 1) {
+            executorService = Executors.newFixedThreadPool(threads);
+        }
 
         for (int i = 0; i < threads; i++) {
             MultiLayerNetwork nn;

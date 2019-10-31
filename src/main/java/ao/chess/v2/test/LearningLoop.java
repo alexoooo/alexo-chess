@@ -5,12 +5,14 @@ import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.heuristic.learn.MoveTrainer;
 import ao.chess.v2.engine.heuristic.learn.NeuralUtils;
+import ao.chess.v2.engine.mcts.player.ScoredPlayer;
 import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
 import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Outcome;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,9 +31,9 @@ import java.util.stream.Collectors;
 public class LearningLoop {
     //-----------------------------------------------------------------------------------------------------------------
     private final static Path generationsDir = Paths.get("lookup/gen");
-    private final static int gamesInGeneration = 10;
-    private final static int trainingIterations = 5;
-    private final static int gamesInTest = 0;
+    private final static int gamesInGeneration = 100;
+    private final static int trainingIterations = 2;
+    private final static int gamesInTest = 1;
 
     private final static int thinkingThreads = 1;
     private final static double thinkingExploration = 4;
@@ -57,6 +59,8 @@ public class LearningLoop {
 
         while (true)
         {
+            System.out.println("Starting generation: " + nextGenerationNumber);
+
             Path generationDir = generationsDir.resolve(Integer.toString(nextGenerationNumber));
             runGeneration(generationDirs, nextGenerationNumber, generationDir);
 
@@ -103,6 +107,13 @@ public class LearningLoop {
 
         Path nnFile = generationDir.resolve(nnFilename);
 
+        try {
+            Files.createDirectories(generationDir);
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
         NeuralUtils.saveNeuralNetwork(emptyNn, nnFile);
 
         recordSelfPlay(nnFile);
@@ -115,9 +126,9 @@ public class LearningLoop {
     {
         MultiLayerNetwork emptyNn = MoveTrainer.createNeuralNetwork3();
 
-        trainNeuralNetwork(emptyNn, previousGenerationDirs);
-
         Path nnFile = generationDir.resolve(nnFilename);
+
+        trainNeuralNetwork(emptyNn, previousGenerationDirs, nnFile);
 
         recordSelfPlay(nnFile);
     }
@@ -125,14 +136,19 @@ public class LearningLoop {
 
     private static void trainNeuralNetwork(
             MultiLayerNetwork nn,
-            List<Path> generationDirs
+            List<Path> generationDirs,
+            Path nnFile
     ) {
         for (int i = 0; i < trainingIterations; i++) {
+            System.out.println("Training iteration: " + (i + 1));
+
             for (Path generationDir : generationDirs) {
                 Path generationHistory = generationDir.resolve(historyFilename);
                 trainNeuralNetwork(nn, generationHistory);
             }
         }
+
+        NeuralUtils.saveNeuralNetwork(nn, nnFile);
     }
 
 
@@ -140,6 +156,8 @@ public class LearningLoop {
             MultiLayerNetwork nn,
             Path generationHistory
     ) {
+        long startTime = System.currentTimeMillis();
+
         List<MoveHistory> moveHistories;
         try (var lines = Files.lines(generationHistory)) {
             moveHistories = lines.map(MoveHistory::new).collect(Collectors.toList());
@@ -155,7 +173,10 @@ public class LearningLoop {
             nn.fit(dataSet);
         }
 
-        System.out.println("Trained: " + generationHistory);
+        Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
+
+        long delta = System.currentTimeMillis() - startTime;
+        System.out.println("Trained (" + (delta / 1000) + "): " + generationHistory);
     }
 
 
@@ -163,21 +184,28 @@ public class LearningLoop {
     private static void recordSelfPlay(
             Path nnFile
     ) {
-        Player a = new PuctPlayer(
+        ScoredPlayer a = new PuctPlayer(
                 nnFile,
                 thinkingThreads,
                 thinkingExploration,
                 thinkingAlpha);
 
-        Player b = new PuctPlayer(
+        ScoredPlayer b = new PuctPlayer(
                 nnFile,
                 thinkingThreads,
                 thinkingExploration,
                 thinkingAlpha);
+
+        Path historyFile = nnFile.resolveSibling(historyFilename);
+        try {
+            Files.createDirectories(historyFile.getParent());
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
 
         GameLoop gameLoop = new GameLoop();
-        try (PrintWriter historyOut = new PrintWriter(
-                nnFile.resolveSibling(historyFilename).toFile()))
+        try (PrintWriter historyOut = new PrintWriter(historyFile.toFile()))
         {
             for (int i = 0; i < gamesInGeneration; i++)
             {
@@ -190,6 +218,8 @@ public class LearningLoop {
                 historyOut.flush();
 
                 System.out.println("recorded game " + (i + 1) + ": " + history.get(0).outcome());
+
+                Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
             }
         }
         catch (FileNotFoundException e) {
@@ -254,6 +284,8 @@ public class LearningLoop {
             else {
                 draws++;
             }
+
+            Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
 
             System.out.println("win: " + aWins + " | loss: " + bWins + " | draw: " + draws);
         }

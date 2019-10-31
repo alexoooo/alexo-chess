@@ -63,8 +63,8 @@ public class GameLoop
 
 
     public List<MoveHistory> playWithHistory(
-            Player white,
-            Player black,
+            ScoredPlayer white,
+            ScoredPlayer black,
             int millisecondsPerMove
     ) {
         State state = State.initial();
@@ -76,9 +76,9 @@ public class GameLoop
 //            System.out.println("---------------------------------------");
 //            System.out.println(state);
 
-            Player nextToAct =
+            ScoredPlayer nextToAct =
                     (state.nextToAct() == Colour.WHITE)
-                            ? white : black;
+                    ? white : black;
 
             boolean moveMade = false;
             int move = nextToAct.move(state.prototype(),
@@ -115,16 +115,14 @@ public class GameLoop
 
     //-----------------------------------------------------------------------------------------------------------------
     private void recordThinking(
-            Player nextToAct,
+            ScoredPlayer nextToAct,
             State state
     ) {
-        ScoredPlayer player = (ScoredPlayer) nextToAct;
-
         int[] legalMoves = state.legalMoves();
 
         double[] moveScores = new double[legalMoves.length];
         for (int i = 0; i < legalMoves.length; i++) {
-            moveScores[i] = player.moveScoreInternal(legalMoves[i]);
+            moveScores[i] = nextToAct.moveScoreInternal(legalMoves[i]);
         }
 
         moveExampleBuffer.add(state, legalMoves, moveScores);

@@ -3,7 +3,8 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
-import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
+import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
+import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -13,6 +14,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -194,14 +196,14 @@ public class Tournament
 //        );
 
 
-        ParallelMctsPlayer a = new ParallelMctsPlayer(
-                "par",
-                9,
-                0.3,
-                1,
-                false
-        );
-        ParallelMctsPlayer b = a.prototype();
+//        ParallelMctsPlayer a = new ParallelMctsPlayer(
+//                "par",
+//                9,
+//                0.3,
+//                1,
+//                false
+//        );
+//        ParallelMctsPlayer b = a.prototype();
 
 //        Player a = NeuralNetworkPlayer.load(
 //                Paths.get("lookup/nn_2019-10-25.zip"));
@@ -209,17 +211,18 @@ public class Tournament
 //        Player b = NeuralNetworkPlayer.load(
 //                Paths.get("lookup/nn_2019-10-25b.zip"));
 
-//        Player a = new PuctPlayer(
-//                Paths.get("lookup/nn_2019-10-25.zip"),
-//                2,
-//                4,
-//                0.2);
+        Player a = new PuctPlayer(
+                Paths.get("lookup/gen/4/nn.zip"),
+                1,
+                4,
+                0.2);
 //        Player b = new PuctPlayer(
 //                Paths.get("lookup/nn_2019-10-26b.zip"),
 //                2,
 //                4,
 //                0.2);
-//        Player b = new RandomPlayer();
+//        Player a = new TopLeftPlayer();
+        Player b = new RandomPlayer();
 
         int aWins = 0;
         int bWins = 0;
@@ -285,7 +288,7 @@ public class Tournament
                 if (undoable != -1) {
                     moveMade = true;
 
-                    recordThinking(nextToAct, stateProto);
+                    recordThinkingIfRequired(nextToAct, stateProto);
                 }
             }
 
@@ -305,10 +308,14 @@ public class Tournament
     }
 
 
-    private static void recordThinking(
+    private static void recordThinkingIfRequired(
             Player nextToAct,
             State state
     ) {
+        if (! recordThinking || ! (nextToAct instanceof ScoredPlayer)) {
+            return;
+        }
+
         ScoredPlayer player = (ScoredPlayer) nextToAct;
 
         int[] legalMoves = state.legalMoves();
