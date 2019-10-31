@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 
 public class MoveTrainer {
     //-----------------------------------------------------------------------------------------------------------------
-    private static final boolean bestAction = false;
+    private static final boolean bestAction = true;
     private static final boolean measureOutcome = true;
 
     private static final int seed = 42;
@@ -74,7 +74,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn_2019-10-30.zip");
 //            Paths.get("lookup/gen/0/nn.zip");
 //            Paths.get("lookup/gen/1/nn.zip");
-            Paths.get("lookup/gen/3/nn.zip");
+//            Paths.get("lookup/gen/3/nn.zip");
+            Paths.get("lookup/gen/4/nn.zip");
 
 
     private static class Prediction {

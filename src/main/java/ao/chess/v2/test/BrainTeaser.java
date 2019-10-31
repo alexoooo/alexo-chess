@@ -2,9 +2,12 @@ package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.mcts.player.BanditPlayer;
+import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
 import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
+
+import java.nio.file.Paths;
 
 
 /**
@@ -144,19 +147,26 @@ public class BrainTeaser {
 //                protoC.prototype()
 //        ));
 
-        Player player = new ParallelMctsPlayer(
-                "par",
-                1,
-                0.3,
-//                3,
-                1,
-                false
-        );
+//        Player player = new ParallelMctsPlayer(
+//                "par",
+//                1,
+//                0.3,
+////                3,
+//                1,
+//                false
+//        );
 
+        Player player = new PuctPlayer(
+                Paths.get("lookup/gen/4/nn.zip"),
+                1,
+                4);
 //        Player player = new PuctPlayer(
 //                Paths.get("lookup/gen/4/nn.zip"),
 //                1,
-//                4);
+//                4,
+//                0.3,
+//                0.75,
+//                true);
 
         State state = State.fromFen(
                 // puzzles

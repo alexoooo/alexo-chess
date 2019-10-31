@@ -41,7 +41,7 @@ public class LearningLoop {
     private final static int gamesInTest = 1;
 
     private final static double thinkingExploration = 4;
-    private final static double thinkingAlpha = 0.3;
+    private final static double thinkingAlpha = 1;
     private final static double thinkingSignal = 0.75;
     private final static int thinkingTimeMs = 1000;
 

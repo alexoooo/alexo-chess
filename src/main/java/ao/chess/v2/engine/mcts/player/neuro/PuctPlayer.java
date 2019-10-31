@@ -47,7 +47,7 @@ public class PuctPlayer
             int threads,
             double exploration)
     {
-        this(savedNeuralNetwork, threads, exploration, 0.3, 0.75, false);
+        this(savedNeuralNetwork, threads, exploration, 1, 0.75, false);
     }
 
 
