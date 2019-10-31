@@ -15,13 +15,14 @@ class PuctContext {
     public final List<PuctNode> path = new ArrayList<>();
 
     public final int[] movesA = new int[Move.MAX_PER_PLY];
-    public final int[] movesB = new int[Move.MAX_PER_PLY];
     public final double[] valueSums = new double[Move.MAX_PER_PLY];
     public final long[] visitCounts = new long[Move.MAX_PER_PLY];
+    public final double[] probabilityBuffer = new double[Move.MAX_PER_PLY];
 
 
     public final double exploration;
     public final double alpha;
+    public final double signal;
 
 
     public double estimatedValue;
@@ -30,10 +31,12 @@ class PuctContext {
     public PuctContext(
             MultiLayerNetwork nn,
             double exploration,
-            double alpha)
+            double alpha,
+            double signal)
     {
         this.nn = nn;
         this.exploration = exploration;
         this.alpha = alpha;
+        this.signal = signal;
     }
 }

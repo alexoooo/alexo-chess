@@ -214,8 +214,7 @@ public class Tournament
         Player a = new PuctPlayer(
                 Paths.get("lookup/gen/4/nn.zip"),
                 1,
-                4,
-                0.2);
+                4);
 //        Player b = new PuctPlayer(
 //                Paths.get("lookup/nn_2019-10-26b.zip"),
 //                2,

@@ -25,19 +25,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 
 public class LearningLoop {
     //-----------------------------------------------------------------------------------------------------------------
     private final static Path generationsDir = Paths.get("lookup/gen");
-    private final static int gamesInGeneration = 100;
+
+    private final static int selfPlayThreads = 2;
+    private final static int gamesPerThread = 50;
+
     private final static int trainingIterations = 2;
     private final static int gamesInTest = 1;
 
-    private final static int thinkingThreads = 1;
     private final static double thinkingExploration = 4;
-    private final static double thinkingAlpha = 4;
+    private final static double thinkingAlpha = 0.3;
+    private final static double thinkingSignal = 0.75;
     private final static int thinkingTimeMs = 1000;
 
     private final static String nnFilename = "nn.zip";
@@ -139,10 +144,13 @@ public class LearningLoop {
             List<Path> generationDirs,
             Path nnFile
     ) {
+        int horizon = Math.min(generationDirs.size() / 2 + 1, generationDirs.size());
+        List<Path> trainingDirs = generationDirs.subList(generationDirs.size() - horizon, generationDirs.size());
+
         for (int i = 0; i < trainingIterations; i++) {
             System.out.println("Training iteration: " + (i + 1));
 
-            for (Path generationDir : generationDirs) {
+            for (Path generationDir : trainingDirs) {
                 Path generationHistory = generationDir.resolve(historyFilename);
                 trainNeuralNetwork(nn, generationHistory);
             }
@@ -184,18 +192,6 @@ public class LearningLoop {
     private static void recordSelfPlay(
             Path nnFile
     ) {
-        ScoredPlayer a = new PuctPlayer(
-                nnFile,
-                thinkingThreads,
-                thinkingExploration,
-                thinkingAlpha);
-
-        ScoredPlayer b = new PuctPlayer(
-                nnFile,
-                thinkingThreads,
-                thinkingExploration,
-                thinkingAlpha);
-
         Path historyFile = nnFile.resolveSibling(historyFilename);
         try {
             Files.createDirectories(historyFile.getParent());
@@ -204,27 +200,78 @@ public class LearningLoop {
             throw new UncheckedIOException(e);
         }
 
-        GameLoop gameLoop = new GameLoop();
+        Object monitor = new Object();
+        List<Thread> threads = new ArrayList<>();
+
         try (PrintWriter historyOut = new PrintWriter(historyFile.toFile()))
         {
-            for (int i = 0; i < gamesInGeneration; i++)
-            {
-                List<MoveHistory> history = gameLoop.playWithHistory(a, b, thinkingTimeMs);
+            AtomicInteger gameCount = new AtomicInteger();
+            for (int i = 0; i < selfPlayThreads; i++) {
+                Thread thread = selfPlayInThread(nnFile, (history) -> {
+                    synchronized (monitor) {
+                        for (var move : history) {
+                            historyOut.println(move.asString());
+                        }
 
-                for (var move : history) {
-                    historyOut.println(move.asString());
-                }
+                        historyOut.flush();
 
-                historyOut.flush();
+                        int currentGameNumber = gameCount.incrementAndGet();
+                        System.out.println("recorded game " + currentGameNumber + ": " + history.get(0).outcome());
+                    }
+                });
 
-                System.out.println("recorded game " + (i + 1) + ": " + history.get(0).outcome());
-
-                Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
+                threads.add(thread);
             }
+
+            for (Thread t : threads) {
+                t.join();
+            }
+
+            Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
         }
         catch (FileNotFoundException e) {
             throw new UncheckedIOException(e);
         }
+        catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private static Thread selfPlayInThread(
+            Path nnFile,
+            Consumer<List<MoveHistory>> historyCallback
+    ) {
+        Thread thread = new Thread(() -> {
+            ScoredPlayer a = new PuctPlayer(
+                    nnFile,
+                    1,
+                    thinkingExploration,
+                    thinkingAlpha,
+                    thinkingSignal,
+                    true);
+
+            ScoredPlayer b = new PuctPlayer(
+                    nnFile,
+                    1,
+                    thinkingExploration,
+                    thinkingAlpha,
+                    thinkingSignal,
+                    true);
+
+            GameLoop gameLoop = new GameLoop();
+            for (int i = 0; i < gamesPerThread; i++) {
+                List<MoveHistory> history = gameLoop.playWithHistory(a, b, thinkingTimeMs);
+
+                Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
+
+                historyCallback.accept(history);
+            }
+        });
+
+        thread.start();
+
+        return thread;
     }
 
 
@@ -236,9 +283,8 @@ public class LearningLoop {
 
         Player a = new PuctPlayer(
                 nnFile,
-                thinkingThreads,
-                thinkingExploration,
-                thinkingAlpha);
+                1,
+                thinkingExploration);
 
         Player b;
         if (previousGenerationDirs.isEmpty()) {
@@ -251,9 +297,8 @@ public class LearningLoop {
 
             b = new PuctPlayer(
                     previousNnFile,
-                    thinkingThreads,
-                    thinkingExploration,
-                    thinkingAlpha);
+                    1,
+                    thinkingExploration);
         }
 
         GameLoop gameLoop = new GameLoop();

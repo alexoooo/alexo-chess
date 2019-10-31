@@ -20,6 +20,7 @@ class PuctNode {
     //-----------------------------------------------------------------------------------------------------------------
     private static final double minimumGuess = 0.1;
     private static final double maximumGuess = 0.9;
+    private static final double firstPlayEstimate = 0.5;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -138,10 +139,8 @@ class PuctNode {
         double[] predictions = NeuralCodec.INSTANCE
                 .decodeMoveProbabilities(output, state, legalMoves);
 
-        double denominator = 1 + context.alpha * moveCount;
-        for (int i = 0; i < predictions.length; i++) {
-            predictions[i] = (predictions[i] + context.alpha) / denominator;
-        }
+//        PuctUtils.smearProbabilities(
+//                predictions, context.alpha, context.signal, context.random, context.probabilityBuffer);
 
         PuctNode newChild = new PuctNode(legalMoves, predictions);
 
@@ -186,10 +185,9 @@ class PuctNode {
         for (int i = 0; i < moveCount; i++) {
             long moveVisits = moveVisitCounts[i];
 
-            // NB: default to minimumGuess if unvisited, similar to Alpha Zero
             double averageOutcome =
                     moveVisits == 0
-                    ? minimumGuess
+                    ? firstPlayEstimate
                     : moveValueSums[i] / moveVisits;
 
             double prediction = predictions[i];

@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 
 public class MoveTrainer {
     //-----------------------------------------------------------------------------------------------------------------
-    private static final boolean bestAction = true;
+    private static final boolean bestAction = false;
     private static final boolean measureOutcome = true;
 
     private static final int seed = 42;
@@ -57,14 +57,24 @@ public class MoveTrainer {
             Paths.get("lookup/think_1000_20191026_185627_150.csv")
     );
 
-    private static final Path test =
-            Paths.get("lookup/test_1000_20191024_190016_544.csv");
+    private static final List<Path> test = List.of(
+            Paths.get("lookup/test_1000_20191024_190016_544.csv"),
+            Paths.get("lookup/think_1000_20191024_110657_082.csv"),
+            Paths.get("lookup/think_1000_20191024_135020_955.csv"),
+            Paths.get("lookup/think_1000_20191024_202610_148.csv"),
+            Paths.get("lookup/think_1000_20191025_152515_865.csv"),
+            Paths.get("lookup/think_1000_20191025_194455_822.csv"),
+            Paths.get("lookup/think_1000_20191026_185627_150.csv")
+    );
 
 
     private static final Path saveFile =
 //            Paths.get("lookup/nn_2019-10-26.zip");
 //            Paths.get("lookup/nn_2019-10-26b.zip");
-            Paths.get("lookup/nn_2019-10-30.zip");
+//            Paths.get("lookup/nn_2019-10-30.zip");
+//            Paths.get("lookup/gen/0/nn.zip");
+//            Paths.get("lookup/gen/1/nn.zip");
+            Paths.get("lookup/gen/3/nn.zip");
 
 
     private static class Prediction {
@@ -122,7 +132,7 @@ public class MoveTrainer {
         }
 
         double min = Double.POSITIVE_INFINITY;
-        for (int epoch = 0; epoch < 1; epoch++) {
+        for (int epoch = 0; epoch < 0; epoch++) {
             for (Path input : inputs) {
                 iterateInputs(epoch, input, learner);
 
@@ -176,6 +186,8 @@ public class MoveTrainer {
             consumer.accept(example);
         }
 
+        Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
+
         System.out.println((epoch + 1) +
                 " - " + input +
                 " - Training took: " +
@@ -185,27 +197,36 @@ public class MoveTrainer {
 
     private static double testOutputs(Function<MoveHistory, Prediction> tester)
     {
-        long predictStart = System.currentTimeMillis();
-        DoubleSummaryStatistics stats = new DoubleSummaryStatistics();
+        DoubleSummaryStatistics globalStats = new DoubleSummaryStatistics();
 
-        try (var lines = Files.lines(test)) {
-            lines.forEach(line -> {
-                MoveHistory example = new MoveHistory(line);
+        for (var testPath : test) {
+            long predictStart = System.currentTimeMillis();
+            DoubleSummaryStatistics stats = new DoubleSummaryStatistics();
 
-                Prediction prediction = tester.apply(example);
+            try (var lines = Files.lines(testPath)) {
+                lines.forEach(line -> {
+                    MoveHistory example = new MoveHistory(line);
 
-                double error = measureError(prediction, example);
-                stats.accept(error);
-            });
+                    Prediction prediction = tester.apply(example);
+
+                    double error = measureError(prediction, example);
+                    stats.accept(error);
+                    globalStats.accept(error);
+                });
+            }
+            catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+
+            Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
+
+            double took = (double) (System.currentTimeMillis() - predictStart) / 1000;
+            System.out.println("Path error: " + stats.getAverage() + " - took: " + took + " - " + testPath);
         }
-        catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
 
-        double took = (double) (System.currentTimeMillis() - predictStart) / 1000;
-        System.out.println("Average error: " + stats.getAverage() + " - took: " + took);
 
-        return stats.getAverage();
+        System.out.println("Average error: " + globalStats.getAverage());
+        return globalStats.getAverage();
     }
 
 

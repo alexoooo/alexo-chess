@@ -12,6 +12,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,6 +31,8 @@ public class PuctPlayer
     private final int threads;
     private final double exploration;
     private final double alpha;
+    private final double signal;
+    private final boolean train;
 
     private final CopyOnWriteArrayList<PuctContext> contexts;
     private ExecutorService executorService;
@@ -42,13 +45,26 @@ public class PuctPlayer
     public PuctPlayer(
             Path savedNeuralNetwork,
             int threads,
+            double exploration)
+    {
+        this(savedNeuralNetwork, threads, exploration, 0.3, 0.75, false);
+    }
+
+
+    public PuctPlayer(
+            Path savedNeuralNetwork,
+            int threads,
             double exploration,
-            double alpha)
+            double alpha,
+            double signal,
+            boolean train)
     {
         this.savedNeuralNetwork = savedNeuralNetwork;
         this.threads = threads;
         this.exploration = exploration;
         this.alpha = alpha;
+        this.signal = signal;
+        this.train = train;
 
         contexts = new CopyOnWriteArrayList<>();
     }
@@ -141,7 +157,7 @@ public class PuctPlayer
                 throw new UncheckedIOException(e);
             }
             contexts.add(new PuctContext(
-                    nn, exploration, alpha));
+                    nn, exploration, alpha, signal));
         }
     }
 
@@ -163,8 +179,9 @@ public class PuctPlayer
         double[] moveProbabilities = NeuralCodec.INSTANCE
                 .decodeMoveProbabilities(output, state, legalMoves);
 
-        for (int i = 0; i < moveProbabilities.length; i++) {
-            moveProbabilities[i] = (moveProbabilities[i] + alpha) / (1 + alpha * moveProbabilities.length);
+        if (train) {
+            double[] buffer = new double[moveProbabilities.length];
+            PuctUtils.smearProbabilities(moveProbabilities, alpha, signal, new Random(), buffer);
         }
 
         PuctNode root = new PuctNode(legalMoves, moveProbabilities);
