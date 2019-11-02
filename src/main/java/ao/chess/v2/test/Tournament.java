@@ -4,7 +4,6 @@ import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
 import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
-import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -212,16 +211,15 @@ public class Tournament
 //                Paths.get("lookup/nn_2019-10-25b.zip"));
 
         Player a = new PuctPlayer(
-                Paths.get("lookup/gen/4/nn.zip"),
+                Paths.get("lookup/gen/1/nn.zip"),
                 1,
                 4);
-//        Player b = new PuctPlayer(
-//                Paths.get("lookup/nn_2019-10-26b.zip"),
-//                2,
-//                4,
-//                0.2);
+        Player b = new PuctPlayer(
+                Paths.get("lookup/gen/1/nn.zip"),
+                1,
+                4);
 //        Player a = new TopLeftPlayer();
-        Player b = new RandomPlayer();
+//        Player b = new RandomPlayer();
 
         int aWins = 0;
         int bWins = 0;

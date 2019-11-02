@@ -32,7 +32,7 @@ public class PuctPlayer
     private final double exploration;
     private final double alpha;
     private final double signal;
-    private final boolean train;
+    private boolean train;
 
     private final CopyOnWriteArrayList<PuctContext> contexts;
     private ExecutorService executorService;
@@ -67,6 +67,13 @@ public class PuctPlayer
         this.train = train;
 
         contexts = new CopyOnWriteArrayList<>();
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    public void setTrain(boolean train)
+    {
+        this.train = train;
     }
 
 
@@ -157,7 +164,7 @@ public class PuctPlayer
                 throw new UncheckedIOException(e);
             }
             contexts.add(new PuctContext(
-                    nn, exploration, alpha, signal));
+                    nn, exploration/*, alpha, signal*/));
         }
     }
 

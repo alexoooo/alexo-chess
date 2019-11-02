@@ -21,8 +21,8 @@ class PuctContext {
 
 
     public final double exploration;
-    public final double alpha;
-    public final double signal;
+//    public final double alpha;
+//    public final double signal;
 
 
     public double estimatedValue;
@@ -30,13 +30,13 @@ class PuctContext {
 
     public PuctContext(
             MultiLayerNetwork nn,
-            double exploration,
+            double exploration/*,
             double alpha,
-            double signal)
+            double signal*/)
     {
         this.nn = nn;
         this.exploration = exploration;
-        this.alpha = alpha;
-        this.signal = signal;
+//        this.alpha = alpha;
+//        this.signal = signal;
     }
 }

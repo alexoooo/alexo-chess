@@ -157,7 +157,7 @@ public class BrainTeaser {
 //        );
 
         Player player = new PuctPlayer(
-                Paths.get("lookup/gen/4/nn.zip"),
+                Paths.get("lookup/gen/1/nn.zip"),
                 1,
                 4);
 //        Player player = new PuctPlayer(

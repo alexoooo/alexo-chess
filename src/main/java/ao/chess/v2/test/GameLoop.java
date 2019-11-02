@@ -4,6 +4,7 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
+import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -63,13 +64,16 @@ public class GameLoop
 
 
     public List<MoveHistory> playWithHistory(
-            ScoredPlayer white,
-            ScoredPlayer black,
-            int millisecondsPerMove
+            PuctPlayer white,
+            PuctPlayer black,
+            int whiteMillisecondsPerMove,
+            int blackMillisecondsPerMove
     ) {
         State state = State.initial();
 
         Outcome outcome = Outcome.DRAW;
+
+        int moveCount = 0;
 
         while (! state.isDrawnBy50MovesRule())
         {
@@ -79,6 +83,11 @@ public class GameLoop
             ScoredPlayer nextToAct =
                     (state.nextToAct() == Colour.WHITE)
                     ? white : black;
+
+            int millisecondsPerMove =
+                    (state.nextToAct() == Colour.WHITE)
+                    ? whiteMillisecondsPerMove
+                    : blackMillisecondsPerMove;
 
             boolean moveMade = false;
             int move = nextToAct.move(state.prototype(),
@@ -103,6 +112,12 @@ public class GameLoop
                     outcome = Outcome.WHITE_WINS;
                 }
                 break;
+            }
+
+            moveCount++;
+            if (moveCount == 30) {
+                white.setTrain(false);
+                black.setTrain(false);
             }
         }
 

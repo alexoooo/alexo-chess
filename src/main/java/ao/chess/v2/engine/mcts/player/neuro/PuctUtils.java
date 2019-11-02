@@ -10,6 +10,17 @@ enum PuctUtils {
 
     public static void smearProbabilities(
             double[] probabilities,
+            double amount
+    ) {
+        double total = 1 + probabilities.length * amount;
+        for (int i = 0; i < probabilities.length; i++) {
+            probabilities[i] = (probabilities[i] + amount) / total;
+        }
+    }
+
+
+    public static void smearProbabilities(
+            double[] probabilities,
             double alpha,
             double signal,
             Random random,

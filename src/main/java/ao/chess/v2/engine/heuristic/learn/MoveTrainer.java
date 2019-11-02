@@ -5,6 +5,7 @@ import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;
 import ao.chess.v2.state.Move;
+import ao.chess.v2.state.Outcome;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -43,18 +44,20 @@ public class MoveTrainer {
     //-----------------------------------------------------------------------------------------------------------------
     private static final boolean bestAction = true;
     private static final boolean measureOutcome = true;
+    private static final boolean skipDraw = false;
 
     private static final int seed = 42;
     private static final Random seededRandom = new Random(seed);
 
 
     private static final List<Path> inputs = List.of(
-            Paths.get("lookup/think_1000_20191024_110657_082.csv"),
-            Paths.get("lookup/think_1000_20191024_135020_955.csv"),
-            Paths.get("lookup/think_1000_20191024_202610_148.csv"),
-            Paths.get("lookup/think_1000_20191025_152515_865.csv"),
-            Paths.get("lookup/think_1000_20191025_194455_822.csv"),
-            Paths.get("lookup/think_1000_20191026_185627_150.csv")
+            Paths.get("lookup/gen/0/history.txt")
+//            Paths.get("lookup/think_1000_20191024_110657_082.csv"),
+//            Paths.get("lookup/think_1000_20191024_135020_955.csv"),
+//            Paths.get("lookup/think_1000_20191024_202610_148.csv"),
+//            Paths.get("lookup/think_1000_20191025_152515_865.csv"),
+//            Paths.get("lookup/think_1000_20191025_194455_822.csv"),
+//            Paths.get("lookup/think_1000_20191026_185627_150.csv")
     );
 
     private static final List<Path> test = List.of(
@@ -75,7 +78,9 @@ public class MoveTrainer {
 //            Paths.get("lookup/gen/0/nn.zip");
 //            Paths.get("lookup/gen/1/nn.zip");
 //            Paths.get("lookup/gen/3/nn.zip");
-            Paths.get("lookup/gen/4/nn.zip");
+            Paths.get("lookup/gen/nn-test-agg.zip");
+//            Paths.get("lookup/gen/nn-test-1.zip");
+//            Paths.get("lookup/gen/nn-test-2.zip");
 
 
     private static class Prediction {
@@ -129,11 +134,11 @@ public class MoveTrainer {
         Function<MoveHistory, Prediction> tester = nnTester;
 
         if (saved) {
-            testOutputs(tester);
+//            testOutputs(tester);
         }
 
         double min = Double.POSITIVE_INFINITY;
-        for (int epoch = 0; epoch < 0; epoch++) {
+        for (int epoch = 0; epoch < 1; epoch++) {
             for (Path input : inputs) {
                 iterateInputs(epoch, input, learner);
 
@@ -184,6 +189,10 @@ public class MoveTrainer {
         Collections.shuffle(examples, seededRandom);
 
         for (var example : examples) {
+            if (skipDraw && example.outcome() == Outcome.DRAW) {
+                continue;
+            }
+
             consumer.accept(example);
         }
 

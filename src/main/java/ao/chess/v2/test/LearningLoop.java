@@ -5,7 +5,6 @@ import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.heuristic.learn.MoveTrainer;
 import ao.chess.v2.engine.heuristic.learn.NeuralUtils;
-import ao.chess.v2.engine.mcts.player.ScoredPlayer;
 import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
 import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
@@ -34,16 +33,18 @@ public class LearningLoop {
     //-----------------------------------------------------------------------------------------------------------------
     private final static Path generationsDir = Paths.get("lookup/gen");
 
-    private final static int selfPlayThreads = 2;
+    private final static int selfPlayThreads = 1;
     private final static int gamesPerThread = 50;
 
-    private final static int trainingIterations = 2;
-    private final static int gamesInTest = 1;
+    private final static int trainingIterations = 1;
+    private final static int gamesInTest = 0;
 
     private final static double thinkingExploration = 4;
-    private final static double thinkingAlpha = 1;
+    private final static double thinkingAlpha = 0.3;
     private final static double thinkingSignal = 0.75;
-    private final static int thinkingTimeMs = 1000;
+//    private final static int thinkingTimeMs = 10_000;
+    private final static int aThinkingTimeMs = 10_000;
+    private final static int bThinkingTimeMs = 1_000;
 
     private final static String nnFilename = "nn.zip";
     private final static String historyFilename = "history.txt";
@@ -200,34 +201,78 @@ public class LearningLoop {
             throw new UncheckedIOException(e);
         }
 
-        Object monitor = new Object();
         List<Thread> threads = new ArrayList<>();
 
         try (PrintWriter historyOut = new PrintWriter(historyFile.toFile()))
         {
-            AtomicInteger gameCount = new AtomicInteger();
-            for (int i = 0; i < selfPlayThreads; i++) {
-                Thread thread = selfPlayInThread(nnFile, (history) -> {
-                    synchronized (monitor) {
-                        for (var move : history) {
-                            historyOut.println(move.asString());
-                        }
+            if (selfPlayThreads == 1) {
+                PuctPlayer a = new PuctPlayer(
+                        nnFile,
+                        1,
+                        thinkingExploration,
+                        thinkingAlpha,
+                        thinkingSignal,
+                        true);
 
-                        historyOut.flush();
+                PuctPlayer b = new PuctPlayer(
+                        nnFile,
+                        1,
+                        thinkingExploration,
+                        thinkingAlpha,
+                        thinkingSignal,
+                        true);
 
-                        int currentGameNumber = gameCount.incrementAndGet();
-                        System.out.println("recorded game " + currentGameNumber + ": " + history.get(0).outcome());
+                int whiteThinkingMs = aThinkingTimeMs;
+                int blackThinkingMs = bThinkingTimeMs;
+
+                GameLoop gameLoop = new GameLoop();
+                for (int i = 0; i < gamesPerThread; i++) {
+                    List<MoveHistory> history = gameLoop.playWithHistory(
+                            a, b, whiteThinkingMs, blackThinkingMs);
+
+                    Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
+
+                    for (var move : history) {
+                        historyOut.println(move.asString());
                     }
-                });
 
-                threads.add(thread);
+                    historyOut.flush();
+
+                    {
+                        int temp = whiteThinkingMs;
+                        whiteThinkingMs = blackThinkingMs;
+                        blackThinkingMs = temp;
+                    }
+
+                    System.out.println("recorded game " + (i + 1) + ": " + history.get(0).outcome());
+                }
             }
+            else {
+                Object monitor = new Object();
+                AtomicInteger gameCount = new AtomicInteger();
+                for (int i = 0; i < selfPlayThreads; i++) {
+                    Thread thread = selfPlayInThread(nnFile, (history) -> {
+                        synchronized (monitor) {
+                            for (var move : history) {
+                                historyOut.println(move.asString());
+                            }
 
-            for (Thread t : threads) {
-                t.join();
+                            historyOut.flush();
+
+                            int currentGameNumber = gameCount.incrementAndGet();
+                            System.out.println("recorded game " + currentGameNumber + ": " + history.get(0).outcome());
+                        }
+                    });
+
+                    threads.add(thread);
+                }
+
+                for (Thread t : threads) {
+                    t.join();
+                }
+
+                Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
             }
-
-            Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
         }
         catch (FileNotFoundException e) {
             throw new UncheckedIOException(e);
@@ -243,7 +288,7 @@ public class LearningLoop {
             Consumer<List<MoveHistory>> historyCallback
     ) {
         Thread thread = new Thread(() -> {
-            ScoredPlayer a = new PuctPlayer(
+            PuctPlayer a = new PuctPlayer(
                     nnFile,
                     1,
                     thinkingExploration,
@@ -251,21 +296,31 @@ public class LearningLoop {
                     thinkingSignal,
                     true);
 
-            ScoredPlayer b = new PuctPlayer(
+            PuctPlayer b = new PuctPlayer(
                     nnFile,
                     1,
                     thinkingExploration,
                     thinkingAlpha,
                     thinkingSignal,
                     true);
+
+            int whiteThinkingMs = aThinkingTimeMs;
+            int blackThinkingMs = bThinkingTimeMs;
 
             GameLoop gameLoop = new GameLoop();
             for (int i = 0; i < gamesPerThread; i++) {
-                List<MoveHistory> history = gameLoop.playWithHistory(a, b, thinkingTimeMs);
+                List<MoveHistory> history = gameLoop.playWithHistory(
+                        a, b, whiteThinkingMs, blackThinkingMs);
 
                 Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
 
                 historyCallback.accept(history);
+
+                {
+                    int tmp = whiteThinkingMs;
+                    whiteThinkingMs = blackThinkingMs;
+                    blackThinkingMs = tmp;
+                }
             }
         });
 
@@ -317,7 +372,7 @@ public class LearningLoop {
             Player white = aColour == Colour.WHITE ? a : b;
             Player black = aColour == Colour.WHITE ? b : a;
 
-            Outcome outcome = gameLoop.play(white, black, thinkingTimeMs);
+            Outcome outcome = gameLoop.play(white, black, 1000);
 
             Colour winner = outcome.winner();
             if (winner == aColour) {

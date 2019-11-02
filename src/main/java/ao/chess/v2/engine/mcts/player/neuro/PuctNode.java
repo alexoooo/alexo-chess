@@ -20,7 +20,8 @@ class PuctNode {
     //-----------------------------------------------------------------------------------------------------------------
     private static final double minimumGuess = 0.1;
     private static final double maximumGuess = 0.9;
-    private static final double firstPlayEstimate = 0.5;
+    private static final double firstPlayEstimate = 0.2;
+    private static final double minProbability = 0.001;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -139,8 +140,8 @@ class PuctNode {
         double[] predictions = NeuralCodec.INSTANCE
                 .decodeMoveProbabilities(output, state, legalMoves);
 
-//        PuctUtils.smearProbabilities(
-//                predictions, context.alpha, context.signal, context.random, context.probabilityBuffer);
+        PuctUtils.smearProbabilities(
+                predictions, minProbability);
 
         PuctNode newChild = new PuctNode(legalMoves, predictions);
 
@@ -232,16 +233,24 @@ class PuctNode {
         }
 
         int bestMoveIndex = 0;
-        long bestMoveVisits = 0;
+        double bestMoveScore = 0;
         for (int i = 0; i < moves.length; i++) {
             PuctNode child = childNodes.get(i);
             if (child == null) {
                 continue;
             }
 
+            double moveValueSum = child.valueSum.doubleValue();
             long moveVisits = child.visitCount.longValue();
-            if (bestMoveVisits < moveVisits) {
-                bestMoveVisits = moveVisits;
+
+            double moveScore =
+                    moveVisits == 0
+                    ? 0
+                    : moveValueSum / moveVisits;
+//            long moveScore = child.visitCount.longValue();
+
+            if (bestMoveScore < moveScore) {
+                bestMoveScore = moveScore;
                 bestMoveIndex = i;
             }
         }
@@ -290,10 +299,11 @@ class PuctNode {
 
         String childSummary = indexes
                 .stream()
-                .map(i -> String.format("%s %d %.4f",
+                .map(i -> String.format("%s %d %.4f %.4f",
                         Move.toInputNotation(moves[i]),
                         counts[i],
-                        counts[i] == 0 ? 0 : values[i] / counts[i]))
+                        counts[i] == 0 ? firstPlayEstimate : values[i] / counts[i],
+                        predictions[i]))
                 .collect(Collectors.joining(" | "));
 
         return String.format("%d - %.4f - %s",
