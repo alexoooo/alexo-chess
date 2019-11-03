@@ -39,56 +39,6 @@ public class BrainTeaser {
 //                mctsPrototype.prototype()
 //        ));
 
-//        Player player = new MultiMctsPlayer(List.of(
-//                mctsFallbackOptPrototype.prototype(),
-//                mctsFallbackDeepOptPrototype.prototype(),
-//                mctsFallbackPrototype.prototype(),
-//                mctsFallbackDeepPrototype.prototype(),
-//                mctsMaterialMixedPrototype.prototype(),
-//                mctsMaterialMixedRandomPrototype.prototype(),
-//                mctsMaterialMixedDeepPrototype.prototype(),
-//                mctsMaterialMixedRandomDeepPrototype.prototype()
-//        ));
-//        Player player = new MultiMctsPlayer(List.of(
-////                MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype()
-////                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep5Rand32Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep5Rand32Prototype.prototype()
-////                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep5Rand64Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep5Rand64Prototype.prototype()
-//                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep5Opt128Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep2Opt64Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep5Rand64Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep5Rand64Prototype.prototype()
-////                MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep1Opt8Prototype.prototype()
-////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype()
-//        ));
-
 //        Player player = MctsPrototypes.mctsFallbackDeep2LargeOpt8Prototype.prototype();
 //        Player player = MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype();
 //        Player player = MctsPrototypes.mctsFallbackDeep5Opt32Prototype.prototype();
@@ -157,27 +107,29 @@ public class BrainTeaser {
 //        );
 
         Player player = new PuctPlayer(
-                Paths.get("lookup/gen/1/nn.zip"),
+                Paths.get("lookup/gen/2/nn.zip"),
                 1,
                 4);
 //        Player player = new PuctPlayer(
-//                Paths.get("lookup/gen/4/nn.zip"),
+//                Paths.get("lookup/gen/1/nn.zip"),
 //                1,
 //                4,
+//                false,
 //                0.3,
 //                0.75,
 //                true);
 
         State state = State.fromFen(
                 // puzzles
+//                "8/k7/8/1K6/8/8/8/R7 b  - 99 n,0"
 //                "6rk/6pp/3N4/8/8/8/7P/7K w - - 0 1" // N from d6 to f7
-                "8/2k2p2/2b3p1/P1p1Np2/1p3b2/1P1K4/5r2/R3R3 b - - 0 1" // b from c6 to b5
+//                "8/2k2p2/2b3p1/P1p1Np2/1p3b2/1P1K4/5r2/R3R3 b - - 0 1" // b from c6 to b5
 //                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8
 
                 // Travis game
-//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 //                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
 //                "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 1"
 //                "rnbqkbnr/pp1ppppp/8/2p5/4P3/5P2/PPPP2PP/RNBQKBNR b KQkq - 0 1"

@@ -33,18 +33,19 @@ public class LearningLoop {
     //-----------------------------------------------------------------------------------------------------------------
     private final static Path generationsDir = Paths.get("lookup/gen");
 
-    private final static int selfPlayThreads = 1;
-    private final static int gamesPerThread = 50;
+    private final static int selfPlayThreads = 2;
+    private final static int gamesPerThread = 30;
 
     private final static int trainingIterations = 1;
     private final static int gamesInTest = 0;
 
     private final static double thinkingExploration = 4;
+    private final static boolean thinkingMaxVisits = false;
     private final static double thinkingAlpha = 0.3;
     private final static double thinkingSignal = 0.75;
 //    private final static int thinkingTimeMs = 10_000;
-    private final static int aThinkingTimeMs = 10_000;
-    private final static int bThinkingTimeMs = 1_000;
+    private final static int aThinkingTimeMs = 6_000;
+    private final static int bThinkingTimeMs = 2_000;
 
     private final static String nnFilename = "nn.zip";
     private final static String historyFilename = "history.txt";
@@ -145,7 +146,8 @@ public class LearningLoop {
             List<Path> generationDirs,
             Path nnFile
     ) {
-        int horizon = Math.min(generationDirs.size() / 2 + 1, generationDirs.size());
+//        int horizon = Math.min(generationDirs.size() / 2 + 1, generationDirs.size());
+        int horizon = generationDirs.size();
         List<Path> trainingDirs = generationDirs.subList(generationDirs.size() - horizon, generationDirs.size());
 
         for (int i = 0; i < trainingIterations; i++) {
@@ -210,6 +212,7 @@ public class LearningLoop {
                         nnFile,
                         1,
                         thinkingExploration,
+                        thinkingMaxVisits,
                         thinkingAlpha,
                         thinkingSignal,
                         true);
@@ -218,6 +221,7 @@ public class LearningLoop {
                         nnFile,
                         1,
                         thinkingExploration,
+                        thinkingMaxVisits,
                         thinkingAlpha,
                         thinkingSignal,
                         true);
@@ -292,6 +296,7 @@ public class LearningLoop {
                     nnFile,
                     1,
                     thinkingExploration,
+                    thinkingMaxVisits,
                     thinkingAlpha,
                     thinkingSignal,
                     true);
@@ -300,6 +305,7 @@ public class LearningLoop {
                     nnFile,
                     1,
                     thinkingExploration,
+                    thinkingMaxVisits,
                     thinkingAlpha,
                     thinkingSignal,
                     true);

@@ -45,13 +45,14 @@ public class MoveTrainer {
     private static final boolean bestAction = true;
     private static final boolean measureOutcome = true;
     private static final boolean skipDraw = false;
+    private static final int trainingIterations = 0;
 
     private static final int seed = 42;
     private static final Random seededRandom = new Random(seed);
 
 
     private static final List<Path> inputs = List.of(
-            Paths.get("lookup/gen/0/history.txt")
+//            Paths.get("lookup/gen/0/history.txt")
 //            Paths.get("lookup/think_1000_20191024_110657_082.csv"),
 //            Paths.get("lookup/think_1000_20191024_135020_955.csv"),
 //            Paths.get("lookup/think_1000_20191024_202610_148.csv"),
@@ -61,6 +62,7 @@ public class MoveTrainer {
     );
 
     private static final List<Path> test = List.of(
+            Paths.get("lookup/old/think_train_10000.csv"),
             Paths.get("lookup/test_1000_20191024_190016_544.csv"),
             Paths.get("lookup/think_1000_20191024_110657_082.csv"),
             Paths.get("lookup/think_1000_20191024_135020_955.csv"),
@@ -77,10 +79,12 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn_2019-10-30.zip");
 //            Paths.get("lookup/gen/0/nn.zip");
 //            Paths.get("lookup/gen/1/nn.zip");
+            Paths.get("lookup/gen/2/nn.zip");
 //            Paths.get("lookup/gen/3/nn.zip");
-            Paths.get("lookup/gen/nn-test-agg.zip");
+//            Paths.get("lookup/gen/nn-test-agg.zip");
 //            Paths.get("lookup/gen/nn-test-1.zip");
 //            Paths.get("lookup/gen/nn-test-2.zip");
+//            Paths.get("lookup/gen/nn-test-agg.zip");
 
 
     private static class Prediction {
@@ -128,17 +132,17 @@ public class MoveTrainer {
             return new Prediction(moveProbabilities, outcome);
         };
 
-//        Consumer<MoveExample> learner = randomLearner;
-//        Function<MoveExample, double[]> tester = randomTester;
+//        Consumer<MoveHistory> learner = randomLearner;
+//        Function<MoveHistory, Prediction> tester = randomTester;
         Consumer<MoveHistory> learner = nnLearner;
         Function<MoveHistory, Prediction> tester = nnTester;
 
         if (saved) {
-//            testOutputs(tester);
+            testOutputs(tester);
         }
 
         double min = Double.POSITIVE_INFINITY;
-        for (int epoch = 0; epoch < 1; epoch++) {
+        for (int epoch = 0; epoch < trainingIterations; epoch++) {
             for (Path input : inputs) {
                 iterateInputs(epoch, input, learner);
 

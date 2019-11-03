@@ -12,9 +12,11 @@ enum PuctUtils {
             double[] probabilities,
             double amount
     ) {
-        double total = 1 + probabilities.length * amount;
+        double total = 1 + amount;
+        double each = amount / probabilities.length;
+
         for (int i = 0; i < probabilities.length; i++) {
-            probabilities[i] = (probabilities[i] + amount) / total;
+            probabilities[i] = (probabilities[i] + each) / total;
         }
     }
 

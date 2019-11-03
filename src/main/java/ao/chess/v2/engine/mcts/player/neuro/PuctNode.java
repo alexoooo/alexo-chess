@@ -20,8 +20,8 @@ class PuctNode {
     //-----------------------------------------------------------------------------------------------------------------
     private static final double minimumGuess = 0.1;
     private static final double maximumGuess = 0.9;
-    private static final double firstPlayEstimate = 0.2;
-    private static final double minProbability = 0.001;
+    private static final double firstPlayEstimate = 0.4;
+    public static final double uncertainty = 0.2;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ class PuctNode {
                 .decodeMoveProbabilities(output, state, legalMoves);
 
         PuctUtils.smearProbabilities(
-                predictions, minProbability);
+                predictions, uncertainty);
 
         PuctNode newChild = new PuctNode(legalMoves, predictions);
 
@@ -171,13 +171,23 @@ class PuctNode {
         long parentVisitCount = 1;
         for (int i = 0; i < moveCount; i++) {
             PuctNode child = childNodes.get(i);
-            if (child != null) {
-                moveValueSums[i] = child.valueSum.sum();
 
-                long childVisitCount = child.visitCount.sum();
-                moveVisitCounts[i] = childVisitCount;
-                parentVisitCount += childVisitCount;
+            long childVisitCount;
+            double childValueSum;
+
+            if (child == null) {
+                childVisitCount = 0;
+                childValueSum = 0;
             }
+            else {
+                childVisitCount = child.visitCount.sum();
+                childValueSum = child.valueSum.sum();
+            }
+
+            moveValueSums[i] = childValueSum;
+            moveVisitCounts[i] = childVisitCount;
+
+            parentVisitCount += childVisitCount;
         }
 
         double maxScore = Double.NEGATIVE_INFINITY;
@@ -227,7 +237,7 @@ class PuctNode {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public int bestMove() {
+    public int bestMove(boolean visitMax) {
         if (moves.length == 0) {
             return -1;
         }
@@ -243,11 +253,16 @@ class PuctNode {
             double moveValueSum = child.valueSum.doubleValue();
             long moveVisits = child.visitCount.longValue();
 
-            double moveScore =
-                    moveVisits == 0
-                    ? 0
-                    : moveValueSum / moveVisits;
-//            long moveScore = child.visitCount.longValue();
+            double moveScore;
+            if (visitMax) {
+                moveScore = child.visitCount.longValue();
+            }
+            else {
+                moveScore =
+                        moveVisits == 0
+                        ? 0
+                        : moveValueSum / moveVisits;
+            }
 
             if (bestMoveScore < moveScore) {
                 bestMoveScore = moveScore;
@@ -258,7 +273,7 @@ class PuctNode {
     }
 
 
-    public long moveVisits(int move) {
+    public long moveValue(int move, boolean visitMax) {
         PuctNode child = null;
         for (int i = 0; i < moves.length; i++) {
             if (moves[i] == move) {
@@ -267,9 +282,14 @@ class PuctNode {
             }
         }
 
-        return child == null
-                ? 0
-                : child.visitCount.longValue();
+        if (child == null) {
+            return visitMax ? 0 : (long) (minimumGuess * 10_000);
+        }
+
+        long visits = child.visitCount.longValue();
+        return visitMax
+                ? visits
+                : (long) ((visits == 0 ? minimumGuess : child.valueSum.doubleValue() / visits) * 10_000);
     }
 
 
@@ -278,6 +298,7 @@ class PuctNode {
     public String toString() {
         List<Integer> indexes = IntStream.range(0, moves.length).boxed().collect(Collectors.toList());
 
+        long parentCount = 0;
         long[] counts = new long[moves.length];
         double[] values = new double[moves.length];
         for (int i = 0; i < counts.length; i++) {
@@ -288,6 +309,8 @@ class PuctNode {
 
             counts[i] = node.visitCount.longValue();
             values[i] = node.valueSum.doubleValue();
+
+            parentCount += counts[i];
         }
 
         indexes.sort((a, b) ->
@@ -296,14 +319,16 @@ class PuctNode {
         long count = visitCount.longValue();
         double sum = valueSum.doubleValue();
         double inverse = 1.0 - sum / count;
+        long parentVisitCount = parentCount;
 
         String childSummary = indexes
                 .stream()
-                .map(i -> String.format("%s %d %.4f %.4f",
+                .map(i -> String.format("%s %d %.4f %.4f %.4f",
                         Move.toInputNotation(moves[i]),
                         counts[i],
                         counts[i] == 0 ? firstPlayEstimate : values[i] / counts[i],
-                        predictions[i]))
+                        predictions[i],
+                        predictions[i] * Math.sqrt(parentVisitCount) / (counts[i] + 1)))
                 .collect(Collectors.joining(" | "));
 
         return String.format("%d - %.4f - %s",

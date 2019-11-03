@@ -30,6 +30,7 @@ public class PuctPlayer
     private final Path savedNeuralNetwork;
     private final int threads;
     private final double exploration;
+    private final boolean visitMax;
     private final double alpha;
     private final double signal;
     private boolean train;
@@ -47,7 +48,7 @@ public class PuctPlayer
             int threads,
             double exploration)
     {
-        this(savedNeuralNetwork, threads, exploration, 1, 0.75, false);
+        this(savedNeuralNetwork, threads, exploration, false, 1, 0.75, false);
     }
 
 
@@ -55,6 +56,7 @@ public class PuctPlayer
             Path savedNeuralNetwork,
             int threads,
             double exploration,
+            boolean visitMax,
             double alpha,
             double signal,
             boolean train)
@@ -62,6 +64,7 @@ public class PuctPlayer
         this.savedNeuralNetwork = savedNeuralNetwork;
         this.threads = threads;
         this.exploration = exploration;
+        this.visitMax = visitMax;
         this.alpha = alpha;
         this.signal = signal;
         this.train = train;
@@ -123,7 +126,7 @@ public class PuctPlayer
             }
         }
 
-        return root.bestMove();
+        return root.bestMove(visitMax);
     }
 
 
@@ -190,6 +193,10 @@ public class PuctPlayer
             double[] buffer = new double[moveProbabilities.length];
             PuctUtils.smearProbabilities(moveProbabilities, alpha, signal, new Random(), buffer);
         }
+        else {
+            PuctUtils.smearProbabilities(
+                    moveProbabilities, PuctNode.uncertainty);
+        }
 
         PuctNode root = new PuctNode(legalMoves, moveProbabilities);
         root.initRoot();
@@ -204,7 +211,7 @@ public class PuctPlayer
     private void reportProgress(
             PuctNode root
     ) {
-        int bestMove = root.bestMove();
+        int bestMove = root.bestMove(visitMax);
 
         String message = String.format(
                 "%s | %d / %.2f / %.2f | %s | %s",
@@ -223,7 +230,7 @@ public class PuctPlayer
     //-----------------------------------------------------------------------------------------------------------------
     @Override
     public double moveScoreInternal(int move) {
-        return previousRoot.moveVisits(move);
+        return previousRoot.moveValue(move, visitMax);
     }
 
 
