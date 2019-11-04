@@ -62,7 +62,6 @@ public class MoveTrainer {
     );
 
     private static final List<Path> test = List.of(
-            Paths.get("lookup/old/think_train_10000.csv"),
             Paths.get("lookup/test_1000_20191024_190016_544.csv"),
             Paths.get("lookup/think_1000_20191024_110657_082.csv"),
             Paths.get("lookup/think_1000_20191024_135020_955.csv"),
@@ -79,8 +78,9 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn_2019-10-30.zip");
 //            Paths.get("lookup/gen/0/nn.zip");
 //            Paths.get("lookup/gen/1/nn.zip");
-            Paths.get("lookup/gen/2/nn.zip");
+//            Paths.get("lookup/gen/2/nn.zip");
 //            Paths.get("lookup/gen/3/nn.zip");
+            Paths.get("lookup/gen/5/nn.zip");
 //            Paths.get("lookup/gen/nn-test-agg.zip");
 //            Paths.get("lookup/gen/nn-test-1.zip");
 //            Paths.get("lookup/gen/nn-test-2.zip");

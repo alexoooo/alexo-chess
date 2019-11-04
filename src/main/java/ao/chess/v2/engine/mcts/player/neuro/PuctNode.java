@@ -1,8 +1,11 @@
 package ao.chess.v2.engine.mcts.player.neuro;
 
 
+import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.neuro.NeuralCodec;
+import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
+import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -21,7 +24,7 @@ class PuctNode {
     private static final double minimumGuess = 0.1;
     private static final double maximumGuess = 0.9;
     private static final double firstPlayEstimate = 0.4;
-    public static final double uncertainty = 0.2;
+    public static final double uncertainty = 0.6;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -152,8 +155,106 @@ class PuctNode {
         }
 
         double outcome = NeuralCodec.INSTANCE.decodeOutcome(output);
-        context.estimatedValue = Math.max(minimumGuess, Math.min(maximumGuess, outcome));
+        double adjusted = Math.max(minimumGuess, Math.min(maximumGuess, outcome));
+
+        if (context.rollouts == 0) {
+            context.estimatedValue = adjusted;
+        }
+        else {
+            double rolloutValue = randomRollouts(state, context);
+            context.estimatedValue = (rolloutValue + adjusted) / 2;
+        }
+
         return true;
+    }
+
+
+    private double randomRollouts(
+            State state,
+            PuctContext context)
+    {
+        Colour pov = state.nextToAct();
+
+        double sum = 0;
+        int count = 0;
+        for (int i = context.rollouts - 1; i >= 0; i--) {
+            State freshState =
+                    (i == 0)
+                    ? state
+                    : state.prototype();
+
+            double value = computeMonteCarloPlayout(
+                    freshState, pov, context);
+
+            sum += value;
+            count++;
+        }
+
+        return sum / count;
+    }
+
+
+    private double computeMonteCarloPlayout(
+            State state,
+            Colour pov,
+            PuctContext context
+    ) {
+        int[] moves = context.movesA;
+        int[] nextMoves = context.movesB;
+
+        int nextCount = 0;
+        int nMoves = state.moves(moves);
+        Outcome outcome = null;
+
+        boolean wasDrawnBy50MovesRule = false;
+        do
+        {
+            boolean madeMove = false;
+
+            int[] randomMoveOrder = MovePicker.pickRandom(nMoves);
+            for (int moveIndex : randomMoveOrder)
+            {
+                int undoable = Move.apply(moves[ moveIndex ], state);
+
+                // opponent moves
+                nextCount = state.moves(nextMoves);
+
+                if (nextCount < 0) {
+                    Move.unApply(undoable, state);
+                }
+                else {
+                    madeMove = true;
+                    break;
+                }
+            }
+
+            if (! madeMove) {
+                outcome = state.isInCheck(state.nextToAct())
+                        ? Outcome.loses(state.nextToAct())
+                        : Outcome.DRAW;
+                break;
+            }
+
+            {
+                int[] tempMoves = nextMoves;
+                nextMoves       = moves;
+                moves           = tempMoves;
+                nMoves          = nextCount;
+            }
+        }
+        while (! (wasDrawnBy50MovesRule =
+                state.isDrawnBy50MovesRule()));
+
+        if (wasDrawnBy50MovesRule) {
+            return 0.5;
+//            return defaultValue(state, pov, context);
+//            double defaultValue = defaultValue(state, pov, context);
+//            double defaultValueDelta = defaultValue - povInitialDefaultValue;
+//            double ex = Math.exp(defaultValueDelta);
+//            return ex / (ex + 1);
+        }
+
+        return outcome.valueFor( pov );
     }
 
 

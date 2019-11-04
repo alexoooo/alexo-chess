@@ -31,6 +31,7 @@ public class PuctPlayer
     private final int threads;
     private final double exploration;
     private final boolean visitMax;
+    private final int rollouts;
     private final double alpha;
     private final double signal;
     private boolean train;
@@ -48,7 +49,14 @@ public class PuctPlayer
             int threads,
             double exploration)
     {
-        this(savedNeuralNetwork, threads, exploration, false, 1, 0.75, false);
+        this(savedNeuralNetwork,
+                threads,
+                exploration,
+                false,
+                15,
+                0.3,
+                0.75,
+                false);
     }
 
 
@@ -57,6 +65,7 @@ public class PuctPlayer
             int threads,
             double exploration,
             boolean visitMax,
+            int rollouts,
             double alpha,
             double signal,
             boolean train)
@@ -65,6 +74,7 @@ public class PuctPlayer
         this.threads = threads;
         this.exploration = exploration;
         this.visitMax = visitMax;
+        this.rollouts = rollouts;
         this.alpha = alpha;
         this.signal = signal;
         this.train = train;
@@ -167,7 +177,7 @@ public class PuctPlayer
                 throw new UncheckedIOException(e);
             }
             contexts.add(new PuctContext(
-                    nn, exploration/*, alpha, signal*/));
+                    nn, exploration, rollouts));
         }
     }
 

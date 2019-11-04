@@ -33,8 +33,8 @@ public class LearningLoop {
     //-----------------------------------------------------------------------------------------------------------------
     private final static Path generationsDir = Paths.get("lookup/gen");
 
-    private final static int selfPlayThreads = 2;
-    private final static int gamesPerThread = 30;
+    private final static int selfPlayThreads = 3;
+    private final static int gamesPerThread = 40;
 
     private final static int trainingIterations = 1;
     private final static int gamesInTest = 0;
@@ -43,9 +43,10 @@ public class LearningLoop {
     private final static boolean thinkingMaxVisits = false;
     private final static double thinkingAlpha = 0.3;
     private final static double thinkingSignal = 0.75;
+    private final static int thinkingRollounts = 15;
 //    private final static int thinkingTimeMs = 10_000;
-    private final static int aThinkingTimeMs = 6_000;
-    private final static int bThinkingTimeMs = 2_000;
+    private final static int aThinkingTimeMs = 10_000;
+    private final static int bThinkingTimeMs = 10_000;
 
     private final static String nnFilename = "nn.zip";
     private final static String historyFilename = "history.txt";
@@ -213,6 +214,7 @@ public class LearningLoop {
                         1,
                         thinkingExploration,
                         thinkingMaxVisits,
+                        thinkingRollounts,
                         thinkingAlpha,
                         thinkingSignal,
                         true);
@@ -222,6 +224,7 @@ public class LearningLoop {
                         1,
                         thinkingExploration,
                         thinkingMaxVisits,
+                        thinkingRollounts,
                         thinkingAlpha,
                         thinkingSignal,
                         true);
@@ -297,6 +300,7 @@ public class LearningLoop {
                     1,
                     thinkingExploration,
                     thinkingMaxVisits,
+                    thinkingRollounts,
                     thinkingAlpha,
                     thinkingSignal,
                     true);
@@ -306,6 +310,7 @@ public class LearningLoop {
                     1,
                     thinkingExploration,
                     thinkingMaxVisits,
+                    thinkingRollounts,
                     thinkingAlpha,
                     thinkingSignal,
                     true);

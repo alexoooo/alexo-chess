@@ -1,9 +1,7 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.mcts.player.BanditPlayer;
 import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
-import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 
@@ -70,27 +68,27 @@ public class BrainTeaser {
 ////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype()
 //        ));
 
-        BanditPlayer protoA = new ParallelMctsPlayer(
-                "par",
-                3,
-                0.5,
-                7,
-                true
-        );
-        BanditPlayer protoB = new ParallelMctsPlayer(
-                "par",
-                3,
-                0.4,
-                15,
-                true
-        );
-        BanditPlayer protoC = new ParallelMctsPlayer(
-                "par",
-                3,
-                0.4,
-                15,
-                false
-        );
+//        BanditPlayer protoA = new ParallelMctsPlayer(
+//                "par",
+//                3,
+//                0.5,
+//                7,
+//                true
+//        );
+//        BanditPlayer protoB = new ParallelMctsPlayer(
+//                "par",
+//                3,
+//                0.4,
+//                15,
+//                true
+//        );
+//        BanditPlayer protoC = new ParallelMctsPlayer(
+//                "par",
+//                3,
+//                0.4,
+//                15,
+//                false
+//        );
 //        Player player = new MultiMctsPlayer(List.of(
 //                protoC.prototype(),
 //                protoC.prototype(),
@@ -107,7 +105,7 @@ public class BrainTeaser {
 //        );
 
         Player player = new PuctPlayer(
-                Paths.get("lookup/gen/2/nn.zip"),
+                Paths.get("lookup/gen/5/nn.zip"),
                 1,
                 4);
 //        Player player = new PuctPlayer(
@@ -115,9 +113,10 @@ public class BrainTeaser {
 //                1,
 //                4,
 //                false,
+//                5,
 //                0.3,
 //                0.75,
-//                true);
+//                false);
 
         State state = State.fromFen(
                 // puzzles
@@ -127,9 +126,10 @@ public class BrainTeaser {
 //                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8
+                "6R1/2k5/8/8/1P1R4/1PK5/2Q5/3R4 w"
 
                 // Travis game
-                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 //                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
 //                "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 1"
 //                "rnbqkbnr/pp1ppppp/8/2p5/4P3/5P2/PPPP2PP/RNBQKBNR b KQkq - 0 1"

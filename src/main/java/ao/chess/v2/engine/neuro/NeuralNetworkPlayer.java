@@ -54,11 +54,13 @@ public class NeuralNetworkPlayer implements Player {
         int maxMoveIndex = 0;
         double maxMoveProbability = 0;
 
+        double smear = 0.2 / legalMoves.length;
+
         for (int i = 0; i < legalMoves.length; i++) {
             double probability = moveProbabilities[i];
 
-            double score = Math.random() * probability;
-//            double score = probability;
+//            double score = Math.random() * (probability + smear);
+            double score = probability;
 
             if (score > maxMoveProbability) {
                 maxMoveProbability = score;
