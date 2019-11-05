@@ -33,8 +33,8 @@ public class LearningLoop {
     //-----------------------------------------------------------------------------------------------------------------
     private final static Path generationsDir = Paths.get("lookup/gen");
 
-    private final static int selfPlayThreads = 3;
-    private final static int gamesPerThread = 40;
+    private final static int selfPlayThreads = 1;
+    private final static int gamesPerThread = 100;
 
     private final static int trainingIterations = 1;
     private final static int gamesInTest = 0;
@@ -44,9 +44,10 @@ public class LearningLoop {
     private final static double thinkingAlpha = 0.3;
     private final static double thinkingSignal = 0.75;
     private final static int thinkingRollounts = 15;
+    private final static int thinkingOraclePieces = 5;
 //    private final static int thinkingTimeMs = 10_000;
-    private final static int aThinkingTimeMs = 10_000;
-    private final static int bThinkingTimeMs = 10_000;
+    private final static int aThinkingTimeMs = 3_000;
+    private final static int bThinkingTimeMs = 3_000;
 
     private final static String nnFilename = "nn.zip";
     private final static String historyFilename = "history.txt";
@@ -56,7 +57,7 @@ public class LearningLoop {
 
     //-----------------------------------------------------------------------------------------------------------------
     public static void main(String[] args) throws IOException {
-        List<Path> generationDirs = listGenerationDirs();
+        List<Path> generationDirs = listCompletedGenerationDirs();
 
         int lastGenerationNumber =
                 generationDirs.isEmpty()
@@ -80,13 +81,15 @@ public class LearningLoop {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    private static List<Path> listGenerationDirs() throws IOException {
+    private static List<Path> listCompletedGenerationDirs() throws IOException {
         if (! Files.exists(generationsDir)) {
             return new ArrayList<>();
         }
 
         try (var stream = Files.list(generationsDir)) {
-            return stream.collect(Collectors.toList());
+            return stream
+                    .filter(dir -> Files.exists(dir.resolve(historyFilename)))
+                    .collect(Collectors.toList());
         }
     }
 
@@ -136,7 +139,9 @@ public class LearningLoop {
 
         Path nnFile = generationDir.resolve(nnFilename);
 
-        trainNeuralNetwork(emptyNn, previousGenerationDirs, nnFile);
+        if (! Files.exists(nnFile)) {
+            trainNeuralNetwork(emptyNn, previousGenerationDirs, nnFile);
+        }
 
         recordSelfPlay(nnFile);
     }
@@ -147,8 +152,8 @@ public class LearningLoop {
             List<Path> generationDirs,
             Path nnFile
     ) {
-//        int horizon = Math.min(generationDirs.size() / 2 + 1, generationDirs.size());
-        int horizon = generationDirs.size();
+        int horizon = Math.min(generationDirs.size() / 2 + 1, generationDirs.size());
+//        int horizon = generationDirs.size();
         List<Path> trainingDirs = generationDirs.subList(generationDirs.size() - horizon, generationDirs.size());
 
         for (int i = 0; i < trainingIterations; i++) {
@@ -215,6 +220,7 @@ public class LearningLoop {
                         thinkingExploration,
                         thinkingMaxVisits,
                         thinkingRollounts,
+                        thinkingOraclePieces,
                         thinkingAlpha,
                         thinkingSignal,
                         true);
@@ -225,6 +231,7 @@ public class LearningLoop {
                         thinkingExploration,
                         thinkingMaxVisits,
                         thinkingRollounts,
+                        thinkingOraclePieces,
                         thinkingAlpha,
                         thinkingSignal,
                         true);
@@ -301,6 +308,7 @@ public class LearningLoop {
                     thinkingExploration,
                     thinkingMaxVisits,
                     thinkingRollounts,
+                    thinkingOraclePieces,
                     thinkingAlpha,
                     thinkingSignal,
                     true);
@@ -311,6 +319,7 @@ public class LearningLoop {
                     thinkingExploration,
                     thinkingMaxVisits,
                     thinkingRollounts,
+                    thinkingOraclePieces,
                     thinkingAlpha,
                     thinkingSignal,
                     true);
@@ -345,6 +354,10 @@ public class LearningLoop {
             List<Path> previousGenerationDirs,
             Path generationDir
     ) {
+        if (gamesInTest == 0) {
+            return;
+        }
+
         Path nnFile = generationDir.resolve(nnFilename);
 
         Player a = new PuctPlayer(

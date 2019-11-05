@@ -176,6 +176,12 @@ public class ParallelMctsPlayer
 
 
     @Override
+    public double expectedValue() {
+        return previousRoot.inverseScore();
+    }
+
+
+    @Override
     public double moveScoreInternal(int move) {
         BanditNode node = previousRoot.node();
         ParallelNode child = (ParallelNode) node.childMatching(move);

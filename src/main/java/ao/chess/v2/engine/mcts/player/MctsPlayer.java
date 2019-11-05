@@ -280,6 +280,13 @@ public class MctsPlayer implements BanditPlayer
 
 
     @Override
+    public double expectedValue() {
+        BanditNode node = previousRootOrNull;
+        return ((MctsNodeImpl) node).inverseScore(sellectors);
+    }
+
+
+    @Override
     public double moveScoreInternal(
             int move
     ) {

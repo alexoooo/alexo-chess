@@ -2,6 +2,7 @@ package ao.chess.v2.engine.mcts.player.neuro;
 
 
 import ao.chess.v2.data.MovePicker;
+import ao.chess.v2.engine.heuristic.material.MaterialEvaluation;
 import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
@@ -24,7 +25,7 @@ class PuctNode {
     private static final double minimumGuess = 0.1;
     private static final double maximumGuess = 0.9;
     private static final double firstPlayEstimate = 0.4;
-    public static final double uncertainty = 0.6;
+    public static final double uncertainty = 0.2;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -54,6 +55,11 @@ class PuctNode {
     //-----------------------------------------------------------------------------------------------------------------
     public void initRoot() {
         visitCount.increment();
+    }
+
+
+    public int[] legalMoves() {
+        return moves;
     }
 
 
@@ -122,6 +128,11 @@ class PuctNode {
     private boolean expandChild(
             State state, PuctNode parent, int childIndex, PuctContext context
     ) {
+//        if (state.pieceCount() <= context.oraclePieces) {
+//            // TODO
+//            return true;
+//        }
+
         int moveCount = state.legalMoves(context.movesA);
         if (moveCount == 0 || moveCount == -1) {
             PuctNode newChild = new PuctNode(new int[0], new double[0]);
@@ -246,12 +257,8 @@ class PuctNode {
                 state.isDrawnBy50MovesRule()));
 
         if (wasDrawnBy50MovesRule) {
-            return 0.5;
-//            return defaultValue(state, pov, context);
-//            double defaultValue = defaultValue(state, pov, context);
-//            double defaultValueDelta = defaultValue - povInitialDefaultValue;
-//            double ex = Math.exp(defaultValueDelta);
-//            return ex / (ex + 1);
+//            return 0.5;
+            return MaterialEvaluation.evaluate(state, pov);
         }
 
         return outcome.valueFor( pov );
@@ -345,52 +352,60 @@ class PuctNode {
 
         int bestMoveIndex = 0;
         double bestMoveScore = 0;
-        for (int i = 0; i < moves.length; i++) {
-            PuctNode child = childNodes.get(i);
-            if (child == null) {
-                continue;
-            }
 
-            double moveValueSum = child.valueSum.doubleValue();
-            long moveVisits = child.visitCount.longValue();
-
-            double moveScore;
-            if (visitMax) {
-                moveScore = child.visitCount.longValue();
-            }
-            else {
-                moveScore =
-                        moveVisits == 0
-                        ? 0
-                        : moveValueSum / moveVisits;
-            }
+        for (int i = 0; i < moves.length; i++)
+        {
+            double moveScore = moveValueInternal(i, visitMax);
 
             if (bestMoveScore < moveScore) {
                 bestMoveScore = moveScore;
                 bestMoveIndex = i;
             }
         }
+
         return moves[bestMoveIndex];
     }
 
 
-    public long moveValue(int move, boolean visitMax) {
-        PuctNode child = null;
+    public int moveIndex(int move) {
         for (int i = 0; i < moves.length; i++) {
             if (moves[i] == move) {
-                child = childNodes.get(i);
-                break;
+                return i;
             }
         }
+        return -1;
+    }
+
+
+    public long moveValue(int move, boolean visitMax) {
+        int moveIndex = moveIndex(move);
+        return (long) moveValueInternal(moveIndex, visitMax);
+    }
+
+
+    private double moveValueInternal(int moveIndex, boolean visitMax) {
+        PuctNode child = childNodes.get(moveIndex);
 
         if (child == null) {
-            return visitMax ? 0 : (long) (minimumGuess * 10_000);
+            return 0;
         }
 
         long visits = child.visitCount.longValue();
-        return visitMax
-                ? visits
-                : (long) ((visits == 0 ? minimumGuess : child.valueSum.doubleValue() / visits) * 10_000);
+        if (visitMax || visits == 0) {
+            return visits;
+        }
+
+        double certainty = 1.0 - (1 / Math.sqrt(visits + 1));
+
+        return certainty * child.valueSum.doubleValue() / visits * 10_000;
+    }
+
+
+    public double inverseValue()
+    {
+        long count = visitCount.longValue();
+        double sum = valueSum.doubleValue();
+        return 1.0 - sum / count;
     }
 
 
@@ -415,11 +430,11 @@ class PuctNode {
         }
 
         indexes.sort((a, b) ->
-            -Long.compare(counts[a], counts[b]));
+                counts[a] != counts[b]
+                ? -Long.compare(counts[a], counts[b])
+                : -Double.compare(values[a], values[b]));
 
-        long count = visitCount.longValue();
-        double sum = valueSum.doubleValue();
-        double inverse = 1.0 - sum / count;
+        double inverse = inverseValue();
         long parentVisitCount = parentCount;
 
         String childSummary = indexes

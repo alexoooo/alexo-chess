@@ -17,9 +17,13 @@ public class MoveHistory {
         private final List<Fragment> fragments = new ArrayList<>();
 
 
-        public void add(State state, int[] legalMoves, double[] moveScores)
+        public void add(
+                State state,
+                int[] legalMoves,
+                double[] moveScores,
+                double expectedValue)
         {
-            fragments.add(new Fragment(state, legalMoves, moveScores));
+            fragments.add(new Fragment(state, legalMoves, moveScores, expectedValue));
         }
 
 
@@ -40,7 +44,11 @@ public class MoveHistory {
             return fragments
                     .stream()
                     .map(fragment -> new MoveHistory(
-                            fragment.state, fragment.legalMoves, fragment.moveScores, outcome))
+                            fragment.state,
+                            fragment.legalMoves,
+                            fragment.moveScores,
+                            fragment.expectedValue,
+                            outcome))
                     .collect(Collectors.toList());
         }
     }
@@ -51,13 +59,16 @@ public class MoveHistory {
         private final State state;
         private final int[] legalMoves;
         private final double[] moveScores;
+        private final double expectedValue;
 
 
-        public Fragment(State state, int[] legalMoves, double[] moveScores)
+        public Fragment(
+                State state, int[] legalMoves, double[] moveScores, double expectedValue)
         {
             this.state = state;
             this.legalMoves = legalMoves;
             this.moveScores = moveScores;
+            this.expectedValue = expectedValue;
         }
     }
 
@@ -66,14 +77,17 @@ public class MoveHistory {
     private final State state;
     private final int[] legalMoves;
     private final double[] moveScores;
+    private final double expectedValue;
     private final Outcome outcome;
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public MoveHistory(State state, int[] legalMoves, double[] moveScores, Outcome outcome) {
+    public MoveHistory(
+            State state, int[] legalMoves, double[] moveScores, double expectedValue, Outcome outcome) {
         this.state = state;
         this.legalMoves = legalMoves;
         this.moveScores = moveScores;
+        this.expectedValue = expectedValue;
         this.outcome = outcome;
     }
 
@@ -81,12 +95,17 @@ public class MoveHistory {
     public MoveHistory(String line) {
         String[] parts = line.split(Pattern.quote("|"));
 
-        int fenDelimiter = parts[0].indexOf(',');
-        String fen = parts[0].substring(0, fenDelimiter);
-        int outcomeOrdinal = Integer.parseInt(parts[0].substring(fenDelimiter + 1));
+        String[] firstPartSegments = parts[0].split(Pattern.quote(","));
+        String fen = firstPartSegments[0];
+        int outcomeOrdinal = Integer.parseInt(firstPartSegments[1]);
 
         state = State.fromFen(fen);
         outcome = Outcome.values[outcomeOrdinal];
+
+        expectedValue =
+                firstPartSegments.length == 2
+                ? Double.parseDouble(firstPartSegments[1])
+                : outcome.valueFor(state.nextToAct());
 
         legalMoves = state.legalMoves();
 
@@ -122,7 +141,10 @@ public class MoveHistory {
     //-----------------------------------------------------------------------------------------------------------------
     public String asString()
     {
-        String fenAndOutcome = state.toFen() + "," + outcome.ordinal();
+        String fenAndOutcome =
+                state.toFen() + "," +
+                outcome.ordinal() + "," +
+                expectedValue;
 
         StringBuilder str = new StringBuilder();
 
@@ -151,6 +173,11 @@ public class MoveHistory {
 
     public double[] moveScores() {
         return moveScores;
+    }
+
+
+    public double expectedValue() {
+        return expectedValue;
     }
 
 

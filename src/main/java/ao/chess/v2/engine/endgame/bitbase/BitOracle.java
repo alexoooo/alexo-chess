@@ -34,33 +34,44 @@ public class BitOracle
 
     //--------------------------------------------------------------------
     public static void main(String[] args) {
-        BitOracle oracle = new BitOracle(3);
+        BitOracle oracle = BitOracle.get(5);
 
-        State state = State.fromFen("8/8/2k5/8/7P/3K4/8/8 w");
+        State state = State.fromFen(
+//                "8/8/2k5/8/7P/3K4/8/8 w"
+                "8/8/8/8/2q5/8/1B5K/1k6 b - - 0 1"
+        );
         System.out.println(state);
         System.out.println(oracle.see(state));
     }
 
 
+    public static BitOracle get(int nPieces)
+    {
+        BitOracle instance = new BitOracle(nPieces);
+
+        instance.addDeadEnds();
+
+        int nNonKings = nPieces - 2;
+        for (int n = 1; n <= nNonKings; n++) {
+            instance.addPermutations(n);
+        }
+
+        return instance;
+    }
+
     //--------------------------------------------------------------------
     private final Int2ObjectMap<BitMaterialOracle> oracles =
             new Int2ObjectOpenHashMap<BitMaterialOracle>();
 
-    private final int                           pieceCount;
+    private final int pieceCount;
 
 
     //--------------------------------------------------------------------
-    public BitOracle(int nPieces)
+    private BitOracle(int nPieces)
     {
         pieceCount = nPieces;
-
-        addDeadEnds();
-
-        int nNonKings = nPieces - 2;
-        for (int n = 1; n <= nNonKings; n++) {
-            addPermutations(n);
-        }
     }
+
 
     private void addDeadEnds() {
         for (Piece[] allDraws : new Piece[][]{
@@ -80,8 +91,11 @@ public class BitOracle
                         Factories.<Piece[]>newArrayList());
 
         for (Piece[] exhaustiveCombo :
-                new Exhauster<Piece>(Piece.VALUES, n)) {
-            if (hasKing(exhaustiveCombo)) continue;
+                new Exhauster<>(Piece.VALUES, n)) {
+            if (hasKing(exhaustiveCombo)) {
+                continue;
+            }
+
             byPawnCount.get(
                     pawnCount(exhaustiveCombo)
             ).add( exhaustiveCombo );

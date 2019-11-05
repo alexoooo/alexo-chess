@@ -140,6 +140,7 @@ public class GameLoop
             moveScores[i] = nextToAct.moveScoreInternal(legalMoves[i]);
         }
 
-        moveExampleBuffer.add(state, legalMoves, moveScores);
+        moveExampleBuffer.add(
+                state, legalMoves, moveScores, nextToAct.expectedValue());
     }
 }

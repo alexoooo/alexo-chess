@@ -12,7 +12,7 @@ import java.io.Serializable;
  */
 public interface BitMaterialOracle extends Serializable
 {
-    public Outcome see(long staticHash);
+    Outcome see(long staticHash);
 
-    public Outcome see(State state);
+    Outcome see(State state);
 }

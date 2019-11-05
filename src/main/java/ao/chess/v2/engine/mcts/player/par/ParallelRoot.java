@@ -51,6 +51,16 @@ class ParallelRoot
     }
 
 
+    public double inverseScore()
+    {
+        double value = node.visitCount() == 0
+                ? 0.5
+                : node.valueSum() / node.visitCount();
+
+        return 1.0 - value;
+    }
+
+
     @Override
     public String toString() {
         return node.moveStats();

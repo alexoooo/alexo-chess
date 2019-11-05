@@ -225,6 +225,12 @@ public class MctsNodeImpl<V extends MctsValue<V>>
     }
 
 
+    public double inverseScore(MctsSelector selector)
+    {
+        return 1.0 - selector.asDouble(value);
+    }
+
+
     //--------------------------------------------------------------------
     @Override
     public MctsNode childMatching(int action) {

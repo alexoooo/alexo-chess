@@ -42,7 +42,8 @@ import java.util.stream.Collectors;
 
 public class MoveTrainer {
     //-----------------------------------------------------------------------------------------------------------------
-    private static final boolean bestAction = true;
+    private static final boolean defaultBestAction = true;
+    private static final boolean defaultValueAverage = true;
     private static final boolean measureOutcome = true;
     private static final boolean skipDraw = false;
     private static final int trainingIterations = 0;
@@ -256,7 +257,7 @@ public class MoveTrainer {
 
         double[] predictedMoveProbabilities = prediction.actionProbabilities;
 
-        if (bestAction) {
+        if (defaultBestAction) {
             double bestActualScore = 0;
             int bestActualIndex = 0;
             double bestPredictedScore = 0;
@@ -310,19 +311,31 @@ public class MoveTrainer {
     }
 
 
-    public static DataSet convertToDataSet(MoveHistory example) {
+    public static DataSet convertToDataSet(
+            MoveHistory example
+    ) {
+        return convertToDataSet(example, defaultBestAction, defaultValueAverage);
+    }
+
+
+    public static DataSet convertToDataSet(
+            MoveHistory example,
+            boolean bestAction,
+            boolean averageValue
+    ) {
         INDArray reshapedFeatures = NeuralCodec.INSTANCE.encodeState(example.state());
 
         INDArray reshapedLabels =
                 bestAction
-                ? bestActionLabels(example)
-                : allActionLabels(example);
+                ? bestActionLabels(example, averageValue)
+                : allActionLabels(example, averageValue);
 
         return new DataSet(reshapedFeatures, reshapedLabels);
     }
 
 
-    private static INDArray allActionLabels(MoveHistory example)
+    private static INDArray allActionLabels(
+            MoveHistory example, boolean averageValue)
     {
         // from square and to square, independent probabilities
         INDArray labels = Nd4j.zeros(Location.COUNT * 2 + 1);
@@ -352,13 +365,17 @@ public class MoveTrainer {
             labels.put(adjustedTo + Location.COUNT, Nd4j.scalar(toScore));
         }
 
-        labels.put(Location.COUNT * 2, Nd4j.scalar(example.outcomeScore()));
+        labels.put(Location.COUNT * 2, Nd4j.scalar(
+                averageValue
+                ? (example.outcomeScore() + example.outcomeScore()) / 2
+                : example.outcomeScore()));
 
         return labels.reshape(1, Location.COUNT * 2 + 1);
     }
 
 
-    private static INDArray bestActionLabels(MoveHistory example)
+    private static INDArray bestActionLabels(
+            MoveHistory example, boolean averageValue)
     {
         // from square and to square, independent probabilities
         INDArray labels = Nd4j.zeros(Location.COUNT * 2 + 1);
@@ -387,7 +404,10 @@ public class MoveTrainer {
         int adjustedTo = flipIndexIfRequired(toSquareIndex, flip);
         labels.put(adjustedTo + Location.COUNT, Nd4j.scalar(1));
 
-        labels.put(Location.COUNT * 2, Nd4j.scalar(example.outcomeScore()));
+        labels.put(Location.COUNT * 2, Nd4j.scalar(
+                averageValue
+                ? (example.outcomeScore() + example.outcomeScore()) / 2
+                : example.outcomeScore()));
 
         return labels.reshape(1, Location.COUNT * 2 + 1);
     }

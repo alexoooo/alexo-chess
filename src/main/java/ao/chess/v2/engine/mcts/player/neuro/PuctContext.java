@@ -18,11 +18,12 @@ class PuctContext {
     public final int[] movesB = new int[Move.MAX_PER_PLY];
     public final double[] valueSums = new double[Move.MAX_PER_PLY];
     public final long[] visitCounts = new long[Move.MAX_PER_PLY];
-    public final double[] probabilityBuffer = new double[Move.MAX_PER_PLY];
+//    public final double[] probabilityBuffer = new double[Move.MAX_PER_PLY];
 
 
     public final double exploration;
     public final int rollouts;
+//    public final boolean tablebase;
 
 
     public double estimatedValue;
@@ -31,10 +32,12 @@ class PuctContext {
     public PuctContext(
             MultiLayerNetwork nn,
             double exploration,
-            int rollouts)
+            int rollouts/*,
+            boolean tablebase*/)
     {
         this.nn = nn;
         this.exploration = exploration;
         this.rollouts = rollouts;
+//        this.tablebase = tablebase;
     }
 }

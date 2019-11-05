@@ -1,6 +1,5 @@
 package ao.chess.v2.engine.endgame.tablebase;
 
-import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
 
 import java.io.Serializable;
@@ -12,7 +11,7 @@ import java.io.Serializable;
  */
 public interface DeepMaterialOracle extends Serializable
 {
-    public DeepOutcome see(long staticHash);
+    DeepOutcome see(long staticHash);
 
-    public DeepOutcome see(State state);
+    DeepOutcome see(State state);
 }

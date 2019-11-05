@@ -1,6 +1,5 @@
 package ao.chess.v2.engine.endgame.tablebase;
 
-import ao.chess.v1.util.Io;
 import ao.chess.v2.engine.run.Config;
 import ao.chess.v2.piece.Figure;
 import ao.chess.v2.piece.MaterialTally;
@@ -36,7 +35,10 @@ public class DeepOracle
     public static void main(String[] args) {
         DeepOracle oracle = INSTANCE;
 
-        State state = State.fromFen("8/8/8/8/8/3k3K/7P/8 w - - 0 1");
+        State state = State.fromFen(
+//                "8/8/8/8/8/3k3K/7P/8 w - - 0 1"
+                "8/8/8/8/2q5/8/1B5K/1k6 b - - 0 1"
+        );
         System.out.println(state);
         System.out.println(oracle.see(state));
 
@@ -45,10 +47,25 @@ public class DeepOracle
 
 
     //--------------------------------------------------------------------
-    public static final int instancePieceCount = 3;
+    public static final int instancePieceCount = 4;
 
     public static final DeepOracle INSTANCE =
-            new DeepOracle(instancePieceCount);
+            create(instancePieceCount);
+
+
+    public static DeepOracle create(int nPieces)
+    {
+        DeepOracle instance = new DeepOracle(nPieces);
+
+        instance.addDeadEnds();
+
+        int nNonKings = nPieces - 2;
+        for (int n = 1; n <= nNonKings; n++) {
+            instance.addPermutations(n);
+        }
+
+        return instance;
+    }
 
 
     //--------------------------------------------------------------------
@@ -59,16 +76,9 @@ public class DeepOracle
 
 
     //--------------------------------------------------------------------
-    public DeepOracle(int nPieces)
+    private DeepOracle(int nPieces)
     {
         pieceCount = nPieces;
-
-        addDeadEnds();
-
-        int nNonKings = nPieces - 2;
-        for (int n = 1; n <= nNonKings; n++) {
-            addPermutations(n);
-        }
     }
 
     private void addDeadEnds() {
@@ -127,7 +137,8 @@ public class DeepOracle
         if (oracles.containsKey(tally)) return;
 
         File cacheFile = materialOracleFile(tally);
-        Io.display("DeepOracle: adding " + cacheFile);
+//        Io.display("DeepOracle: adding " + cacheFile);
+        System.out.println("DeepOracle: adding " + cacheFile);
 
         SimpleDeepMaterialOracle materialOracle =
                 PersistentObjects.retrieve( cacheFile );
@@ -163,7 +174,9 @@ public class DeepOracle
     //--------------------------------------------------------------------
     public DeepOutcome see(State position)
     {
-        if (position.pieceCount() > pieceCount) return null;
+        if (position.pieceCount() > pieceCount) {
+            return null;
+        }
 
         DeepMaterialOracle oracle =
                 oracles.get( position.tallyNonKings() );

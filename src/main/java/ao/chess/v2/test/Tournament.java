@@ -323,7 +323,7 @@ public class Tournament
             moveScores[i] = player.moveScoreInternal(legalMoves[i]);
         }
 
-        moveExampleBuffer.add(state, legalMoves, moveScores);
+        moveExampleBuffer.add(state, legalMoves, moveScores, player.expectedValue());
     }
 
 

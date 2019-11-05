@@ -362,6 +362,10 @@ class ParallelNode implements BanditNode {
         return visitCount.sum();
     }
 
+    public double valueSum() {
+        return valueSum.sum();
+    }
+
 
     public int bestMove() {
         if (moves.length == 0) {
