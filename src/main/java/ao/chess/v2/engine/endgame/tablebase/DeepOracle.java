@@ -48,7 +48,7 @@ public class DeepOracle
 
 
     //--------------------------------------------------------------------
-    public static final int instancePieceCount = 3;
+    public static final int instancePieceCount = 4;
 
     public static final DeepOracle INSTANCE =
             create(instancePieceCount);

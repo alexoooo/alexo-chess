@@ -38,15 +38,15 @@ class PuctNode {
     private final DoubleAdder valueSum;
 
     private final CopyOnWriteArrayList<PuctNode> childNodes;
-//    private final DeepOutcome deepOutcomeOrNull;
+    private final DeepOutcome deepOutcomeOrNull;
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public PuctNode(int[] moves, double[] predictions/*, DeepOutcome deepOutcomeOrNull*/)
+    public PuctNode(int[] moves, double[] predictions, DeepOutcome deepOutcomeOrNull)
     {
         this.moves = moves;
         this.predictions = predictions;
-//        this.deepOutcomeOrNull = deepOutcomeOrNull;
+        this.deepOutcomeOrNull = deepOutcomeOrNull;
 
         visitCount = new LongAdder();
         valueSum = new DoubleAdder();
@@ -124,10 +124,10 @@ class PuctNode {
                 estimatedValue = context.estimatedValue;
                 break;
             }
-//            else if (child.deepOutcomeOrNull != null) {
-//                estimatedValue = child.deepOutcomeValue(state);
-//                break;
-//            }
+            else if (child.deepOutcomeOrNull != null) {
+                estimatedValue = child.deepOutcomeValue(state, child.deepOutcomeOrNull);
+                break;
+            }
         }
 
         double leafValue = reachedTerminal
@@ -143,7 +143,7 @@ class PuctNode {
     ) {
         int moveCount = state.legalMoves(context.movesA);
         if (moveCount == 0 || moveCount == -1) {
-            PuctNode newChild = new PuctNode(new int[0], new double[0]/*, null*/);
+            PuctNode newChild = new PuctNode(new int[0], new double[0], null);
 
             context.estimatedValue =
                     state.knownOutcome().valueFor(state.nextToAct());
@@ -153,12 +153,26 @@ class PuctNode {
 
         int[] legalMoves = Arrays.copyOf(context.movesA, moveCount);
 
-        INDArray input = NeuralCodec.INSTANCE.encodeState(state);
-        INDArray output = context.nn.output(input);
-
         boolean tablebase =
                 context.tablebase &&
                 state.pieceCount() <= DeepOracle.instancePieceCount;
+
+        if (tablebase) {
+            DeepOutcome deepOutcome = DeepOracle.INSTANCE.see(state);
+
+            if (deepOutcome == null) {
+                throw new IllegalStateException("Missing tablebase: " + state);
+            }
+
+            PuctNode newChild = new PuctNode(null, null, deepOutcome);
+
+//            adjusted = newChild.deepOutcomeValue(state, deepOutcome);
+
+            return addChildIfRequired(newChild, parent, childIndex);
+        }
+
+        INDArray input = NeuralCodec.INSTANCE.encodeState(state);
+        INDArray output = context.nn.output(input);
 
         double[] predictions;
         if (tablebase) {
@@ -175,7 +189,7 @@ class PuctNode {
         PuctUtils.smearProbabilities(
                 predictions, uncertainty);
 
-        PuctNode newChild = new PuctNode(legalMoves, predictions/*, null*/);
+        PuctNode newChild = new PuctNode(legalMoves, predictions, null);
 
         PuctNode existing = parent.childNodes.set(childIndex, newChild);
         if (existing != null) {

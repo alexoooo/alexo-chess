@@ -27,7 +27,7 @@ import java.util.List;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 5_000;
+    private static final int TIME_PER_MOVE = 1_000;
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
