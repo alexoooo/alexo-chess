@@ -216,6 +216,10 @@ public class State
         castlePath          = 0;
         prevCastlePath      = 0;
         prevCastles         = castles;
+
+        // TODO: is this correct?
+        this.reversibleMoves = reversibleMoves;
+
         prevReversibleMoves = reversibleMoves;
     }
 

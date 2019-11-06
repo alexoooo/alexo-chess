@@ -1,6 +1,8 @@
 package ao.chess.v2.engine.mcts.player.neuro;
 
 
+import ao.chess.v2.data.MovePicker;
+
 import java.util.Random;
 
 
@@ -30,8 +32,10 @@ enum PuctUtils {
     ) {
         double total = sampleGamma(alpha, 1.0, random, buffer, probabilities.length);
 
+        int[] randomOrder = MovePicker.pickRandom(probabilities.length);
+
         for (int i = 0; i < probabilities.length; i++) {
-            double dirichlet = buffer[i] / total;
+            double dirichlet = buffer[randomOrder[i]] / total;
             probabilities[i] = signal * probabilities[i] + (1 - signal) * dirichlet;
         }
     }

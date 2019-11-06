@@ -23,7 +23,7 @@ class PuctContext {
 
     public final double exploration;
     public final int rollouts;
-//    public final boolean tablebase;
+    public final boolean tablebase;
 
 
     public double estimatedValue;
@@ -32,12 +32,12 @@ class PuctContext {
     public PuctContext(
             MultiLayerNetwork nn,
             double exploration,
-            int rollouts/*,
-            boolean tablebase*/)
+            int rollouts,
+            boolean tablebase)
     {
         this.nn = nn;
         this.exploration = exploration;
         this.rollouts = rollouts;
-//        this.tablebase = tablebase;
+        this.tablebase = tablebase;
     }
 }

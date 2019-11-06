@@ -43,8 +43,8 @@ public class LearningLoop {
     private final static boolean thinkingMaxVisits = false;
     private final static double thinkingAlpha = 0.3;
     private final static double thinkingSignal = 0.75;
-    private final static int thinkingRollounts = 15;
-    private final static int thinkingOraclePieces = 5;
+    private final static int thinkingRollounts = 7;
+    private final static boolean thinkingTablebase = true;
 //    private final static int thinkingTimeMs = 10_000;
     private final static int aThinkingTimeMs = 3_000;
     private final static int bThinkingTimeMs = 3_000;
@@ -220,7 +220,7 @@ public class LearningLoop {
                         thinkingExploration,
                         thinkingMaxVisits,
                         thinkingRollounts,
-                        thinkingOraclePieces,
+                        thinkingTablebase,
                         thinkingAlpha,
                         thinkingSignal,
                         true);
@@ -231,7 +231,7 @@ public class LearningLoop {
                         thinkingExploration,
                         thinkingMaxVisits,
                         thinkingRollounts,
-                        thinkingOraclePieces,
+                        thinkingTablebase,
                         thinkingAlpha,
                         thinkingSignal,
                         true);
@@ -308,7 +308,7 @@ public class LearningLoop {
                     thinkingExploration,
                     thinkingMaxVisits,
                     thinkingRollounts,
-                    thinkingOraclePieces,
+                    thinkingTablebase,
                     thinkingAlpha,
                     thinkingSignal,
                     true);
@@ -319,7 +319,7 @@ public class LearningLoop {
                     thinkingExploration,
                     thinkingMaxVisits,
                     thinkingRollounts,
-                    thinkingOraclePieces,
+                    thinkingTablebase,
                     thinkingAlpha,
                     thinkingSignal,
                     true);

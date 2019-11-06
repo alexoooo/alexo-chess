@@ -3,8 +3,7 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
-import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
-import ao.chess.v2.engine.simple.RandomPlayer;
+import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -38,25 +37,6 @@ public class Tournament
     //--------------------------------------------------------------------
     public static void main(String[] args)
     {
-//        Player a = MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep2Opt192Prototype.prototype();
-
-//        Player a = MctsPrototypes.mctsFallbackDeep4Opt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype();
-
-//        Player a = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep4Opt192Prototype.prototype();
-
-//        Player a = MctsPrototypes.mctsFallbackDeep6Opt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
-
-//        Player a = MctsPrototypes.mctsFallbackDeep7Opt192Prototype.prototype();
-////        Player b = MctsPrototypes.mctsFallbackDeep8Opt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep2Opt192Prototype.prototype();
-
-//        Player a = MctsPrototypes.mctsFallbackDeep6Opt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep2Opt192Prototype.prototype();
-
 //        Player a = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
 //        Player b = MctsPrototypes.mctsFallbackDeep4Opt192Prototype.prototype();
 //        Player a = MctsPrototypes.mctsFallbackDeep6Opt192Prototype.prototype();
@@ -205,22 +185,22 @@ public class Tournament
 //        );
 //        ParallelMctsPlayer b = a.prototype();
 
-        Player a = NeuralNetworkPlayer.load(
-                Paths.get("lookup/gen/5/nn.zip"));
+//        Player a = NeuralNetworkPlayer.load(
+//                Paths.get("lookup/gen/5/nn.zip"));
 //
 //        Player b = NeuralNetworkPlayer.load(
 //                Paths.get("lookup/nn_2019-10-25b.zip"));
 
-//        Player a = new PuctPlayer(
-//                Paths.get("lookup/gen/1/nn.zip"),
-//                1,
-//                4);
-//        Player b = new PuctPlayer(
-//                Paths.get("lookup/gen/1/nn.zip"),
-//                1,
-//                4);
+        Player a = new PuctPlayer(
+                Paths.get("lookup/gen/0/nn.zip"),
+                1,
+                4);
+        Player b = new PuctPlayer(
+                Paths.get("lookup/gen/0/nn.zip"),
+                1,
+                4);
 //        Player a = new TopLeftPlayer();
-        Player b = new RandomPlayer();
+//        Player b = new RandomPlayer();
 
         int aWins = 0;
         int bWins = 0;

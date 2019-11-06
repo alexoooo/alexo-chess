@@ -97,15 +97,15 @@ public class BrainTeaser {
 
 //        Player player = new ParallelMctsPlayer(
 //                "par",
-//                1,
+//                8,
 //                0.3,
-////                3,
-//                1,
+//                3,
+////                1,
 //                false
 //        );
 
         Player player = new PuctPlayer(
-                Paths.get("lookup/gen/5/nn.zip"),
+                Paths.get("lookup/gen/0/nn.zip"),
                 1,
                 4);
 //        Player player = new PuctPlayer(
@@ -120,13 +120,18 @@ public class BrainTeaser {
 
         State state = State.fromFen(
                 // puzzles
-//                "8/k7/8/1K6/8/8/8/R7 b  - 99 n,0"
 //                "6rk/6pp/3N4/8/8/8/7P/7K w - - 0 1" // N from d6 to f7
 //                "8/2k2p2/2b3p1/P1p1Np2/1p3b2/1P1K4/5r2/R3R3 b - - 0 1" // b from c6 to b5
 //                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8
-                "6R1/2k5/8/8/1P1R4/1PK5/2Q5/3R4 w"
+
+                // trivial
+//                "8/k7/8/1K6/8/8/8/R7 b"
+//                "6R1/2k5/8/8/1P1R4/1PK5/2Q5/3R4 w"
+//                "8/8/8/8/8/3k3K/7P/8 w - - 0 1"
+//                "8/8/8/8/2q5/8/1B5K/1k6 b - - 0 1"
+                "8/8/8/6K1/8/8/1k6/2R5 w  - 99 49"
 
                 // Travis game
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -146,6 +151,7 @@ public class BrainTeaser {
 //                "rnb1k1nr/pp3ppp/8/2pp4/7q/1PPP1Pb1/P2K3P/RNBQ1BNR b kq - 0 1"
 //                "rnb1k2r/pp2nppp/8/2pp4/7q/1PPP1Pb1/P2K3P/RNBQ1BNR w kq - 0 1"
 //                "rnb1k2r/pp2nppp/8/2pp4/7q/1PPP1Pb1/P2KN2P/RNBQ1B1R b kq - 0 1"
+//                "rnb1k2r/pp2nppp/3b4/2pp4/7q/1PPP1P2/P2KN2P/RNBQ1B1R w kq - 0 1"
 
                 // Mable game 2 (black)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

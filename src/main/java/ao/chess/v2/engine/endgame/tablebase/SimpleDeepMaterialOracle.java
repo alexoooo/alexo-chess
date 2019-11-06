@@ -9,7 +9,6 @@ import ao.chess.v2.piece.Piece;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
-import ao.util.pass.Traverser;
 import ao.util.time.Stopwatch;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -94,7 +93,8 @@ public class SimpleDeepMaterialOracle implements DeepMaterialOracle
     private byte normalizePly(int relativePlyDistance) {
         if (relativePlyDistance > 0) {
             return (byte) Math.min(relativePlyDistance, Byte.MAX_VALUE);
-        } else if (relativePlyDistance < 0) {
+        }
+        else if (relativePlyDistance < 0) {
             return (byte) Math.max(relativePlyDistance, Byte.MIN_VALUE);
         }
         return 0;
@@ -112,42 +112,45 @@ public class SimpleDeepMaterialOracle implements DeepMaterialOracle
         }
     }
     private boolean compactRound(List<Piece> material) {
-        final boolean wasChanged[] = {false};
-        new PositionTraverser().traverse(material,
-                new Traverser<State>() {
-                    @Override public void traverse(State state) {
-                        int index = indexer.index(state);
-                        int ply   = outcomes[ index ];
+        final boolean[] wasChanged = {false};
+        new PositionTraverser().traverse(material, state -> {
+            int index = indexer.index(state);
+            int ply   = outcomes[ index ];
 
-                        if (ply == 0) return;
-                        int[] legalMoves = state.legalMoves();
-                        if (legalMoves == null) return;
+            if (ply == 0) {
+                return;
+            }
+            int[] legalMoves = state.legalMoves();
+            if (legalMoves == null) {
+                return;
+            }
 
-                        int minWin  = Byte.MAX_VALUE;
-                        int maxLoss = Byte.MIN_VALUE;
-                        for (int legalMove : legalMoves) {
-                            Move.apply(legalMove, state);
-                            int kidIndex = indexer.index(state);
-                            Move.unApply(legalMove, state);
+            int minWin  = Byte.MAX_VALUE;
+            int maxLoss = Byte.MIN_VALUE;
+            for (int legalMove : legalMoves) {
+                Move.apply(legalMove, state);
+                int childIndex = indexer.index(state);
+                Move.unApply(legalMove, state);
 
-                            byte kidOutcome = outcomes[ kidIndex ];
-                            if (ply > 0 && kidOutcome > 0) {
-                                minWin  = (byte) Math.min(
-                                            minWin, kidOutcome);
-                            } else if (ply < 0 && kidOutcome < 0) {
-                                maxLoss = (byte) Math.max(
-                                            maxLoss, -kidOutcome);
-                            }
-                        }
+                byte childOutcome = outcomes[ childIndex ];
+                if (ply > 0 && childOutcome > 0) {
+                    minWin  = (byte) Math.min(
+                                minWin, childOutcome);
+                }
+                else if (ply < 0 && childOutcome < 0) {
+                    maxLoss = (byte) Math.max(
+                                maxLoss, -childOutcome);
+                }
+            }
 
-                        if (ply > 0 && minWin < ply) {
-                            outcomes[index] = normalizePly(minWin);
-                            wasChanged[0]   = true;
-                        } else if (ply < 0 && maxLoss > -ply) {
-                            outcomes[index] = normalizePly(-maxLoss);
-                            wasChanged[0]   = true;
-                        }
-                    }});
+            if (ply > 0 && minWin < ply) {
+                outcomes[index] = normalizePly(minWin);
+                wasChanged[0]   = true;
+            } else if (ply < 0 && maxLoss > -ply) {
+                outcomes[index] = normalizePly(-maxLoss);
+                wasChanged[0]   = true;
+            }
+        });
         return wasChanged[0];
     }
 

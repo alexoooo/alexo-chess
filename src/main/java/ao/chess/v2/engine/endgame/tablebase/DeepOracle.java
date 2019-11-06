@@ -36,8 +36,8 @@ public class DeepOracle
         DeepOracle oracle = INSTANCE;
 
         State state = State.fromFen(
-//                "8/8/8/8/8/3k3K/7P/8 w - - 0 1"
-                "8/8/8/8/2q5/8/1B5K/1k6 b - - 0 1"
+                "8/8/8/8/8/3k3K/7P/8 w - - 0 1"
+//                "8/8/8/8/2q5/8/1B5K/1k6 b - - 0 1"
         );
         System.out.println(state);
         System.out.println(oracle.see(state));
@@ -47,12 +47,19 @@ public class DeepOracle
 
 
     //--------------------------------------------------------------------
-    public static final int instancePieceCount = 4;
+    public static final int instancePieceCount = 3;
 
     public static final DeepOracle INSTANCE =
             create(instancePieceCount);
 
 
+    //--------------------------------------------------------------------
+    public static void init() {
+        // trigger static block
+    }
+
+
+    //--------------------------------------------------------------------
     public static DeepOracle create(int nPieces)
     {
         DeepOracle instance = new DeepOracle(nPieces);
@@ -81,6 +88,7 @@ public class DeepOracle
         pieceCount = nPieces;
     }
 
+
     private void addDeadEnds() {
         for (Piece[] allDraws : new Piece[][]{
                 {}, {Piece.WHITE_KNIGHT}, {Piece.WHITE_BISHOP},
@@ -99,7 +107,7 @@ public class DeepOracle
                         Factories.<Piece[]>newArrayList());
 
         for (Piece[] exhaustiveCombo :
-                new Exhauster<Piece>(Piece.VALUES, n)) {
+                new Exhauster<>(Piece.VALUES, n)) {
             if (hasKing(exhaustiveCombo)) continue;
             byPawnCount.get(
                     pawnCount(exhaustiveCombo)
