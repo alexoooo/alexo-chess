@@ -27,7 +27,7 @@ import java.util.List;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 1_000;
+    private static final int TIME_PER_MOVE = 5_000;
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
@@ -242,14 +242,17 @@ public class Tournament
     //--------------------------------------------------------------------
     private static Outcome round(Player white, Player black)
     {
-        State state = State.initial();
+        State state =
+//                State.initial();
+                State.fromFen(
+                        "8/8/8/6K1/8/8/1k6/2R5 w  - 70 49");
 
         Outcome outcome = Outcome.DRAW;
 
         while (! state.isDrawnBy50MovesRule())
         {
-//            System.out.println("---------------------------------------");
-//            System.out.println(state);
+            System.out.println("---------------------------------------");
+            System.out.println(state);
 
             Player nextToAct =
                     (state.nextToAct() == Colour.WHITE)

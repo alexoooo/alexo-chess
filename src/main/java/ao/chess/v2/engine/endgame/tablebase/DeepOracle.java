@@ -36,7 +36,8 @@ public class DeepOracle
         DeepOracle oracle = INSTANCE;
 
         State state = State.fromFen(
-                "8/8/8/8/8/3k3K/7P/8 w - - 0 1"
+                "8/8/8/6K1/8/8/k7/3R4 w"
+//                "8/8/8/8/8/3k3K/7P/8 w - - 0 1"
 //                "8/8/8/8/2q5/8/1B5K/1k6 b - - 0 1"
         );
         System.out.println(state);

@@ -82,7 +82,8 @@ public class SimpleDeepMaterialOracle implements DeepMaterialOracle
             prevWins = nextWins;
         }
 
-        compact(material);
+        // TODO: does this work?
+        // compact(material);
 
         System.out.println("done, got " +
                 blackWinCount() + " | " +
@@ -111,6 +112,7 @@ public class SimpleDeepMaterialOracle implements DeepMaterialOracle
             timer = new Stopwatch();
         }
     }
+
     private boolean compactRound(List<Piece> material) {
         final boolean[] wasChanged = {false};
         new PositionTraverser().traverse(material, state -> {

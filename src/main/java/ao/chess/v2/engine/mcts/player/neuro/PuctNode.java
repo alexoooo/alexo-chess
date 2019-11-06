@@ -38,15 +38,15 @@ class PuctNode {
     private final DoubleAdder valueSum;
 
     private final CopyOnWriteArrayList<PuctNode> childNodes;
-    private final DeepOutcome deepOutcomeOrNull;
+//    private final DeepOutcome deepOutcomeOrNull;
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public PuctNode(int[] moves, double[] predictions, DeepOutcome deepOutcomeOrNull)
+    public PuctNode(int[] moves, double[] predictions/*, DeepOutcome deepOutcomeOrNull*/)
     {
         this.moves = moves;
         this.predictions = predictions;
-        this.deepOutcomeOrNull = deepOutcomeOrNull;
+//        this.deepOutcomeOrNull = deepOutcomeOrNull;
 
         visitCount = new LongAdder();
         valueSum = new DoubleAdder();
@@ -124,10 +124,10 @@ class PuctNode {
                 estimatedValue = context.estimatedValue;
                 break;
             }
-            else if (child.deepOutcomeOrNull != null) {
-                estimatedValue = child.deepOutcomeValue(state);
-                break;
-            }
+//            else if (child.deepOutcomeOrNull != null) {
+//                estimatedValue = child.deepOutcomeValue(state);
+//                break;
+//            }
         }
 
         double leafValue = reachedTerminal
@@ -138,30 +138,15 @@ class PuctNode {
     }
 
 
-
     private boolean expandChildAndSetEstimatedValue(
             State state, PuctNode parent, int childIndex, PuctContext context
     ) {
         int moveCount = state.legalMoves(context.movesA);
         if (moveCount == 0 || moveCount == -1) {
-            PuctNode newChild = new PuctNode(new int[0], new double[0], null);
+            PuctNode newChild = new PuctNode(new int[0], new double[0]/*, null*/);
 
             context.estimatedValue =
                     state.knownOutcome().valueFor(state.nextToAct());
-
-            return addChildIfRequired(newChild, parent, childIndex);
-        }
-
-        if (context.tablebase && state.pieceCount() <= DeepOracle.instancePieceCount) {
-            DeepOutcome deepOutcome = DeepOracle.INSTANCE.see(state);
-
-            if (deepOutcome == null) {
-                throw new IllegalStateException("Missing tablebase: " + state);
-            }
-
-            PuctNode newChild = new PuctNode(null, null, deepOutcome);
-
-            context.estimatedValue = newChild.deepOutcomeValue(state);
 
             return addChildIfRequired(newChild, parent, childIndex);
         }
@@ -171,13 +156,26 @@ class PuctNode {
         INDArray input = NeuralCodec.INSTANCE.encodeState(state);
         INDArray output = context.nn.output(input);
 
-        double[] predictions = NeuralCodec.INSTANCE
-                .decodeMoveProbabilities(output, state, legalMoves);
+        boolean tablebase =
+                context.tablebase &&
+                state.pieceCount() <= DeepOracle.instancePieceCount;
+
+        double[] predictions;
+        if (tablebase) {
+            predictions = new double[legalMoves.length];
+
+            double uniform = 1.0 / legalMoves.length;
+            Arrays.fill(predictions, uniform);
+        }
+        else {
+            predictions = NeuralCodec.INSTANCE
+                    .decodeMoveProbabilities(output, state, legalMoves);
+        }
 
         PuctUtils.smearProbabilities(
                 predictions, uncertainty);
 
-        PuctNode newChild = new PuctNode(legalMoves, predictions, null);
+        PuctNode newChild = new PuctNode(legalMoves, predictions/*, null*/);
 
         PuctNode existing = parent.childNodes.set(childIndex, newChild);
         if (existing != null) {
@@ -185,10 +183,26 @@ class PuctNode {
             return false;
         }
 
-        double outcome = NeuralCodec.INSTANCE.decodeOutcome(output);
-        double adjusted = Math.max(minimumGuess, Math.min(maximumGuess, outcome));
+        double adjusted;
+        if (tablebase) {
+            DeepOutcome deepOutcome = DeepOracle.INSTANCE.see(state);
 
-        if (context.rollouts == 0) {
+            if (deepOutcome == null) {
+                throw new IllegalStateException("Missing tablebase: " + state);
+            }
+
+//            PuctNode newChild = new PuctNode(null, null, deepOutcome);
+//
+            adjusted = newChild.deepOutcomeValue(state, deepOutcome);
+//
+//            return addChildIfRequired(newChild, parent, childIndex);
+        }
+        else {
+            double outcome = NeuralCodec.INSTANCE.decodeOutcome(output);
+            adjusted = Math.max(minimumGuess, Math.min(maximumGuess, outcome));
+        }
+
+        if (context.rollouts == 0 || tablebase) {
             context.estimatedValue = adjusted;
         }
         else {
@@ -215,21 +229,25 @@ class PuctNode {
     }
 
 
-    private double deepOutcomeValue(State state) {
+    private double deepOutcomeValue(State state, DeepOutcome deepOutcome) {
         if (state.isDrawnBy50MovesRule()) {
             return 0.5;
         }
 
+        double horizon =
+//                (double) state.reversibleMoves() / 300 +
+                (double) Math.abs(deepOutcome.plyDistance()) / 200;
+
         Colour pov = state.nextToAct();
-        Outcome outcome = deepOutcomeOrNull.outcome();
+        Outcome outcome = deepOutcome.outcome();
         if (outcome == Outcome.DRAW) {
             return  0.5;
         }
         else if (outcome.winner() == pov) {
-            return  1 - (double) deepOutcomeOrNull.plyDistance() / 100;
+            return 1 - horizon;
         }
         else {
-            return (double) deepOutcomeOrNull.plyDistance() / 100;
+            return horizon;
         }
     }
 

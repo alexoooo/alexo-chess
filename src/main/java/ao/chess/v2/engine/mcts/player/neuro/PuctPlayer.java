@@ -228,7 +228,7 @@ public class PuctPlayer
                     moveProbabilities, PuctNode.uncertainty);
         }
 
-        PuctNode root = new PuctNode(legalMoves, moveProbabilities, null);
+        PuctNode root = new PuctNode(legalMoves, moveProbabilities/*, null*/);
         root.initRoot();
 
         previousRoot = root;
