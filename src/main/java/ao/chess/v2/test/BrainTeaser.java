@@ -105,9 +105,9 @@ public class BrainTeaser {
 //        );
 
         Player player = new PuctPlayer(
-                Paths.get("lookup/gen/0/nn.zip"),
+                Paths.get("lookup/gen/2/nn.zip"),
                 1,
-                4);
+                1.5);
 //        Player player = new PuctPlayer(
 //                Paths.get("lookup/gen/1/nn.zip"),
 //                1,
@@ -127,12 +127,11 @@ public class BrainTeaser {
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8
 
                 // trivial
-//                "8/k7/8/1K6/8/8/8/R7 b"
-//                "6R1/2k5/8/8/1P1R4/1PK5/2Q5/3R4 w"
-//                "8/8/8/8/8/3k3K/7P/8 w - - 0 1"
-//                "8/8/8/8/2q5/8/1B5K/1k6 b - - 0 1"
-//                "2R5/8/8/6K1/8/1k6/8/8 b - - 52 2"
-                "8/8/2p1b1k1/r6n/1K6/8/8/8 b  - 100 2"
+//                "4R3/4R3/8/2k5/8/2p2K2/2P5/8 w"
+//                "8/8/2p1b1k1/r6n/1K6/8/8/8 b - - 0 1"
+//                "8/2p5/n7/8/8/2p5/4K3/6k1 b"
+//                "2k5/8/8/3K4/1B4Nb/1P5N/3R4/8 w"
+                "8/P7/1bk4p/8/3BP3/RR6/3K4/8 w"
 
                 // Travis game
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

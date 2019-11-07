@@ -36,10 +36,12 @@ public class DeepOracle
         DeepOracle oracle = INSTANCE;
 
         State state = State.fromFen(
+                "K7/8/1p3k2/8/7p/8/8/8 b - - 0 1"
+//                "4k3/8/8/8/8/8/4P3/4K3 w - - 0 1"
 //                "8/8/8/6K1/8/8/k7/3R4 w"
 //                "8/8/8/8/8/3k3K/7P/8 w - - 0 1"
 //                "8/8/8/8/2q5/8/1B5K/1k6 b - - 0 1"
-                "6K1/8/8/B7/8/8/4k3/1r6 b"
+//                "6K1/8/8/B7/8/8/4k3/1r6 b"
         );
         System.out.println(state);
         System.out.println(oracle.see(state));
@@ -49,7 +51,7 @@ public class DeepOracle
 
 
     //--------------------------------------------------------------------
-    public static final int instancePieceCount = 3;
+    public static final int instancePieceCount = 4;
 
     public static final DeepOracle INSTANCE =
             create(instancePieceCount);

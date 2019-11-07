@@ -27,7 +27,7 @@ import java.util.List;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 3_000;
+    private static final int TIME_PER_MOVE = 5_000;
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
@@ -160,17 +160,17 @@ public class Tournament
 //        ParallelMctsPlayer b = a.prototype();
 
 //        Player a = NeuralNetworkPlayer.load(
-//                Paths.get("lookup/gen/5/nn.zip"));
+//                Paths.get("lookup/gen/0/nn.zip"));
 //
 //        Player b = NeuralNetworkPlayer.load(
 //                Paths.get("lookup/nn_2019-10-25b.zip"));
 
         Player a = new PuctPlayer(
-                Paths.get("lookup/gen/0/nn.zip"),
+                Paths.get("lookup/gen/2/nn.zip"),
                 1,
-                4);
+                1.5);
         Player b = new PuctPlayer(
-                Paths.get("lookup/gen/0/nn.zip"),
+                Paths.get("lookup/gen/2/nn.zip"),
                 1,
                 4);
 //        Player a = new TopLeftPlayer();
@@ -217,10 +217,17 @@ public class Tournament
     private static Outcome round(Player white, Player black)
     {
         State state =
-//                State.initial();
-                State.fromFen(
-//                        "8/8/8/6K1/8/8/1k6/2R5 w  - 70 49");
-                        "8/8/2p1b1k1/r6n/1K6/8/8/8 b  - 100 2");
+                State.initial();
+//                State.fromFen(
+////                        "8/8/8/6K1/8/8/1k6/2R5 w  - 70 49"
+////                        "8/8/2p1b1k1/r6n/1K6/8/8/8 b  - 100 2"
+////                        "4k3/8/8/8/8/8/4P3/4K3 w - - 0 1"
+////                        "K7/8/1p3k2/8/7p/8/8/8 b - - 0 1"
+////                        "8/4n1k1/8/8/5K1p/8/8/8 b - - 0 1"
+////                        "4b3/5k2/8/4p3/8/8/2K5/8 b - - 0 1"
+//
+////                        "8/8/2p1b1k1/r6n/1K6/8/8/8 b - - 0 1"
+//                );
 
         Outcome outcome = Outcome.DRAW;
 

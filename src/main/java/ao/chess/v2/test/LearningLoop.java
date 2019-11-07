@@ -39,11 +39,11 @@ public class LearningLoop {
     private final static int trainingIterations = 1;
     private final static int gamesInTest = 0;
 
-    private final static double thinkingExploration = 4;
+    private final static double thinkingExploration = 1.5;
     private final static boolean thinkingMaxVisits = false;
     private final static double thinkingAlpha = 0.3;
     private final static double thinkingSignal = 0.75;
-    private final static int thinkingMinimumTrajectories = 800;
+    private final static int thinkingMinimumTrajectories = 1000;
     private final static int thinkingRollounts = 7;
     private final static boolean thinkingTablebase = true;
 //    private final static int thinkingTimeMs = 10_000;
@@ -153,7 +153,7 @@ public class LearningLoop {
             List<Path> generationDirs,
             Path nnFile
     ) {
-        int horizon = Math.min(generationDirs.size() / 2 + 1, generationDirs.size());
+        int horizon = Math.min(generationDirs.size(), Math.max(generationDirs.size() / 2, 10));
 //        int horizon = generationDirs.size();
         List<Path> trainingDirs = generationDirs.subList(generationDirs.size() - horizon, generationDirs.size());
 

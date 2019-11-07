@@ -68,7 +68,7 @@ public enum MaterialEvaluation {
 //        double ex = Math.exp(materialSum);
 //        return ex / (ex + 1);
 
-        return (materialSum / (9 + Math.abs(materialSum)) + 1) / 2;
+        return (materialSum / (15 + Math.abs(materialSum)) + 1) / 2;
 //        return materialSum == 0
 //                ? 0.5
 //                : materialSum < 0

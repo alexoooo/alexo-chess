@@ -30,7 +30,7 @@ class PuctNode {
     private static final double firstPlayEstimate = 0.4;
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
-    public static final double uncertainty = 0.2;
+    public static final double uncertainty = 0.4;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -68,6 +68,15 @@ class PuctNode {
     public long visitCount() {
         return visitCount.longValue();
     }
+
+
+    public long visitCount(int childIndex) {
+        PuctNode child = childNodes.get(childIndex);
+        return child == null
+                ? 0
+                : child.visitCount();
+    }
+
 
     public void initRoot() {
         visitCount.increment();
@@ -467,7 +476,10 @@ class PuctNode {
         {
             double moveScore = moveValueInternal(i, visitMax);
 
-            if (bestMoveScore < moveScore) {
+            if (bestMoveScore < moveScore ||
+                    bestMoveScore == moveScore &&
+                            visitCount(bestMoveIndex) < visitCount(i)
+            ) {
                 bestMoveScore = moveScore;
                 bestMoveIndex = i;
             }
