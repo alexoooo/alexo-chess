@@ -7,6 +7,7 @@ import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
 import ao.chess.v2.engine.heuristic.material.MaterialEvaluation;
 import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.piece.Colour;
+import ao.chess.v2.piece.Figure;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
@@ -27,6 +28,8 @@ class PuctNode {
     private static final double minimumGuess = 0.1;
     private static final double maximumGuess = 0.9;
     private static final double firstPlayEstimate = 0.4;
+    private static final double underpromotionEstimate = 0;
+    private static final double underpromotionPrediction = 0.001;
     public static final double uncertainty = 0.2;
 
 
@@ -62,6 +65,10 @@ class PuctNode {
 
 
     //-----------------------------------------------------------------------------------------------------------------
+    public long visitCount() {
+        return visitCount.longValue();
+    }
+
     public void initRoot() {
         visitCount.increment();
     }
@@ -148,6 +155,10 @@ class PuctNode {
             context.estimatedValue =
                     state.knownOutcome().valueFor(state.nextToAct());
 
+            return addChildIfRequired(newChild, parent, childIndex);
+        }
+        else if (state.isDrawnBy50MovesRule()) {
+            PuctNode newChild = new PuctNode(null, null, DeepOutcome.DRAW);
             return addChildIfRequired(newChild, parent, childIndex);
         }
 
@@ -249,8 +260,7 @@ class PuctNode {
         }
 
         double horizon =
-//                (double) state.reversibleMoves() / 300 +
-                (double) Math.abs(deepOutcome.plyDistance()) / 200;
+                (double) Math.abs(deepOutcome.plyDistance()) / 400;
 
         Colour pov = state.nextToAct();
         Outcome outcome = deepOutcome.outcome();
@@ -391,12 +401,24 @@ class PuctNode {
         for (int i = 0; i < moveCount; i++) {
             long moveVisits = moveVisitCounts[i];
 
-            double averageOutcome =
-                    moveVisits == 0
-                    ? firstPlayEstimate
-                    : moveValueSums[i] / moveVisits;
+            boolean isUnderpromotion = Move.isPromotion(moves[i]) &&
+                    Figure.VALUES[Move.promotion(moves[i])] != Figure.QUEEN;
 
-            double prediction = predictions[i];
+            double averageOutcome;
+            double prediction;
+
+            if (isUnderpromotion) {
+                averageOutcome = underpromotionEstimate;
+                prediction = underpromotionPrediction;
+            }
+            else {
+                averageOutcome =
+                        moveVisits == 0
+                        ? firstPlayEstimate
+                        : moveValueSums[i] / moveVisits;
+
+                prediction = predictions[i];
+            }
 
             double unvisitedBonus =
                     prediction * Math.sqrt(parentVisitCount) / (moveVisits + 1);
@@ -498,6 +520,25 @@ class PuctNode {
     }
 
 
+    public int maxDepth()
+    {
+        if (deepOutcomeOrNull != null) {
+            return Math.abs(deepOutcomeOrNull.plyDistance());
+        }
+
+        int childMaxDepth = 0;
+
+        for (var child : childNodes) {
+            if (child == null) {
+                continue;
+            }
+            childMaxDepth = Math.max(childMaxDepth, child.maxDepth());
+        }
+
+        return childMaxDepth + 1;
+    }
+
+
     //-----------------------------------------------------------------------------------------------------------------
     @Override
     public String toString() {
@@ -528,9 +569,10 @@ class PuctNode {
 
         String childSummary = indexes
                 .stream()
-                .map(i -> String.format("%s %d %.4f %.4f %.4f",
+                .map(i -> String.format("%s %d %d %.4f %.4f %.4f",
                         Move.toInputNotation(moves[i]),
                         counts[i],
+                        counts[i] == 0 ? 0 : childNodes.get(i).maxDepth(),
                         counts[i] == 0 ? firstPlayEstimate : values[i] / counts[i],
                         predictions[i],
                         predictions[i] * Math.sqrt(parentVisitCount) / (counts[i] + 1)))

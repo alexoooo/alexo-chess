@@ -38,6 +38,7 @@ public class PuctPlayer
     private final boolean tablebase;
     private final double alpha;
     private final double signal;
+    private final int minimumTrajectories;
     private boolean train;
 
     private final CopyOnWriteArrayList<PuctContext> contexts;
@@ -45,7 +46,6 @@ public class PuctPlayer
 
     private long previousPositionHash = -1;
     private PuctNode previousRoot;
-//    private int[] previousTablebase;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -62,6 +62,7 @@ public class PuctPlayer
                 true,
                 0.3,
                 0.75,
+                0,
                 false);
     }
 
@@ -75,6 +76,7 @@ public class PuctPlayer
             boolean tablebase,
             double alpha,
             double signal,
+            int minumumTrajectories,
             boolean train)
     {
         this.savedNeuralNetwork = savedNeuralNetwork;
@@ -85,6 +87,7 @@ public class PuctPlayer
         this.tablebase = tablebase;
         this.alpha = alpha;
         this.signal = signal;
+        this.minimumTrajectories = minumumTrajectories;
         this.train = train;
 
         contexts = new CopyOnWriteArrayList<>();
@@ -112,10 +115,9 @@ public class PuctPlayer
 
         PuctNode root = getOrCreateRoot(position);
 
-//        int tablebaseMove = tablebaseMove(position, root);
-//        if (tablebaseMove != -1) {
-//            return tablebaseMove;
-//        }
+        if (root.legalMoves().length == 0) {
+            return -1;
+        }
 
         long episodeMillis = Math.min(reportPeriod, timePerMove);
         long deadline = System.currentTimeMillis() + timePerMove;
@@ -125,7 +127,8 @@ public class PuctPlayer
             do {
                 thinkingEpisode(root, context, position, episodeMillis, true);
             }
-            while (System.currentTimeMillis() < deadline);
+            while (root.visitCount() < minimumTrajectories ||
+                    System.currentTimeMillis() < deadline);
         }
         else {
             List<Future<?>> futures = new ArrayList<>();
@@ -136,7 +139,8 @@ public class PuctPlayer
                     do {
                         thinkingEpisode(root, context, position, episodeMillis, progressThread);
                     }
-                    while (System.currentTimeMillis() < deadline);
+                    while (root.visitCount() < minimumTrajectories ||
+                            System.currentTimeMillis() < deadline);
                 });
                 futures.add(future);
             }
@@ -233,7 +237,6 @@ public class PuctPlayer
 
         previousRoot = root;
         previousPositionHash = positionHash;
-//        previousTablebase = null;
 
         return root;
     }
@@ -242,14 +245,7 @@ public class PuctPlayer
     private void reportProgress(
             PuctNode root
     ) {
-//        boolean inTablebase = (previousTablebase != null);
-        int bestMove = -1;
-//        if (inTablebase) {
-//            bestMove = tablebaseBestMove(root);
-//        }
-//        else {
-            bestMove = root.bestMove(visitMax);
-//        }
+        int bestMove = root.bestMove(visitMax);
 
         String generalPrefix = String.format(
                 "%s - %s | %d / %.2f / %d / %b | %s",
@@ -262,9 +258,6 @@ public class PuctPlayer
                 Move.toString(bestMove));
 
         String moveSuffix =
-                /*inTablebase
-                ? "tablebase"
-                :*/
                 root.toString();
 
         System.out.println(generalPrefix + " | " + moveSuffix);
@@ -273,22 +266,6 @@ public class PuctPlayer
 
     @Override
     public double expectedValue() {
-//        if (previousTablebase != null) {
-//            for (int value : previousTablebase) {
-//                if (value == 0) {
-//                    continue;
-//                }
-//
-//                if (value < 500) {
-//                    return 0;
-//                } else if (value > 500) {
-//                    return 1;
-//                } else {
-//                    return 0.5;
-//                }
-//            }
-//        }
-
         return previousRoot.inverseValue();
     }
 
@@ -296,90 +273,8 @@ public class PuctPlayer
     //-----------------------------------------------------------------------------------------------------------------
     @Override
     public double moveScoreInternal(int move) {
-//        if (previousTablebase != null) {
-//            int index = previousRoot.moveIndex(move);
-//            return previousTablebase[index];
-//        }
-
         return previousRoot.moveValue(move, visitMax);
     }
-
-
-    //-----------------------------------------------------------------------------------------------------------------
-//    private int tablebaseMove(State from, PuctNode root) {
-//        if (previousTablebase != null) {
-//            return tablebaseBestMove(root);
-//        }
-//        else if (! tablebase || from.pieceCount() > DeepOracle.instancePieceCount) {
-//            previousTablebase = null;
-//            return -1;
-//        }
-//
-//        Colour pov = from.nextToAct();
-//
-//        int[] legalMoves = root.legalMoves();
-//
-//        boolean canDraw = false;
-//        int bestOutcome = 0;
-//        int bestMoveIndex = -1;
-//
-//        for (int i = 0; i < legalMoves.length; i++) {
-//            int legalMove = legalMoves[i];
-//
-//            Move.apply(legalMove, from);
-//            DeepOutcome outcome = DeepOracle.INSTANCE.see(from);
-//            Move.unApply(legalMove, from);
-//            if (outcome == null || outcome.isDraw()) {
-//                canDraw = true;
-//
-//                if (bestMoveIndex == -1) {
-//                    bestMoveIndex = i;
-//                }
-//                continue;
-//            }
-//
-//            if (outcome.outcome().winner() == pov) {
-//                if (bestOutcome <= 0 ||
-//                        bestOutcome > outcome.plyDistance() ||
-//                        (bestOutcome == outcome.plyDistance() &&
-//                                Rand.nextBoolean())) {
-//                    bestOutcome = outcome.plyDistance();
-//                    bestMoveIndex = i;
-//                }
-//            }
-//            else if (! canDraw && bestOutcome <= 0
-//                    && bestOutcome > -outcome.plyDistance()) {
-//                bestOutcome = -outcome.plyDistance();
-//                bestMoveIndex = i;
-//            }
-//        }
-//
-//        int bestMoveValue;
-//        if (bestOutcome < 0) {
-//            bestMoveValue = -bestOutcome;
-//        }
-//        else if (bestOutcome > 0) {
-//            bestMoveValue = 1000 - bestOutcome;
-//        }
-//        else {
-//            bestMoveValue = 500;
-//        }
-//        previousTablebase[bestMoveIndex] = bestMoveValue;
-//
-//        System.out.println("Tablebase in " + bestOutcome);
-//
-//        return legalMoves[bestMoveIndex];
-//    }
-//
-//
-//    private int tablebaseBestMove(PuctNode root) {
-//        for (int i = 0; i < previousTablebase.length; i++) {
-//            if (previousTablebase[i] != 0) {
-//                return root.legalMoves()[i];
-//            }
-//        }
-//        return -1;
-//    }
 
 
     //-----------------------------------------------------------------------------------------------------------------

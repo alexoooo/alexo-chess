@@ -131,7 +131,8 @@ public class BrainTeaser {
 //                "6R1/2k5/8/8/1P1R4/1PK5/2Q5/3R4 w"
 //                "8/8/8/8/8/3k3K/7P/8 w - - 0 1"
 //                "8/8/8/8/2q5/8/1B5K/1k6 b - - 0 1"
-                "2R5/8/8/6K1/8/1k6/8/8 b - - 52 2"
+//                "2R5/8/8/6K1/8/1k6/8/8 b - - 52 2"
+                "8/8/2p1b1k1/r6n/1K6/8/8/8 b  - 100 2"
 
                 // Travis game
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

@@ -27,7 +27,7 @@ import java.util.List;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 1_000;
+    private static final int TIME_PER_MOVE = 3_000;
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
@@ -57,32 +57,6 @@ public class Tournament
 //        Player b = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
 //        Player a = MctsPrototypes.mctsFallbackDeep3Tune192Prototype.prototype();
 //        Player b = MctsPrototypes.mctsFallbackDeep2Tune192Prototype.prototype();
-
-        // TBD
-//        Player a = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep09Tune192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeep11Tune192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
-
-//        Player a = MctsPrototypes.mctsFallbackDeepLargeOpt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep5LargeOpt192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeep5LargeOpt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep1LargeOpt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep2LargeOpt192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeep1LargeOpt192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeepOpt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeepLargeOpt192Prototype.prototype();
-
-//        Player a = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeepTune192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep2LargeOpt192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeepTune192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeep2LargeOpt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
 
 //        Player a = new MultiMctsPlayer(List.of(
 //                mctsPrototype.prototype(),
@@ -245,7 +219,8 @@ public class Tournament
         State state =
 //                State.initial();
                 State.fromFen(
-                        "8/8/8/6K1/8/8/1k6/2R5 w  - 70 49");
+//                        "8/8/8/6K1/8/8/1k6/2R5 w  - 70 49");
+                        "8/8/2p1b1k1/r6n/1K6/8/8/8 b  - 100 2");
 
         Outcome outcome = Outcome.DRAW;
 

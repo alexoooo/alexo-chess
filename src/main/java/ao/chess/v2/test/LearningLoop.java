@@ -43,6 +43,7 @@ public class LearningLoop {
     private final static boolean thinkingMaxVisits = false;
     private final static double thinkingAlpha = 0.3;
     private final static double thinkingSignal = 0.75;
+    private final static int thinkingMinimumTrajectories = 800;
     private final static int thinkingRollounts = 7;
     private final static boolean thinkingTablebase = true;
 //    private final static int thinkingTimeMs = 10_000;
@@ -223,6 +224,7 @@ public class LearningLoop {
                         thinkingTablebase,
                         thinkingAlpha,
                         thinkingSignal,
+                        thinkingMinimumTrajectories,
                         true);
 
                 PuctPlayer b = new PuctPlayer(
@@ -234,6 +236,7 @@ public class LearningLoop {
                         thinkingTablebase,
                         thinkingAlpha,
                         thinkingSignal,
+                        thinkingMinimumTrajectories,
                         true);
 
                 int whiteThinkingMs = aThinkingTimeMs;
@@ -311,6 +314,7 @@ public class LearningLoop {
                     thinkingTablebase,
                     thinkingAlpha,
                     thinkingSignal,
+                    thinkingMinimumTrajectories,
                     true);
 
             PuctPlayer b = new PuctPlayer(
@@ -322,6 +326,7 @@ public class LearningLoop {
                     thinkingTablebase,
                     thinkingAlpha,
                     thinkingSignal,
+                    thinkingMinimumTrajectories,
                     true);
 
             int whiteThinkingMs = aThinkingTimeMs;
