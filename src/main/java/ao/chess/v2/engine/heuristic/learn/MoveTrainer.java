@@ -81,7 +81,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/gen/1/nn.zip");
 //            Paths.get("lookup/gen/2/nn.zip");
 //            Paths.get("lookup/gen/3/nn.zip");
-            Paths.get("lookup/gen/5/nn.zip");
+            Paths.get("lookup/gen/6/nn.zip");
 //            Paths.get("lookup/gen/nn-test-agg.zip");
 //            Paths.get("lookup/gen/nn-test-1.zip");
 //            Paths.get("lookup/gen/nn-test-2.zip");

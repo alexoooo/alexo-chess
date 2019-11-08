@@ -52,18 +52,15 @@ public class PuctPlayer
     public PuctPlayer(
             Path savedNeuralNetwork,
             int threads,
-            double exploration)
+            int minimumTrajectories)
     {
         this(savedNeuralNetwork,
                 threads,
-                exploration,
-                false,
+                1.5,
+                true,
                 7,
                 true,
-                0.3,
-                0.75,
-                0,
-                false);
+                minimumTrajectories);
     }
 
 
@@ -74,9 +71,39 @@ public class PuctPlayer
             boolean visitMax,
             int rollouts,
             boolean tablebase,
+            int minumumTrajectories)
+    {
+        this(savedNeuralNetwork, threads, exploration, visitMax, rollouts, tablebase, minumumTrajectories,
+                0.3, 0.75, false);
+    }
+
+
+    public PuctPlayer(
+            Path savedNeuralNetwork,
+            int threads,
+            double exploration,
+            boolean visitMax,
+            int rollouts,
+            boolean tablebase,
+            int minumumTrajectories,
+            double alpha,
+            double signal)
+    {
+        this(savedNeuralNetwork, threads, exploration, visitMax, rollouts, tablebase, minumumTrajectories,
+                alpha, signal, true);
+    }
+
+
+    public PuctPlayer(
+            Path savedNeuralNetwork,
+            int threads,
+            double exploration,
+            boolean visitMax,
+            int rollouts,
+            boolean tablebase,
+            int minumumTrajectories,
             double alpha,
             double signal,
-            int minumumTrajectories,
             boolean train)
     {
         this.savedNeuralNetwork = savedNeuralNetwork;
@@ -85,9 +112,9 @@ public class PuctPlayer
         this.visitMax = visitMax;
         this.rollouts = rollouts;
         this.tablebase = tablebase;
+        this.minimumTrajectories = minumumTrajectories;
         this.alpha = alpha;
         this.signal = signal;
-        this.minimumTrajectories = minumumTrajectories;
         this.train = train;
 
         contexts = new CopyOnWriteArrayList<>();
@@ -248,11 +275,12 @@ public class PuctPlayer
         int bestMove = root.bestMove(visitMax);
 
         String generalPrefix = String.format(
-                "%s - %s | %d / %.2f / %d / %b | %s",
+                "%s - %s | %d / %.2f / %b / %d / %b | %s",
                 id,
                 savedNeuralNetwork,
                 threads,
                 exploration,
+                visitMax,
                 rollouts,
                 tablebase,
                 Move.toString(bestMove));

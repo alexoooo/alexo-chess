@@ -27,7 +27,7 @@ import java.util.List;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 5_000;
+    private static final int TIME_PER_MOVE = 1_000;
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
@@ -37,27 +37,6 @@ public class Tournament
     //--------------------------------------------------------------------
     public static void main(String[] args)
     {
-//        Player a = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep4Opt192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeep6Opt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeep7Opt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep6Opt192Prototype.prototype();
-
-//        Player a = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep5Tune192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeep5Tune192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeep10Tune192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep5Tune192Prototype.prototype();
-
-//        Player a = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep05Tune192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeep2Tune192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep1Tune192Prototype.prototype();
-//        Player a = MctsPrototypes.mctsFallbackDeep3Tune192Prototype.prototype();
-//        Player b = MctsPrototypes.mctsFallbackDeep2Tune192Prototype.prototype();
-
 //        Player a = new MultiMctsPlayer(List.of(
 //                mctsPrototype.prototype(),
 //                mctsPrototype.prototype(),
@@ -152,7 +131,7 @@ public class Tournament
 
 //        ParallelMctsPlayer a = new ParallelMctsPlayer(
 //                "par",
-//                9,
+//                1,
 //                0.3,
 //                1,
 //                false
@@ -166,13 +145,21 @@ public class Tournament
 //                Paths.get("lookup/nn_2019-10-25b.zip"));
 
         Player a = new PuctPlayer(
-                Paths.get("lookup/gen/2/nn.zip"),
+                Paths.get("lookup/gen/6/nn.zip"),
                 1,
-                1.5);
+                1.5,
+                false,
+                7,
+                true,
+                800);
         Player b = new PuctPlayer(
-                Paths.get("lookup/gen/2/nn.zip"),
+                Paths.get("lookup/gen/6/nn.zip"),
                 1,
-                4);
+                1.5,
+                true,
+                7,
+                true,
+                800);
 //        Player a = new TopLeftPlayer();
 //        Player b = new RandomPlayer();
 

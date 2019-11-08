@@ -9,6 +9,7 @@ import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
 import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Outcome;
+import com.google.common.collect.Lists;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -34,13 +35,13 @@ public class LearningLoop {
     private final static Path generationsDir = Paths.get("lookup/gen");
 
     private final static int selfPlayThreads = 1;
-    private final static int gamesPerThread = 100;
+    private final static int gamesPerThread = 80;
 
     private final static int trainingIterations = 1;
     private final static int gamesInTest = 0;
 
     private final static double thinkingExploration = 1.5;
-    private final static boolean thinkingMaxVisits = false;
+//    private final static boolean thinkingMaxVisits = false;
     private final static double thinkingAlpha = 0.3;
     private final static double thinkingSignal = 0.75;
     private final static int thinkingMinimumTrajectories = 1000;
@@ -49,6 +50,7 @@ public class LearningLoop {
 //    private final static int thinkingTimeMs = 10_000;
     private final static int aThinkingTimeMs = 3_000;
     private final static int bThinkingTimeMs = 3_000;
+    private final static int batchSize = 10_000;
 
     private final static String nnFilename = "nn.zip";
     private final static String historyFilename = "history.txt";
@@ -153,16 +155,32 @@ public class LearningLoop {
             List<Path> generationDirs,
             Path nnFile
     ) {
-        int horizon = Math.min(generationDirs.size(), Math.max(generationDirs.size() / 2, 10));
+        int horizon = Math.min(generationDirs.size(), Math.max(generationDirs.size() / 2, 25));
 //        int horizon = generationDirs.size();
         List<Path> trainingDirs = generationDirs.subList(generationDirs.size() - horizon, generationDirs.size());
 
+        List<MoveHistory> allTrainingData = new ArrayList<>();
+
+        for (Path generationDir : trainingDirs) {
+            Path generationHistory = generationDir.resolve(historyFilename);
+            List<MoveHistory> generationTrainingData = readTrainingData(generationHistory);
+            allTrainingData.addAll(generationTrainingData);
+        }
+
         for (int i = 0; i < trainingIterations; i++) {
+            Collections.shuffle(allTrainingData, seededRandom);
+
             System.out.println("Training iteration: " + (i + 1));
 
-            for (Path generationDir : trainingDirs) {
-                Path generationHistory = generationDir.resolve(historyFilename);
-                trainNeuralNetwork(nn, generationHistory);
+            int total = 0;
+            for (var trainingBatch : Lists.partition(allTrainingData, batchSize)) {
+                long startTime = System.currentTimeMillis();
+
+                trainNeuralBatch(nn, trainingBatch);
+                total += trainingBatch.size();
+
+                long delta = System.currentTimeMillis() - startTime;
+                System.out.println("Trained (" + (delta / 1000) + ") " + total + " of " + allTrainingData.size());
             }
         }
 
@@ -170,31 +188,29 @@ public class LearningLoop {
     }
 
 
-    private static void trainNeuralNetwork(
-            MultiLayerNetwork nn,
+    private static List<MoveHistory> readTrainingData(
             Path generationHistory
     ) {
-        long startTime = System.currentTimeMillis();
-
-        List<MoveHistory> moveHistories;
         try (var lines = Files.lines(generationHistory)) {
-            moveHistories = lines.map(MoveHistory::new).collect(Collectors.toList());
+            return lines.map(MoveHistory::new).collect(Collectors.toList());
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
 
-        Collections.shuffle(moveHistories, seededRandom);
 
+
+    private static void trainNeuralBatch(
+            MultiLayerNetwork nn,
+            List<MoveHistory> moveHistories
+    ) {
         for (var example : moveHistories) {
             DataSet dataSet = MoveTrainer.convertToDataSet(example);
             nn.fit(dataSet);
         }
 
         Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
-
-        long delta = System.currentTimeMillis() - startTime;
-        System.out.println("Trained (" + (delta / 1000) + "): " + generationHistory);
     }
 
 
@@ -219,25 +235,23 @@ public class LearningLoop {
                         nnFile,
                         1,
                         thinkingExploration,
-                        thinkingMaxVisits,
+                        true,
                         thinkingRollounts,
                         thinkingTablebase,
-                        thinkingAlpha,
-                        thinkingSignal,
                         thinkingMinimumTrajectories,
-                        true);
+                        thinkingAlpha,
+                        thinkingSignal);
 
                 PuctPlayer b = new PuctPlayer(
                         nnFile,
                         1,
                         thinkingExploration,
-                        thinkingMaxVisits,
+                        false,
                         thinkingRollounts,
                         thinkingTablebase,
-                        thinkingAlpha,
-                        thinkingSignal,
                         thinkingMinimumTrajectories,
-                        true);
+                        thinkingAlpha,
+                        thinkingSignal);
 
                 int whiteThinkingMs = aThinkingTimeMs;
                 int blackThinkingMs = bThinkingTimeMs;
@@ -256,9 +270,13 @@ public class LearningLoop {
                     historyOut.flush();
 
                     {
-                        int temp = whiteThinkingMs;
+                        int tempMs = whiteThinkingMs;
                         whiteThinkingMs = blackThinkingMs;
-                        blackThinkingMs = temp;
+                        blackThinkingMs = tempMs;
+
+                        PuctPlayer tempPlayer = a;
+                        a = b;
+                        b = tempPlayer;
                     }
 
                     System.out.println("recorded game " + (i + 1) + ": " + history.get(0).outcome());
@@ -309,25 +327,23 @@ public class LearningLoop {
                     nnFile,
                     1,
                     thinkingExploration,
-                    thinkingMaxVisits,
+                    true,
                     thinkingRollounts,
                     thinkingTablebase,
-                    thinkingAlpha,
-                    thinkingSignal,
                     thinkingMinimumTrajectories,
-                    true);
+                    thinkingAlpha,
+                    thinkingSignal);
 
             PuctPlayer b = new PuctPlayer(
                     nnFile,
                     1,
                     thinkingExploration,
-                    thinkingMaxVisits,
+                    false,
                     thinkingRollounts,
                     thinkingTablebase,
-                    thinkingAlpha,
-                    thinkingSignal,
                     thinkingMinimumTrajectories,
-                    true);
+                    thinkingAlpha,
+                    thinkingSignal);
 
             int whiteThinkingMs = aThinkingTimeMs;
             int blackThinkingMs = bThinkingTimeMs;
@@ -345,6 +361,10 @@ public class LearningLoop {
                     int tmp = whiteThinkingMs;
                     whiteThinkingMs = blackThinkingMs;
                     blackThinkingMs = tmp;
+                    
+                    PuctPlayer tempPlayer = a;
+                    a = b;
+                    b = tempPlayer;
                 }
             }
         });
@@ -368,7 +388,7 @@ public class LearningLoop {
         Player a = new PuctPlayer(
                 nnFile,
                 1,
-                thinkingExploration);
+                500);
 
         Player b;
         if (previousGenerationDirs.isEmpty()) {
@@ -382,7 +402,7 @@ public class LearningLoop {
             b = new PuctPlayer(
                     previousNnFile,
                     1,
-                    thinkingExploration);
+                    500);
         }
 
         GameLoop gameLoop = new GameLoop();
