@@ -37,7 +37,7 @@ public class LearningLoop {
     private final static int selfPlayThreads = 1;
     private final static int gamesPerThread = 80;
 
-    private final static int trainingIterations = 1;
+    private final static int trainingIterations = 2;
     private final static int gamesInTest = 0;
 
     private final static double thinkingExploration = 1.5;
@@ -79,6 +79,17 @@ public class LearningLoop {
             generationDirs.add(generationDir);
 
             nextGenerationNumber++;
+        }
+    }
+
+
+    private static void coolDown() {
+        try {
+            // NB: let the PC cool down
+            Thread.sleep(15 * 1000);
+        }
+        catch (InterruptedException e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -155,7 +166,7 @@ public class LearningLoop {
             List<Path> generationDirs,
             Path nnFile
     ) {
-        int horizon = Math.min(generationDirs.size(), Math.max(generationDirs.size() / 2, 25));
+        int horizon = Math.min(generationDirs.size(), Math.max(generationDirs.size() / 2, 100));
 //        int horizon = generationDirs.size();
         List<Path> trainingDirs = generationDirs.subList(generationDirs.size() - horizon, generationDirs.size());
 
@@ -181,6 +192,8 @@ public class LearningLoop {
 
                 long delta = System.currentTimeMillis() - startTime;
                 System.out.println("Trained (" + (delta / 1000) + ") " + total + " of " + allTrainingData.size());
+
+                coolDown();
             }
         }
 
@@ -280,6 +293,7 @@ public class LearningLoop {
                     }
 
                     System.out.println("recorded game " + (i + 1) + ": " + history.get(0).outcome());
+                    coolDown();
                 }
             }
             else {
@@ -361,11 +375,13 @@ public class LearningLoop {
                     int tmp = whiteThinkingMs;
                     whiteThinkingMs = blackThinkingMs;
                     blackThinkingMs = tmp;
-                    
+
                     PuctPlayer tempPlayer = a;
                     a = b;
                     b = tempPlayer;
                 }
+
+                coolDown();
             }
         });
 
@@ -437,6 +453,7 @@ public class LearningLoop {
             Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
 
             System.out.println("win: " + aWins + " | loss: " + bWins + " | draw: " + draws);
+            coolDown();
         }
     }
 }

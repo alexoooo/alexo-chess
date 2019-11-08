@@ -5,7 +5,7 @@ import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;
 import ao.chess.v2.state.Move;
-import ao.chess.v2.state.Outcome;
+import com.google.common.collect.Lists;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -31,10 +31,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.DoubleSummaryStatistics;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -53,13 +50,11 @@ public class MoveTrainer {
 
 
     private static final List<Path> inputs = List.of(
-//            Paths.get("lookup/gen/0/history.txt")
-//            Paths.get("lookup/think_1000_20191024_110657_082.csv"),
-//            Paths.get("lookup/think_1000_20191024_135020_955.csv"),
-//            Paths.get("lookup/think_1000_20191024_202610_148.csv"),
-//            Paths.get("lookup/think_1000_20191025_152515_865.csv"),
-//            Paths.get("lookup/think_1000_20191025_194455_822.csv"),
-//            Paths.get("lookup/think_1000_20191026_185627_150.csv")
+            Paths.get("lookup/gen/0/history.txt"),
+            Paths.get("lookup/gen/1/history.txt"),
+            Paths.get("lookup/gen/2/history.txt"),
+            Paths.get("lookup/gen/3/history.txt"),
+            Paths.get("lookup/gen/4/history.txt")
     );
 
     private static final List<Path> test = List.of(
@@ -74,18 +69,9 @@ public class MoveTrainer {
 
 
     private static final Path saveFile =
-//            Paths.get("lookup/nn_2019-10-26.zip");
-//            Paths.get("lookup/nn_2019-10-26b.zip");
-//            Paths.get("lookup/nn_2019-10-30.zip");
-//            Paths.get("lookup/gen/0/nn.zip");
-//            Paths.get("lookup/gen/1/nn.zip");
-//            Paths.get("lookup/gen/2/nn.zip");
 //            Paths.get("lookup/gen/3/nn.zip");
-            Paths.get("lookup/gen/6/nn.zip");
-//            Paths.get("lookup/gen/nn-test-agg.zip");
-//            Paths.get("lookup/gen/nn-test-1.zip");
-//            Paths.get("lookup/gen/nn-test-2.zip");
-//            Paths.get("lookup/gen/nn-test-agg.zip");
+//            Paths.get("lookup/gen/5/nn.zip");
+            Paths.get("lookup/gen/5/nn-3.zip");
 
 
     private static class Prediction {
@@ -142,23 +128,7 @@ public class MoveTrainer {
             testOutputs(tester);
         }
 
-        double min = Double.POSITIVE_INFINITY;
-        for (int epoch = 0; epoch < trainingIterations; epoch++) {
-            for (Path input : inputs) {
-                iterateInputs(epoch, input, learner);
-
-                if (learner == nnLearner) {
-                    NeuralUtils.saveNeuralNetwork(nn, saveFile);
-                }
-
-                double error = testOutputs(tester);
-
-                if (min > error) {
-                    min = error;
-                    System.out.println("^^^^ NEW BEST");
-                }
-            }
-        }
+        performTraining(nn, learner);
     }
 
 
@@ -175,38 +145,58 @@ public class MoveTrainer {
     }
 
 
-
-    private static void iterateInputs(
-            int epoch,
-            Path input,
-            Consumer<MoveHistory> consumer
+    private static void performTraining(
+            MultiLayerNetwork nn,
+            Consumer<MoveHistory> learner
     ) {
-        long trainingStart = System.currentTimeMillis();
+        if (trainingIterations == 0) {
+            return;
+        }
 
-        List<MoveHistory> examples;
+        List<MoveHistory> allMoves = readAllMoves();
+        int trainingCount = 0;
+
+        for (int epoch = 0; epoch < trainingIterations; epoch++) {
+            Collections.shuffle(allMoves, seededRandom);
+
+            for (var partition : Lists.partition(allMoves, 10_000)) {
+                long trainingStart = System.currentTimeMillis();
+
+                for (var example : partition) {
+                    learner.accept(example);
+                }
+
+                NeuralUtils.saveNeuralNetwork(nn, saveFile);
+
+                trainingCount += partition.size();
+                System.out.println((epoch + 1) +
+                        " - " + trainingCount + " of " + allMoves.size() +
+                        " - Training took: " +
+                        (double) (System.currentTimeMillis() - trainingStart) / 1000);
+
+                Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
+            }
+        }
+    }
+
+
+    private static List<MoveHistory> readAllMoves() {
+        List<MoveHistory> allMoves = new ArrayList<>();
+        for (var input : inputs) {
+            List<MoveHistory> inputMoves = readMoves(input);
+            allMoves.addAll(inputMoves);
+        }
+        return allMoves;
+    }
+
+
+    private static List<MoveHistory> readMoves(Path input) {
         try (var lines = Files.lines(input)) {
-            examples = lines.map(MoveHistory::new).collect(Collectors.toList());
+            return lines.map(MoveHistory::new).collect(Collectors.toList());
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-
-        Collections.shuffle(examples, seededRandom);
-
-        for (var example : examples) {
-            if (skipDraw && example.outcome() == Outcome.DRAW) {
-                continue;
-            }
-
-            consumer.accept(example);
-        }
-
-        Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
-
-        System.out.println((epoch + 1) +
-                " - " + input +
-                " - Training took: " +
-                (double) (System.currentTimeMillis() - trainingStart) / 1000);
     }
 
 
