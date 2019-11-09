@@ -256,7 +256,7 @@ public class PuctPlayer
         }
         else {
             PuctUtils.smearProbabilities(
-                    moveProbabilities, PuctNode.uncertainty);
+                    moveProbabilities, PuctNode.moveUncertainty);
         }
 
         PuctNode root = new PuctNode(legalMoves, moveProbabilities, null);

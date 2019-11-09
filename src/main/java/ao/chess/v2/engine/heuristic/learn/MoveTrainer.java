@@ -71,7 +71,7 @@ public class MoveTrainer {
     private static final Path saveFile =
 //            Paths.get("lookup/gen/3/nn.zip");
 //            Paths.get("lookup/gen/5/nn.zip");
-            Paths.get("lookup/gen/5/nn-3.zip");
+            Paths.get("lookup/gen/5/nn.zip");
 
 
     private static class Prediction {

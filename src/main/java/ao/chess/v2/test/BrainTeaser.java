@@ -1,9 +1,11 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
+import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
+
+import java.nio.file.Paths;
 
 
 /**
@@ -93,28 +95,27 @@ public class BrainTeaser {
 //                protoC.prototype()
 //        ));
 
-        Player player = new ParallelMctsPlayer(
-                "par",
-                9,
-                0.3,
-                3,
-//                1,
-                false
-        );
+//        Player player = new ParallelMctsPlayer(
+//                "par",
+//                9,
+//                0.3,
+//                3,
+////                1,
+//                false
+//        );
 
 //        Player player = new PuctPlayer(
 //                Paths.get("lookup/gen/2/nn.zip"),
 //                1,
 //                1.5);
-//        Player player = new PuctPlayer(
-//                Paths.get("lookup/gen/1/nn.zip"),
-//                1,
-//                4,
-//                false,
-//                5,
-//                0.3,
-//                0.75,
-//                false);
+        Player player = new PuctPlayer(
+                Paths.get("lookup/gen/5/nn.zip"),
+                1,
+                1.5,
+                false,
+                7,
+                true,
+                0);
 
         State state = State.fromFen(
                 // puzzles
@@ -132,7 +133,7 @@ public class BrainTeaser {
 //                "8/P7/1bk4p/8/3BP3/RR6/3K4/8 w"
 
                 // Travis game
-//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 //                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
 //                "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 1"
 //                "rnbqkbnr/pp1ppppp/8/2p5/4P3/5P2/PPPP2PP/RNBQKBNR b KQkq - 0 1"
@@ -153,7 +154,7 @@ public class BrainTeaser {
 //                "rnb2rk1/pp2nppp/3b4/2pp4/7q/BPPP1P2/P2KN2P/RN1Q1B1R w - - 0 1"
 //                "rnb2rk1/pp2nppp/3b4/2Bp4/7q/1PPP1P2/P2KN2P/RN1Q1B1R b - - 0 1"
 //                "rnb2rk1/pp2nppp/8/2bp4/7q/1PPP1P2/P2KN2P/RN1Q1B1R w - - 0 1"
-                "rnb2rk1/pp2nppp/8/2bp4/P6q/1PPP1P2/3KN2P/RN1Q1B1R b - a3 0 1"
+//                "rnb2rk1/pp2nppp/8/2bp4/P6q/1PPP1P2/3KN2P/RN1Q1B1R b - a3 0 1"
 
                 // Mable game 2 (black)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

@@ -34,12 +34,14 @@ public class LearningLoop {
     //-----------------------------------------------------------------------------------------------------------------
     private final static Path generationsDir = Paths.get("lookup/gen");
 
+    private final static int coolDownMs = 20_000;
     private final static int selfPlayThreads = 1;
-    private final static int gamesPerThread = 80;
+    private final static int gamesPerThread = 100;
 
     private final static int trainingIterations = 2;
     private final static int gamesInTest = 0;
 
+//    private final static double thinkingExploration = 1.5;
     private final static double thinkingExploration = 1.5;
 //    private final static boolean thinkingMaxVisits = false;
     private final static double thinkingAlpha = 0.3;
@@ -48,9 +50,11 @@ public class LearningLoop {
     private final static int thinkingRollounts = 7;
     private final static boolean thinkingTablebase = true;
 //    private final static int thinkingTimeMs = 10_000;
-    private final static int aThinkingTimeMs = 3_000;
-    private final static int bThinkingTimeMs = 3_000;
-    private final static int batchSize = 10_000;
+    private final static int aThinkingTimeMs = 1_000;
+    private final static int bThinkingTimeMs = 1_000;
+    private final static boolean aVisitMax = false;
+    private final static boolean bVisitMax = false;
+    private final static int batchSize = 8_000;
 
     private final static String nnFilename = "nn.zip";
     private final static String historyFilename = "history.txt";
@@ -86,7 +90,7 @@ public class LearningLoop {
     private static void coolDown() {
         try {
             // NB: let the PC cool down
-            Thread.sleep(15 * 1000);
+            Thread.sleep(coolDownMs);
         }
         catch (InterruptedException e) {
             throw new IllegalStateException(e);
@@ -248,7 +252,7 @@ public class LearningLoop {
                         nnFile,
                         1,
                         thinkingExploration,
-                        true,
+                        aVisitMax,
                         thinkingRollounts,
                         thinkingTablebase,
                         thinkingMinimumTrajectories,
@@ -259,7 +263,7 @@ public class LearningLoop {
                         nnFile,
                         1,
                         thinkingExploration,
-                        false,
+                        bVisitMax,
                         thinkingRollounts,
                         thinkingTablebase,
                         thinkingMinimumTrajectories,
@@ -341,7 +345,7 @@ public class LearningLoop {
                     nnFile,
                     1,
                     thinkingExploration,
-                    true,
+                    aVisitMax,
                     thinkingRollounts,
                     thinkingTablebase,
                     thinkingMinimumTrajectories,
@@ -352,7 +356,7 @@ public class LearningLoop {
                     nnFile,
                     1,
                     thinkingExploration,
-                    false,
+                    bVisitMax,
                     thinkingRollounts,
                     thinkingTablebase,
                     thinkingMinimumTrajectories,

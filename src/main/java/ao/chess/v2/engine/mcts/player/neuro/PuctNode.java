@@ -30,7 +30,9 @@ class PuctNode {
     private static final double firstPlayEstimate = 0.4;
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
-    public static final double uncertainty = 0.4;
+
+    private static final boolean valueUncertainty = false;
+    public static final double moveUncertainty = 0.4;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -207,7 +209,7 @@ class PuctNode {
         }
 
         PuctUtils.smearProbabilities(
-                predictions, uncertainty);
+                predictions, moveUncertainty);
 
         PuctNode newChild = new PuctNode(legalMoves, predictions, null);
 
@@ -517,8 +519,10 @@ class PuctNode {
             return visits;
         }
 
-        double certainty = 1.0;
-//        double certainty = 1.0 - (1 / Math.sqrt(visits + 1));
+        double certainty =
+                valueUncertainty
+                ? 1.0 - (1 / Math.sqrt(visits + 1))
+                : 1.0;
 
         return certainty * child.valueSum.doubleValue() / visits * 10_000;
     }

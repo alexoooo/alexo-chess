@@ -145,7 +145,7 @@ public class Tournament
 //                Paths.get("lookup/nn_2019-10-25b.zip"));
 
         Player a = new PuctPlayer(
-                Paths.get("lookup/gen/6/nn.zip"),
+                Paths.get("lookup/gen/1/nn.zip"),
                 1,
                 1.5,
                 false,
@@ -153,13 +153,14 @@ public class Tournament
                 true,
                 800);
         Player b = new PuctPlayer(
-                Paths.get("lookup/gen/6/nn.zip"),
+                Paths.get("lookup/gen/5/nn.zip"),
                 1,
                 1.5,
                 true,
                 7,
                 true,
                 800);
+
 //        Player a = new TopLeftPlayer();
 //        Player b = new RandomPlayer();
 
