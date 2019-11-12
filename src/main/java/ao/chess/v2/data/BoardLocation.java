@@ -1,5 +1,8 @@
 package ao.chess.v2.data;
 
+import ao.chess.v2.state.State;
+
+
 /**
  * User: AO
  * Date: 10/31/10
@@ -45,8 +48,8 @@ public enum BoardLocation
         RANK_FILE_VALUES = new BoardLocation[ 8 ][ 8 ];
 
         int nextIndex = 0;
-        for (int r = 0; r < Location.RANKS; r++) {
-            for (int f = 0; f < Location.FILES; f++) {
+        for (int f = 0; f < Location.FILES; f++) {
+            for (int r = 0; r < Location.RANKS; r++) {
                 RANK_FILE_VALUES[ r ][ f ] =
                         INDEX_VALUES[ nextIndex++ ];
             }
@@ -63,6 +66,12 @@ public enum BoardLocation
     public static BoardLocation get(int rank, int file)
     {
         return RANK_FILE_VALUES[ rank ][ file ];
+    }
+
+    public static BoardLocation parse(String algebraicChessNotation) {
+        int rank = Integer.parseInt(algebraicChessNotation.substring(1, 2)) - 1;
+        int file = State.FILES.indexOf(algebraicChessNotation.substring(0, 1).toLowerCase());
+        return get(rank, file);
     }
 
 

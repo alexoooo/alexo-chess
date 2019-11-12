@@ -20,10 +20,20 @@ public class MoveHistory {
         public void add(
                 State state,
                 int[] legalMoves,
+                double[] moveScores)
+        {
+            add(state, legalMoves, moveScores, Double.NaN);
+        }
+
+
+        public void add(
+                State state,
+                int[] legalMoves,
                 double[] moveScores,
                 double expectedValue)
         {
-            fragments.add(new Fragment(state, legalMoves, moveScores, expectedValue));
+            fragments.add(new Fragment(
+                    state.prototype(), legalMoves, moveScores, expectedValue));
         }
 
 
@@ -47,7 +57,9 @@ public class MoveHistory {
                             fragment.state,
                             fragment.legalMoves,
                             fragment.moveScores,
-                            fragment.expectedValue,
+                            Double.isNaN(fragment.expectedValue)
+                                ? outcome.valueFor(fragment.state.nextToAct())
+                                : fragment.expectedValue,
                             outcome))
                     .collect(Collectors.toList());
         }

@@ -50,15 +50,16 @@ public class MoveTrainer {
 
 
     private static final List<Path> inputs = List.of(
-            Paths.get("lookup/gen/0/history.txt"),
-            Paths.get("lookup/gen/1/history.txt"),
-            Paths.get("lookup/gen/2/history.txt"),
-            Paths.get("lookup/gen/3/history.txt"),
-            Paths.get("lookup/gen/4/history.txt"),
-            Paths.get("lookup/gen/5/history.txt"),
-            Paths.get("lookup/gen/6/history.txt"),
-            Paths.get("lookup/gen/7/history.txt"),
-            Paths.get("lookup/gen/7/history-1.txt")
+//            Paths.get("lookup/gen/0/history.txt"),
+//            Paths.get("lookup/gen/1/history.txt"),
+//            Paths.get("lookup/gen/2/history.txt"),
+//            Paths.get("lookup/gen/3/history.txt"),
+//            Paths.get("lookup/gen/4/history.txt"),
+//            Paths.get("lookup/gen/5/history.txt"),
+//            Paths.get("lookup/gen/6/history.txt"),
+//            Paths.get("lookup/gen/7/history.txt"),
+//            Paths.get("lookup/gen/7/history-1.txt")
+            Paths.get("lookup/history/adams.txt")
     );
 
     private static final List<Path> test = List.of(

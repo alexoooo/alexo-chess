@@ -16,6 +16,15 @@ public enum Figure
 
     public static Figure[] VALUES = values();
 
+    public static Figure ofSymbol(String symbol) {
+        for (var figure : VALUES) {
+            if (figure.symbol().equals(symbol)) {
+                return figure;
+            }
+        }
+        throw new IllegalArgumentException("Unknown: " + symbol);
+    }
+
 
     //--------------------------------------------------------------------
     private final String SYMBOL;
@@ -25,6 +34,12 @@ public enum Figure
     Figure(String symbol)
     {
         SYMBOL = symbol;
+    }
+
+
+    //--------------------------------------------------------------------
+    public String symbol() {
+        return SYMBOL;
     }
 
 

@@ -109,7 +109,7 @@ public class BrainTeaser {
 //                1,
 //                1.5);
         Player player = new PuctPlayer(
-                Paths.get("lookup/gen/1/nn.zip"),
+                Paths.get("lookup/gen/8/nn.zip"),
                 1,
                 1.5,
                 false,
@@ -120,8 +120,10 @@ public class BrainTeaser {
         State state = State.fromFen(
                 // puzzles
 //                "6rk/6pp/3N4/8/8/8/7P/7K w - - 0 1" // N from d6 to f7
+//                "5Qk1/5p2/1p5p/p4Np1/5q2/7P/PPr5/3R3K b - - 2 1"
+                "5k2/5p2/1p5p/p4Np1/5q2/7P/PPr5/3R3K w - - 0 2"
 
-                "6k1/5p2/1p5p/p4Np1/5q2/Q6P/PPr5/3R3K w - - 1 0" // Q form a3 to f8
+//                "6k1/5p2/1p5p/p4Np1/5q2/Q6P/PPr5/3R3K w - - 1 0" // Q form a3 to f8
 //                "r1b2k1r/ppppq3/5N1p/4P2Q/4PP2/1B6/PP5P/n2K2R1 w - - 1 0" // Q from h5 to h6
 //                "8/2k2p2/2b3p1/P1p1Np2/1p3b2/1P1K4/5r2/R3R3 b - - 0 1" // b from c6 to b5
 
