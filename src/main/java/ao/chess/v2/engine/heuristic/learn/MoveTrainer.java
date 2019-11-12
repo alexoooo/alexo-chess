@@ -43,7 +43,7 @@ public class MoveTrainer {
     private static final boolean defaultValueAverage = true;
     private static final boolean measureOutcome = true;
     private static final boolean skipDraw = false;
-    private static final int trainingIterations = 0;
+    private static final int trainingIterations = 1;
 
     private static final int seed = 42;
     private static final Random seededRandom = new Random(seed);
@@ -59,19 +59,21 @@ public class MoveTrainer {
 //            Paths.get("lookup/gen/6/history.txt"),
 //            Paths.get("lookup/gen/7/history.txt"),
 //            Paths.get("lookup/gen/7/history-1.txt")
-            Paths.get("lookup/history/adams.txt")
+            Paths.get("lookup/history/carlsen.txt")
+//            Paths.get("lookup/history/kasparov.txt")
     );
 
     private static final List<Path> test = List.of(
-            Paths.get("lookup/test_1000_20191024_190016_544.csv"),
-            Paths.get("lookup/think_1000_20191024_110657_082.csv"),
-            Paths.get("lookup/think_1000_20191024_135020_955.csv"),
-            Paths.get("lookup/think_1000_20191024_202610_148.csv"),
-            Paths.get("lookup/think_1000_20191025_152515_865.csv"),
-            Paths.get("lookup/think_1000_20191025_194455_822.csv"),
-            Paths.get("lookup/think_1000_20191026_185627_150.csv"),
-            Paths.get("lookup/think_1000_20191102_112411_359.csv"),
-            Paths.get("lookup/think_5000_20191107_161637_470.csv")
+            Paths.get("lookup/history/adams.txt")
+//            Paths.get("lookup/test_1000_20191024_190016_544.csv"),
+//            Paths.get("lookup/think_1000_20191024_110657_082.csv"),
+//            Paths.get("lookup/think_1000_20191024_135020_955.csv"),
+//            Paths.get("lookup/think_1000_20191024_202610_148.csv"),
+//            Paths.get("lookup/think_1000_20191025_152515_865.csv"),
+//            Paths.get("lookup/think_1000_20191025_194455_822.csv"),
+//            Paths.get("lookup/think_1000_20191026_185627_150.csv"),
+//            Paths.get("lookup/think_1000_20191102_112411_359.csv"),
+//            Paths.get("lookup/think_5000_20191107_161637_470.csv")
     );
 
 
@@ -80,7 +82,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/gen/5/nn.zip");
 //            Paths.get("lookup/gen/5/nn-2.zip");
 //            Paths.get("lookup/gen/6/nn-x.zip");
-            Paths.get("lookup/gen/7/nn-x.zip");
+//            Paths.get("lookup/gen/8/nn.zip");
+            Paths.get("lookup/history/carlsen-nn.zip");
 
 
     private static class Prediction {
@@ -163,12 +166,13 @@ public class MoveTrainer {
         }
 
         List<MoveHistory> allMoves = readAllMoves();
-        int trainingCount = 0;
+        System.out.println("Loaded moves: " + allMoves.size());
 
+        int trainingCount = 0;
         for (int epoch = 0; epoch < trainingIterations; epoch++) {
             Collections.shuffle(allMoves, seededRandom);
 
-            for (var partition : Lists.partition(allMoves, 10_000)) {
+            for (var partition : Lists.partition(allMoves, 1_000)) {
                 long trainingStart = System.currentTimeMillis();
 
                 for (var example : partition) {

@@ -152,6 +152,7 @@ public class Tournament
                 false,
                 7,
                 true,
+                0.4,
                 800);
         Player b = new PuctPlayer(
                 Paths.get("lookup/gen/6/nn-x.zip"),
@@ -160,6 +161,7 @@ public class Tournament
                 false,
                 7,
                 true,
+                0.4,
                 800);
 
 //        Player a = new TopLeftPlayer();

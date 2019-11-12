@@ -24,6 +24,7 @@ class PuctContext {
     public final double exploration;
     public final int rollouts;
     public final boolean tablebase;
+    public final double moveUncertainty;
 
 
     public double estimatedValue;
@@ -33,11 +34,13 @@ class PuctContext {
             MultiLayerNetwork nn,
             double exploration,
             int rollouts,
-            boolean tablebase)
+            boolean tablebase,
+            double moveUncertainty)
     {
         this.nn = nn;
         this.exploration = exploration;
         this.rollouts = rollouts;
         this.tablebase = tablebase;
+        this.moveUncertainty = moveUncertainty;
     }
 }

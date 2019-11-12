@@ -21,6 +21,8 @@ public class PgnParser {
 
 
     public Optional<List<MoveHistory>> process(String line) {
+        System.out.println("> " + line);
+
         if (! line.isEmpty() && Character.isDigit(line.charAt(0))) {
             String[] tokens = line.split("\\s+");
             for (String token : tokens) {
@@ -45,6 +47,12 @@ public class PgnParser {
                 dotIndex == -1
                 ? token
                 : token.substring(dotIndex + 1);
+
+        if (move.equals("*")) {
+            buffer.clear();
+            state = State.initial();
+            return;
+        }
 
         Outcome outcomeOrNull = tryParseOutcome(move);
 
@@ -88,6 +96,10 @@ public class PgnParser {
                 promotionIndex == -1
                 ? withoutDecorator
                 : withoutDecorator.substring(0, promotionIndex);
+
+//        if (clean.length() == 1) {
+//            System.out.println("!! " + move);
+//        }
 
         Figure promotionFigureOrNull =
                 promotionIndex == -1

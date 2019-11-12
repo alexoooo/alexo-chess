@@ -32,7 +32,6 @@ class PuctNode {
     private static final double underpromotionPrediction = 0.001;
 
     private static final boolean valueUncertainty = false;
-    public static final double moveUncertainty = 0.4;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -196,20 +195,11 @@ class PuctNode {
         INDArray input = NeuralCodec.INSTANCE.encodeState(state);
         INDArray output = context.nn.output(input);
 
-        double[] predictions;
-        if (tablebase) {
-            predictions = new double[legalMoves.length];
-
-            double uniform = 1.0 / legalMoves.length;
-            Arrays.fill(predictions, uniform);
-        }
-        else {
-            predictions = NeuralCodec.INSTANCE
-                    .decodeMoveProbabilities(output, state, legalMoves);
-        }
+        double[] predictions = NeuralCodec.INSTANCE
+                .decodeMoveProbabilities(output, state, legalMoves);
 
         PuctUtils.smearProbabilities(
-                predictions, moveUncertainty);
+                predictions, context.moveUncertainty);
 
         PuctNode newChild = new PuctNode(legalMoves, predictions, null);
 
@@ -219,26 +209,10 @@ class PuctNode {
             return false;
         }
 
-        double adjusted;
-        if (tablebase) {
-            DeepOutcome deepOutcome = DeepOracle.INSTANCE.see(state);
+        double outcome = NeuralCodec.INSTANCE.decodeOutcome(output);
+        double adjusted = Math.max(minimumGuess, Math.min(maximumGuess, outcome));
 
-            if (deepOutcome == null) {
-                throw new IllegalStateException("Missing tablebase: " + state);
-            }
-
-//            PuctNode newChild = new PuctNode(null, null, deepOutcome);
-//
-            adjusted = newChild.deepOutcomeValue(state, deepOutcome);
-//
-//            return addChildIfRequired(newChild, parent, childIndex);
-        }
-        else {
-            double outcome = NeuralCodec.INSTANCE.decodeOutcome(output);
-            adjusted = Math.max(minimumGuess, Math.min(maximumGuess, outcome));
-        }
-
-        if (context.rollouts == 0 || tablebase) {
+        if (context.rollouts == 0) {
             context.estimatedValue = adjusted;
         }
         else {

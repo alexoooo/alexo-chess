@@ -36,6 +36,7 @@ public class PuctPlayer
     private final boolean visitMax;
     private final int rollouts;
     private final boolean tablebase;
+    private final double moveUncertainty;
     private final double alpha;
     private final double signal;
     private final int minimumTrajectories;
@@ -60,6 +61,7 @@ public class PuctPlayer
                 true,
                 7,
                 true,
+                0.4,
                 minimumTrajectories);
     }
 
@@ -71,9 +73,17 @@ public class PuctPlayer
             boolean visitMax,
             int rollouts,
             boolean tablebase,
+            double moveUncertainty,
             int minumumTrajectories)
     {
-        this(savedNeuralNetwork, threads, exploration, visitMax, rollouts, tablebase, minumumTrajectories,
+        this(savedNeuralNetwork,
+                threads,
+                exploration,
+                visitMax,
+                rollouts,
+                tablebase,
+                moveUncertainty,
+                minumumTrajectories,
                 0.3, 0.75, false);
     }
 
@@ -85,12 +95,22 @@ public class PuctPlayer
             boolean visitMax,
             int rollouts,
             boolean tablebase,
+            double moveUncertainty,
             int minumumTrajectories,
             double alpha,
             double signal)
     {
-        this(savedNeuralNetwork, threads, exploration, visitMax, rollouts, tablebase, minumumTrajectories,
-                alpha, signal, true);
+        this(savedNeuralNetwork,
+                threads,
+                exploration,
+                visitMax,
+                rollouts,
+                tablebase,
+                moveUncertainty,
+                minumumTrajectories,
+                alpha,
+                signal,
+                true);
     }
 
 
@@ -101,6 +121,7 @@ public class PuctPlayer
             boolean visitMax,
             int rollouts,
             boolean tablebase,
+            double moveUncertainty,
             int minumumTrajectories,
             double alpha,
             double signal,
@@ -112,6 +133,7 @@ public class PuctPlayer
         this.visitMax = visitMax;
         this.rollouts = rollouts;
         this.tablebase = tablebase;
+        this.moveUncertainty = moveUncertainty;
         this.minimumTrajectories = minumumTrajectories;
         this.alpha = alpha;
         this.signal = signal;
@@ -229,7 +251,7 @@ public class PuctPlayer
                 throw new UncheckedIOException(e);
             }
             contexts.add(new PuctContext(
-                    nn, exploration, rollouts, tablebase));
+                    nn, exploration, rollouts, tablebase, moveUncertainty));
         }
 
         MovePicker.init();
@@ -262,7 +284,7 @@ public class PuctPlayer
         }
         else {
             PuctUtils.smearProbabilities(
-                    moveProbabilities, PuctNode.moveUncertainty);
+                    moveProbabilities, moveUncertainty);
         }
 
         PuctNode root = new PuctNode(legalMoves, moveProbabilities, null);
