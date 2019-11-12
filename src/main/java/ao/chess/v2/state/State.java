@@ -260,22 +260,19 @@ public class State
 
 
     //--------------------------------------------------------------------
-    public int[] legalMoves(/*TranspositionTable transTable*/)
+    public int[] legalMoves()
     {
         int[] legalMoves = new int[ Move.MAX_PER_PLY ];
-        int   nMoves     = legalMoves(legalMoves/*, transTable*/);
+        int   nMoves     = legalMoves(legalMoves);
 
         if (nMoves == -1) {
             return null;
         }
         return Arrays.copyOf(legalMoves, nMoves);
     }
-//    public int legalMoves(int[] moves)
-//    {
-//        return legalMoves(moves, new NullTransTable());
-//    }
-    public int legalMoves(
-            int[] moves/*, TranspositionTable transTable*/)
+
+
+    public int legalMoves(int[] moves)
     {
         int[] pseudoMoves = new int[ Move.MAX_PER_PLY ];
         int nPseudoMoves  = moves(pseudoMoves);
@@ -310,7 +307,8 @@ public class State
         long occupied    = whiteBB | blackBB;
         long notOccupied = ~occupied;
 
-        long proponent, opponent, oppKing, pieces[];
+        long[] pieces;
+        long proponent, opponent, oppKing;
         if (nextToAct == Colour.WHITE) {
             proponent = whiteBB;
             opponent  = blackBB;
@@ -437,7 +435,9 @@ public class State
         long kingCastle , kingCorridor;
         long queenCastle, queenCorridor;
         if (nextToAct == Colour.WHITE) {
-            if ((castles & WHITE_CASTLE) == 0) return offset;
+            if ((castles & WHITE_CASTLE) == 0) {
+                return offset;
+            }
             kingCastle    = WHITE_K_CASTLE;
             queenCastle   = WHITE_Q_CASTLE;
             kingCorridor  = WHITE_K_CASTLE_CORRIDOR;
@@ -445,8 +445,11 @@ public class State
             kingStart     = WHITE_KING_START_INDEX;
             kKingEnd      = WHITE_K_CASTLE_END_INDEX;
             qKingEnd      = WHITE_Q_CASTLE_END_INDEX;
-        } else {
-            if ((castles & BLACK_CASTLE) == 0) return offset;
+        }
+        else {
+            if ((castles & BLACK_CASTLE) == 0) {
+                return offset;
+            }
             kingCastle    = BLACK_K_CASTLE;
             queenCastle   = BLACK_Q_CASTLE;
             kingCorridor  = BLACK_K_CASTLE_CORRIDOR;
@@ -1055,13 +1058,64 @@ public class State
     }
 
 
+    public void attackCount(int[][] counts, Colour pov)
+    {
+        long occupied = whiteBB | blackBB;
+        long notOccupied = ~occupied;
+
+        long[] pieces;
+        if (pov == Colour.WHITE) {
+            pieces = wPieces;
+        }
+        else {
+            pieces = bPieces;
+        }
+
+        for (Figure f : Figure.VALUES)
+        {
+            long bb = pieces[ f.ordinal() ];
+            while (bb != 0)
+            {
+                long pieceBoard = BitBoard.lowestOneBit(bb);
+
+                long pseudoMoves;
+                if (f == Figure.PAWN) {
+                    pseudoMoves = Piece.valueOf(pov, f).moves(
+                            pieceBoard, -1, 0,
+                            pieceBoard, -1, -1);
+                }
+                else {
+                    pseudoMoves = Piece.valueOf(pov, f).moves(
+                            pieceBoard, occupied, notOccupied,
+                            pieceBoard, occupied, occupied);
+                }
+
+                while (pseudoMoves != 0) {
+                    int location = BitLoc.bitBoardToLocation(pseudoMoves);
+
+                    int rank = Location.rankIndex(location);
+                    int file = Location.fileIndex(location);
+
+                    counts[rank][file]++;
+
+                    pseudoMoves &= pseudoMoves - 1;
+                }
+
+                // reset LS1B
+                bb &= bb - 1;
+            }
+        }
+    }
+
+
     //--------------------------------------------------------------------
     public boolean isInCheck(Colour colour)
     {
         long occupied    = whiteBB | blackBB;
         long notOccupied = ~occupied;
 
-        long attacker, attacked, targetKing, attackingPieces[];
+        long[] attackingPieces;
+        long attacker, attacked, targetKing;
         if (colour == Colour.BLACK) {
             attacker        = whiteBB;
             attacked        = blackBB;
@@ -1163,11 +1217,13 @@ public class State
     {
         long loc = BitLoc.locationToBitBoard(rankIndex, fileIndex);
         for (Figure f : Figure.VALUES) {
-            if ((wPieces[ f.ordinal() ] & loc) != 0)
+            if ((wPieces[ f.ordinal() ] & loc) != 0) {
                 return Piece.valueOf(Colour.WHITE, f);
+            }
 
-            if ((bPieces[ f.ordinal() ] & loc) != 0)
+            if ((bPieces[ f.ordinal() ] & loc) != 0) {
                 return Piece.valueOf(Colour.BLACK, f);
+            }
         }
         return null;
     }

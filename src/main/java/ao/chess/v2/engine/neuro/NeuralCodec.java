@@ -16,12 +16,27 @@ public enum NeuralCodec {
 
 
     public INDArray encodeState(State state) {
-        INDArray features = Nd4j.zeros(Figure.VALUES.length, Location.RANKS, Location.FILES);
+        INDArray features = Nd4j.zeros(Figure.VALUES.length + 2, Location.RANKS, Location.FILES);
 
         boolean flip = state.nextToAct() == Colour.BLACK;
 
+        int[][] propAttacks = new int[Location.RANKS][Location.FILES];
+        int[][] oppAttacks = new int[Location.RANKS][Location.FILES];
+
+        state.attackCount(propAttacks, state.nextToAct());
+        state.attackCount(oppAttacks, state.nextToAct().invert());
+
         for (int rank = 0; rank < Location.RANKS; rank++) {
             for (int file = 0; file < Location.FILES; file++) {
+                int adjustedRank = (flip ? Location.RANKS - rank - 1 : rank);
+                int adjustedFile = (flip ? Location.FILES - file - 1 : file);
+
+                features.put(new int[] {Figure.VALUES.length, adjustedRank, adjustedFile},
+                        Nd4j.scalar(propAttacks[rank][file]));
+
+                features.put(new int[] {Figure.VALUES.length + 1, adjustedRank, adjustedFile},
+                        Nd4j.scalar(oppAttacks[rank][file]));
+
                 Piece piece = state.pieceAt(rank, file);
                 if (piece == null) {
                     continue;
@@ -31,9 +46,6 @@ public enum NeuralCodec {
                 double value = (isNextToAct ? 1 : -1);
 
                 Figure figure = piece.figure();
-
-                int adjustedRank = (flip ? Location.RANKS - rank - 1 : rank);
-                int adjustedFile = (flip ? Location.FILES - file - 1 : file);
 
                 features.put(new int[] {figure.ordinal(), adjustedRank, adjustedFile}, Nd4j.scalar(value));
             }

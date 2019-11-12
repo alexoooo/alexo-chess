@@ -34,6 +34,7 @@
 
         <nd4j.backend>nd4j-native-platform</nd4j.backend>
 <!--        <nd4j.backend>nd4j-cuda-10.1-platform</nd4j.backend>-->
+
         <nd4j.version>1.0.0-beta5</nd4j.version>
         <dl4j.version>1.0.0-beta5</dl4j.version>
         <rl4j.version>1.0.0-beta5</rl4j.version>
@@ -53,17 +54,17 @@
             <artifactId>deeplearning4j-core</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
+
         <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-native</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+        <!--<dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-cuda-10.1</artifactId>
             <version>1.0.0-beta5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.28</version>
-        </dependency>
-
+        </dependency>-->
 
         <dependency>
             <groupId>ao.util</groupId>
@@ -83,12 +84,6 @@
             <version>0.0.8-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
-        </dependency>
-
         <!--<dependency>-->
             <!--<groupId>it.unimi.dsi</groupId>-->
             <!--<artifactId>dsituils</artifactId>-->
@@ -100,8 +95,16 @@
             <version>2.0</version>
         </dependency>
 
-
-
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.28</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+        </dependency>
     </dependencies>
 
 

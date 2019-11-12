@@ -139,13 +139,14 @@ public class Tournament
 //        ParallelMctsPlayer b = a.prototype();
 
 //        Player a = NeuralNetworkPlayer.load(
-//                Paths.get("lookup/gen/0/nn.zip"));
+//                Paths.get("lookup/gen/6/nn.zip"));
 //
 //        Player b = NeuralNetworkPlayer.load(
 //                Paths.get("lookup/nn_2019-10-25b.zip"));
 
         Player a = new PuctPlayer(
-                Paths.get("lookup/gen/1/nn.zip"),
+//                Paths.get("lookup/gen/0/nn.zip"),
+                Paths.get("lookup/gen/6/nn-x.zip"),
                 1,
                 1.5,
                 false,
@@ -153,10 +154,10 @@ public class Tournament
                 true,
                 800);
         Player b = new PuctPlayer(
-                Paths.get("lookup/gen/5/nn.zip"),
+                Paths.get("lookup/gen/6/nn-x.zip"),
                 1,
                 1.5,
-                true,
+                false,
                 7,
                 true,
                 800);
@@ -221,8 +222,8 @@ public class Tournament
 
         while (! state.isDrawnBy50MovesRule())
         {
-            System.out.println("---------------------------------------");
-            System.out.println(state);
+//            System.out.println("---------------------------------------");
+//            System.out.println(state);
 
             Player nextToAct =
                     (state.nextToAct() == Colour.WHITE)

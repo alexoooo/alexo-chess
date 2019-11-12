@@ -34,11 +34,11 @@ public class LearningLoop {
     //-----------------------------------------------------------------------------------------------------------------
     private final static Path generationsDir = Paths.get("lookup/gen");
 
-    private final static int coolDownMs = 20_000;
+    private final static int coolDownMs = 5_000;
     private final static int selfPlayThreads = 1;
     private final static int gamesPerThread = 100;
 
-    private final static int trainingIterations = 2;
+    private final static int trainingIterations = 1;
     private final static int gamesInTest = 0;
 
 //    private final static double thinkingExploration = 1.5;

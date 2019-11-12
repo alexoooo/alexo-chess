@@ -54,7 +54,11 @@ public class MoveTrainer {
             Paths.get("lookup/gen/1/history.txt"),
             Paths.get("lookup/gen/2/history.txt"),
             Paths.get("lookup/gen/3/history.txt"),
-            Paths.get("lookup/gen/4/history.txt")
+            Paths.get("lookup/gen/4/history.txt"),
+            Paths.get("lookup/gen/5/history.txt"),
+            Paths.get("lookup/gen/6/history.txt"),
+            Paths.get("lookup/gen/7/history.txt"),
+            Paths.get("lookup/gen/7/history-1.txt")
     );
 
     private static final List<Path> test = List.of(
@@ -64,14 +68,18 @@ public class MoveTrainer {
             Paths.get("lookup/think_1000_20191024_202610_148.csv"),
             Paths.get("lookup/think_1000_20191025_152515_865.csv"),
             Paths.get("lookup/think_1000_20191025_194455_822.csv"),
-            Paths.get("lookup/think_1000_20191026_185627_150.csv")
+            Paths.get("lookup/think_1000_20191026_185627_150.csv"),
+            Paths.get("lookup/think_1000_20191102_112411_359.csv"),
+            Paths.get("lookup/think_5000_20191107_161637_470.csv")
     );
 
 
     private static final Path saveFile =
 //            Paths.get("lookup/gen/3/nn.zip");
 //            Paths.get("lookup/gen/5/nn.zip");
-            Paths.get("lookup/gen/5/nn.zip");
+//            Paths.get("lookup/gen/5/nn-2.zip");
+//            Paths.get("lookup/gen/6/nn-x.zip");
+            Paths.get("lookup/gen/7/nn-x.zip");
 
 
     private static class Prediction {
@@ -472,7 +480,7 @@ public class MoveTrainer {
     public static MultiLayerNetwork createNeuralNetwork3() {
         int height = Location.FILES;
         int width = Location.RANKS;
-        int channels = Figure.VALUES.length;
+        int channels = Figure.VALUES.length + 2;
 
         //RmsProp
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()

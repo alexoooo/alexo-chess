@@ -75,6 +75,9 @@ public class GameLoop
 
         int moveCount = 0;
 
+        boolean whiteOriginalTrain = white.getTrain();
+        boolean blackOriginalTrain = black.getTrain();
+
         while (! state.isDrawnBy50MovesRule())
         {
 //            System.out.println("---------------------------------------");
@@ -120,6 +123,9 @@ public class GameLoop
                 black.setTrain(false);
             }
         }
+
+        white.setTrain(whiteOriginalTrain);
+        black.setTrain(blackOriginalTrain);
 
         List<MoveHistory> history = moveExampleBuffer.build(outcome);
         moveExampleBuffer.clear();

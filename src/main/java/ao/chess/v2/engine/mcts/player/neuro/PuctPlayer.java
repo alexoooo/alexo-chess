@@ -130,6 +130,12 @@ public class PuctPlayer
     }
 
 
+    public boolean getTrain()
+    {
+        return train;
+    }
+
+
     //-----------------------------------------------------------------------------------------------------------------
     @Override
     public int move(

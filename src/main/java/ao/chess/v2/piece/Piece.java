@@ -85,6 +85,7 @@ public enum Piece implements BoardPiece
     private final Figure     FIGURE;
     private final BoardPiece MOVES;
 
+
     Piece(Colour     colour,
           Figure     figure,
           BoardPiece moves)
@@ -96,12 +97,14 @@ public enum Piece implements BoardPiece
 
 
     //--------------------------------------------------------------------
-    public long moves(long pieceLocation,
-                      long occupied,
-                      long notOccupied,
-                      long proponent,
-                      long notProponent,
-                      long opponent) {
+    public long moves(
+            long pieceLocation,
+            long occupied,
+            long notOccupied,
+            long proponent,
+            long notProponent,
+            long opponent
+    ) {
         return MOVES.moves(
                     pieceLocation, occupied, notOccupied,
                     proponent, notProponent, opponent);

@@ -1,5 +1,6 @@
 package ao.chess.v2.move;
 
+
 /**
  * User: alexo
  * Date: Feb 26, 2009
