@@ -110,13 +110,14 @@ public class BrainTeaser {
 //                1.5);
         Player player = new PuctPlayer(
 //                Paths.get("lookup/gen/8/nn.zip"),
-                Paths.get("lookup/history/carlsen-nn.zip"),
+//                Paths.get("lookup/history/carlsen-nn.zip"),
+                Paths.get("lookup/history/mix/champions_2019-11-12.zip"),
                 1,
                 1.5,
                 false,
-                0,
+                7,
                 true,
-                0,
+                0.4,
                 0);
 
         State state = State.fromFen(
@@ -126,8 +127,8 @@ public class BrainTeaser {
 //                "5k2/5p2/1p5p/p4Np1/5q2/7P/PPr5/3R3K w - - 0 2"
 
 //                "6k1/5p2/1p5p/p4Np1/5q2/Q6P/PPr5/3R3K w - - 1 0" // Q form a3 to f8
-                "r1b2k1r/ppppq3/5N1p/4P2Q/4PP2/1B6/PP5P/n2K2R1 w - - 1 0" // Q from h5 to h6
 //                "8/2k2p2/2b3p1/P1p1Np2/1p3b2/1P1K4/5r2/R3R3 b - - 0 1" // b from c6 to b5
+//                "r1b2k1r/ppppq3/5N1p/4P2Q/4PP2/1B6/PP5P/n2K2R1 w - - 1 0" // Q from h5 to h6
 
 //                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
@@ -141,7 +142,7 @@ public class BrainTeaser {
 //                "8/P7/1bk4p/8/3BP3/RR6/3K4/8 w"
 
                 // Travis game
-//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 //                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
 //                "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 1"
 //                "rnbqkbnr/pp1ppppp/8/2p5/4P3/5P2/PPPP2PP/RNBQKBNR b KQkq - 0 1"

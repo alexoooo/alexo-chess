@@ -58,13 +58,34 @@ public class MoveTrainer {
 //            Paths.get("lookup/gen/5/history.txt"),
 //            Paths.get("lookup/gen/6/history.txt"),
 //            Paths.get("lookup/gen/7/history.txt"),
-//            Paths.get("lookup/gen/7/history-1.txt")
-            Paths.get("lookup/history/carlsen.txt")
-//            Paths.get("lookup/history/kasparov.txt")
+//            Paths.get("lookup/gen/7/history-1.txt"),
+//            Paths.get("lookup/history/Spassky.txt"),
+//            Paths.get("lookup/history/Fischer.txt"),
+//            Paths.get("lookup/history/Karpov.txt"),
+//            Paths.get("lookup/history/Kasparov.txt"),
+//            Paths.get("lookup/history/Kramnik.txt"),
+//            Paths.get("lookup/history/Anand.txt"),
+//            Paths.get("lookup/history/Carlsen.txt")
+            Paths.get("lookup/history/mix/champions_100000.txt"),
+            Paths.get("lookup/history/mix/champions_200000.txt"),
+            Paths.get("lookup/history/mix/champions_300000.txt"),
+            Paths.get("lookup/history/mix/champions_400000.txt"),
+            Paths.get("lookup/history/mix/champions_500000.txt"),
+            Paths.get("lookup/history/mix/champions_600000.txt"),
+            Paths.get("lookup/history/mix/champions_700000.txt"),
+            Paths.get("lookup/history/mix/champions_800000.txt"),
+            Paths.get("lookup/history/mix/champions_900000.txt"),
+            Paths.get("lookup/history/mix/champions_1000000.txt"),
+            Paths.get("lookup/history/mix/champions_1100000.txt"),
+            Paths.get("lookup/history/mix/champions_1200000.txt"),
+            Paths.get("lookup/history/mix/champions_1300000.txt"),
+            Paths.get("lookup/history/mix/champions_1400000.txt"),
+            Paths.get("lookup/history/mix/champions_1454547.txt")
+//            Paths.get("lookup/history/mix/champions_1000.txt")
     );
 
     private static final List<Path> test = List.of(
-            Paths.get("lookup/history/adams.txt")
+//            Paths.get("lookup/history/adams.txt")
 //            Paths.get("lookup/test_1000_20191024_190016_544.csv"),
 //            Paths.get("lookup/think_1000_20191024_110657_082.csv"),
 //            Paths.get("lookup/think_1000_20191024_135020_955.csv"),
@@ -74,6 +95,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/think_1000_20191026_185627_150.csv"),
 //            Paths.get("lookup/think_1000_20191102_112411_359.csv"),
 //            Paths.get("lookup/think_5000_20191107_161637_470.csv")
+//            Paths.get("lookup/history/mix/champions_1000.txt")
+            Paths.get("lookup/history/mix/champions_1000.txt")
     );
 
 
@@ -83,7 +106,9 @@ public class MoveTrainer {
 //            Paths.get("lookup/gen/5/nn-2.zip");
 //            Paths.get("lookup/gen/6/nn-x.zip");
 //            Paths.get("lookup/gen/8/nn.zip");
-            Paths.get("lookup/history/carlsen-nn.zip");
+//            Paths.get("lookup/history/Carlsen-100.zip");
+//            Paths.get("lookup/history/mix/champions-1000.zip");
+            Paths.get("lookup/history/mix/champions_2019-11-12.zip");
 
 
     private static class Prediction {
@@ -140,7 +165,22 @@ public class MoveTrainer {
             testOutputs(tester);
         }
 
-        performTraining(nn, learner);
+        if (trainingIterations == 0) {
+            return;
+        }
+//        List<MoveHistory> allMoves = readAllMoves();
+//        System.out.println("Loaded moves: " + allMoves.size());
+
+        for (int epoch = 0; epoch < trainingIterations; epoch++) {
+            System.out.println("Training epoch = " + (epoch + 1));
+
+            for (var input : inputs) {
+                List<MoveHistory> inputMoves = readMoves(input);
+                performTraining(inputMoves, epoch, nn, learner);
+            }
+
+            testOutputs(tester);
+        }
     }
 
 
@@ -158,37 +198,30 @@ public class MoveTrainer {
 
 
     private static void performTraining(
+            List<MoveHistory> allMoves,
+            int epoch,
             MultiLayerNetwork nn,
             Consumer<MoveHistory> learner
     ) {
-        if (trainingIterations == 0) {
-            return;
-        }
-
-        List<MoveHistory> allMoves = readAllMoves();
-        System.out.println("Loaded moves: " + allMoves.size());
-
         int trainingCount = 0;
-        for (int epoch = 0; epoch < trainingIterations; epoch++) {
-            Collections.shuffle(allMoves, seededRandom);
+        Collections.shuffle(allMoves, seededRandom);
 
-            for (var partition : Lists.partition(allMoves, 1_000)) {
-                long trainingStart = System.currentTimeMillis();
+        for (var partition : Lists.partition(allMoves, 1_000)) {
+            long trainingStart = System.currentTimeMillis();
 
-                for (var example : partition) {
-                    learner.accept(example);
-                }
-
-                NeuralUtils.saveNeuralNetwork(nn, saveFile);
-
-                trainingCount += partition.size();
-                System.out.println((epoch + 1) +
-                        " - " + trainingCount + " of " + allMoves.size() +
-                        " - Training took: " +
-                        (double) (System.currentTimeMillis() - trainingStart) / 1000);
-
-                Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
+            for (var example : partition) {
+                learner.accept(example);
             }
+
+            NeuralUtils.saveNeuralNetwork(nn, saveFile);
+
+            trainingCount += partition.size();
+            System.out.println((epoch + 1) +
+                    " - " + trainingCount + " of " + allMoves.size() +
+                    " - Training took: " +
+                    (double) (System.currentTimeMillis() - trainingStart) / 1000);
+
+            Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
         }
     }
 
@@ -203,7 +236,7 @@ public class MoveTrainer {
     }
 
 
-    private static List<MoveHistory> readMoves(Path input) {
+    public static List<MoveHistory> readMoves(Path input) {
         try (var lines = Files.lines(input)) {
             return lines.map(MoveHistory::new).collect(Collectors.toList());
         }

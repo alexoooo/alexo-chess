@@ -3,7 +3,8 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
-import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
+import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
+import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -138,34 +139,34 @@ public class Tournament
 //        );
 //        ParallelMctsPlayer b = a.prototype();
 
-//        Player a = NeuralNetworkPlayer.load(
-//                Paths.get("lookup/gen/6/nn.zip"));
+        Player a = NeuralNetworkPlayer.load(
+                Paths.get("lookup/history/carlsen-nn.zip"));
 //
 //        Player b = NeuralNetworkPlayer.load(
 //                Paths.get("lookup/nn_2019-10-25b.zip"));
 
-        Player a = new PuctPlayer(
-//                Paths.get("lookup/gen/0/nn.zip"),
-                Paths.get("lookup/gen/6/nn-x.zip"),
-                1,
-                1.5,
-                false,
-                7,
-                true,
-                0.4,
-                800);
-        Player b = new PuctPlayer(
-                Paths.get("lookup/gen/6/nn-x.zip"),
-                1,
-                1.5,
-                false,
-                7,
-                true,
-                0.4,
-                800);
+//        Player a = new PuctPlayer(
+////                Paths.get("lookup/gen/0/nn.zip"),
+//                Paths.get("lookup/gen/6/nn-x.zip"),
+//                1,
+//                1.5,
+//                false,
+//                7,
+//                true,
+//                0.4,
+//                800);
+//        Player b = new PuctPlayer(
+//                Paths.get("lookup/gen/6/nn-x.zip"),
+//                1,
+//                1.5,
+//                false,
+//                7,
+//                true,
+//                0.4,
+//                800);
 
 //        Player a = new TopLeftPlayer();
-//        Player b = new RandomPlayer();
+        Player b = new RandomPlayer();
 
         int aWins = 0;
         int bWins = 0;

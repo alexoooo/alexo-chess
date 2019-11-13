@@ -16,8 +16,8 @@ public class PgnTransformer {
         // https://www.chess.com/forum/view/general/6-8-million-game-database
         // https://chesstempo.com/pgn-viewer.html
 
-        Path pgnFile = Paths.get("lookup/history/Kasparov.pgn");
-        Path historyFile = Paths.get("lookup/history/kasparov.txt");
+        Path pgnFile = Paths.get("lookup/history/Spassky.pgn");
+        Path historyFile = Paths.get("lookup/history/Spassky.txt");
         Files.createDirectories(historyFile.getParent());
 
         PgnParser parser = new PgnParser();
