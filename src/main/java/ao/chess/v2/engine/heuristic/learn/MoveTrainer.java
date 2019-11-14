@@ -21,6 +21,7 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.AdaDelta;
 import org.nd4j.linalg.learning.config.AdaGrad;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.Nesterovs;
@@ -41,9 +42,15 @@ public class MoveTrainer {
     //-----------------------------------------------------------------------------------------------------------------
     private static final boolean defaultBestAction = true;
     private static final boolean defaultValueAverage = true;
-    private static final boolean measureOutcome = true;
+    private static final boolean measureOutcome = false;
     private static final boolean skipDraw = false;
+
+//    private static final int trainingIterations = 0;
     private static final int trainingIterations = 1;
+//    private static final int trainingIterations = 100;
+
+    private static final boolean testInitial = false;
+//    private static final boolean testInitial = true;
 
     private static final int seed = 42;
     private static final Random seededRandom = new Random(seed);
@@ -66,8 +73,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/history/Kramnik.txt"),
 //            Paths.get("lookup/history/Anand.txt"),
 //            Paths.get("lookup/history/Carlsen.txt")
-            Paths.get("lookup/history/mix/champions_100000.txt"),
-            Paths.get("lookup/history/mix/champions_200000.txt"),
+//            Paths.get("lookup/history/mix/champions_100000.txt"),
+//            Paths.get("lookup/history/mix/champions_200000.txt"),
             Paths.get("lookup/history/mix/champions_300000.txt"),
             Paths.get("lookup/history/mix/champions_400000.txt"),
             Paths.get("lookup/history/mix/champions_500000.txt"),
@@ -82,10 +89,10 @@ public class MoveTrainer {
             Paths.get("lookup/history/mix/champions_1400000.txt"),
             Paths.get("lookup/history/mix/champions_1454547.txt")
 //            Paths.get("lookup/history/mix/champions_1000.txt")
+//            Paths.get("lookup/history/mix/champions_100.txt")
     );
 
     private static final List<Path> test = List.of(
-//            Paths.get("lookup/history/adams.txt")
 //            Paths.get("lookup/test_1000_20191024_190016_544.csv"),
 //            Paths.get("lookup/think_1000_20191024_110657_082.csv"),
 //            Paths.get("lookup/think_1000_20191024_135020_955.csv"),
@@ -95,8 +102,9 @@ public class MoveTrainer {
 //            Paths.get("lookup/think_1000_20191026_185627_150.csv"),
 //            Paths.get("lookup/think_1000_20191102_112411_359.csv"),
 //            Paths.get("lookup/think_5000_20191107_161637_470.csv")
+            Paths.get("lookup/history/adams.txt")
 //            Paths.get("lookup/history/mix/champions_1000.txt")
-            Paths.get("lookup/history/mix/champions_1000.txt")
+//            Paths.get("lookup/history/mix/champions_100.txt")
     );
 
 
@@ -108,7 +116,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/gen/8/nn.zip");
 //            Paths.get("lookup/history/Carlsen-100.zip");
 //            Paths.get("lookup/history/mix/champions-1000.zip");
-            Paths.get("lookup/history/mix/champions_2019-11-12.zip");
+//            Paths.get("lookup/history/mix/champions_2019-11-12.zip");
+            Paths.get("lookup/history/mix/champions-m4_2019-11-13.zip");
 
 
     private static class Prediction {
@@ -133,7 +142,8 @@ public class MoveTrainer {
         }
         else {
 //            nn = createNeuralNetwork2();
-            nn = createNeuralNetwork3();
+//            nn = createNeuralNetwork3();
+            nn = createNeuralNetwork4();
         }
 
         Consumer<MoveHistory> randomLearner = example -> {};
@@ -161,7 +171,7 @@ public class MoveTrainer {
         Consumer<MoveHistory> learner = nnLearner;
         Function<MoveHistory, Prediction> tester = nnTester;
 
-        if (saved) {
+        if (saved && testInitial) {
             testOutputs(tester);
         }
 
@@ -175,6 +185,8 @@ public class MoveTrainer {
             System.out.println("Training epoch = " + (epoch + 1));
 
             for (var input : inputs) {
+                System.out.println("input: " + input);
+
                 List<MoveHistory> inputMoves = readMoves(input);
                 performTraining(inputMoves, epoch, nn, learner);
             }
@@ -557,6 +569,64 @@ public class MoveTrainer {
 
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)
                         .nOut(Location.COUNT * 2 + 1).activation(Activation.IDENTITY).build())
+
+                .setInputType(InputType.convolutionalFlat(height, width, channels))
+                .build();
+
+        MultiLayerNetwork net = new MultiLayerNetwork(conf);
+        net.init();
+
+        return net;
+    }
+
+
+    public static MultiLayerNetwork createNeuralNetwork4() {
+        int height = Location.FILES;
+        int width = Location.RANKS;
+        int channels = Figure.VALUES.length + 2;
+
+        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+                .seed(seed)
+
+                .l2(0.0001)
+                .weightInit(WeightInit.XAVIER)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+
+//                .updater(new RmsProp(0.0015))
+//                .updater(new Adam())
+                .updater(new AdaDelta())
+//                .updater(new AdaGrad(0.1))
+
+                .list()
+
+                .layer(new ConvolutionLayer.Builder(1, 1)
+                        .nIn(channels)
+                        .stride(1, 1)
+                        .padding(0, 0)
+                        .nOut(512)
+//                        .activation(Activation.LEAKYRELU)
+                        .activation(Activation.RELU)
+//                        .activation(Activation.IDENTITY)
+//                        .activation(Activation.TANH)
+                        .weightInit(new UniformDistribution(-1.5e-7, 1.5e-7))
+                        .build())
+
+                .layer(new DenseLayer.Builder()
+                        .activation(Activation.LEAKYRELU)
+                        .nOut(512)
+//                        .dropOut(0.9)
+                        .build())
+
+                .layer(new DenseLayer.Builder()
+                        .activation(Activation.LEAKYRELU)
+                        .nOut(512)
+//                        .dropOut(0.9)
+                        .build())
+
+                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)
+                        .nOut(Location.COUNT * 2 + 1)
+                        .activation(Activation.IDENTITY)
+                        .build())
 
                 .setInputType(InputType.convolutionalFlat(height, width, channels))
                 .build();

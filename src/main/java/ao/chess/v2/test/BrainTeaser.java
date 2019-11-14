@@ -49,25 +49,6 @@ public class BrainTeaser {
 //        Player player = MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype();
 //        Player player = MctsPrototypes.mctsUcb1Deep2x2Prototype.prototype();
 
-//        Player player = new MultiMctsPlayer(List.of(
-////                MctsPrototypes.mctsFallbackDeep1Opt32Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep1Opt256Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype()
-//                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep2Opt32Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep2Opt128Prototype.prototype(),
-////                MctsPrototypes.mctsFallbackDeep2Opt192Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep5Rand128Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep5Rand128Prototype.prototype()
-////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype(),
-////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype(),
-////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype(),
-////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype(),
-////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype(),
-////                MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype()
-//        ));
-
 //        BanditPlayer protoA = new ParallelMctsPlayer(
 //                "par",
 //                3,
@@ -130,7 +111,7 @@ public class BrainTeaser {
 //                "8/2k2p2/2b3p1/P1p1Np2/1p3b2/1P1K4/5r2/R3R3 b - - 0 1" // b from c6 to b5
 //                "r1b2k1r/ppppq3/5N1p/4P2Q/4PP2/1B6/PP5P/n2K2R1 w - - 1 0" // Q from h5 to h6
 
-//                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
+                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8
 
@@ -142,7 +123,7 @@ public class BrainTeaser {
 //                "8/P7/1bk4p/8/3BP3/RR6/3K4/8 w"
 
                 // Travis game
-                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 //                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
 //                "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 1"
 //                "rnbqkbnr/pp1ppppp/8/2p5/4P3/5P2/PPPP2PP/RNBQKBNR b KQkq - 0 1"

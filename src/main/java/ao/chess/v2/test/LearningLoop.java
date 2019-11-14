@@ -133,7 +133,7 @@ public class LearningLoop {
     private static void runFirstGeneration(
             Path generationDir
     ) {
-        MultiLayerNetwork emptyNn = MoveTrainer.createNeuralNetwork3();
+        MultiLayerNetwork emptyNn = emptyNeuralNetwork();
 
         Path nnFile = generationDir.resolve(nnFilename);
 
@@ -154,7 +154,7 @@ public class LearningLoop {
             List<Path> previousGenerationDirs,
             Path generationDir)
     {
-        MultiLayerNetwork emptyNn = MoveTrainer.createNeuralNetwork3();
+        MultiLayerNetwork emptyNn = emptyNeuralNetwork();
 
         Path nnFile = generationDir.resolve(nnFilename);
 
@@ -163,6 +163,11 @@ public class LearningLoop {
         }
 
         recordSelfPlay(nnFile);
+    }
+
+
+    private static MultiLayerNetwork emptyNeuralNetwork() {
+        return MoveTrainer.createNeuralNetwork4();
     }
 
 

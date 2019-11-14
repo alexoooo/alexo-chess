@@ -200,9 +200,9 @@ public class PgnParser {
         buffer.add(state, legalMoves, moveScores);
         Move.apply(legalMove, state);
 
-        System.out.println("------------------------------------");
-        System.out.println(moveName + " - " + Move.toString(legalMove));
-        System.out.println(state);
+//        System.out.println("------------------------------------");
+//        System.out.println(moveName + " - " + Move.toString(legalMove));
+//        System.out.println(state);
     }
 
 
