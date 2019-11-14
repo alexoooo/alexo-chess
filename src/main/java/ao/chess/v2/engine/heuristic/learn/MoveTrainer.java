@@ -18,6 +18,9 @@ import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.memory.MemoryWorkspace;
+import org.nd4j.linalg.api.memory.conf.WorkspaceConfiguration;
+import org.nd4j.linalg.api.memory.enums.LocationPolicy;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -33,8 +36,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -73,8 +74,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/history/Kramnik.txt"),
 //            Paths.get("lookup/history/Anand.txt"),
 //            Paths.get("lookup/history/Carlsen.txt")
-//            Paths.get("lookup/history/mix/champions_100000.txt"),
-//            Paths.get("lookup/history/mix/champions_200000.txt"),
+            Paths.get("lookup/history/mix/champions_100000.txt"),
+            Paths.get("lookup/history/mix/champions_200000.txt"),
             Paths.get("lookup/history/mix/champions_300000.txt"),
             Paths.get("lookup/history/mix/champions_400000.txt"),
             Paths.get("lookup/history/mix/champions_500000.txt"),
@@ -117,7 +118,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/history/Carlsen-100.zip");
 //            Paths.get("lookup/history/mix/champions-1000.zip");
 //            Paths.get("lookup/history/mix/champions_2019-11-12.zip");
-            Paths.get("lookup/history/mix/champions-m4_2019-11-13.zip");
+            Paths.get("lookup/history/mix/champions-m4_2019-11-14.zip");
 
 
     private static class Prediction {
@@ -135,7 +136,6 @@ public class MoveTrainer {
     public static void main(String[] args) {
         boolean saved = Files.exists(saveFile);
 
-//        MultiLayerNetwork nn = createNeuralNetwork3();
         MultiLayerNetwork nn;
         if (saved) {
             nn = NeuralUtils.loadNeuralNetwork(saveFile, false);
@@ -146,33 +146,8 @@ public class MoveTrainer {
             nn = createNeuralNetwork4();
         }
 
-        Consumer<MoveHistory> randomLearner = example -> {};
-        Function<MoveHistory, Prediction> randomTester = MoveTrainer::randomSample;
-
-        Consumer<MoveHistory> nnLearner = example -> {
-            DataSet dataSet = convertToDataSet(example);
-            nn.fit(dataSet);
-        };
-        Function<MoveHistory, Prediction> nnTester = (example) -> {
-            INDArray input = convertToDataSet(example).getFeatures();
-            INDArray output = nn.output(input);
-
-            double[] moveProbabilities = NeuralCodec.INSTANCE
-                    .decodeMoveProbabilities(output, example.state(), example.legalMoves());
-
-            double outcome = NeuralCodec.INSTANCE
-                    .decodeOutcome(output);
-
-            return new Prediction(moveProbabilities, outcome);
-        };
-
-//        Consumer<MoveHistory> learner = randomLearner;
-//        Function<MoveHistory, Prediction> tester = randomTester;
-        Consumer<MoveHistory> learner = nnLearner;
-        Function<MoveHistory, Prediction> tester = nnTester;
-
         if (saved && testInitial) {
-            testOutputs(tester);
+            testOutputs(nn);
         }
 
         if (trainingIterations == 0) {
@@ -185,13 +160,14 @@ public class MoveTrainer {
             System.out.println("Training epoch = " + (epoch + 1));
 
             for (var input : inputs) {
-                System.out.println("input: " + input);
-
                 List<MoveHistory> inputMoves = readMoves(input);
-                performTraining(inputMoves, epoch, nn, learner);
+
+                System.out.println("input: " + input + " - " + inputMoves.size());
+
+                performTraining(inputMoves, epoch, nn);
             }
 
-            testOutputs(tester);
+            testOutputs(nn);
         }
     }
 
@@ -212,8 +188,7 @@ public class MoveTrainer {
     private static void performTraining(
             List<MoveHistory> allMoves,
             int epoch,
-            MultiLayerNetwork nn,
-            Consumer<MoveHistory> learner
+            MultiLayerNetwork nn
     ) {
         int trainingCount = 0;
         Collections.shuffle(allMoves, seededRandom);
@@ -221,11 +196,19 @@ public class MoveTrainer {
         for (var partition : Lists.partition(allMoves, 1_000)) {
             long trainingStart = System.currentTimeMillis();
 
-            for (var example : partition) {
-                learner.accept(example);
-            }
+            WorkspaceConfiguration wsConfig = WorkspaceConfiguration.builder()
+                    .policyLocation(LocationPolicy.RAM)
+                    .build();
 
-            NeuralUtils.saveNeuralNetwork(nn, saveFile);
+            try (MemoryWorkspace ignored = Nd4j.getWorkspaceManager()
+                    .getAndActivateWorkspace(wsConfig, "MoveTrainer")
+            ) {
+                for (var example : partition) {
+                    fitExample(nn, example);
+                }
+
+                NeuralUtils.saveNeuralNetwork(nn, saveFile);
+            }
 
             trainingCount += partition.size();
             System.out.println((epoch + 1) +
@@ -233,18 +216,14 @@ public class MoveTrainer {
                     " - Training took: " +
                     (double) (System.currentTimeMillis() - trainingStart) / 1000);
 
-            Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
+//            Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
         }
     }
 
 
-    private static List<MoveHistory> readAllMoves() {
-        List<MoveHistory> allMoves = new ArrayList<>();
-        for (var input : inputs) {
-            List<MoveHistory> inputMoves = readMoves(input);
-            allMoves.addAll(inputMoves);
-        }
-        return allMoves;
+    private static void fitExample(MultiLayerNetwork nn, MoveHistory example) {
+        DataSet dataSet = convertToDataSet(example);
+        nn.fit(dataSet);
     }
 
 
@@ -258,7 +237,7 @@ public class MoveTrainer {
     }
 
 
-    private static double testOutputs(Function<MoveHistory, Prediction> tester)
+    private static double testOutputs(MultiLayerNetwork nn)
     {
         DoubleSummaryStatistics globalStats = new DoubleSummaryStatistics();
 
@@ -270,7 +249,7 @@ public class MoveTrainer {
                 lines.forEach(line -> {
                     MoveHistory example = new MoveHistory(line);
 
-                    Prediction prediction = tester.apply(example);
+                    Prediction prediction = testExample(nn, example);
 
                     double error = measureError(prediction, example);
                     stats.accept(error);
@@ -290,6 +269,20 @@ public class MoveTrainer {
 
         System.out.println("Average error: " + globalStats.getAverage());
         return globalStats.getAverage();
+    }
+
+
+    private static Prediction testExample(MultiLayerNetwork nn, MoveHistory example) {
+        INDArray input = convertToDataSet(example).getFeatures();
+        INDArray output = nn.output(input);
+
+        double[] moveProbabilities = NeuralCodec.INSTANCE
+                .decodeMoveProbabilities(output, example.state(), example.legalMoves());
+
+        double outcome = NeuralCodec.INSTANCE
+                .decodeOutcome(output);
+
+        return new Prediction(moveProbabilities, outcome);
     }
 
 
@@ -338,24 +331,6 @@ public class MoveTrainer {
             }
             return Math.sqrt(squaredErrorSum / example.legalMoves().length);
         }
-    }
-
-
-    private static Prediction randomSample(MoveHistory example) {
-        double[] prediction = new double[example.legalMoves().length];
-
-        double total = 0;
-        for (int i = 0; i < prediction.length; i++) {
-            double value = Math.random();
-            prediction[i] = value;
-            total += value;
-        }
-
-        for (int i = 0; i < prediction.length; i++) {
-            prediction[i] /= total;
-        }
-
-        return new Prediction(prediction, Math.random());
     }
 
 
