@@ -57,6 +57,11 @@ public class MoveTrainer {
     private static final Random seededRandom = new Random(seed);
 
 
+    public static final WorkspaceConfiguration wsConfig = WorkspaceConfiguration.builder()
+            .policyLocation(LocationPolicy.RAM)
+            .build();
+
+
     private static final List<Path> inputs = List.of(
 //            Paths.get("lookup/gen/0/history.txt"),
 //            Paths.get("lookup/gen/1/history.txt"),
@@ -196,10 +201,6 @@ public class MoveTrainer {
         for (var partition : Lists.partition(allMoves, 1_000)) {
             long trainingStart = System.currentTimeMillis();
 
-            WorkspaceConfiguration wsConfig = WorkspaceConfiguration.builder()
-                    .policyLocation(LocationPolicy.RAM)
-                    .build();
-
             try (MemoryWorkspace ignored = Nd4j.getWorkspaceManager()
                     .getAndActivateWorkspace(wsConfig, "MoveTrainer")
             ) {
@@ -245,7 +246,10 @@ public class MoveTrainer {
             long predictStart = System.currentTimeMillis();
             DoubleSummaryStatistics stats = new DoubleSummaryStatistics();
 
-            try (var lines = Files.lines(testPath)) {
+            try (var lines = Files.lines(testPath);
+                 MemoryWorkspace ignored = Nd4j.getWorkspaceManager()
+                         .getAndActivateWorkspace(wsConfig, "MoveTrainer")
+            ) {
                 lines.forEach(line -> {
                     MoveHistory example = new MoveHistory(line);
 
@@ -260,12 +264,9 @@ public class MoveTrainer {
                 throw new UncheckedIOException(e);
             }
 
-            Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
-
             double took = (double) (System.currentTimeMillis() - predictStart) / 1000;
             System.out.println("Path error: " + stats.getAverage() + " - took: " + took + " - " + testPath);
         }
-
 
         System.out.println("Average error: " + globalStats.getAverage());
         return globalStats.getAverage();
