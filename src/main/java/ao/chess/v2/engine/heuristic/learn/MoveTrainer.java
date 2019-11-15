@@ -24,10 +24,7 @@ import org.nd4j.linalg.api.memory.enums.LocationPolicy;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.learning.config.AdaDelta;
-import org.nd4j.linalg.learning.config.AdaGrad;
-import org.nd4j.linalg.learning.config.Adam;
-import org.nd4j.linalg.learning.config.Nesterovs;
+import org.nd4j.linalg.learning.config.*;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.IOException;
@@ -35,7 +32,10 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collections;
+import java.util.DoubleSummaryStatistics;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 
@@ -43,15 +43,15 @@ public class MoveTrainer {
     //-----------------------------------------------------------------------------------------------------------------
     private static final boolean defaultBestAction = true;
     private static final boolean defaultValueAverage = true;
-    private static final boolean measureOutcome = false;
+//    private static final boolean measureOutcome = false;
     private static final boolean skipDraw = false;
 
 //    private static final int trainingIterations = 0;
-    private static final int trainingIterations = 1;
-//    private static final int trainingIterations = 100;
+//    private static final int trainingIterations = 1;
+    private static final int trainingIterations = 100;
 
-    private static final boolean testInitial = false;
-//    private static final boolean testInitial = true;
+//    private static final boolean testInitial = false;
+    private static final boolean testInitial = true;
 
     private static final int seed = 42;
     private static final Random seededRandom = new Random(seed);
@@ -79,21 +79,23 @@ public class MoveTrainer {
 //            Paths.get("lookup/history/Kramnik.txt"),
 //            Paths.get("lookup/history/Anand.txt"),
 //            Paths.get("lookup/history/Carlsen.txt")
-            Paths.get("lookup/history/mix/champions_100000.txt"),
-            Paths.get("lookup/history/mix/champions_200000.txt"),
-            Paths.get("lookup/history/mix/champions_300000.txt"),
-            Paths.get("lookup/history/mix/champions_400000.txt"),
-            Paths.get("lookup/history/mix/champions_500000.txt"),
-            Paths.get("lookup/history/mix/champions_600000.txt"),
-            Paths.get("lookup/history/mix/champions_700000.txt"),
-            Paths.get("lookup/history/mix/champions_800000.txt"),
-            Paths.get("lookup/history/mix/champions_900000.txt"),
-            Paths.get("lookup/history/mix/champions_1000000.txt"),
-            Paths.get("lookup/history/mix/champions_1100000.txt"),
-            Paths.get("lookup/history/mix/champions_1200000.txt"),
-            Paths.get("lookup/history/mix/champions_1300000.txt"),
-            Paths.get("lookup/history/mix/champions_1400000.txt"),
-            Paths.get("lookup/history/mix/champions_1454547.txt")
+//            Paths.get("lookup/history/Adams.txt")
+//            Paths.get("lookup/history/mix/champions_100000.txt")
+//            Paths.get("lookup/history/mix/champions_200000.txt"),
+//            Paths.get("lookup/history/mix/champions_300000.txt"),
+//            Paths.get("lookup/history/mix/champions_400000.txt"),
+//            Paths.get("lookup/history/mix/champions_500000.txt"),
+//            Paths.get("lookup/history/mix/champions_600000.txt"),
+//            Paths.get("lookup/history/mix/champions_700000.txt"),
+//            Paths.get("lookup/history/mix/champions_800000.txt"),
+//            Paths.get("lookup/history/mix/champions_900000.txt"),
+//            Paths.get("lookup/history/mix/champions_1000000.txt"),
+//            Paths.get("lookup/history/mix/champions_1100000.txt"),
+//            Paths.get("lookup/history/mix/champions_1200000.txt"),
+//            Paths.get("lookup/history/mix/champions_1300000.txt"),
+//            Paths.get("lookup/history/mix/champions_1400000.txt"),
+//            Paths.get("lookup/history/mix/champions_1454547.txt")
+            Paths.get("lookup/history/mix/champions_10000.txt")
 //            Paths.get("lookup/history/mix/champions_1000.txt")
 //            Paths.get("lookup/history/mix/champions_100.txt")
     );
@@ -108,7 +110,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/think_1000_20191026_185627_150.csv"),
 //            Paths.get("lookup/think_1000_20191102_112411_359.csv"),
 //            Paths.get("lookup/think_5000_20191107_161637_470.csv")
-            Paths.get("lookup/history/adams.txt")
+//            Paths.get("lookup/history/Adams.txt")
+            Paths.get("lookup/history/mix/champions_10000.txt")
 //            Paths.get("lookup/history/mix/champions_1000.txt")
 //            Paths.get("lookup/history/mix/champions_100.txt")
     );
@@ -123,7 +126,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/history/Carlsen-100.zip");
 //            Paths.get("lookup/history/mix/champions-1000.zip");
 //            Paths.get("lookup/history/mix/champions_2019-11-12.zip");
-            Paths.get("lookup/history/mix/champions-m4_2019-11-14.zip");
+//            Paths.get("lookup/history/mix/champions-m4_2019-11-14.zip");
+            Paths.get("lookup/history/mix/champions-m4_big_10000.zip");
 
 
     private static class Prediction {
@@ -238,26 +242,32 @@ public class MoveTrainer {
     }
 
 
-    private static double testOutputs(MultiLayerNetwork nn)
+    private static void testOutputs(MultiLayerNetwork nn)
     {
-        DoubleSummaryStatistics globalStats = new DoubleSummaryStatistics();
+        DoubleSummaryStatistics globalOutcomeStats = new DoubleSummaryStatistics();
+        DoubleSummaryStatistics globalActionStats = new DoubleSummaryStatistics();
 
         for (var testPath : test) {
             long predictStart = System.currentTimeMillis();
-            DoubleSummaryStatistics stats = new DoubleSummaryStatistics();
+            DoubleSummaryStatistics outcomeStats = new DoubleSummaryStatistics();
+            DoubleSummaryStatistics actionStats = new DoubleSummaryStatistics();
 
             try (var lines = Files.lines(testPath);
-                 MemoryWorkspace ignored = Nd4j.getWorkspaceManager()
-                         .getAndActivateWorkspace(wsConfig, "MoveTrainer")
+//                 MemoryWorkspace ignored = Nd4j.getWorkspaceManager()
+//                         .getAndActivateWorkspace(wsConfig, "MoveTrainer")
             ) {
                 lines.forEach(line -> {
                     MoveHistory example = new MoveHistory(line);
 
                     Prediction prediction = testExample(nn, example);
 
-                    double error = measureError(prediction, example);
-                    stats.accept(error);
-                    globalStats.accept(error);
+                    double[] errors = measureError(prediction, example);
+
+                    outcomeStats.accept(errors[0]);
+                    globalOutcomeStats.accept(errors[0]);
+
+                    actionStats.accept(errors[1]);
+                    globalActionStats.accept(errors[1]);
                 });
             }
             catch (IOException e) {
@@ -265,11 +275,13 @@ public class MoveTrainer {
             }
 
             double took = (double) (System.currentTimeMillis() - predictStart) / 1000;
-            System.out.println("Path error: " + stats.getAverage() + " - took: " + took + " - " + testPath);
+            System.out.println("Path error: " +
+                    outcomeStats.getAverage() + " / " + actionStats.getAverage() +
+                    " - took: " + took + " - " + testPath);
         }
 
-        System.out.println("Average error: " + globalStats.getAverage());
-        return globalStats.getAverage();
+        System.out.println("Average error: " +
+                globalOutcomeStats.getAverage() + " / " + globalActionStats.getAverage());
     }
 
 
@@ -287,18 +299,16 @@ public class MoveTrainer {
     }
 
 
-    private static double measureError(
+    private static double[] measureError(
             Prediction prediction,
             MoveHistory example)
     {
-        if (measureOutcome) {
-            double predicted = prediction.outcome;
-            double actual = example.outcome().valueFor(example.state().nextToAct());
-            return Math.abs(predicted - actual);
-        }
+        double predictedOutcome = prediction.outcome;
+        double actualOutcome = example.outcome().valueFor(example.state().nextToAct());
+        double outcomeError = Math.abs(predictedOutcome - actualOutcome);
 
+        double actionError;
         double[] predictedMoveProbabilities = prediction.actionProbabilities;
-
         if (defaultBestAction) {
             double bestActualScore = 0;
             int bestActualIndex = 0;
@@ -319,7 +329,7 @@ public class MoveTrainer {
                 }
             }
 
-            return bestActualIndex == bestPredictedIndex
+            actionError = bestActualIndex == bestPredictedIndex
                     ? 0 : 1;
         }
         else {
@@ -330,8 +340,10 @@ public class MoveTrainer {
                 double error = actual - movePrediction;
                 squaredErrorSum += error * error;
             }
-            return Math.sqrt(squaredErrorSum / example.legalMoves().length);
+            actionError = Math.sqrt(squaredErrorSum / example.legalMoves().length);
         }
+
+        return new double[] {outcomeError, actionError};
     }
 
 
@@ -531,12 +543,6 @@ public class MoveTrainer {
                         .weightInit(new UniformDistribution(-1.5e-7, 1.5e-7))
                         .build())
 
-//                .layer(new ConvolutionLayer.Builder(3, 3)
-//                        .stride(1, 1).padding(1, 1).nOut(256).activation(Activation.LEAKYRELU).build())
-//
-//                .layer(new ConvolutionLayer.Builder(3, 3)
-//                        .stride(1, 1).padding(1, 1).nOut(384).activation(Activation.LEAKYRELU).build())
-
                 .layer(new DenseLayer.Builder()
                         .activation(Activation.LEAKYRELU).nOut(384).build())
 
@@ -568,9 +574,9 @@ public class MoveTrainer {
                 .weightInit(WeightInit.XAVIER)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
 
-//                .updater(new RmsProp(0.0015))
-//                .updater(new Adam())
-                .updater(new AdaDelta())
+//                .updater(new RmsProp(0.0015, 0.9999, RmsProp.DEFAULT_RMSPROP_EPSILON))
+                .updater(new Adam())
+//                .updater(new AdaDelta())
 //                .updater(new AdaGrad(0.1))
 
                 .list()
@@ -579,9 +585,11 @@ public class MoveTrainer {
                         .nIn(channels)
                         .stride(1, 1)
                         .padding(0, 0)
-                        .nOut(512)
-//                        .activation(Activation.LEAKYRELU)
+                        .nOut(32)
+//                        .nOut(64)
                         .activation(Activation.RELU)
+//                        .activation(Activation.GELU)
+//                        .activation(Activation.LEAKYRELU)
 //                        .activation(Activation.IDENTITY)
 //                        .activation(Activation.TANH)
                         .weightInit(new UniformDistribution(-1.5e-7, 1.5e-7))
@@ -589,22 +597,26 @@ public class MoveTrainer {
 
                 .layer(new DenseLayer.Builder()
                         .activation(Activation.LEAKYRELU)
+//                        .activation(Activation.GELU)
+//                        .nOut(128)
                         .nOut(512)
-//                        .dropOut(0.9)
                         .build())
 
                 .layer(new DenseLayer.Builder()
                         .activation(Activation.LEAKYRELU)
+//                        .activation(Activation.GELU)
+//                        .nOut(128)
                         .nOut(512)
-//                        .dropOut(0.9)
                         .build())
 
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)
                         .nOut(Location.COUNT * 2 + 1)
                         .activation(Activation.IDENTITY)
+//                        .activation(Activation.RELU)
                         .build())
 
-                .setInputType(InputType.convolutionalFlat(height, width, channels))
+                .setInputType(InputType.convolutional(height, width, channels))
+//                .setInputType(InputType.convolutionalFlat(height, width, channels))
                 .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);

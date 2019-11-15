@@ -15,7 +15,7 @@ import java.util.Random;
 
 public class MoveShuffler {
     private static final Random rand = new Random();
-    private static final int partitions = 250;
+    private static final int partitions = 1000;
 
     public static void main(String[] args) throws IOException {
         Path inputDir = Paths.get("lookup/human");
@@ -39,10 +39,10 @@ public class MoveShuffler {
                 System.out.println("> " + historyFile);
 
                 try (var lines = Files.lines(historyFile)) {
-                    lines.map(MoveHistory::new).forEach(example -> {
+                    lines.forEach(example -> {
                         int partitionIndex = rand.nextInt(outputs.size());
                         PrintWriter output = outputs.get(partitionIndex);
-                        output.println(example.asString());
+                        output.println(example);
                     });
                 }
 
