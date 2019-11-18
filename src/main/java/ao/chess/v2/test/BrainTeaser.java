@@ -92,13 +92,14 @@ public class BrainTeaser {
         Player player = new PuctPlayer(
 //                Paths.get("lookup/gen/8/nn.zip"),
 //                Paths.get("lookup/history/carlsen-nn.zip"),
-                Paths.get("lookup/history/mix/champions_2019-11-12.zip"),
+//                Paths.get("lookup/history/mix/champions_2019-11-12.zip"),
+                Paths.get("lookup/history/mix/all_mid_20191117.zip"),
                 1,
                 1.5,
                 false,
-                7,
+                0,
                 true,
-                0.4,
+                1.5,
                 0);
 
         State state = State.fromFen(
@@ -111,7 +112,7 @@ public class BrainTeaser {
 //                "8/2k2p2/2b3p1/P1p1Np2/1p3b2/1P1K4/5r2/R3R3 b - - 0 1" // b from c6 to b5
 //                "r1b2k1r/ppppq3/5N1p/4P2Q/4PP2/1B6/PP5P/n2K2R1 w - - 1 0" // Q from h5 to h6
 
-                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
+//                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8
 
@@ -184,7 +185,7 @@ public class BrainTeaser {
 //                "r3k2r/pppq2bp/4p3/3b3P/5PBN/8/1BPP2P1/R2QK1R1 b Qkq - 0 1"
 //                "r3k2r/pppq3p/4p3/3b3P/5PBN/8/1bPP2P1/R2QK1R1 w Qkq - 0 1"
 //                "r3k2r/pppq3p/4p3/3b3P/5PBN/8/1bPP2P1/1R1QK1R1 b kq - 0 1"
-//                "r3k2r/ppp4p/4p3/1q1b3P/5PBN/8/1bPP2P1/1R1QK1R1 w kq - 0 1"
+                "r3k2r/ppp4p/4p3/1q1b3P/5PBN/8/1bPP2P1/1R1QK1R1 w kq - 0 1"
 //                "r3k2r/ppp4p/4p1N1/1q1b3P/5PB1/8/1bPP2P1/1R1QK1R1 b kq - 0 1" // ??
 //                "r3k2r/ppp5/4p1p1/1q1b3P/5PB1/8/1bPP2P1/1R1QK1R1 w kq - 0 1"
 //                "r3k2r/ppp5/4p1P1/1q1b4/5PB1/8/1bPP2P1/1R1QK1R1 b kq - 0 1"

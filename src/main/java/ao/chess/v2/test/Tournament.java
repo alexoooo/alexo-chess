@@ -28,7 +28,7 @@ import java.util.List;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 1_000;
+    private static final int TIME_PER_MOVE = 5_000;
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
@@ -38,13 +38,6 @@ public class Tournament
     //--------------------------------------------------------------------
     public static void main(String[] args)
     {
-//        Player a = new MultiMctsPlayer(List.of(
-//                mctsPrototype.prototype(),
-//                mctsPrototype.prototype(),
-//                mctsPrototype.prototype(),
-//                mctsPrototype.prototype(),
-//                mctsPrototype.prototype(),
-//                mctsPrototype.prototype()));
 //        Player a = new MultiMctsPlayer(List.of(
 //                mctsFallbackPrototype.prototype(),
 //                mctsFallbackPrototype.prototype(),
@@ -140,30 +133,31 @@ public class Tournament
 //        ParallelMctsPlayer b = a.prototype();
 
         Player a = NeuralNetworkPlayer.load(
-                Paths.get("lookup/history/carlsen-nn.zip"));
+                Paths.get("lookup/history/mix/all_mid_20191118a.zip"),
+                true);
 //
 //        Player b = NeuralNetworkPlayer.load(
 //                Paths.get("lookup/nn_2019-10-25b.zip"));
 
 //        Player a = new PuctPlayer(
 ////                Paths.get("lookup/gen/0/nn.zip"),
-//                Paths.get("lookup/gen/6/nn-x.zip"),
+//                Paths.get("lookup/history/mix/all_mid_20191116.zip"),
 //                1,
 //                1.5,
 //                false,
-//                7,
+//                0,
 //                true,
-//                0.4,
-//                800);
+//                1.5,
+//                0);
 //        Player b = new PuctPlayer(
-//                Paths.get("lookup/gen/6/nn-x.zip"),
+//                Paths.get("lookup/history/mix/all_mid_20191117a.zip"),
 //                1,
 //                1.5,
 //                false,
-//                7,
+//                0,
 //                true,
-//                0.4,
-//                800);
+//                1.5,
+//                0);
 
 //        Player a = new TopLeftPlayer();
         Player b = new RandomPlayer();
@@ -172,7 +166,7 @@ public class Tournament
         int bWins = 0;
         int draws = 0;
 
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             if (i % 2 == 0) {
                 Outcome outcome = round(a, b);
                 if (outcome == Outcome.WHITE_WINS) {

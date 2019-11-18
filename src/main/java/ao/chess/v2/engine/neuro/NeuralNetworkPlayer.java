@@ -11,7 +11,9 @@ import java.nio.file.Path;
 
 
 public class NeuralNetworkPlayer implements Player {
-    public static NeuralNetworkPlayer load(Path savedNeuralNetwork)
+    public static NeuralNetworkPlayer load(
+            Path savedNeuralNetwork,
+            boolean randomize)
     {
         MultiLayerNetwork nn;
         try {
@@ -20,15 +22,21 @@ public class NeuralNetworkPlayer implements Player {
         catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return new NeuralNetworkPlayer(nn);
+
+        return new NeuralNetworkPlayer(nn, randomize);
     }
 
 
     private final MultiLayerNetwork nn;
+    private final boolean randomize;
 
 
-    public NeuralNetworkPlayer(MultiLayerNetwork neuralNetwork) {
+    public NeuralNetworkPlayer(
+            MultiLayerNetwork neuralNetwork,
+            boolean randomize
+    ) {
         nn = neuralNetwork;
+        this.randomize = randomize;
     }
 
 
@@ -59,8 +67,11 @@ public class NeuralNetworkPlayer implements Player {
         for (int i = 0; i < legalMoves.length; i++) {
             double probability = moveProbabilities[i];
 
-            double score = Math.random() * (probability + smear);
-//            double score = probability;
+//            double score = Math.random() * (probability + smear);
+            double score =
+                    randomize
+                    ? Math.random() * (probability + smear)
+                    : probability;
 
             if (score > maxMoveProbability) {
                 maxMoveProbability = score;
