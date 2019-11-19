@@ -14,6 +14,10 @@ enum PuctUtils {
             double[] probabilities,
             double amount
     ) {
+        if (amount == 0) {
+            return;
+        }
+
         double total = 1 + amount;
         double each = amount / probabilities.length;
 

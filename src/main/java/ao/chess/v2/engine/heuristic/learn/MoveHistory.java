@@ -188,8 +188,8 @@ public class MoveHistory {
     }
 
 
-    public double expectedValue() {
-        return expectedValue;
+    public double expectedValueScore() {
+        return expectedValue * 2 - 1;
     }
 
 

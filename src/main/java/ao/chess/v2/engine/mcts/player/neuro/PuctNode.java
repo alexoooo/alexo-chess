@@ -27,7 +27,8 @@ class PuctNode {
     //-----------------------------------------------------------------------------------------------------------------
     private static final double minimumGuess = 0.1;
     private static final double maximumGuess = 0.9;
-    private static final double firstPlayEstimate = 0.4;
+    private static final double guessRange = maximumGuess - minimumGuess;
+    private static final double firstPlayEstimate = 0.5;
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
 
@@ -209,8 +210,15 @@ class PuctNode {
             return false;
         }
 
-        double outcome = NeuralCodec.INSTANCE.decodeOutcome(output);
-        double adjusted = Math.max(minimumGuess, Math.min(maximumGuess, outcome));
+        double nnOutcome = NeuralCodec.INSTANCE.decodeOutcome(output);
+        double scaleOutcome = guessRange * nnOutcome + minimumGuess;
+        double drawProximity =
+                state.reversibleMoves() <= 30
+                ? 0
+                : state.reversibleMoves() <= 70
+                ? (double) state.reversibleMoves() / 100
+                : Math.pow((double) state.reversibleMoves() / 100, 2);
+        double adjusted = drawProximity * 0.5 + (1 - drawProximity) * scaleOutcome;
 
         if (context.rollouts == 0) {
             context.estimatedValue = adjusted;
@@ -407,6 +415,7 @@ class PuctNode {
 
             double unvisitedBonus =
                     prediction * Math.sqrt(parentVisitCount) / (moveVisits + 1);
+//                    prediction * Math.pow(parentVisitCount, 0.75) / (moveVisits + 1);
 
             double score = averageOutcome + context.exploration * unvisitedBonus;
 

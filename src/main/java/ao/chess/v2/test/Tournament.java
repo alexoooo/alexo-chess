@@ -3,8 +3,8 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
-import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
-import ao.chess.v2.engine.simple.RandomPlayer;
+import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
+import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -123,44 +123,44 @@ public class Tournament
 //        );
 
 
-//        ParallelMctsPlayer a = new ParallelMctsPlayer(
-//                "par",
-//                1,
-//                0.3,
-//                1,
-//                false
-//        );
+        ParallelMctsPlayer a = new ParallelMctsPlayer(
+                "par",
+                1,
+                0.3,
+                1,
+                false
+        );
 //        ParallelMctsPlayer b = a.prototype();
 
-        Player a = NeuralNetworkPlayer.load(
-                Paths.get("lookup/history/mix/all_mid_20191118a.zip"),
-                true);
+//        Player a = NeuralNetworkPlayer.load(
+//                Paths.get("lookup/history/mix/all_mid_batch_20191118.zip"),
+//                true);
 //
 //        Player b = NeuralNetworkPlayer.load(
 //                Paths.get("lookup/nn_2019-10-25b.zip"));
 
 //        Player a = new PuctPlayer(
 ////                Paths.get("lookup/gen/0/nn.zip"),
-//                Paths.get("lookup/history/mix/all_mid_20191116.zip"),
+//                Paths.get("lookup/history/mix/all_mid_batch_20191118.zip"),
 //                1,
-//                1.5,
-//                false,
+//                0.25,
+//                true,
 //                0,
 //                true,
-//                1.5,
-//                0);
-//        Player b = new PuctPlayer(
-//                Paths.get("lookup/history/mix/all_mid_20191117a.zip"),
-//                1,
-//                1.5,
-//                false,
 //                0,
-//                true,
-//                1.5,
-//                0);
+//                800);
+        Player b = new PuctPlayer(
+                Paths.get("lookup/history/mix/all_mid_batch_20191119.zip"),
+                1,
+                1,
+                true,
+                0,
+                true,
+                1,
+                0);
 
 //        Player a = new TopLeftPlayer();
-        Player b = new RandomPlayer();
+//        Player b = new RandomPlayer();
 
         int aWins = 0;
         int bWins = 0;

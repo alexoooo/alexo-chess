@@ -66,61 +66,23 @@ public class MoveTrainer {
             .build();
 
 
-    private static final List<Path> inputs = List.of(
-            Paths.get("lookup/mix/0.txt"),
-            Paths.get("lookup/mix/1.txt"),
-            Paths.get("lookup/mix/2.txt"),
-            Paths.get("lookup/mix/3.txt"),
-            Paths.get("lookup/mix/4.txt"),
-            Paths.get("lookup/mix/5.txt"),
-            Paths.get("lookup/mix/6.txt"),
-            Paths.get("lookup/mix/7.txt"),
-            Paths.get("lookup/mix/8.txt"),
-            Paths.get("lookup/mix/9.txt"),
-            Paths.get("lookup/mix/10.txt"),
-            Paths.get("lookup/mix/11.txt"),
-            Paths.get("lookup/mix/12.txt"),
-            Paths.get("lookup/mix/13.txt"),
-            Paths.get("lookup/mix/14.txt"),
-            Paths.get("lookup/mix/15.txt"),
-            Paths.get("lookup/mix/16.txt"),
-            Paths.get("lookup/mix/17.txt"),
-            Paths.get("lookup/mix/18.txt"),
-            Paths.get("lookup/mix/19.txt"),
-            Paths.get("lookup/mix/20.txt"),
-            Paths.get("lookup/mix/21.txt"),
-            Paths.get("lookup/mix/22.txt"),
-            Paths.get("lookup/mix/23.txt"),
-            Paths.get("lookup/mix/24.txt"),
-            Paths.get("lookup/mix/25.txt")
-//            Paths.get("lookup/gen/0/history.txt"),
-//            Paths.get("lookup/gen/1/history.txt"),
-//            Paths.get("lookup/gen/2/history.txt"),
-//            Paths.get("lookup/gen/3/history.txt"),
-//            Paths.get("lookup/gen/4/history.txt"),
-//            Paths.get("lookup/gen/5/history.txt"),
-//            Paths.get("lookup/gen/6/history.txt"),
-//            Paths.get("lookup/gen/7/history.txt"),
-//            Paths.get("lookup/gen/7/history-1.txt"),
-//            Paths.get("lookup/history/mix/champions_100000.txt")
-//            Paths.get("lookup/history/mix/champions_200000.txt"),
-//            Paths.get("lookup/history/mix/champions_300000.txt"),
-//            Paths.get("lookup/history/mix/champions_400000.txt"),
-//            Paths.get("lookup/history/mix/champions_500000.txt"),
-//            Paths.get("lookup/history/mix/champions_600000.txt"),
-//            Paths.get("lookup/history/mix/champions_700000.txt"),
-//            Paths.get("lookup/history/mix/champions_800000.txt"),
-//            Paths.get("lookup/history/mix/champions_900000.txt"),
-//            Paths.get("lookup/history/mix/champions_1000000.txt"),
-//            Paths.get("lookup/history/mix/champions_1100000.txt"),
-//            Paths.get("lookup/history/mix/champions_1200000.txt"),
-//            Paths.get("lookup/history/mix/champions_1300000.txt"),
-//            Paths.get("lookup/history/mix/champions_1400000.txt"),
-//            Paths.get("lookup/history/mix/champions_1454547.txt")
-//            Paths.get("lookup/history/mix/champions_10000.txt")
-//            Paths.get("lookup/history/mix/champions_1000.txt")
-//            Paths.get("lookup/history/mix/champions_100.txt")
-    );
+    private static final List<Path> inputs = mixRange(0, 999);
+//    private static final List<Path> inputs = List.of(
+//            Paths.get("lookup/mix/0.txt"),
+//            Paths.get("lookup/mix/1.txt")
+////            Paths.get("lookup/history/mix/champions_10000.txt")
+////            Paths.get("lookup/history/mix/champions_1000.txt")
+////            Paths.get("lookup/history/mix/champions_100.txt")
+//    );
+
+    private static List<Path> mixRange(int fromInclusive, int toInclusive) {
+        List<Path> range = new ArrayList<>();
+        for (int i = fromInclusive; i <= toInclusive; i++) {
+            Path mixFile = Paths.get("lookup/mix/" + i + ".txt");
+            range.add(mixFile);
+        }
+        return range;
+    }
 
     private static final List<Path> test = List.of(
 //            Paths.get("lookup/test_1000_20191024_190016_544.csv"),
@@ -132,8 +94,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/think_1000_20191026_185627_150.csv"),
 //            Paths.get("lookup/think_1000_20191102_112411_359.csv"),
 //            Paths.get("lookup/think_5000_20191107_161637_470.csv")
-            Paths.get("lookup/history/mix/champions_10000.txt"),
-            Paths.get("lookup/history/Adams.txt")
+            Paths.get("lookup/history/mix/champions_10000.txt")
+//            Paths.get("lookup/history/Adams.txt")
 //            Paths.get("lookup/history/mix/champions_1000.txt")
 //            Paths.get("lookup/history/mix/champions_100.txt")
     );
@@ -151,7 +113,9 @@ public class MoveTrainer {
 //            Paths.get("lookup/history/mix/champions-m4_2019-11-14.zip");
 //            Paths.get("lookup/history/mix/all_mid_20191116.zip");
 //            Paths.get("lookup/history/mix/all_mid_20191117b.zip");
-            Paths.get("lookup/history/mix/all_mid_batch_20191118.zip");
+//            Paths.get("lookup/history/mix/all_mid_batch_20191118b.zip");
+//            Paths.get("lookup/history/mix/all_mid_batch_20191119.zip");
+            Paths.get("lookup/history/mix/all_deep_20191119.zip");
 
 
     private static class Prediction {
@@ -176,7 +140,8 @@ public class MoveTrainer {
         else {
 //            nn = createNeuralNetwork2();
 //            nn = createNeuralNetwork3();
-            nn = createNeuralNetwork4();
+//            nn = createNeuralNetwork4();
+            nn = createNeuralNetwork5();
         }
 
         if (saved && testInitial) {
@@ -251,12 +216,6 @@ public class MoveTrainer {
 
 //            Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
         }
-    }
-
-
-    private static void fitExample(MultiLayerNetwork nn, MoveHistory example) {
-        DataSet dataSet = convertToDataSet(example);
-        nn.fit(dataSet);
     }
 
 
@@ -470,7 +429,7 @@ public class MoveTrainer {
 
         labels.put(Location.COUNT * 2, Nd4j.scalar(
                 averageValue
-                ? (example.outcomeScore() + example.outcomeScore()) / 2
+                ? (example.outcomeScore() + example.expectedValueScore()) / 2
                 : example.outcomeScore()));
 
         return labels.reshape(1, Location.COUNT * 2 + 1);
@@ -617,6 +576,65 @@ public class MoveTrainer {
                         .nOut(64)
                         .activation(Activation.RELU)
                         .weightInit(new UniformDistribution(-1.5e-7, 1.5e-7))
+                        .build())
+
+                .layer(new DenseLayer.Builder()
+                        .activation(Activation.LEAKYRELU)
+                        .nOut(256)
+                        .build())
+
+                .layer(new DenseLayer.Builder()
+                        .activation(Activation.LEAKYRELU)
+                        .nOut(256)
+                        .build())
+
+                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)
+                        .nOut(Location.COUNT * 2 + 1)
+                        .activation(Activation.IDENTITY)
+                        .build())
+
+                .setInputType(InputType.convolutional(height, width, channels))
+                .build();
+
+        MultiLayerNetwork net = new MultiLayerNetwork(conf);
+        net.init();
+
+        return net;
+    }
+
+
+    public static MultiLayerNetwork createNeuralNetwork5() {
+        int height = Location.FILES;
+        int width = Location.RANKS;
+        int channels = Figure.VALUES.length + 2;
+
+        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+                .seed(seed)
+
+                .l2(0.0001)
+                .weightInit(WeightInit.XAVIER)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+
+//                .updater(new RmsProp(0.0015, 0.9999, RmsProp.DEFAULT_RMSPROP_EPSILON))
+                .updater(new Adam())
+//                .updater(new AdaDelta())
+//                .updater(new AdaGrad(0.1))
+
+                .list()
+
+                .layer(new ConvolutionLayer.Builder(1, 1)
+                        .nIn(channels)
+                        .stride(1, 1)
+                        .padding(0, 0)
+//                        .nOut(32)
+                        .nOut(64)
+                        .activation(Activation.RELU)
+                        .weightInit(new UniformDistribution(-1.5e-7, 1.5e-7))
+                        .build())
+
+                .layer(new DenseLayer.Builder()
+                        .activation(Activation.LEAKYRELU)
+                        .nOut(256)
                         .build())
 
                 .layer(new DenseLayer.Builder()

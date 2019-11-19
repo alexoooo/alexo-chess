@@ -60,8 +60,12 @@ public enum NeuralCodec {
             INDArray output
     ) {
         double value = output.getDouble(0, Location.COUNT * 2);
-        double clipped = Math.max(-1, Math.min(1, value));
-        return (clipped + 1) / 2;
+
+        double ex = Math.exp(value * Math.E);
+        return ex / (ex + 1);
+
+//        double clipped = Math.max(-1, Math.min(1, value));
+//        return (clipped + 1) / 2;
     }
 
 
