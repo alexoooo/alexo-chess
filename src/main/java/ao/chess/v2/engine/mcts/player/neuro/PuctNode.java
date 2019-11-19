@@ -4,7 +4,6 @@ package ao.chess.v2.engine.mcts.player.neuro;
 import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
-import ao.chess.v2.engine.heuristic.material.MaterialEvaluation;
 import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;
@@ -28,9 +27,10 @@ class PuctNode {
     private static final double minimumGuess = 0.1;
     private static final double maximumGuess = 0.9;
     private static final double guessRange = maximumGuess - minimumGuess;
-    private static final double firstPlayEstimate = 0.5;
+    private static final double firstPlayEstimate = 0.45;
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
+    private static final double rolloutWeight = 0.25;
 
     private static final boolean valueUncertainty = false;
 
@@ -166,10 +166,11 @@ class PuctNode {
     ) {
         int moveCount = state.legalMoves(context.movesA);
         if (moveCount == 0 || moveCount == -1) {
-            PuctNode newChild = new PuctNode(new int[0], new double[0], null);
+            Outcome knownOutcome = state.knownOutcome();
+            PuctNode newChild = new PuctNode(new int[0], new double[0],
+                    new DeepOutcome(knownOutcome, 0));
 
-            context.estimatedValue =
-                    state.knownOutcome().valueFor(state.nextToAct());
+            context.estimatedValue = knownOutcome.valueFor(state.nextToAct());
 
             return addChildIfRequired(newChild, parent, childIndex);
         }
@@ -218,11 +219,12 @@ class PuctNode {
         double nnOutcome = NeuralCodec.INSTANCE.decodeOutcome(output);
         double scaleOutcome = guessRange * nnOutcome + minimumGuess;
         double drawProximity =
-                state.reversibleMoves() <= 30
-                ? 0
-                : state.reversibleMoves() <= 70
-                ? (double) state.reversibleMoves() / 100
-                : Math.pow((double) state.reversibleMoves() / 100, 2);
+                (double) state.reversibleMoves() / 200;
+//                state.reversibleMoves() <= 30
+//                ? 0
+//                : state.reversibleMoves() <= 70
+//                ? (double) state.reversibleMoves() / 100
+//                : Math.pow((double) state.reversibleMoves() / 100, 2);
         double adjusted = drawProximity * 0.5 + (1 - drawProximity) * scaleOutcome;
 
         if (context.rollouts == 0) {
@@ -230,7 +232,9 @@ class PuctNode {
         }
         else {
             double rolloutValue = randomRollouts(state, context);
-            context.estimatedValue = (rolloutValue + adjusted) / 2;
+            context.estimatedValue =
+                    rolloutWeight * rolloutValue +
+                    (1 - rolloutWeight) * adjusted;
         }
 
         return true;
@@ -352,8 +356,8 @@ class PuctNode {
                 state.isDrawnBy50MovesRule()));
 
         if (wasDrawnBy50MovesRule) {
-//            return 0.5;
-            return MaterialEvaluation.evaluate(state, pov);
+            return 0.5;
+//            return MaterialEvaluation.evaluate(state, pov);
         }
 
         return outcome.valueFor( pov );

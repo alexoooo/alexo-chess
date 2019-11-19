@@ -168,6 +168,10 @@ public class PuctPlayer
     ) {
         initIfRequired();
 
+        if (position.knownOutcome() != null) {
+            return -1;
+        }
+
         PuctNode root = getOrCreateRoot(position);
 
         if (root.legalMoves().length == 0) {

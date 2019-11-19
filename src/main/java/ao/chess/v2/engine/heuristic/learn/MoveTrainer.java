@@ -50,8 +50,8 @@ public class MoveTrainer {
     private static final int miniBatchSize = 256;
     private static final int saveOnceEvery = 1_000_000;
 
-    private static final int trainingIterations = 0;
-//    private static final int trainingIterations = 1;
+//    private static final int trainingIterations = 0;
+    private static final int trainingIterations = 1;
 //    private static final int trainingIterations = 100;
 
 //    private static final boolean testInitial = false;
@@ -66,7 +66,9 @@ public class MoveTrainer {
             .build();
 
 
-    private static final List<Path> inputs = mixRange(84, 999);
+    private static final List<Path> inputs =
+//            mixRange(128, 999);
+            mixRange(320, 999);
 //    private static final List<Path> inputs = List.of(
 //            Paths.get("lookup/mix/0.txt"),
 //            Paths.get("lookup/mix/1.txt")
@@ -114,8 +116,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/history/mix/all_mid_20191116.zip");
 //            Paths.get("lookup/history/mix/all_mid_20191117b.zip");
 //            Paths.get("lookup/history/mix/all_mid_batch_20191118b.zip");
-//            Paths.get("lookup/history/mix/all_mid_batch_20191119.zip");
-            Paths.get("lookup/history/mix/all_deep_20191119.zip");
+            Paths.get("lookup/history/mix/all_mid_batch_20191119b.zip");
+//            Paths.get("lookup/history/mix/all_deep_20191119.zip");
 
 
     private static class Prediction {
