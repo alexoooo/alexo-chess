@@ -148,6 +148,11 @@ class PuctNode {
             }
         }
 
+        if (Double.isNaN(estimatedValue)) {
+            // NB: race condition with new node creation
+            return;
+        }
+
         double leafValue = reachedTerminal
                 ? (state.isInCheck(state.nextToAct()) ? 0 : 0.5)
                 : estimatedValue;
@@ -374,12 +379,12 @@ class PuctNode {
             double childValueSum;
 
             if (child == null) {
-                childVisitCount = 0;
                 childValueSum = 0;
+                childVisitCount = 0;
             }
             else {
-                childVisitCount = child.visitCount.sum();
                 childValueSum = child.valueSum.sum();
+                childVisitCount = child.visitCount.sum();
             }
 
             moveValueSums[i] = childValueSum;
@@ -515,7 +520,9 @@ class PuctNode {
     {
         long count = visitCount.longValue();
         double sum = valueSum.doubleValue();
-        return 1.0 - sum / count;
+        return count == 0
+                ? firstPlayEstimate
+                : 1.0 - sum / count;
     }
 
 

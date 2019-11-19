@@ -66,7 +66,7 @@ public class MoveTrainer {
             .build();
 
 
-    private static final List<Path> inputs = mixRange(0, 999);
+    private static final List<Path> inputs = mixRange(84, 999);
 //    private static final List<Path> inputs = List.of(
 //            Paths.get("lookup/mix/0.txt"),
 //            Paths.get("lookup/mix/1.txt")

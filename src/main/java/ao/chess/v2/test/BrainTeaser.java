@@ -94,7 +94,7 @@ public class BrainTeaser {
 //                Paths.get("lookup/history/carlsen-nn.zip"),
 //                Paths.get("lookup/history/mix/champions_2019-11-12.zip"),
                 Paths.get("lookup/history/mix/all_mid_batch_20191119.zip"),
-                1,
+                2,
                 1.5,
                 true,
                 0,
@@ -124,7 +124,22 @@ public class BrainTeaser {
 //                "8/P7/1bk4p/8/3BP3/RR6/3K4/8 w"
 
                 // ao game (black)
-                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+//                "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 1"
+//                "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
+//                "rnb1kbnr/ppp1pppp/8/3q4/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1"
+//                "rnb1kbnr/ppp1pppp/8/3q4/2P5/8/PP1P1PPP/RNBQKBNR b KQkq c3 0 1"
+//                "rnb1kbnr/ppp1pppp/8/4q3/2P5/8/PP1P1PPP/RNBQKBNR w KQkq - 0 1"
+//                "rnb1kbnr/ppp1pppp/8/4q3/2P5/8/PP1PNPPP/RNBQKB1R b KQkq - 0 1"
+//                "rnb1kbnr/pp2pppp/8/2p1q3/2P5/8/PP1PNPPP/RNBQKB1R w KQkq c6 0 1"
+//                "rnb1kbnr/pp2pppp/8/2p1q3/2P5/2N5/PP1PNPPP/R1BQKB1R b KQkq - 0 1"
+//                "r1b1kbnr/pp2pppp/2n5/2p1q3/2P5/2N5/PP1PNPPP/R1BQKB1R w KQkq - 0 1"
+//                "r1b1kbnr/pp2pppp/2n5/2p1q3/2PP4/2N5/PP2NPPP/R1BQKB1R b KQkq d3 0 1"
+//                "r1b1kbnr/pp2pppp/8/2p1q3/2Pn4/2N5/PP2NPPP/R1BQKB1R w KQkq - 0 1"
+//                "r1b1kbnr/pp2pppp/8/2pNq3/2Pn4/8/PP2NPPP/R1BQKB1R b KQkq - 0 1"
+//                "r3kbnr/pp2pppp/8/2pNq3/2Pn2b1/8/PP2NPPP/R1BQKB1R w KQkq - 0 1"
+                "r3kbnr/pp2pppp/8/2pNq3/2Pn1Bb1/8/PP2NPPP/R2QKB1R b KQkq - 0 1"
 
 
                 // Travis game
