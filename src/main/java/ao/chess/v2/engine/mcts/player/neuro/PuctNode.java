@@ -28,6 +28,7 @@ class PuctNode {
     private static final double maximumGuess = 0.9;
     private static final double guessRange = maximumGuess - minimumGuess;
     private static final double firstPlayEstimate = 0.45;
+//    private static final double firstPlayEstimate = 0.25;
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
     private static final double rolloutWeight = 0.25;
@@ -116,6 +117,7 @@ class PuctNode {
             int childIndex = node.puctChild(context);
 
             if (childIndex == -1) {
+                // TODO: cleanup
                 reachedTerminal = true;
                 break;
             }

@@ -50,8 +50,8 @@ public class MoveTrainer {
     private static final int miniBatchSize = 256;
     private static final int saveOnceEvery = 1_000_000;
 
-//    private static final int trainingIterations = 0;
-    private static final int trainingIterations = 1;
+    private static final int trainingIterations = 0;
+//    private static final int trainingIterations = 1;
 //    private static final int trainingIterations = 100;
 
 //    private static final boolean testInitial = false;
@@ -68,7 +68,7 @@ public class MoveTrainer {
 
     private static final List<Path> inputs =
 //            mixRange(128, 999);
-            mixRange(320, 999);
+            mixRange(692, 999);
 //    private static final List<Path> inputs = List.of(
 //            Paths.get("lookup/mix/0.txt"),
 //            Paths.get("lookup/mix/1.txt")
@@ -96,8 +96,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/think_1000_20191026_185627_150.csv"),
 //            Paths.get("lookup/think_1000_20191102_112411_359.csv"),
 //            Paths.get("lookup/think_5000_20191107_161637_470.csv")
-            Paths.get("lookup/history/mix/champions_10000.txt")
-//            Paths.get("lookup/history/Adams.txt")
+            Paths.get("lookup/history/mix/champions_10000.txt"),
+            Paths.get("lookup/history/Adams.txt")
 //            Paths.get("lookup/history/mix/champions_1000.txt")
 //            Paths.get("lookup/history/mix/champions_100.txt")
     );
@@ -116,7 +116,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/history/mix/all_mid_20191116.zip");
 //            Paths.get("lookup/history/mix/all_mid_20191117b.zip");
 //            Paths.get("lookup/history/mix/all_mid_batch_20191118b.zip");
-            Paths.get("lookup/history/mix/all_mid_batch_20191119b.zip");
+            Paths.get("lookup/history/mix/all_mid_batch_20191120.zip");
 //            Paths.get("lookup/history/mix/all_deep_20191119.zip");
 
 
@@ -142,8 +142,8 @@ public class MoveTrainer {
         else {
 //            nn = createNeuralNetwork2();
 //            nn = createNeuralNetwork3();
-//            nn = createNeuralNetwork4();
-            nn = createNeuralNetwork5();
+            nn = createNeuralNetwork4();
+//            nn = createNeuralNetwork5();
         }
 
         if (saved && testInitial) {

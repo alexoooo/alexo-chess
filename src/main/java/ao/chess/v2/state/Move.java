@@ -463,7 +463,7 @@ public class Move
                 int to     = toSquareIndex(move);
                 int promo  = promotion(move);
 
-                return "mobility with " + Figure.VALUES[figure] +
+                return "move with " + Figure.VALUES[figure] +
                          " from " + Location.toString(from) + " to " +
                                     Location.toString(to) +
                          (promo != 0

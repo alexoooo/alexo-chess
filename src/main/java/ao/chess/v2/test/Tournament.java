@@ -4,6 +4,7 @@ import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
 import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
+import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -129,6 +130,13 @@ public class Tournament
 //                1,
 //                false
 //        );
+        ParallelMctsPlayer a = new ParallelMctsPlayer(
+                "par",
+                9,
+                0.3,
+                3,
+                false
+        );
 //        ParallelMctsPlayer b = a.prototype();
 
 //        Player a = NeuralNetworkPlayer.load(
@@ -138,18 +146,18 @@ public class Tournament
 //        Player b = NeuralNetworkPlayer.load(
 //                Paths.get("lookup/nn_2019-10-25b.zip"));
 
-        Player a = new PuctPlayer(
-                Paths.get("lookup/history/mix/all_mid_batch_20191119b.zip"),
-                1,
-                1.5,
-                true,
-                7,
-                true,
-                1.5,
-                0);
+//        Player a = new PuctPlayer(
+//                Paths.get("lookup/history/mix/all_mid_batch_20191119b.zip"),
+//                1,
+//                1.5,
+//                true,
+//                7,
+//                true,
+//                1.5,
+//                0);
         Player b = new PuctPlayer(
-                Paths.get("lookup/history/mix/all_mid_batch_20191119b.zip"),
-                1,
+                Paths.get("lookup/history/mix/all_mid_batch_20191120.zip"),
+                2,
                 1.5,
                 true,
                 7,
@@ -201,17 +209,17 @@ public class Tournament
     private static Outcome round(Player white, Player black)
     {
         State state =
-//                State.initial();
-                State.fromFen(
-//                        "8/8/8/6K1/8/8/1k6/2R5 w  - 70 49"
-//                        "8/8/2p1b1k1/r6n/1K6/8/8/8 b  - 100 2"
-//                        "4k3/8/8/8/8/8/4P3/4K3 w - - 0 1"
-//                        "K7/8/1p3k2/8/7p/8/8/8 b - - 0 1"
-//                        "8/4n1k1/8/8/5K1p/8/8/8 b - - 0 1"
-//                        "4b3/5k2/8/4p3/8/8/2K5/8 b - - 0 1"
-//                        "8/8/2p1b1k1/r6n/1K6/8/8/8 b - - 0 1"
-                        "8/8/8/5R1P/4k1B1/6P1/8/6K1 w - - 0 1"
-                );
+                State.initial();
+//                State.fromFen(
+////                        "8/8/8/6K1/8/8/1k6/2R5 w  - 70 49"
+////                        "8/8/2p1b1k1/r6n/1K6/8/8/8 b  - 100 2"
+////                        "4k3/8/8/8/8/8/4P3/4K3 w - - 0 1"
+////                        "K7/8/1p3k2/8/7p/8/8/8 b - - 0 1"
+////                        "8/4n1k1/8/8/5K1p/8/8/8 b - - 0 1"
+////                        "4b3/5k2/8/4p3/8/8/2K5/8 b - - 0 1"
+////                        "8/8/2p1b1k1/r6n/1K6/8/8/8 b - - 0 1"
+//                        "8/8/8/5R1P/4k1B1/6P1/8/6K1 w - - 0 1"
+//                );
 
         Outcome outcome = Outcome.DRAW;
 

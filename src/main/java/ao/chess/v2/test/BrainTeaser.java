@@ -93,10 +93,10 @@ public class BrainTeaser {
 //                Paths.get("lookup/gen/8/nn.zip"),
 //                Paths.get("lookup/history/carlsen-nn.zip"),
 //                Paths.get("lookup/history/mix/champions_2019-11-12.zip"),
-                Paths.get("lookup/history/mix/all_mid_batch_20191119b.zip"),
+                Paths.get("lookup/history/mix/all_mid_batch_20191120-travis.zip"),
 //                Paths.get("lookup/history/mix/all_deep_20191119.zip"),
-                1,
-//                2,
+//                1,
+                2,
                 1.5,
                 true,
                 7,
@@ -112,7 +112,7 @@ public class BrainTeaser {
 
 //                "6k1/5p2/1p5p/p4Np1/5q2/Q6P/PPr5/3R3K w - - 1 0" // Q form a3 to f8
 //                "8/2k2p2/2b3p1/P1p1Np2/1p3b2/1P1K4/5r2/R3R3 b - - 0 1" // b from c6 to b5
-//                "r1b2k1r/ppppq3/5N1p/4P2Q/4PP2/1B6/PP5P/n2K2R1 w - - 1 0" // Q from h5 to h6
+//                "r1b2k1r/ppppq3/5N1p/4P2Q/4PP2/1B6/PP5P/n2K2R1 w - - 1 0" // Q from h5 to h6 (!!)
 
 //                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
@@ -124,7 +124,36 @@ public class BrainTeaser {
 //                "8/2p5/n7/8/8/2p5/4K3/6k1 b"
 //                "2k5/8/8/3K4/1B4Nb/1P5N/3R4/8 w"
 //                "8/P7/1bk4p/8/3BP3/RR6/3K4/8 w"
-                "8/8/8/8/6R1/5B2/5K1k/8 w  - 98"
+//                "8/8/8/8/6R1/5B2/5K1k/8 w  - 98"
+//                "4kr2/pp3p1p/8/8/1KnRP2B/8/P1q1N3/8 b"
+
+
+                // Travis game (black)
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1"
+                "rnbqkbnr/pppp1ppp/8/4p3/2P5/8/PP1PPPPP/RNBQKBNR w KQkq e6 0 1"
+//                "rnbqkbnr/ppp1pppp/8/3P4/8/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1"
+
+                // duane (white)
+//                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+//                "rnbqkbnr/pp1ppppp/8/2p5/4P3/2P5/PP1P1PPP/RNBQKBNR b KQkq - 0 1"
+//                "rnbqkbnr/pp2pppp/8/2pP4/8/2P5/PP1P1PPP/RNBQKBNR b KQkq - 0 1"
+//                "rnb1kbnr/pp2pppp/8/2pq4/2P5/8/PP1P1PPP/RNBQKBNR b KQkq - 0 1"
+//                "rnbqkbnr/pp2pppp/8/2p5/2P5/2N5/PP1P1PPP/R1BQKBNR b KQkq - 0 1"
+//                "r1bqkbnr/pp2pppp/2n5/2p5/2P5/2NP4/PP3PPP/R1BQKBNR b KQkq - 0 1"
+//                "r1bqkb1r/pp2pppp/2n2n2/2p5/2P5/2NP4/PP2BPPP/R1BQK1NR b KQkq - 0 1"
+//                "r1bqkb1r/pp3ppp/2n2n2/2p1p3/2P2P2/2NP4/PP2B1PP/R1BQK1NR b KQkq f3 0 1"
+//                "r1bqkb1r/pp3ppp/2n2n2/2p5/2P2B2/2NP4/PP2B1PP/R2QK1NR b KQkq - 0 1"
+//                "r1bqkb1r/pp3ppp/5n2/2p5/2Pn1B2/2NP2P1/PP2B2P/R2QK1NR b KQkq - 0 1"
+//                "r1bqk2r/pp3ppp/3b1n2/2p5/2Pn1B2/2NP1NP1/PP2B2P/R2QK2R b KQkq - 0 1"
+//                "r1bqk2r/pp3ppp/5n2/2p5/2Pn1P2/2NP1N2/PP2B2P/R2QK2R b KQkq - 0 1"
+//                "r1bq1rk1/pp3ppp/5n2/2p5/N1Pn1P2/3P1N2/PP2B2P/R2QK2R b KQ - 0 1"
+//                "r1bqr1k1/pp3ppp/5n2/2p5/N1PN1P2/3P4/PP2B2P/R2QK2R b KQ - 0 1"
+//                "r1b1r1k1/pp3ppp/5n2/2p5/N1Pq1P2/3P4/PP2B2P/R2QKR2 b Q - 0 1"
+//                "r3r1k1/pp3ppp/5n2/2p5/N1Pq1Pb1/3P4/PP2B2P/1R1QKR2 b - - 0 1"
+//                "r3r1k1/pp3ppp/5n2/2p5/N1Pq1P2/1Q1P4/PP2b2P/1R2KR2 b - - 0 1"
+//                "r3r1k1/pp3ppp/5n2/2p5/N1Pq1P2/1Q1b4/PP1K3P/1R3R2 b - - 0 1"
+//                "r3r1k1/pp3ppp/5n2/2p5/N1bq1P2/1Q6/PPK4P/1R3R2 b - - 0 1"
 
                 // ao game (black)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
