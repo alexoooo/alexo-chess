@@ -27,8 +27,10 @@ class PuctNode {
     private static final double minimumGuess = 0.1;
     private static final double maximumGuess = 0.9;
     private static final double guessRange = maximumGuess - minimumGuess;
-    private static final double firstPlayEstimate = 0.45;
-//    private static final double firstPlayEstimate = 0.25;
+
+//    private static final double firstPlayEstimate = 0.45;
+    private static final double firstPlayEstimate = minimumGuess;
+
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
     private static final double rolloutWeight = 0.25;
@@ -201,16 +203,33 @@ class PuctNode {
             return addChildIfRequired(newChild, parent, childIndex);
         }
 
-        INDArray input = NeuralCodec.INSTANCE.encodeState(state);
-        INDArray output = context.nn.output(input);
+        Long positionKey = state.staticHashCode();
 
-        double[] predictions = NeuralCodec.INSTANCE
-                .decodeMoveProbabilities(output, state, legalMoves);
+        PuctEstimate cached = context.nnCache.get(positionKey);
 
-        PuctUtils.smearProbabilities(
-                predictions, context.moveUncertainty);
+        PuctEstimate estimate;
+        if (cached == null) {
+            INDArray input = NeuralCodec.INSTANCE.encodeState(state);
+            INDArray output = context.nn.output(input);
 
-        PuctNode newChild = new PuctNode(legalMoves, predictions, null);
+            double[] childPredictions = NeuralCodec.INSTANCE
+                    .decodeMoveProbabilities(output, state, legalMoves);
+
+            PuctUtils.smearProbabilities(
+                    childPredictions, context.moveUncertainty);
+
+            double childOutcome = NeuralCodec.INSTANCE.decodeOutcome(output);
+            double scaleOutcome = guessRange * childOutcome + minimumGuess;
+
+            estimate = new PuctEstimate(childPredictions, scaleOutcome);
+            context.nnCache.put(positionKey, estimate);
+        }
+        else {
+            estimate = cached;
+            context.cacheHits.increment();
+        }
+
+        PuctNode newChild = new PuctNode(legalMoves, estimate.moveProbabilities, null);
 
         PuctNode existing = parent.childNodes.set(childIndex, newChild);
         if (existing != null) {
@@ -218,8 +237,6 @@ class PuctNode {
             return false;
         }
 
-        double nnOutcome = NeuralCodec.INSTANCE.decodeOutcome(output);
-        double scaleOutcome = guessRange * nnOutcome + minimumGuess;
         double drawProximity =
                 (double) state.reversibleMoves() / 200;
 //                state.reversibleMoves() <= 30
@@ -227,7 +244,7 @@ class PuctNode {
 //                : state.reversibleMoves() <= 70
 //                ? (double) state.reversibleMoves() / 100
 //                : Math.pow((double) state.reversibleMoves() / 100, 2);
-        double adjusted = drawProximity * 0.5 + (1 - drawProximity) * scaleOutcome;
+        double adjusted = drawProximity * 0.5 + (1 - drawProximity) * estimate.winProbability;
 
         if (context.rollouts == 0) {
             context.estimatedValue = adjusted;

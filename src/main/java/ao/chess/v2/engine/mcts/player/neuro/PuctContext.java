@@ -6,6 +6,8 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.LongAdder;
 
 
 class PuctContext {
@@ -26,8 +28,11 @@ class PuctContext {
     public final boolean tablebase;
     public final double moveUncertainty;
 
-
     public double estimatedValue;
+
+
+    public final ConcurrentHashMap<Long, PuctEstimate> nnCache;
+    public final LongAdder cacheHits;
 
 
     public PuctContext(
@@ -35,12 +40,18 @@ class PuctContext {
             double exploration,
             int rollouts,
             boolean tablebase,
-            double moveUncertainty)
+            double moveUncertainty,
+            ConcurrentHashMap<Long, PuctEstimate> nnCache,
+            LongAdder cacheHits)
     {
         this.nn = nn;
+
         this.exploration = exploration;
         this.rollouts = rollouts;
         this.tablebase = tablebase;
         this.moveUncertainty = moveUncertainty;
+
+        this.nnCache = nnCache;
+        this.cacheHits = cacheHits;
     }
 }

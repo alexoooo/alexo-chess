@@ -90,10 +90,8 @@ public class BrainTeaser {
 //                1,
 //                1.5);
         Player player = new PuctPlayer(
-//                Paths.get("lookup/gen/8/nn.zip"),
-//                Paths.get("lookup/history/carlsen-nn.zip"),
-//                Paths.get("lookup/history/mix/champions_2019-11-12.zip"),
-                Paths.get("lookup/history/mix/all_mid_batch_20191120-travis.zip"),
+//                Paths.get("lookup/history/mix/all_mid_batch_20191120-travis.zip"),
+                Paths.get("lookup/history/mix/all_mid_batch_20191121.zip"),
 //                Paths.get("lookup/history/mix/all_deep_20191119.zip"),
 //                1,
                 2,
@@ -131,8 +129,16 @@ public class BrainTeaser {
                 // Travis game (black)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 //                "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1"
-                "rnbqkbnr/pppp1ppp/8/4p3/2P5/8/PP1PPPPP/RNBQKBNR w KQkq e6 0 1"
-//                "rnbqkbnr/ppp1pppp/8/3P4/8/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1"
+//                "rnbqkbnr/pppp1ppp/8/4p3/2P5/8/PP1PPPPP/RNBQKBNR w KQkq e6 0 1"
+//                "rnbqkbnr/pppp1ppp/8/4p3/2P5/5N2/PP1PPPPP/RNBQKB1R b KQkq - 0 1"
+//                "r1bqkbnr/pppp1ppp/2n5/4p3/2P5/5N2/PP1PPPPP/RNBQKB1R w KQkq - 0 1"
+//                "rnbqkbnr/pppp1ppp/8/4p3/2P5/2N2N2/PP1PPPPP/R1BQKB1R b KQkq - 0 1"
+//                "r1bqkbnr/ppp2ppp/2np4/4p3/2P5/2N2N2/PP1PPPPP/R1BQKB1R w KQkq - 0 1"
+//                "r1bqkbnr/ppp2ppp/2np4/4p3/2PP4/2N2N2/PP2PPPP/R1BQKB1R b KQkq d3 0 1"
+//                "r1bqkbnr/ppp2ppp/2np4/8/2Pp4/2N2N2/PP2PPPP/R1BQKB1R w KQkq - 0 1"
+//                "r1bqkbnr/ppp2ppp/2np4/8/2PN4/2N5/PP2PPPP/R1BQKB1R b KQkq - 0 1"
+                "r2qkbnr/pppb1ppp/2np4/8/2PN4/2N5/PP2PPPP/R1BQKB1R w KQkq - 0 1"
+//                "r2qkbnr/pppb1ppp/2np4/8/2PN4/2N3P1/PP2PP1P/R1BQKB1R b KQkq - 0 1"
 
                 // duane (white)
 //                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"

@@ -15,10 +15,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.LongAdder;
 
 
 public class PuctPlayer
@@ -41,6 +39,9 @@ public class PuctPlayer
     private final double signal;
     private final int minimumTrajectories;
     private boolean train;
+
+    private final ConcurrentHashMap<Long, PuctEstimate> nnCache = new ConcurrentHashMap<>();
+    private final LongAdder cacheHits = new LongAdder();
 
     private final CopyOnWriteArrayList<PuctContext> contexts;
     private ExecutorService executorService;
@@ -255,7 +256,9 @@ public class PuctPlayer
                 throw new UncheckedIOException(e);
             }
             contexts.add(new PuctContext(
-                    nn, exploration, rollouts, tablebase, moveUncertainty));
+                    nn,
+                    exploration, rollouts, tablebase, moveUncertainty,
+                    nnCache, cacheHits));
         }
 
         MovePicker.init();
@@ -307,7 +310,7 @@ public class PuctPlayer
         int bestMove = root.bestMove(visitMax);
 
         String generalPrefix = String.format(
-                "%s - %s | %d / %.2f / %b / %d / %b | %s",
+                "%s - %s | %d / %.2f / %b / %d / %b | %d / %d | %s",
                 id,
                 savedNeuralNetwork,
                 threads,
@@ -315,6 +318,8 @@ public class PuctPlayer
                 visitMax,
                 rollouts,
                 tablebase,
+                nnCache.size(),
+                cacheHits.longValue(),
                 Move.toString(bestMove));
 
         String moveSuffix =

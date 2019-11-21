@@ -68,7 +68,7 @@ public class MoveTrainer {
 
     private static final List<Path> inputs =
 //            mixRange(128, 999);
-            mixRange(692, 999);
+            mixRange(879, 999);
 //    private static final List<Path> inputs = List.of(
 //            Paths.get("lookup/mix/0.txt"),
 //            Paths.get("lookup/mix/1.txt")
@@ -116,7 +116,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/history/mix/all_mid_20191116.zip");
 //            Paths.get("lookup/history/mix/all_mid_20191117b.zip");
 //            Paths.get("lookup/history/mix/all_mid_batch_20191118b.zip");
-            Paths.get("lookup/history/mix/all_mid_batch_20191120.zip");
+            Paths.get("lookup/history/mix/all_mid_batch_20191121.zip");
 //            Paths.get("lookup/history/mix/all_deep_20191119.zip");
 
 
