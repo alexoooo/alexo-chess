@@ -4,7 +4,6 @@ import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
 import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
-import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -130,34 +129,34 @@ public class Tournament
 //                1,
 //                false
 //        );
-        ParallelMctsPlayer a = new ParallelMctsPlayer(
-                "par",
-                9,
-                0.3,
-                3,
-                false
-        );
+//        ParallelMctsPlayer a = new ParallelMctsPlayer(
+//                "par",
+//                9,
+//                0.3,
+//                3,
+//                false
+//        );
 //        ParallelMctsPlayer b = a.prototype();
 
 //        Player a = NeuralNetworkPlayer.load(
-//                Paths.get("lookup/history/mix/all_mid_batch_20191118.zip"),
-//                true);
+//                Paths.get("lookup/history/mix/all_mid_batch_20191121.zip"),
+//                false);
 //
 //        Player b = NeuralNetworkPlayer.load(
 //                Paths.get("lookup/nn_2019-10-25b.zip"));
 
-//        Player a = new PuctPlayer(
-//                Paths.get("lookup/history/mix/all_mid_batch_20191119b.zip"),
-//                1,
-//                1.5,
-//                true,
-//                7,
-//                true,
-//                1.5,
-//                0);
+        Player a = new PuctPlayer(
+                Paths.get("lookup/history/mix/all_mid_batch_20191120-travis.zip"),
+                1,
+                1.5,
+                true,
+                7,
+                true,
+                1.5,
+                0);
         Player b = new PuctPlayer(
-                Paths.get("lookup/history/mix/all_mid_batch_20191120.zip"),
-                2,
+                Paths.get("lookup/history/mix/all_mid_batch_20191121.zip"),
+                1,
                 1.5,
                 true,
                 7,

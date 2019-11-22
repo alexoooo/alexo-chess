@@ -32,13 +32,16 @@ import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 
 
 public class MoveTrainer {
@@ -47,15 +50,16 @@ public class MoveTrainer {
     private static final boolean defaultValueAverage = true;
 //    private static final boolean measureOutcome = false;
 
-    private static final int miniBatchSize = 256;
+//    private static final int miniBatchSize = 256;
+    private static final int miniBatchSize = 512;
     private static final int saveOnceEvery = 1_000_000;
 
-    private static final int trainingIterations = 0;
-//    private static final int trainingIterations = 1;
+//    private static final int trainingIterations = 0;
+    private static final int trainingIterations = 1;
 //    private static final int trainingIterations = 100;
 
-//    private static final boolean testInitial = false;
-    private static final boolean testInitial = true;
+    private static final boolean testInitial = false;
+//    private static final boolean testInitial = true;
 
     private static final int seed = 42;
     private static final Random seededRandom = new Random(seed);
@@ -67,8 +71,8 @@ public class MoveTrainer {
 
 
     private static final List<Path> inputs =
+            mixRange(17, 999);
 //            mixRange(128, 999);
-            mixRange(879, 999);
 //    private static final List<Path> inputs = List.of(
 //            Paths.get("lookup/mix/0.txt"),
 //            Paths.get("lookup/mix/1.txt")
@@ -80,7 +84,7 @@ public class MoveTrainer {
     private static List<Path> mixRange(int fromInclusive, int toInclusive) {
         List<Path> range = new ArrayList<>();
         for (int i = fromInclusive; i <= toInclusive; i++) {
-            Path mixFile = Paths.get("lookup/mix/" + i + ".txt");
+            Path mixFile = Paths.get("lookup/mix2/" + i + ".txt.gz");
             range.add(mixFile);
         }
         return range;
@@ -116,7 +120,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/history/mix/all_mid_20191116.zip");
 //            Paths.get("lookup/history/mix/all_mid_20191117b.zip");
 //            Paths.get("lookup/history/mix/all_mid_batch_20191118b.zip");
-            Paths.get("lookup/history/mix/all_mid_batch_20191121.zip");
+            Paths.get("lookup/history/mix/all_mid_batch_20191122b.zip");
 //            Paths.get("lookup/history/mix/all_deep_20191119.zip");
 
 
@@ -200,6 +204,11 @@ public class MoveTrainer {
                     .getAndActivateWorkspace(wsConfig, "MoveTrainer")
             ) {
                 for (var miniBatch : Lists.partition(partition, miniBatchSize)) {
+                    if (miniBatch.size() != miniBatchSize) {
+                        // https://stats.stackexchange.com/a/236186
+                        continue;
+                    }
+
                     DataSetIterator miniBatchIterator = new ListDataSetIterator<>(
                             Collections2.transform(miniBatch, MoveTrainer::convertToDataSet),
                             miniBatch.size());
@@ -222,8 +231,25 @@ public class MoveTrainer {
 
 
     public static List<MoveHistory> readMoves(Path input) {
-        try (var lines = Files.lines(input)) {
-            return lines.map(MoveHistory::new).collect(Collectors.toList());
+        try {
+            if (input.getFileName().toString().endsWith(".gz")) {
+                List<MoveHistory> moves = new ArrayList<>();
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(new GZIPInputStream(
+                                Files.newInputStream(input)))
+                )) {
+                    while (reader.ready()) {
+                        String line = reader.readLine();
+                        moves.add(new MoveHistory(line));
+                    }
+                }
+                return moves;
+            }
+            else {
+                try (var lines = Files.lines(input)) {
+                    return lines.map(MoveHistory::new).collect(Collectors.toList());
+                }
+            }
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);

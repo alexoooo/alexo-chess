@@ -90,8 +90,8 @@ public class BrainTeaser {
 //                1,
 //                1.5);
         Player player = new PuctPlayer(
-//                Paths.get("lookup/history/mix/all_mid_batch_20191120-travis.zip"),
-                Paths.get("lookup/history/mix/all_mid_batch_20191121.zip"),
+                Paths.get("lookup/history/mix/all_mid_batch_20191120-travis.zip"),
+//                Paths.get("lookup/history/mix/all_mid_batch_20191121.zip"),
 //                Paths.get("lookup/history/mix/all_deep_20191119.zip"),
 //                1,
                 2,
@@ -137,8 +137,44 @@ public class BrainTeaser {
 //                "r1bqkbnr/ppp2ppp/2np4/4p3/2PP4/2N2N2/PP2PPPP/R1BQKB1R b KQkq d3 0 1"
 //                "r1bqkbnr/ppp2ppp/2np4/8/2Pp4/2N2N2/PP2PPPP/R1BQKB1R w KQkq - 0 1"
 //                "r1bqkbnr/ppp2ppp/2np4/8/2PN4/2N5/PP2PPPP/R1BQKB1R b KQkq - 0 1"
-                "r2qkbnr/pppb1ppp/2np4/8/2PN4/2N5/PP2PPPP/R1BQKB1R w KQkq - 0 1"
+//                "r2qkbnr/pppb1ppp/2np4/8/2PN4/2N5/PP2PPPP/R1BQKB1R w KQkq - 0 1"
 //                "r2qkbnr/pppb1ppp/2np4/8/2PN4/2N3P1/PP2PP1P/R1BQKB1R b KQkq - 0 1"
+//                "r2qkb1r/pppb1ppp/2np1n2/8/2PN4/2N3P1/PP2PP1P/R1BQKB1R w KQkq - 0 1"
+//                "r2qkb1r/pppb1ppp/2np1n2/8/2PN4/2N3P1/PP2PPBP/R1BQK2R b KQkq - 0 1"
+//                "r2qk2r/pppbbppp/2np1n2/8/2PN4/2N3P1/PP2PPBP/R1BQK2R w KQkq - 0 1"
+//                "r2qk2r/pppbbppp/2np1n2/8/2PN4/2N3P1/PP2PPBP/R1BQ1RK1 b kq - 0 1"
+//                "r2q1rk1/pppbbppp/2np1n2/8/2PN4/2N3P1/PP2PPBP/R1BQ1RK1 w - - 0 1"
+//                "r2q1rk1/pppbbppp/2Np1n2/8/2P5/2N3P1/PP2PPBP/R1BQ1RK1 b - - 0 1"
+//                "r2q1rk1/ppp1bppp/2bp1n2/8/2P5/2N3P1/PP2PPBP/R1BQ1RK1 w - - 0 1"
+//                "r2q1rk1/ppp1bppp/2Bp1n2/8/2P5/2N3P1/PP2PP1P/R1BQ1RK1 b - - 0 1"
+                "r2q1rk1/p1p1bppp/2pp1n2/8/2P5/2N3P1/PP2PP1P/R1BQ1RK1 w - - 0 1"
+
+                // chess.com (black)
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1"
+//                "rnbqkbnr/pppp1ppp/8/4p3/2P5/8/PP1PPPPP/RNBQKBNR w KQkq e6 0 2"
+//                "rnbqkbnr/pppp1ppp/8/4p3/2P5/2N5/PP1PPPPP/R1BQKBNR b KQkq - 1 2"
+//                "rnbqkb1r/pppp1ppp/5n2/4p3/2P5/2N5/PP1PPPPP/R1BQKBNR w KQkq - 2 3"
+//                "rnbqkb1r/pppp1ppp/5n2/4p3/2P5/2N3P1/PP1PPP1P/R1BQKBNR b KQkq - 0 3"
+//                "rnbqk2r/pppp1ppp/5n2/4p3/1bP5/2N3P1/PP1PPP1P/R1BQKBNR w KQkq - 1 4"
+//                "rnbqk2r/pppp1ppp/5n2/4p3/1bP5/2N2NP1/PP1PPP1P/R1BQKB1R b KQkq - 2 4"
+//                "rnbqk2r/pppp1ppp/5n2/8/1bP1p3/2N2NP1/PP1PPP1P/R1BQKB1R w KQkq - 0 5"
+//                "rnbqk2r/pppp1ppp/5n2/6N1/1bP1p3/2N3P1/PP1PPP1P/R1BQKB1R b KQkq - 1 5"
+//                "rnbqk2r/pppp1ppp/5n2/6N1/2P1p3/2b3P1/PP1PPP1P/R1BQKB1R w KQkq - 0 6"
+//                "rnbqk2r/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PP1P/R1BQKB1R b KQkq - 0 6"
+//                "rnbq1rk1/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PP1P/R1BQKB1R w KQ - 1 7"
+//                "rnbq1rk1/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PPBP/R1BQK2R b KQ - 2 7"
+//                "rnbqr1k1/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PPBP/R1BQK2R w KQ - 3 8"
+//                "rnbqr1k1/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PPBP/R1BQ1RK1 b - - 4 8"
+//                "rnbqr1k1/pppp1pp1/5n1p/6N1/2P1p3/2P3P1/PP2PPBP/R1BQ1RK1 w - - 0 9" // N g1 e4 ????
+//                "rnbqr1k1/pppp1pp1/5n1p/8/2P1N3/2P3P1/PP2PPBP/R1BQ1RK1 b - - 0 9"
+//                "rnbqr1k1/pppp1pp1/7p/8/2P1n3/2P3P1/PP2PPBP/R1BQ1RK1 w - - 0 10"
+//                "rnbqr1k1/pppp1pp1/7p/8/2P1n3/2P3P1/PPQ1PPBP/R1B2RK1 b - - 1 10"
+//                "rnb1r1k1/ppppqpp1/7p/8/2P1n3/2P3P1/PPQ1PPBP/R1B2RK1 w - - 2 11"
+//                "rnb1r1k1/ppppqpp1/7p/8/2P1n3/1QP3P1/PP2PPBP/R1B2RK1 b - - 3 11"
+//                "rnb1r1k1/ppp1qpp1/3p3p/8/2P1n3/1QP3P1/PP2PPBP/R1B2RK1 w - - 0 12"
+//                "rnb1r1k1/ppp1qpp1/3p3p/8/2P1nB2/1QP3P1/PP2PPBP/R4RK1 b - - 1 12"
+//                "rnb1r1k1/ppp1qpp1/3p3p/2n5/2P2B2/1QP3P1/PP2PPBP/R4RK1 w - - 2 13"
 
                 // duane (white)
 //                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"

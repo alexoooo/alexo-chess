@@ -206,6 +206,7 @@ class PuctNode {
         Long positionKey = state.staticHashCode();
 
         PuctEstimate cached = context.nnCache.get(positionKey);
+//        PuctEstimate cached = null;
 
         PuctEstimate estimate;
         if (cached == null) {

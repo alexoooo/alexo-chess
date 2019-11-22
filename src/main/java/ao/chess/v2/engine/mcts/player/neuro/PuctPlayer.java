@@ -239,6 +239,9 @@ public class PuctPlayer
 
 
     private void initIfRequired() {
+        nnCache.clear();
+        cacheHits.reset();
+
         if (! contexts.isEmpty()) {
             return;
         }
