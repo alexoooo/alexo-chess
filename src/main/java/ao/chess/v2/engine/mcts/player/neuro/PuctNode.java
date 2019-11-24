@@ -217,7 +217,7 @@ class PuctNode {
                     .decodeMoveProbabilities(output, state, legalMoves);
 
             PuctUtils.smearProbabilities(
-                    childPredictions, context.moveUncertainty);
+                    childPredictions, context.predictionUncertainty);
 
             double childOutcome = NeuralCodec.INSTANCE.decodeOutcome(output);
             double scaleOutcome = guessRange * childOutcome + minimumGuess;

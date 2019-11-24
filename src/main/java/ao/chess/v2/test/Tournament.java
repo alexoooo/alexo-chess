@@ -27,7 +27,7 @@ import java.util.List;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 1_000;
+    private static final int TIME_PER_MOVE = 5_000;
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
@@ -146,22 +146,23 @@ public class Tournament
 //                Paths.get("lookup/nn_2019-10-25b.zip"));
 
         Player a = new PuctPlayer(
-                Paths.get("lookup/history/mix/all_mid_batch_20191120-travis.zip"),
+//                Paths.get("lookup/history/mix/all_mid_batch_20191120-travis.zip"),
+                Paths.get("lookup/history/mix/all_mid_batch_20191122.zip"),
                 1,
-                1.5,
+                3.0,
                 true,
-                7,
+                0,
                 true,
-                1.5,
+                1.25,
                 0);
         Player b = new PuctPlayer(
-                Paths.get("lookup/history/mix/all_mid_batch_20191121.zip"),
+                Paths.get("lookup/history/mix/all_mid_batch_20191124.zip"),
                 1,
-                1.5,
+                3.0,
                 true,
-                7,
+                0,
                 true,
-                1.5,
+                1.25,
                 0);
 
 //        Player a = new TopLeftPlayer();

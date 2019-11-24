@@ -34,7 +34,7 @@ public class PuctPlayer
     private final boolean visitMax;
     private final int rollouts;
     private final boolean tablebase;
-    private final double moveUncertainty;
+    private final double predictionUncertainty;
     private final double alpha;
     private final double signal;
     private final int minimumTrajectories;
@@ -74,7 +74,7 @@ public class PuctPlayer
             boolean visitMax,
             int rollouts,
             boolean tablebase,
-            double moveUncertainty,
+            double predictionUncertainty,
             int minumumTrajectories)
     {
         this(savedNeuralNetwork,
@@ -83,7 +83,7 @@ public class PuctPlayer
                 visitMax,
                 rollouts,
                 tablebase,
-                moveUncertainty,
+                predictionUncertainty,
                 minumumTrajectories,
                 0.3, 0.75, false);
     }
@@ -96,7 +96,7 @@ public class PuctPlayer
             boolean visitMax,
             int rollouts,
             boolean tablebase,
-            double moveUncertainty,
+            double predictionUncertainty,
             int minumumTrajectories,
             double alpha,
             double signal)
@@ -107,7 +107,7 @@ public class PuctPlayer
                 visitMax,
                 rollouts,
                 tablebase,
-                moveUncertainty,
+                predictionUncertainty,
                 minumumTrajectories,
                 alpha,
                 signal,
@@ -122,7 +122,7 @@ public class PuctPlayer
             boolean visitMax,
             int rollouts,
             boolean tablebase,
-            double moveUncertainty,
+            double predictionUncertainty,
             int minumumTrajectories,
             double alpha,
             double signal,
@@ -134,7 +134,7 @@ public class PuctPlayer
         this.visitMax = visitMax;
         this.rollouts = rollouts;
         this.tablebase = tablebase;
-        this.moveUncertainty = moveUncertainty;
+        this.predictionUncertainty = predictionUncertainty;
         this.minimumTrajectories = minumumTrajectories;
         this.alpha = alpha;
         this.signal = signal;
@@ -260,7 +260,7 @@ public class PuctPlayer
             }
             contexts.add(new PuctContext(
                     nn,
-                    exploration, rollouts, tablebase, moveUncertainty,
+                    exploration, rollouts, tablebase, predictionUncertainty,
                     nnCache, cacheHits));
         }
 
@@ -294,7 +294,7 @@ public class PuctPlayer
         }
         else {
             PuctUtils.smearProbabilities(
-                    moveProbabilities, moveUncertainty);
+                    moveProbabilities, predictionUncertainty);
         }
 
         PuctNode root = new PuctNode(legalMoves, moveProbabilities, null);

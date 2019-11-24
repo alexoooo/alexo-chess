@@ -26,7 +26,7 @@ class PuctContext {
     public final double exploration;
     public final int rollouts;
     public final boolean tablebase;
-    public final double moveUncertainty;
+    public final double predictionUncertainty;
 
     public double estimatedValue;
 
@@ -40,7 +40,7 @@ class PuctContext {
             double exploration,
             int rollouts,
             boolean tablebase,
-            double moveUncertainty,
+            double predictionUncertainty,
             ConcurrentHashMap<Long, PuctEstimate> nnCache,
             LongAdder cacheHits)
     {
@@ -49,7 +49,7 @@ class PuctContext {
         this.exploration = exploration;
         this.rollouts = rollouts;
         this.tablebase = tablebase;
-        this.moveUncertainty = moveUncertainty;
+        this.predictionUncertainty = predictionUncertainty;
 
         this.nnCache = nnCache;
         this.cacheHits = cacheHits;
