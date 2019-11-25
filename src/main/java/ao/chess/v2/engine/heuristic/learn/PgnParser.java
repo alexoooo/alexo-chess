@@ -15,18 +15,57 @@ import java.util.Optional;
 
 
 public class PgnParser {
+    public static void main(String[] args) {
+        String game =
+                "[...]\n" +
+                "1. e4 c6 2. d3 g6 3. Nf3 Bg7 4. Be2 d5 5. e5 e6 6. Bf4 Ne7 7. d4 Qb6 8. b3 f6\n" +
+                "9. a4 fxe5 10. Bxe5 Bxe5 11. Nxe5 Nd7 12. Nf3 Nf6 13. a5 Qc7 14. O-O O-O 15. c4\n" +
+                "dxc4 16. bxc4 Rd8 17. Nc3 e5 18. Nxe5 Nf5 19. Nf3 Nxd4 20. Nxd4 Qf4 21. Qb3\n" +
+                "Rxd4 22. c5+ Nd5 23. Bf3 Qf7 24. Nxd5 Rxd5 25. Bxd5 Qxd5 26. Rab1 Qxb3 27. Rxb3\n" +
+                "Kg7 28. Rd1 Kh6 29. Rd8 b5 30. Re3 b4 31. f4 Kh5 32. h3 a6 33. Rh8 g5 34. Re5\n" +
+                "Kh6 35. Rxg5 Bb7 36. Rxa8 Bxa8 37. Rg8 Bb7 38. g4 b3 39. Rb8 Ba8 40. Rxb3 Kg6\n" +
+                "41. Rb8 Kf7 42. Rxa8 Ke6 43. Rxa6 Kd5 44. f5 Kxc5 45. Ra7 Kd4 46. Rd7+ Ke5 47.\n" +
+                "Re7+ Kd4 48. Rxh7 c5 49. a6 c4 50. a7 c3 51. Rd7+ Kc4 52. Rc7+ Kb4 53. a8=Q Kb3\n" +
+                "54. Qc8 Kb2 55. h4 Kb1 56. g5 c2 57. h5 c1=Q+ 58. Rxc1+ Ka2 59. f6 Ka3 60. f7\n" +
+                "Kb3 61. g6 Ka3 62. g7 Kb3 63. g8=Q Ka4 64. h6 Ka5 65. h7 Kb6 66. h8=Q Ka5 67.\n" +
+                "f8=Q Kb5 68. Qch3 Kb6 69. Qh8h7 Ka5 70. Qhf1 Kb6 71. Qc5# 1-0\n" +
+                "";
+
+        PgnParser parser = new PgnParser();
+        for (var line : game.split("\n")) {
+            parser.process(line);
+        }
+    }
+
+
     private State state = State.initial();
     private MoveHistory.Buffer buffer = new MoveHistory.Buffer();
     private List<MoveHistory> pending = new ArrayList<>();
+    private boolean skipUntilNext = false;
 
 
     public Optional<List<MoveHistory>> process(String line) {
         System.out.println("> " + line);
 
-        if (! line.isEmpty() && Character.isDigit(line.charAt(0))) {
-            String[] tokens = line.split("\\s+");
+        if (skipUntilNext) {
+            if (line.startsWith("1.")) {
+                skipUntilNext = false;
+            }
+            else {
+                return Optional.empty();
+            }
+        }
+
+        if (! line.isEmpty() && ! line.startsWith("[")) {
+            String[] tokens = line
+                    .replaceAll("[{][^}]+[}]", "")
+                    .replaceAll("\\d+\\.\\s?", "")
+                    .split("\\s+");
             for (String token : tokens) {
                 onNext(token);
+                if (skipUntilNext) {
+                    return Optional.empty();
+                }
             }
         }
 
@@ -48,9 +87,12 @@ public class PgnParser {
                 ? token
                 : token.substring(dotIndex + 1);
 
-        if (move.equals("*")) {
+        if (move.equals("*") ||
+                move.equals("--") ||
+                move.contains(".")) {
             buffer.clear();
             state = State.initial();
+            skipUntilNext = true;
             return;
         }
 
@@ -85,11 +127,11 @@ public class PgnParser {
 
 
     private void processMove(String move) {
-//        if (move.equals("b8=Q+")) {
+//        if (move.equals("Qh8h7")) {
 //            System.out.println("!!!!1");
 //        }
 
-        String withoutDecorator = move.replaceAll("[x+]", "");
+        String withoutDecorator = move.replaceAll("[x+#]", "");
 
         int promotionIndex = withoutDecorator.indexOf('=');
         String clean =
@@ -127,22 +169,24 @@ public class PgnParser {
         int sourceRank = -1;
         int sourceFile = -1;
         if (castleTypeOrNull == null) {
-            if (clean.length() == 4) {
-                sourceFile = State.FILES.indexOf(clean.substring(1, 2));
-                if (sourceFile == -1) {
-                    sourceRank = Integer.parseInt(clean.substring(1, 2)) - 1;
-                }
+            String padded =
+                    figure == Figure.PAWN
+                    ? "P" + clean
+                    : clean;
+
+            if (padded.length() == 5) {
+                sourceFile = State.FILES.indexOf(padded.substring(1, 2));
+                sourceRank = Integer.parseInt(padded.substring(2, 3)) - 1;
             }
-            else if (figure == Figure.PAWN && clean.length() == 3) {
-                sourceFile = State.FILES.indexOf(clean.substring(0, 1));
+            else if (padded.length() == 4) {
+                sourceFile = State.FILES.indexOf(padded.substring(1, 2));
                 if (sourceFile == -1) {
-                    sourceRank = Integer.parseInt(clean.substring(0, 1)) - 1;
+                    sourceRank = Integer.parseInt(padded.substring(1, 2)) - 1;
                 }
             }
         }
 
         int[] legalMoves = state.legalMoves();
-
         for (int i = 0; i < legalMoves.length; i++) {
             int legalMove = legalMoves[i];
 
@@ -187,6 +231,9 @@ public class PgnParser {
             return;
         }
 
+//        buffer.clear();
+//        state = State.initial();
+//        skipUntilNext = true;
         throw new IllegalStateException("Unable to process: " + move);
     }
 

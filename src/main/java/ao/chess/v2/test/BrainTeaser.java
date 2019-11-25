@@ -90,10 +90,11 @@ public class BrainTeaser {
 //                1,
 //                1.5);
         Player player = new PuctPlayer(
-                Paths.get("lookup/history/mix/all_mid_batch_20191120-travis.zip"),
+                Paths.get("lookup/nn/all_mid_batch_20191120-travis.zip"),
 //                Paths.get("lookup/history/mix/all_mid_batch_20191122.zip"),
 //                Paths.get("lookup/history/mix/all_mid_batch_20191124.zip"),
 //                Paths.get("lookup/history/mix/all_deep_20191119.zip"),
+                false,
 //                1,
                 2,
                 3.0,
@@ -156,7 +157,9 @@ public class BrainTeaser {
 //                "r3r1k1/p1pqbppp/2pp1n2/8/2P5/2N1B1P1/PPQ1PP1P/R4RK1 w - - 0 1"
 //                "r3r1k1/p1pqbppp/2pp1n2/8/2P5/2N1B1P1/PPQ1PP1P/3R1RK1 b - - 0 1"
 //                "r3r1k1/p1pqbpp1/2pp1n2/7p/2P5/2N1B1P1/PPQ1PP1P/3R1RK1 w - h6 0 1"
-                "r3r1k1/p1pqbpp1/2pp1n2/7p/2PB4/2N3P1/PPQ1PP1P/3R1RK1 b - - 0 1"
+//                "r3r1k1/p1pqbpp1/2pp1n2/7p/2PB4/2N3P1/PPQ1PP1P/3R1RK1 b - - 0 1"
+//                "r3r1k1/p1pqbpp1/2pp1n2/8/2PB3p/2N3P1/PPQ1PP1P/3R1RK1 w - - 0 1"
+                "r3r1k1/p1pqbpp1/2pp1n2/8/2PBP2p/2N3P1/PPQ2P1P/3R1RK1 b - e3 0 1"
 
                 // Phi (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

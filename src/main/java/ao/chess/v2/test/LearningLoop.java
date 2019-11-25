@@ -34,6 +34,7 @@ public class LearningLoop {
     //-----------------------------------------------------------------------------------------------------------------
     private final static Path generationsDir = Paths.get("lookup/gen");
 
+    private static final boolean computeGraph = false;
     private final static int coolDownMs = 5_000;
     private final static int selfPlayThreads = 1;
     private final static int gamesPerThread = 100;
@@ -256,6 +257,7 @@ public class LearningLoop {
             if (selfPlayThreads == 1) {
                 PuctPlayer a = new PuctPlayer(
                         nnFile,
+                        computeGraph,
                         1,
                         thinkingExploration,
                         aVisitMax,
@@ -268,6 +270,7 @@ public class LearningLoop {
 
                 PuctPlayer b = new PuctPlayer(
                         nnFile,
+                        computeGraph,
                         1,
                         thinkingExploration,
                         bVisitMax,
@@ -351,6 +354,7 @@ public class LearningLoop {
         Thread thread = new Thread(() -> {
             PuctPlayer a = new PuctPlayer(
                     nnFile,
+                    computeGraph,
                     1,
                     thinkingExploration,
                     aVisitMax,
@@ -363,6 +367,7 @@ public class LearningLoop {
 
             PuctPlayer b = new PuctPlayer(
                     nnFile,
+                    false,
                     1,
                     thinkingExploration,
                     bVisitMax,
@@ -417,6 +422,7 @@ public class LearningLoop {
 
         Player a = new PuctPlayer(
                 nnFile,
+                computeGraph,
                 1,
                 500);
 
@@ -431,6 +437,7 @@ public class LearningLoop {
 
             b = new PuctPlayer(
                     previousNnFile,
+                    computeGraph,
                     1,
                     500);
         }

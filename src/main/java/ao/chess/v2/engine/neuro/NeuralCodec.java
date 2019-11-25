@@ -77,12 +77,28 @@ public enum NeuralCodec {
     public double decodeMultiOutcome(
             INDArray output
     ) {
+//        return output.getDouble(0, 0);
         double winProbability = output.getDouble(0, 0);
 //        double lossProbability = output.getDouble(0, 1);
         double drawProbability = output.getDouble(0, 2);
 
         return winProbability +
                 0.5 * drawProbability;
+    }
+
+
+    public double decodeMultiOutcomeMax(
+            INDArray output
+    ) {
+        double winProbability = output.getDouble(0, 0);
+        double lossProbability = output.getDouble(0, 1);
+        double drawProbability = output.getDouble(0, 2);
+
+        return winProbability > lossProbability && winProbability > drawProbability
+                ? 1.0
+                : lossProbability > winProbability && lossProbability > drawProbability
+                ? 0
+                : 0.5;
     }
 
 

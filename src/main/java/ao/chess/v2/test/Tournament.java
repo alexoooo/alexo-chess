@@ -148,6 +148,7 @@ public class Tournament
         Player a = new PuctPlayer(
 //                Paths.get("lookup/history/mix/all_mid_batch_20191120-travis.zip"),
                 Paths.get("lookup/history/mix/all_mid_batch_20191122.zip"),
+                false,
                 1,
                 3.0,
                 true,
@@ -157,6 +158,7 @@ public class Tournament
                 0);
         Player b = new PuctPlayer(
                 Paths.get("lookup/history/mix/all_mid_batch_20191124.zip"),
+                false,
                 1,
                 3.0,
                 true,

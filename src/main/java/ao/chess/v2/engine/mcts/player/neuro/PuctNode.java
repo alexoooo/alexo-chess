@@ -10,6 +10,8 @@ import ao.chess.v2.piece.Figure;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
+import org.deeplearning4j.nn.graph.ComputationGraph;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Arrays;
@@ -211,15 +213,26 @@ class PuctNode {
         PuctEstimate estimate;
         if (cached == null) {
             INDArray input = NeuralCodec.INSTANCE.encodeState(state);
-            INDArray output = context.nn.output(input);
 
-            double[] childPredictions = NeuralCodec.INSTANCE
-                    .decodeMoveProbabilities(output, state, legalMoves);
+            double[] childPredictions;
+            double childOutcome;
+
+            if (context.computeGraph) {
+                INDArray[] outputs = ((ComputationGraph) context.nn).output(input);
+                childPredictions = NeuralCodec.INSTANCE.decodeMoveMultiProbabilities(
+                        outputs[0], outputs[1], state, legalMoves);
+                childOutcome = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2]);
+            }
+            else {
+                INDArray output = ((MultiLayerNetwork) context.nn).output(input);
+                childPredictions = NeuralCodec.INSTANCE
+                        .decodeMoveProbabilities(output, state, legalMoves);
+                childOutcome = NeuralCodec.INSTANCE.decodeOutcome(output);
+            }
 
             PuctUtils.smearProbabilities(
                     childPredictions, context.predictionUncertainty);
 
-            double childOutcome = NeuralCodec.INSTANCE.decodeOutcome(output);
             double scaleOutcome = guessRange * childOutcome + minimumGuess;
 
             estimate = new PuctEstimate(childPredictions, scaleOutcome);

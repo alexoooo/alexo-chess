@@ -2,15 +2,16 @@ package ao.chess.v2.engine.mcts.player.neuro;
 
 import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
+import ao.chess.v2.engine.heuristic.learn.NeuralUtils;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
 import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
+import org.deeplearning4j.nn.api.NeuralNetwork;
+import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class PuctPlayer
     //-----------------------------------------------------------------------------------------------------------------
     private final String id;
     private final Path savedNeuralNetwork;
+    private final boolean computeGraph;
     private final int threads;
     private final double exploration;
     private final boolean visitMax;
@@ -53,10 +55,12 @@ public class PuctPlayer
     //-----------------------------------------------------------------------------------------------------------------
     public PuctPlayer(
             Path savedNeuralNetwork,
+            boolean computeGraph,
             int threads,
             int minimumTrajectories)
     {
         this(savedNeuralNetwork,
+                computeGraph,
                 threads,
                 1.5,
                 true,
@@ -69,6 +73,7 @@ public class PuctPlayer
 
     public PuctPlayer(
             Path savedNeuralNetwork,
+            boolean computeGraph,
             int threads,
             double exploration,
             boolean visitMax,
@@ -78,6 +83,7 @@ public class PuctPlayer
             int minumumTrajectories)
     {
         this(savedNeuralNetwork,
+                computeGraph,
                 threads,
                 exploration,
                 visitMax,
@@ -91,6 +97,7 @@ public class PuctPlayer
 
     public PuctPlayer(
             Path savedNeuralNetwork,
+            boolean computeGraph,
             int threads,
             double exploration,
             boolean visitMax,
@@ -102,6 +109,7 @@ public class PuctPlayer
             double signal)
     {
         this(savedNeuralNetwork,
+                computeGraph,
                 threads,
                 exploration,
                 visitMax,
@@ -117,6 +125,7 @@ public class PuctPlayer
 
     public PuctPlayer(
             Path savedNeuralNetwork,
+            boolean computeGraph,
             int threads,
             double exploration,
             boolean visitMax,
@@ -129,6 +138,7 @@ public class PuctPlayer
             boolean train)
     {
         this.savedNeuralNetwork = savedNeuralNetwork;
+        this.computeGraph = computeGraph;
         this.threads = threads;
         this.exploration = exploration;
         this.visitMax = visitMax;
@@ -251,15 +261,9 @@ public class PuctPlayer
         }
 
         for (int i = 0; i < threads; i++) {
-            MultiLayerNetwork nn;
-            try {
-                nn = MultiLayerNetwork.load(savedNeuralNetwork.toFile(), false);
-            }
-            catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            NeuralNetwork nn = NeuralUtils.loadNeuralNetwork(savedNeuralNetwork, true, computeGraph);
             contexts.add(new PuctContext(
-                    nn,
+                    nn, computeGraph,
                     exploration, rollouts, tablebase, predictionUncertainty,
                     nnCache, cacheHits));
         }
@@ -280,13 +284,25 @@ public class PuctPlayer
 
         int[] legalMoves = state.legalMoves();
 
-        MultiLayerNetwork nn = contexts.get(0).nn;
+        NeuralNetwork nn = contexts.get(0).nn;
 
         INDArray input = NeuralCodec.INSTANCE.encodeState(state);
-        INDArray output = nn.output(input);
 
-        double[] moveProbabilities = NeuralCodec.INSTANCE
-                .decodeMoveProbabilities(output, state, legalMoves);
+        double[] moveProbabilities;
+        if (computeGraph) {
+            INDArray[] outputs = ((ComputationGraph) nn).output(input);
+            moveProbabilities = NeuralCodec.INSTANCE
+                    .decodeMoveMultiProbabilities(
+                            outputs[0],
+                            outputs[1],
+                            state,
+                            legalMoves);
+        }
+        else {
+            INDArray output = ((MultiLayerNetwork) nn).output(input);
+            moveProbabilities = NeuralCodec.INSTANCE
+                    .decodeMoveProbabilities(output, state, legalMoves);
+        }
 
         if (train) {
             double[] buffer = new double[moveProbabilities.length];

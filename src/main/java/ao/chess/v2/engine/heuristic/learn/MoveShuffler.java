@@ -3,7 +3,9 @@ package ao.chess.v2.engine.heuristic.learn;
 
 import com.google.common.io.Closer;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,16 +13,17 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 
 public class MoveShuffler {
     private static final Random rand = new Random();
-    private static final int partitions = 1000;
+    private static final int partitions = 3000;
 
 
     public static void main(String[] args) throws IOException {
-        Path inputDir = Paths.get("lookup/human");
+        Path inputDir = Paths.get("lookup/train/history");
         Path outputDir = Paths.get("lookup/mix2");
 
         Files.createDirectories(outputDir);
@@ -39,17 +42,21 @@ public class MoveShuffler {
 
             for (var historyFile : files) {
                 String filename = historyFile.getFileName().toString();
-                if (!filename.endsWith(".txt")) {
+                if (! filename.endsWith(".txt.gz")) {
                     continue;
                 }
                 System.out.println("> " + historyFile);
 
-                try (var lines = Files.lines(historyFile)) {
-                    lines.forEach(example -> {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(new GZIPInputStream(
+                                Files.newInputStream(historyFile)))
+                )) {
+                    while (reader.ready()) {
+                        String line = reader.readLine();
                         int partitionIndex = rand.nextInt(outputs.size());
                         PrintWriter output = outputs.get(partitionIndex);
-                        output.println(example);
-                    });
+                        output.println(line);
+                    }
                 }
 
                 outputs.forEach(PrintWriter::flush);

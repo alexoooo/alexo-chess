@@ -188,6 +188,10 @@ public class MoveHistory {
     }
 
 
+    public double expectedValue() {
+        return expectedValue;
+    }
+
     public double expectedValueScore() {
         return expectedValue * 2 - 1;
     }
@@ -205,6 +209,16 @@ public class MoveHistory {
 
         return outcome.winner() == state.nextToAct()
                 ? 1 : -1;
+    }
+
+
+    public double outcomeValue() {
+        if (outcome == Outcome.DRAW) {
+            return 0.5;
+        }
+
+        return outcome.winner() == state.nextToAct()
+                ? 1 : 0;
     }
 
 
