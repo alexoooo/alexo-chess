@@ -20,7 +20,7 @@ public class PgnTransformer {
         // http://www.kingbase-chess.net/
         // http://www.chessgameslinks.lars-balzer.info/
 
-        Path pgnDir = Paths.get("lookup/pgn/pgnmentor");
+        Path pgnDir = Paths.get("lookup/pgn");
 
         try (var files = Files.newDirectoryStream(pgnDir)) {
             for (var pgnFile : files) {

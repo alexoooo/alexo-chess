@@ -24,7 +24,7 @@ public class MoveShuffler {
 
     public static void main(String[] args) throws IOException {
         Path inputDir = Paths.get("lookup/train/history");
-        Path outputDir = Paths.get("lookup/mix2");
+        Path outputDir = Paths.get("lookup/mix-big");
 
         Files.createDirectories(outputDir);
 

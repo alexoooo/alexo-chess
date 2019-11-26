@@ -89,13 +89,24 @@ public class BrainTeaser {
 //                Paths.get("lookup/gen/2/nn.zip"),
 //                1,
 //                1.5);
+//        Player player = new PuctPlayer(
+//                Paths.get("lookup/nn/all_mid_batch_20191120-travis.zip"),
+////                Paths.get("lookup/history/mix/all_mid_batch_20191122.zip"),
+////                Paths.get("lookup/history/mix/all_mid_batch_20191124.zip"),
+////                Paths.get("lookup/history/mix/all_deep_20191119.zip"),
+//                false,
+////                1,
+//                2,
+//                3.0,
+//                true,
+//                0,
+//                true,
+//                1.25,
+//                0);
+
         Player player = new PuctPlayer(
-                Paths.get("lookup/nn/all_mid_batch_20191120-travis.zip"),
-//                Paths.get("lookup/history/mix/all_mid_batch_20191122.zip"),
-//                Paths.get("lookup/history/mix/all_mid_batch_20191124.zip"),
-//                Paths.get("lookup/history/mix/all_deep_20191119.zip"),
-                false,
-//                1,
+                Paths.get("lookup/nn/multi_6_20191125.zip"),
+                true,
                 2,
                 3.0,
                 true,
@@ -116,7 +127,7 @@ public class BrainTeaser {
 
 //                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
-//                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8 (!!)
+                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8 (!!)
 
                 // trivial
 //                "4R3/4R3/8/2k5/8/2p2K2/2P5/8 w"
@@ -159,7 +170,7 @@ public class BrainTeaser {
 //                "r3r1k1/p1pqbpp1/2pp1n2/7p/2P5/2N1B1P1/PPQ1PP1P/3R1RK1 w - h6 0 1"
 //                "r3r1k1/p1pqbpp1/2pp1n2/7p/2PB4/2N3P1/PPQ1PP1P/3R1RK1 b - - 0 1"
 //                "r3r1k1/p1pqbpp1/2pp1n2/8/2PB3p/2N3P1/PPQ1PP1P/3R1RK1 w - - 0 1"
-                "r3r1k1/p1pqbpp1/2pp1n2/8/2PBP2p/2N3P1/PPQ2P1P/3R1RK1 b - e3 0 1"
+//                "r3r1k1/p1pqbpp1/2pp1n2/8/2PBP2p/2N3P1/PPQ2P1P/3R1RK1 b - e3 0 1"
 
                 // Phi (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

@@ -66,9 +66,9 @@ public class MoveTrainer {
 //    private static final int miniBatchSize = 512;
     private static final int saveOnceEvery = 1_000_000;
 
-//    private static final int trainingIterations = 0;
+    private static final int trainingIterations = 0;
 //    private static final int trainingIterations = 1;
-    private static final int trainingIterations = 100;
+//    private static final int trainingIterations = 100;
 
 //    private static final boolean testInitial = false;
     private static final boolean testInitial = true;
@@ -82,19 +82,20 @@ public class MoveTrainer {
             .build();
 
 
-//    private static final List<Path> inputs =
-//            mixRange(0, 999);
+    private static final List<Path> inputs =
+            mixRange(6, 2999);
 //            mixRange(749, 999);
-    private static final List<Path> inputs = List.of(
-//            Paths.get("lookup/mix/0.txt"),
-//            Paths.get("lookup/mix/1.txt")
-            Paths.get("lookup/train/mix-small/champions_10000.txt")
-    );
+//    private static final List<Path> inputs = List.of(
+////            Paths.get("lookup/mix/0.txt"),
+////            Paths.get("lookup/mix/1.txt")
+//            Paths.get("lookup/train/mix-small/champions_10000.txt")
+//    );
 
     private static List<Path> mixRange(int fromInclusive, int toInclusive) {
         List<Path> range = new ArrayList<>();
         for (int i = fromInclusive; i <= toInclusive; i++) {
-            Path mixFile = Paths.get("lookup/train/mix-pgnmentor-2/" + i + ".txt.gz");
+//            Path mixFile = Paths.get("lookup/train/mix-pgnmentor-2/" + i + ".txt.gz");
+            Path mixFile = Paths.get("lookup/train/mix-big/" + i + ".txt.gz");
             range.add(mixFile);
         }
         return range;
@@ -114,7 +115,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/all_mid_batch_20191124.zip");
 //            Paths.get("lookup/nn/multi_3_20191124b.zip");
 //            Paths.get("lookup/nn/multi_5x_20191125.zip");
-            Paths.get("lookup/nn/multi_6y4_20191125.zip");
+            Paths.get("lookup/nn/multi_6_20191125.zip");
 
 
     private static class Prediction {

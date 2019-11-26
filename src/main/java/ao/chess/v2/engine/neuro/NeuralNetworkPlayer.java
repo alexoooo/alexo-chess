@@ -1,41 +1,39 @@
 package ao.chess.v2.engine.neuro;
 
 import ao.chess.v2.engine.Player;
+import ao.chess.v2.engine.heuristic.learn.NeuralUtils;
 import ao.chess.v2.state.State;
+import org.deeplearning4j.nn.api.NeuralNetwork;
+import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
 
 public class NeuralNetworkPlayer implements Player {
     public static NeuralNetworkPlayer load(
             Path savedNeuralNetwork,
+            boolean computeGraph,
             boolean randomize)
     {
-        MultiLayerNetwork nn;
-        try {
-            nn = MultiLayerNetwork.load(savedNeuralNetwork.toFile(), false);
-        }
-        catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        return new NeuralNetworkPlayer(nn, randomize);
+        NeuralNetwork nn = NeuralUtils.loadNeuralNetwork(savedNeuralNetwork, true, computeGraph);
+        return new NeuralNetworkPlayer(nn, computeGraph, randomize);
     }
 
 
-    private final MultiLayerNetwork nn;
+    private final NeuralNetwork nn;
+    private final boolean computeGraph;
     private final boolean randomize;
 
 
     public NeuralNetworkPlayer(
-            MultiLayerNetwork neuralNetwork,
+            NeuralNetwork neuralNetwork,
+            boolean computeGraph,
             boolean randomize
     ) {
         nn = neuralNetwork;
+        this.computeGraph = computeGraph;
         this.randomize = randomize;
     }
 
@@ -54,10 +52,21 @@ public class NeuralNetworkPlayer implements Player {
             return -1;
         }
 
-        INDArray output = nn.output(input);
-
-        double[] moveProbabilities = NeuralCodec.INSTANCE
-                .decodeMoveProbabilities(output, position, legalMoves);
+        double[] moveProbabilities;
+        if (computeGraph) {
+            INDArray[] outputs = ((ComputationGraph) nn).output(input);
+            moveProbabilities = NeuralCodec.INSTANCE
+                    .decodeMoveMultiProbabilities(
+                            outputs[0],
+                            outputs[1],
+                            position,
+                            legalMoves);
+        }
+        else {
+            INDArray output = ((MultiLayerNetwork) nn).output(input);
+            moveProbabilities = NeuralCodec.INSTANCE
+                    .decodeMoveProbabilities(output, position, legalMoves);
+        }
 
         int maxMoveIndex = 0;
         double maxMoveProbability = 0;
