@@ -2,17 +2,10 @@ package ao.chess.v2.engine.mcts.player.neuro;
 
 import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
-import ao.chess.v2.engine.heuristic.learn.NeuralUtils;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
-import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
-import org.deeplearning4j.nn.api.NeuralNetwork;
-import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -29,8 +22,7 @@ public class PuctPlayer
 
     //-----------------------------------------------------------------------------------------------------------------
     private final String id;
-    private final Path savedNeuralNetwork;
-    private final boolean computeGraph;
+    private final PuctModel model;
     private final int threads;
     private final double exploration;
     private final boolean visitMax;
@@ -54,13 +46,11 @@ public class PuctPlayer
 
     //-----------------------------------------------------------------------------------------------------------------
     public PuctPlayer(
-            Path savedNeuralNetwork,
-            boolean computeGraph,
+            PuctModel model,
             int threads,
             int minimumTrajectories)
     {
-        this(savedNeuralNetwork,
-                computeGraph,
+        this(model,
                 threads,
                 1.5,
                 true,
@@ -72,8 +62,7 @@ public class PuctPlayer
 
 
     public PuctPlayer(
-            Path savedNeuralNetwork,
-            boolean computeGraph,
+            PuctModel model,
             int threads,
             double exploration,
             boolean visitMax,
@@ -82,8 +71,7 @@ public class PuctPlayer
             double predictionUncertainty,
             int minumumTrajectories)
     {
-        this(savedNeuralNetwork,
-                computeGraph,
+        this(model,
                 threads,
                 exploration,
                 visitMax,
@@ -96,8 +84,7 @@ public class PuctPlayer
 
 
     public PuctPlayer(
-            Path savedNeuralNetwork,
-            boolean computeGraph,
+            PuctModel model,
             int threads,
             double exploration,
             boolean visitMax,
@@ -108,8 +95,7 @@ public class PuctPlayer
             double alpha,
             double signal)
     {
-        this(savedNeuralNetwork,
-                computeGraph,
+        this(model,
                 threads,
                 exploration,
                 visitMax,
@@ -124,8 +110,7 @@ public class PuctPlayer
 
 
     public PuctPlayer(
-            Path savedNeuralNetwork,
-            boolean computeGraph,
+            PuctModel model,
             int threads,
             double exploration,
             boolean visitMax,
@@ -137,8 +122,7 @@ public class PuctPlayer
             double signal,
             boolean train)
     {
-        this.savedNeuralNetwork = savedNeuralNetwork;
-        this.computeGraph = computeGraph;
+        this.model = model;
         this.threads = threads;
         this.exploration = exploration;
         this.visitMax = visitMax;
@@ -261,9 +245,12 @@ public class PuctPlayer
         }
 
         for (int i = 0; i < threads; i++) {
-            NeuralNetwork nn = NeuralUtils.loadNeuralNetwork(savedNeuralNetwork, true, computeGraph);
+            PuctModel modelProto = model.prototype();
+
+            modelProto.load();
+
             contexts.add(new PuctContext(
-                    nn, computeGraph,
+                    modelProto,
                     exploration, rollouts, tablebase, predictionUncertainty,
                     nnCache, cacheHits));
         }
@@ -284,36 +271,18 @@ public class PuctPlayer
 
         int[] legalMoves = state.legalMoves();
 
-        NeuralNetwork nn = contexts.get(0).nn;
-
-        INDArray input = NeuralCodec.INSTANCE.encodeState(state);
-
-        double[] moveProbabilities;
-        if (computeGraph) {
-            INDArray[] outputs = ((ComputationGraph) nn).output(input);
-            moveProbabilities = NeuralCodec.INSTANCE
-                    .decodeMoveMultiProbabilities(
-                            outputs[0],
-                            outputs[1],
-                            state,
-                            legalMoves);
-        }
-        else {
-            INDArray output = ((MultiLayerNetwork) nn).output(input);
-            moveProbabilities = NeuralCodec.INSTANCE
-                    .decodeMoveProbabilities(output, state, legalMoves);
-        }
+        PuctEstimate estimate = contexts.get(0).model.estimate(state, legalMoves);
 
         if (train) {
-            double[] buffer = new double[moveProbabilities.length];
-            PuctUtils.smearProbabilities(moveProbabilities, alpha, signal, new Random(), buffer);
+            double[] buffer = new double[estimate.moveProbabilities.length];
+            PuctUtils.smearProbabilities(estimate.moveProbabilities, alpha, signal, new Random(), buffer);
         }
         else {
             PuctUtils.smearProbabilities(
-                    moveProbabilities, predictionUncertainty);
+                    estimate.moveProbabilities, predictionUncertainty);
         }
 
-        PuctNode root = new PuctNode(legalMoves, moveProbabilities, null);
+        PuctNode root = new PuctNode(legalMoves, estimate.moveProbabilities, null);
         root.initRoot();
 
         previousRoot = root;
@@ -331,7 +300,7 @@ public class PuctPlayer
         String generalPrefix = String.format(
                 "%s - %s | %d / %.2f / %b / %d / %b | %d / %d | %s",
                 id,
-                savedNeuralNetwork,
+                model,
                 threads,
                 exploration,
                 visitMax,

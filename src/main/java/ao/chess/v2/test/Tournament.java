@@ -145,7 +145,7 @@ public class Tournament
 //                true);
 
         Player b = NeuralNetworkPlayer.load(
-                Paths.get("lookup/nn/multi_6_20191125.zip"),
+                Paths.get("lookup/nn/multi_6_20191126.zip"),
                 true,
                 true);
 
@@ -171,15 +171,25 @@ public class Tournament
 //                1.25,
 //                0);
 
+//        Player a = new PuctPlayer(
+//                Paths.get("lookup/nn/multi_6_20191126.zip"),
+//                true,
+//                1,
+//                0.4,
+//                true,
+//                0,
+//                true,
+//                0,
+//                0);
 //        Player b = new PuctPlayer(
-//                Paths.get("lookup/nn/multi_6_20191125.zip"),
+//                Paths.get("lookup/nn/multi_6_20191126.zip"),
 //                true,
 //                1,
 //                3.0,
 //                true,
 //                0,
 //                true,
-//                1.25,
+//                0,
 //                0);
 
 //        Player a = new TopLeftPlayer();

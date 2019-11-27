@@ -2,6 +2,7 @@ package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
+import ao.chess.v2.engine.mcts.player.neuro.PuctSingleModel;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 
@@ -105,14 +106,16 @@ public class BrainTeaser {
 //                0);
 
         Player player = new PuctPlayer(
-                Paths.get("lookup/nn/multi_6_20191125.zip"),
-                true,
+                new PuctSingleModel(
+                        Paths.get("lookup/nn/multi_6_20191127.zip"),
+                        true
+                ),
                 2,
-                3.0,
+                2.0,
                 true,
                 0,
                 true,
-                1.25,
+                0.5,
                 0);
 
         State state = State.fromFen(
@@ -127,7 +130,8 @@ public class BrainTeaser {
 
 //                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
-                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8 (!!)
+//                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8 (!!)
+//                "r1bqkb1r/pp1n1pp1/2p1pn1p/6N1/3P4/3B1N2/PPP2PPP/R1BQK2R w KQkq - 0 8" // g5 e6
 
                 // trivial
 //                "4R3/4R3/8/2k5/8/2p2K2/2P5/8 w"
@@ -171,6 +175,21 @@ public class BrainTeaser {
 //                "r3r1k1/p1pqbpp1/2pp1n2/7p/2PB4/2N3P1/PPQ1PP1P/3R1RK1 b - - 0 1"
 //                "r3r1k1/p1pqbpp1/2pp1n2/8/2PB3p/2N3P1/PPQ1PP1P/3R1RK1 w - - 0 1"
 //                "r3r1k1/p1pqbpp1/2pp1n2/8/2PBP2p/2N3P1/PPQ2P1P/3R1RK1 b - e3 0 1"
+//                "r3r1k1/p1p1bpp1/2pp1n2/8/2PBP1qp/2N3P1/PPQ2P1P/3R1RK1 w - - 0 1"
+//                "r3r1k1/p1p1bpp1/2pp1n2/8/2PBP1qp/2N2PP1/PPQ4P/3R1RK1 b - - 0 1"
+//                "r3r1k1/p1p1bpp1/2pp1nq1/8/2PBP2p/2N2PP1/PPQ4P/3R1RK1 w - - 0 1"
+//                "r3r1k1/p1p1bpp1/2pp1nq1/8/2PBP2p/2N2PP1/PP4QP/3R1RK1 b - - 0 1"
+//                "r3r1k1/p1p1bpp1/2pp1nq1/8/2PBP3/2N2Pp1/PP4QP/3R1RK1 w - - 0 1"
+//                "r3r1k1/p1p1bpp1/2pp2q1/7n/2PBP3/2N2PP1/PP4Q1/3R1RK1 w - - 0 1"
+//                "r3r1k1/p1p1bpp1/2pp2q1/7n/2PBP1P1/2N2P2/PP4Q1/3R1RK1 b - - 0 1"
+//                "r3r1k1/p1p1bpp1/2pp2q1/8/2PBPnP1/2N2P2/PP4Q1/3R1RK1 w - - 0 1"
+//                "r3r1k1/p1p1bpp1/2pp2q1/8/2PBPnP1/2N2P2/PP5Q/3R1RK1 b - - 0 1"
+//                "r3r1k1/p1p2pp1/2pp2q1/6b1/2PBPnP1/2N2P2/PP5Q/3R1RK1 w - - 0 1" // c3e2?
+//                "r3r1k1/p1p2pp1/2pp2q1/6b1/2PBPnP1/5P2/PP2N2Q/3R1RK1 b - - 0 1"
+//                "r3r1k1/p1p2pp1/2pp2q1/6b1/2PBP1P1/5P2/PP2n2Q/3R1RK1 w - - 0 1"
+//                "r3r1k1/p1p2pp1/2pp2q1/6b1/2PBP1P1/5P2/PP2Q3/3R1RK1 b - - 0 1"
+//                "r3r1k1/p1p2pp1/2pp2q1/8/2PBPbP1/5P2/PP2Q3/3R1RK1 w - - 0 1" // d4c3?
+//                "r3r1k1/p1p2pp1/2pp2q1/8/2P1PbP1/2B2P2/PP2Q3/3R1RK1 b - - 0 1"
 
                 // Phi (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -179,7 +198,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/5N1P/PPPPPPP1/RNBQKB1R w KQkq - 0 1"
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
-//                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
+                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
 //                "r1bqk1nr/pp1pppbp/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
 //                "r1bqk1nr/pp1pppbp/2n3p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqk1nr/pp2ppbp/2np2p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
@@ -217,7 +236,7 @@ public class BrainTeaser {
 //                "rnbq1rk1/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PPBP/R1BQK2R b KQ - 2 7"
 //                "rnbqr1k1/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PPBP/R1BQK2R w KQ - 3 8"
 //                "rnbqr1k1/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PPBP/R1BQ1RK1 b - - 4 8"
-//                "rnbqr1k1/pppp1pp1/5n1p/6N1/2P1p3/2P3P1/PP2PPBP/R1BQ1RK1 w - - 0 9" // N g1 e4 ????
+//                "rnbqr1k1/pppp1pp1/5n1p/6N1/2P1p3/2P3P1/PP2PPBP/R1BQ1RK1 w - - 0 9" // N g1 e4 ????!!
 //                "rnbqr1k1/pppp1pp1/5n1p/8/2P1N3/2P3P1/PP2PPBP/R1BQ1RK1 b - - 0 9"
 //                "rnbqr1k1/pppp1pp1/7p/8/2P1n3/2P3P1/PP2PPBP/R1BQ1RK1 w - - 0 10"
 //                "rnbqr1k1/pppp1pp1/7p/8/2P1n3/2P3P1/PPQ1PPBP/R1B2RK1 b - - 1 10"

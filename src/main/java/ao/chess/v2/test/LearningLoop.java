@@ -6,6 +6,7 @@ import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.heuristic.learn.MoveTrainer;
 import ao.chess.v2.engine.heuristic.learn.NeuralUtils;
 import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
+import ao.chess.v2.engine.mcts.player.neuro.PuctSingleModel;
 import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Outcome;
@@ -256,8 +257,10 @@ public class LearningLoop {
         {
             if (selfPlayThreads == 1) {
                 PuctPlayer a = new PuctPlayer(
-                        nnFile,
-                        computeGraph,
+                        new PuctSingleModel(
+                                nnFile,
+                                computeGraph
+                        ),
                         1,
                         thinkingExploration,
                         aVisitMax,
@@ -269,8 +272,10 @@ public class LearningLoop {
                         thinkingSignal);
 
                 PuctPlayer b = new PuctPlayer(
-                        nnFile,
-                        computeGraph,
+                        new PuctSingleModel(
+                                nnFile,
+                                computeGraph
+                        ),
                         1,
                         thinkingExploration,
                         bVisitMax,
@@ -353,8 +358,10 @@ public class LearningLoop {
     ) {
         Thread thread = new Thread(() -> {
             PuctPlayer a = new PuctPlayer(
-                    nnFile,
-                    computeGraph,
+                    new PuctSingleModel(
+                            nnFile,
+                            computeGraph
+                    ),
                     1,
                     thinkingExploration,
                     aVisitMax,
@@ -366,8 +373,10 @@ public class LearningLoop {
                     thinkingSignal);
 
             PuctPlayer b = new PuctPlayer(
-                    nnFile,
-                    false,
+                    new PuctSingleModel(
+                            nnFile,
+                            computeGraph
+                    ),
                     1,
                     thinkingExploration,
                     bVisitMax,
@@ -421,8 +430,10 @@ public class LearningLoop {
         Path nnFile = generationDir.resolve(nnFilename);
 
         Player a = new PuctPlayer(
-                nnFile,
-                computeGraph,
+                new PuctSingleModel(
+                        nnFile,
+                        computeGraph
+                ),
                 1,
                 500);
 
@@ -436,8 +447,10 @@ public class LearningLoop {
                     .resolve(nnFilename);
 
             b = new PuctPlayer(
-                    previousNnFile,
-                    computeGraph,
+                    new PuctSingleModel(
+                            previousNnFile,
+                            computeGraph
+                    ),
                     1,
                     500);
         }

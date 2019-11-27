@@ -1,7 +1,6 @@
 package ao.chess.v2.engine.mcts.player.neuro;
 
 import ao.chess.v2.state.Move;
-import org.deeplearning4j.nn.api.NeuralNetwork;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +10,7 @@ import java.util.concurrent.atomic.LongAdder;
 
 
 class PuctContext {
-    public final NeuralNetwork nn;
-    public final boolean computeGraph;
+    public final PuctModel model;
 
     public final Random random = new Random();
     public final List<PuctNode> path = new ArrayList<>();
@@ -37,8 +35,7 @@ class PuctContext {
 
 
     public PuctContext(
-            NeuralNetwork nn,
-            boolean computeGraph,
+            PuctModel model,
             double exploration,
             int rollouts,
             boolean tablebase,
@@ -46,8 +43,7 @@ class PuctContext {
             ConcurrentHashMap<Long, PuctEstimate> nnCache,
             LongAdder cacheHits)
     {
-        this.nn = nn;
-        this.computeGraph = computeGraph;
+        this.model = model;
 
         this.exploration = exploration;
         this.rollouts = rollouts;

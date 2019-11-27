@@ -53,7 +53,6 @@ import java.util.zip.GZIPInputStream;
 
 
 // https://towardsdatascience.com/deep-learning-which-loss-and-activation-functions-should-i-use-ac02f1c56aa8
-//
 public class MoveTrainer {
     //-----------------------------------------------------------------------------------------------------------------
     private static final boolean computeGraph = true;
@@ -83,7 +82,7 @@ public class MoveTrainer {
 
 
     private static final List<Path> inputs =
-            mixRange(6, 2999);
+            mixRange(82, 2999);
 //            mixRange(749, 999);
 //    private static final List<Path> inputs = List.of(
 ////            Paths.get("lookup/mix/0.txt"),
@@ -115,7 +114,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/all_mid_batch_20191124.zip");
 //            Paths.get("lookup/nn/multi_3_20191124b.zip");
 //            Paths.get("lookup/nn/multi_5x_20191125.zip");
-            Paths.get("lookup/nn/multi_6_20191125.zip");
+            Paths.get("lookup/nn/multi_6_20191127.zip");
 
 
     private static class Prediction {

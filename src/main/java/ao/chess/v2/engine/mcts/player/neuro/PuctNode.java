@@ -4,15 +4,11 @@ package ao.chess.v2.engine.mcts.player.neuro;
 import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
-import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
-import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -208,34 +204,11 @@ class PuctNode {
         Long positionKey = state.staticHashCode();
 
         PuctEstimate cached = context.nnCache.get(positionKey);
-//        PuctEstimate cached = null;
 
         PuctEstimate estimate;
         if (cached == null) {
-            INDArray input = NeuralCodec.INSTANCE.encodeState(state);
-
-            double[] childPredictions;
-            double childOutcome;
-
-            if (context.computeGraph) {
-                INDArray[] outputs = ((ComputationGraph) context.nn).output(input);
-                childPredictions = NeuralCodec.INSTANCE.decodeMoveMultiProbabilities(
-                        outputs[0], outputs[1], state, legalMoves);
-                childOutcome = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2]);
-            }
-            else {
-                INDArray output = ((MultiLayerNetwork) context.nn).output(input);
-                childPredictions = NeuralCodec.INSTANCE
-                        .decodeMoveProbabilities(output, state, legalMoves);
-                childOutcome = NeuralCodec.INSTANCE.decodeOutcome(output);
-            }
-
-            PuctUtils.smearProbabilities(
-                    childPredictions, context.predictionUncertainty);
-
-            double scaleOutcome = guessRange * childOutcome + minimumGuess;
-
-            estimate = new PuctEstimate(childPredictions, scaleOutcome);
+            estimate = context.model.estimate(state, legalMoves);
+            estimate.postProcess(context.predictionUncertainty, guessRange, minimumGuess);
             context.nnCache.put(positionKey, estimate);
         }
         else {
@@ -243,7 +216,8 @@ class PuctNode {
             context.cacheHits.increment();
         }
 
-        PuctNode newChild = new PuctNode(legalMoves, estimate.moveProbabilities, null);
+        PuctNode newChild = new PuctNode(
+                legalMoves, estimate.moveProbabilities, null);
 
         PuctNode existing = parent.childNodes.set(childIndex, newChild);
         if (existing != null) {
@@ -496,16 +470,23 @@ class PuctNode {
             return -1;
         }
 
+        int visitSqrt = (int) Math.sqrt(visitCount.longValue());
+
         int bestMoveIndex = 0;
         double bestMoveScore = 0;
 
         for (int i = 0; i < moves.length; i++)
         {
+            long moveVisits = visitCount(i);
+            if (! visitMax && moveVisits < visitSqrt) {
+                continue;
+            }
+
             double moveScore = moveValueInternal(i, visitMax);
 
             if (bestMoveScore < moveScore ||
                     bestMoveScore == moveScore &&
-                            visitCount(bestMoveIndex) < visitCount(i)
+                            visitCount(bestMoveIndex) < moveVisits
             ) {
                 bestMoveScore = moveScore;
                 bestMoveIndex = i;
