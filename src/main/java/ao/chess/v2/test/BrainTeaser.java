@@ -107,15 +107,17 @@ public class BrainTeaser {
 
         Player player = new PuctPlayer(
                 new PuctSingleModel(
-                        Paths.get("lookup/nn/multi_6_20191127.zip"),
+                        Paths.get("lookup/nn/multi_6_20191129.zip"),
                         true
                 ),
                 2,
-                2.0,
+                1.25,
                 true,
                 0,
                 true,
-                0.5,
+//                1.0,
+//                0.5,
+                0.25,
                 0);
 
         State state = State.fromFen(
@@ -131,7 +133,7 @@ public class BrainTeaser {
 //                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8 (!!)
-//                "r1bqkb1r/pp1n1pp1/2p1pn1p/6N1/3P4/3B1N2/PPP2PPP/R1BQK2R w KQkq - 0 8" // g5 e6
+//                "r1bqkb1r/pp1n1pp1/2p1pn1p/6N1/3P4/3B1N2/PPP2PPP/R1BQK2R w KQkq - 0 8" // g5 e6 (deep blue)
 
                 // trivial
 //                "4R3/4R3/8/2k5/8/2p2K2/2P5/8 w"
@@ -198,7 +200,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/5N1P/PPPPPPP1/RNBQKB1R w KQkq - 0 1"
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
-                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
+//                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
 //                "r1bqk1nr/pp1pppbp/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
 //                "r1bqk1nr/pp1pppbp/2n3p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqk1nr/pp2ppbp/2np2p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
@@ -236,7 +238,7 @@ public class BrainTeaser {
 //                "rnbq1rk1/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PPBP/R1BQK2R b KQ - 2 7"
 //                "rnbqr1k1/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PPBP/R1BQK2R w KQ - 3 8"
 //                "rnbqr1k1/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PPBP/R1BQ1RK1 b - - 4 8"
-//                "rnbqr1k1/pppp1pp1/5n1p/6N1/2P1p3/2P3P1/PP2PPBP/R1BQ1RK1 w - - 0 9" // N g1 e4 ????!!
+                "rnbqr1k1/pppp1pp1/5n1p/6N1/2P1p3/2P3P1/PP2PPBP/R1BQ1RK1 w - - 0 9" // N g5 e4 ????!!
 //                "rnbqr1k1/pppp1pp1/5n1p/8/2P1N3/2P3P1/PP2PPBP/R1BQ1RK1 b - - 0 9"
 //                "rnbqr1k1/pppp1pp1/7p/8/2P1n3/2P3P1/PP2PPBP/R1BQ1RK1 w - - 0 10"
 //                "rnbqr1k1/pppp1pp1/7p/8/2P1n3/2P3P1/PPQ1PPBP/R1B2RK1 b - - 1 10"
@@ -322,73 +324,6 @@ public class BrainTeaser {
 //                "2kr2r1/ppp1nppp/2n1q3/1B2p3/2P5/3P1N2/PP1KQP1P/6RR w - - 0 1"
 //                "2kr2r1/ppp1nppp/2n1q3/1B2p1R1/2P5/3P1N2/PP1KQP1P/7R b - - 0 1"
 //                "2kr2r1/ppp1nppp/2n1q3/1B4R1/2P1p3/3P1N2/PP1KQP1P/7R w - - 0 1"
-
-                // Mable game 2 (black)
-//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-//                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
-//                "rnbqkbnr/pppppp1p/6p1/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1"
-//                "rnbqkbnr/pppppp1p/6p1/8/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 0 1"
-//                "rnbqkbnr/ppppp2p/6p1/5p2/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq f6 0 1"
-//                "rnbqkbnr/ppppp2p/6p1/5P2/8/5N2/PPPP1PPP/RNBQKB1R b KQkq - 0 1"
-//                "rnbqkbnr/ppppp2p/8/5p2/8/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 1"
-//                "rnbqkbnr/ppppp2p/8/5p2/8/3B1N2/PPPP1PPP/RNBQK2R b KQkq - 0 1"
-//                "rnbqkb1r/ppppp2p/7n/5p2/8/3B1N2/PPPP1PPP/RNBQK2R w KQkq - 0 1"
-//                "rnbqkb1r/ppppp2p/7n/5B2/8/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1" // bad
-//                "rnbqkb1r/ppppp2p/7n/4Np2/8/3B4/PPPP1PPP/RNBQK2R b KQkq - 0 1" // good
-//                "rnbqk2r/ppppp1bp/7n/4Np2/8/3B4/PPPP1PPP/RNBQK2R w KQkq - 0 1"
-//                "rnbqk2r/ppppp1bp/7n/4Np2/5P2/3B4/PPPP2PP/RNBQK2R b KQkq f3 0 1"
-//                "rnbqk2r/ppp1p1bp/3p3n/4Np2/5P2/3B4/PPPP2PP/RNBQK2R w KQkq - 0 1"
-//                "rnbqk2r/ppp1p1bp/3p3n/5p2/5P2/3B1N2/PPPP2PP/RNBQK2R b KQkq - 0 1"
-//                "rn1qk2r/ppp1p1bp/3pb2n/5p2/5P2/3B1N2/PPPP2PP/RNBQK2R w KQkq - 0 1"
-//                "rn1qk2r/ppp1p1bp/3pb2n/5p2/5P1P/3B1N2/PPPP2P1/RNBQK2R b KQkq h3 0 1"
-//                "rn1qk2r/ppp1p1bp/3pb3/5p2/5PnP/3B1N2/PPPP2P1/RNBQK2R w KQkq - 0 1"
-//                "rn1qk2r/ppp1p1bp/3pb3/5p1P/5Pn1/3B1N2/PPPP2P1/RNBQK2R b KQkq - 0 1"
-//                "rn1qk2r/ppp1p1bp/4b3/3p1p1P/5Pn1/3B1N2/PPPP2P1/RNBQK2R w KQkq - 0 1"
-//                "rn1qk2r/ppp1p1bp/4b3/3p1p1P/5PnN/3B4/PPPP2P1/RNBQK2R b KQkq - 0 1"
-//                "rn2k2r/pppqp1bp/4b3/3p1p1P/5PnN/3B4/PPPP2P1/RNBQK2R w KQkq - 0 1"
-//                "rn2k2r/pppqp1bp/4b3/3p1p1P/5PnN/2NB4/PPPP2P1/R1BQK2R b KQkq - 0 1"
-//                "r3k2r/pppqp1bp/n3b3/3p1p1P/5PnN/2NB4/PPPP2P1/R1BQK2R w KQkq - 0 1"
-//                "r3k2r/pppqp1bp/n3b3/3N1p1P/5PnN/3B4/PPPP2P1/R1BQK2R b KQkq - 0 1"
-//                "r3k2r/pppqp1bp/n7/3b1p1P/5PnN/3B4/PPPP2P1/R1BQK2R w KQkq - 0 1"
-//                "r3k2r/pppqp1bp/n7/3b1B1P/5PnN/8/PPPP2P1/R1BQK2R b KQkq - 0 1"
-//                "r3k2r/pppq2bp/n3p3/3b1B1P/5PnN/8/PPPP2P1/R1BQK2R w KQkq - 0 1"
-//                "r3k2r/pppq2bp/n3p3/3b3P/5PBN/8/PPPP2P1/R1BQK2R b KQkq - 0 1"
-//                "r3k2r/pppq2bp/4p3/2nb3P/5PBN/8/PPPP2P1/R1BQK2R w KQkq - 0 1"
-//                "r3k2r/pppq2bp/4p3/2nb3P/P4PBN/8/1PPP2P1/R1BQK2R b KQkq a3 0 1"
-//                "r3k2r/pppq2bp/4p3/3b3P/n4PBN/8/1PPP2P1/R1BQK2R w KQkq - 0 1"
-//                "r3k2r/pppq2bp/4p3/3b3P/n4PBN/8/1PPP2P1/R1BQK1R1 b Qkq - 0 1"
-//                "r3k2r/pppq2bp/4p3/3b3P/5PBN/8/1nPP2P1/R1BQK1R1 w Qkq - 0 1"
-//                "r3k2r/pppq2bp/4p3/3b3P/5PBN/8/1BPP2P1/R2QK1R1 b Qkq - 0 1"
-//                "r3k2r/pppq3p/4p3/3b3P/5PBN/8/1bPP2P1/R2QK1R1 w Qkq - 0 1"
-//                "r3k2r/pppq3p/4p3/3b3P/5PBN/8/1bPP2P1/1R1QK1R1 b kq - 0 1"
-//                "r3k2r/ppp4p/4p3/1q1b3P/5PBN/8/1bPP2P1/1R1QK1R1 w kq - 0 1"
-//                "r3k2r/ppp4p/4p1N1/1q1b3P/5PB1/8/1bPP2P1/1R1QK1R1 b kq - 0 1" // ??
-//                "r3k2r/ppp5/4p1p1/1q1b3P/5PB1/8/1bPP2P1/1R1QK1R1 w kq - 0 1"
-//                "r3k2r/ppp5/4p1P1/1q1b4/5PB1/8/1bPP2P1/1R1QK1R1 b kq - 0 1"
-//                "r4rk1/ppp5/4p1P1/1q1b4/5PB1/8/1bPP2P1/1R1QK1R1 w - - 0 1"
-//                "r4rk1/ppp5/4p1P1/1q1b4/5P2/8/1bPPB1P1/1R1QK1R1 b - - 0 1"
-//                "r4rk1/ppp5/1q2p1P1/3b4/5P2/8/1bPPB1P1/1R1QK1R1 w - - 0 1"
-//                "r4rk1/ppp5/1q2p1P1/3b4/5P2/8/1bPPB1P1/1R1QKR2 b - - 0 1"
-//                "r4rk1/ppp5/1q2p1P1/8/5P2/8/1bPPB1b1/1R1QKR2 w - - 0 1"
-//                "r4rk1/ppp5/1q2p1P1/8/5P2/8/1bPPBRb1/1R1QK3 b - - 0 1"
-//                "r4rk1/ppp5/1q2p1P1/8/4bP2/8/1bPPBR2/1R1QK3 w - - 0 1"
-//                "r4rk1/ppp5/1q2p1P1/8/4bP2/3B4/1bPP1R2/1R1QK3 b - - 0 1"
-//                "r5k1/ppp5/1q2p1P1/8/4br2/3B4/1bPP1R2/1R1QK3 w - - 0 1"
-//                "r5k1/ppp5/1q2p1P1/8/4bR2/3B4/1bPP4/1R1QK3 b - - 0 1"
-//                "r5k1/ppp5/4p1P1/8/4bR2/3B4/1bPP4/1R1QK1q1 w - - 0 1"
-//                "r5k1/ppp5/4p1P1/8/4b3/3B4/1bPP4/1R1QKRq1 b - - 0 1"
-//                "r5k1/ppp5/4p1q1/8/4b3/3B4/1bPP4/1R1QKR2 w - - 0 1"
-//                "r5k1/ppp5/4p1q1/8/4b3/3B4/1RPP4/3QKR2 b - - 0 1"
-//                "r5k1/ppp5/4p1q1/8/8/3b4/1RPP4/3QKR2 w - - 0 1"
-//                "r5k1/ppp5/4p1q1/8/8/3P4/1R1P4/3QKR2 b - - 0 1"
-//                "r5k1/ppp5/4p3/8/8/3q4/1R1P4/3QKR2 w - - 0 1"
-//                "r5k1/ppp5/4p3/8/6Q1/3q4/1R1P4/4KR2 b - - 0 1"
-//                "r6k/ppp5/4p3/8/6Q1/3q4/1R1P4/4KR2 w - - 0 1"
-//                "r6k/ppp5/4p3/8/6Q1/3q4/1R1P4/4K1R1 b - - 0 1"
-//                "r6k/ppp4q/4p3/8/6Q1/8/1R1P4/4K1R1 w - - 0 1"
-//                "r6k/ppp4q/4p3/8/3Q4/8/1R1P4/4K1R1 b - - 0 1"
-//                "r6k/ppp3q1/4p3/8/3Q4/8/1R1P4/4K1R1 w - - 0 1"
-//                "r6k/ppp3Q1/4p3/8/8/8/1R1P4/4K1R1 b - - 0 1"
 
 
                 // endgame test

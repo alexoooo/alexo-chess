@@ -20,8 +20,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
+// https://arxiv.org/pdf/1911.08265.pdf
 class PuctNode {
     //-----------------------------------------------------------------------------------------------------------------
+    private static final double explorationLog = 16384;
     private static final double minimumGuess = 0.1;
     private static final double maximumGuess = 0.9;
     private static final double guessRange = maximumGuess - minimumGuess;
@@ -431,9 +433,15 @@ class PuctNode {
 
             double unvisitedBonus =
                     prediction * Math.sqrt(parentVisitCount) / (moveVisits + 1);
-//                    prediction * Math.pow(parentVisitCount, 0.75) / (moveVisits + 1);
 
-            double score = averageOutcome + context.exploration * unvisitedBonus;
+            double score =
+//                    averageOutcome + context.exploration * unvisitedBonus;
+                    averageOutcome + unvisitedBonus * (
+                            context.exploration +
+                            Math.log((parentVisitCount + explorationLog + 1) / explorationLog)
+                    );
+
+            // explorationLog
 
             if (score > maxScore ||
                     score == maxScore && context.random.nextBoolean()) {

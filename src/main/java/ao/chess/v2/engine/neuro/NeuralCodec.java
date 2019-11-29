@@ -2,20 +2,44 @@ package ao.chess.v2.engine.neuro;
 
 
 import ao.chess.v2.data.Location;
+import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;
 import ao.chess.v2.piece.Piece;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 
 
 public enum NeuralCodec {
     INSTANCE;
 
+//    private static final boolean winOnly = true;
+    private static final boolean winOnly = false;
 
-    public INDArray encodeState(State state) {
+
+    public INDArray encodeMultiState(State state) {
+        return encodeState(state);
+    }
+
+
+    public INDArray encodeStateNormalized(State state) {
+        return encodeState(state, true);
+    }
+
+
+    public INDArray encodeState(
+            State state
+    ) {
+        return encodeState(state, false);
+    }
+
+    public INDArray encodeState(
+            State state,
+            boolean normalized
+    ) {
         INDArray features = Nd4j.zeros(Figure.VALUES.length + 2, Location.RANKS, Location.FILES);
 
         boolean flip = state.nextToAct() == Colour.BLACK;
@@ -31,11 +55,20 @@ public enum NeuralCodec {
                 int adjustedRank = (flip ? Location.RANKS - rank - 1 : rank);
                 int adjustedFile = (flip ? Location.FILES - file - 1 : file);
 
-                features.put(new int[] {Figure.VALUES.length, adjustedRank, adjustedFile},
-                        Nd4j.scalar(propAttacks[rank][file]));
+                if (normalized) {
+                    features.put(new int[] {Figure.VALUES.length, adjustedRank, adjustedFile},
+                            Nd4j.scalar((double) propAttacks[rank][file] / 15));
 
-                features.put(new int[] {Figure.VALUES.length + 1, adjustedRank, adjustedFile},
-                        Nd4j.scalar(oppAttacks[rank][file]));
+                    features.put(new int[] {Figure.VALUES.length + 1, adjustedRank, adjustedFile},
+                            Nd4j.scalar((double) oppAttacks[rank][file] / 15));
+                }
+                else {
+                    features.put(new int[] {Figure.VALUES.length, adjustedRank, adjustedFile},
+                            Nd4j.scalar(propAttacks[rank][file]));
+
+                    features.put(new int[] {Figure.VALUES.length + 1, adjustedRank, adjustedFile},
+                            Nd4j.scalar(oppAttacks[rank][file]));
+                }
 
                 Piece piece = state.pieceAt(rank, file);
                 if (piece == null) {
@@ -56,8 +89,45 @@ public enum NeuralCodec {
     }
 
 
-    public INDArray encodeMultiState(State state) {
-        return encodeState(state);
+    public double decodeOutcomeValueOnly(
+            INDArray output
+    ) {
+        double value = output.getDouble(0, 0);
+        return Math.max(0, Math.min(1, value));
+
+//        double winProbability = output.getDouble(0, 0);
+////        double lossProbability = output.getDouble(0, 1);
+//        double drawProbability = output.getDouble(0, 2);
+//
+//        return winProbability +
+//                0.5 * drawProbability;
+    }
+
+
+    public static DataSet convertToDataSetValueOnly(
+            MoveHistory example
+    ) {
+        INDArray reshapedFeatures = NeuralCodec.INSTANCE.encodeStateNormalized(
+                example.state());
+
+        INDArray labels = Nd4j.zeros(1);
+        labels.put(0, Nd4j.scalar(example.outcomeValue()));
+        INDArray reshapedLabels = labels.reshape(1, 1);
+
+//        INDArray labels = Nd4j.zeros(3);
+//        Outcome outcome = example.outcome();
+//        if (outcome.winner() == example.state().nextToAct()) {
+//            labels.put(0, Nd4j.scalar(1));
+//        }
+//        else if (outcome.loser() == example.state().nextToAct()) {
+//            labels.put(1, Nd4j.scalar(1));
+//        }
+//        else {
+//            labels.put(2, Nd4j.scalar(1));
+//        }
+//        INDArray reshapedLabels = labels.reshape(1, 3);
+
+        return new DataSet(reshapedFeatures, reshapedLabels);
     }
 
 
@@ -82,8 +152,9 @@ public enum NeuralCodec {
 //        double lossProbability = output.getDouble(0, 1);
         double drawProbability = output.getDouble(0, 2);
 
-        return winProbability +
-                0.5 * drawProbability;
+        return winOnly
+                ? winProbability
+                : winProbability + 0.5 * drawProbability;
     }
 
 
