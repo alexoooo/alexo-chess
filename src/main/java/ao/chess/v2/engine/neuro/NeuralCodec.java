@@ -21,7 +21,7 @@ public enum NeuralCodec {
 
 
     public INDArray encodeMultiState(State state) {
-        return encodeState(state);
+        return encodeState(state, true);
     }
 
 
@@ -152,6 +152,7 @@ public enum NeuralCodec {
 //        double lossProbability = output.getDouble(0, 1);
         double drawProbability = output.getDouble(0, 2);
 
+//        return 1.0 - lossProbability;
         return winOnly
                 ? winProbability
                 : winProbability + 0.5 * drawProbability;

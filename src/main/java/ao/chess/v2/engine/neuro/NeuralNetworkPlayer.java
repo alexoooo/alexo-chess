@@ -45,8 +45,6 @@ public class NeuralNetworkPlayer implements Player {
             int timePerMove,
             int timeIncrement
     ) {
-        INDArray input = NeuralCodec.INSTANCE.encodeState(position);
-
         int[] legalMoves = position.legalMoves();
         if (legalMoves.length == 0) {
             return -1;
@@ -54,6 +52,7 @@ public class NeuralNetworkPlayer implements Player {
 
         double[] moveProbabilities;
         if (computeGraph) {
+            INDArray input = NeuralCodec.INSTANCE.encodeMultiState(position);
             INDArray[] outputs = ((ComputationGraph) nn).output(input);
             moveProbabilities = NeuralCodec.INSTANCE
                     .decodeMoveMultiProbabilities(
@@ -63,6 +62,7 @@ public class NeuralNetworkPlayer implements Player {
                             legalMoves);
         }
         else {
+            INDArray input = NeuralCodec.INSTANCE.encodeState(position);
             INDArray output = ((MultiLayerNetwork) nn).output(input);
             moveProbabilities = NeuralCodec.INSTANCE
                     .decodeMoveProbabilities(output, position, legalMoves);

@@ -610,9 +610,10 @@ class PuctNode {
                         predictions[i] * Math.sqrt(parentVisitCount) / (counts[i] + 1)))
                 .collect(Collectors.joining(" | "));
 
-        return String.format("%d - %.4f - %s",
+        return String.format("%d - %.4f - %.4f - %s",
                 visitCount.longValue(),
                 inverse,
+                Math.log((parentVisitCount + explorationLog + 1) / explorationLog),
                 childSummary);
     }
 }

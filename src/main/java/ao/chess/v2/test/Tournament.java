@@ -3,8 +3,8 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
-import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
-import ao.chess.v2.engine.mcts.player.neuro.PuctSingleModel;
+import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
+import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -144,24 +144,25 @@ public class Tournament
 //                false,
 //                true);
 
-//        Player b = NeuralNetworkPlayer.load(
-//                Paths.get("lookup/nn/multi_6_20191128.zip"),
-//                true,
-//                true);
+        Player b = NeuralNetworkPlayer.load(
+//                Paths.get("lookup/nn/multi_6_20191129.zip"),
+                Paths.get("lookup/nn/multi_6c_20191203.zip"),
+                true,
+                true);
 
-        Player a = new PuctPlayer(
-                new PuctSingleModel(
-                        Paths.get("lookup/nn/all_mid_batch_20191124.zip"),
-                        false
-                ),
-                1,
-                3.0,
-                true,
-                0,
-                true,
-                1.25,
-                0,
-                0.3, 0.75);
+//        Player a = new PuctPlayer(
+//                new PuctSingleModel(
+//                        Paths.get("lookup/nn/all_mid_batch_20191124.zip"),
+//                        false
+//                ),
+//                1,
+//                3.0,
+//                true,
+//                0,
+//                true,
+//                1.25,
+//                0,
+//                0.3, 0.75);
 //        Player b = new PuctPlayer(
 //                Paths.get("lookup/history/mix/all_mid_batch_20191124.zip"),
 //                false,
@@ -183,22 +184,22 @@ public class Tournament
 //                true,
 //                0,
 //                0);
-        Player b = new PuctPlayer(
-                new PuctSingleModel(
-                        Paths.get("lookup/nn/multi_6_20191128.zip"),
-                        true
-                ),
-                1,
-                1.0,
-                true,
-                0,
-                true,
-                0,
-                0,
-                0.3, 0.75);
+//        Player b = new PuctPlayer(
+//                new PuctSingleModel(
+//                        Paths.get("lookup/nn/multi_6_20191128.zip"),
+//                        true
+//                ),
+//                1,
+//                1.0,
+//                true,
+//                0,
+//                true,
+//                0,
+//                0,
+//                0.3, 0.75);
 
 //        Player a = new TopLeftPlayer();
-//        Player a = new RandomPlayer();
+        Player a = new RandomPlayer();
 //        Player b = new RandomPlayer();
 
         int aWins = 0;

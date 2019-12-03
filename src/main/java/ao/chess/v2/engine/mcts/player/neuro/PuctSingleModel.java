@@ -61,6 +61,7 @@ public class PuctSingleModel
                             legalMoves);
 
             winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2]);
+//            winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeMax(outputs[2]);
         }
         else {
             INDArray input = NeuralCodec.INSTANCE.encodeState(state);
@@ -72,7 +73,6 @@ public class PuctSingleModel
 
             winProbability = NeuralCodec.INSTANCE.decodeOutcome(output);
         }
-
 
         return new PuctEstimate(
                 moveProbabilities,

@@ -86,39 +86,34 @@ public class BrainTeaser {
 //                false
 //        );
 
-//        Player player = new PuctPlayer(
-//                Paths.get("lookup/gen/2/nn.zip"),
-//                1,
-//                1.5);
-//        Player player = new PuctPlayer(
-//                Paths.get("lookup/nn/all_mid_batch_20191120-travis.zip"),
-////                Paths.get("lookup/history/mix/all_mid_batch_20191122.zip"),
-////                Paths.get("lookup/history/mix/all_mid_batch_20191124.zip"),
-////                Paths.get("lookup/history/mix/all_deep_20191119.zip"),
-//                false,
-////                1,
-//                2,
-//                3.0,
-//                true,
-//                0,
-//                true,
-//                1.25,
-//                0);
-
         Player player = new PuctPlayer(
                 new PuctSingleModel(
-                        Paths.get("lookup/nn/multi_6_20191129.zip"),
-                        true
+                        Paths.get("lookup/nn/all_mid_batch_20191120-travis.zip"),
+                        false
                 ),
                 2,
                 1.25,
                 true,
                 0,
                 true,
-//                1.0,
-//                0.5,
-                0.25,
+                1.25,
                 0);
+
+//        Player player = new PuctPlayer(
+//                new PuctSingleModel(
+//                        Paths.get("lookup/nn/multi_6c_20191203.zip"),
+//                        true
+//                ),
+//                2,
+//                1.25,
+//                true,
+//                0,
+//                true,
+//                1.0,
+////                0.5,
+////                0.25,
+////                0.0,
+//                0);
 
         State state = State.fromFen(
                 // puzzles
@@ -192,6 +187,23 @@ public class BrainTeaser {
 //                "r3r1k1/p1p2pp1/2pp2q1/6b1/2PBP1P1/5P2/PP2Q3/3R1RK1 b - - 0 1"
 //                "r3r1k1/p1p2pp1/2pp2q1/8/2PBPbP1/5P2/PP2Q3/3R1RK1 w - - 0 1" // d4c3?
 //                "r3r1k1/p1p2pp1/2pp2q1/8/2P1PbP1/2B2P2/PP2Q3/3R1RK1 b - - 0 1"
+//                "r3r1k1/p1p3p1/2pp1pq1/8/2P1PbP1/2B2P2/PP2Q3/3R1RK1 w - - 0 1"
+//                "r3r1k1/p1p3p1/2pp1pq1/2P5/4PbP1/2B2P2/PP2Q3/3R1RK1 b - - 0 1"
+//                "r3r3/p1p2kp1/2pp1pq1/2P5/4PbP1/2B2P2/PP2Q3/3R1RK1 w - - 0 1"
+//                "r3r3/p1p2kp1/2pP1pq1/8/4PbP1/2B2P2/PP2Q3/3R1RK1 b - - 0 1"
+//                "r3r3/p4kp1/2pp1pq1/8/4PbP1/2B2P2/PP2Q3/3R1RK1 w - - 0 1"
+//                "r3r3/p4kp1/2pp1pq1/8/2Q1PbP1/2B2P2/PP6/3R1RK1 b - - 0 1"
+//                "r7/p4kp1/2pprpq1/8/2Q1PbP1/2B2P2/PP6/3R1RK1 w - - 0 1"
+//                "r7/p4kp1/2Qprpq1/8/4PbP1/2B2P2/PP6/3R1RK1 b - - 0 1"
+//                "7r/p4kp1/2Qprpq1/8/4PbP1/2B2P2/PP6/3R1RK1 w - - 0 1"
+//                "7r/p4kp1/2Qprpq1/3R4/4PbP1/2B2P2/PP6/5RK1 b - - 0 1"
+//                "8/p4kp1/2Qprpq1/3R4/4PbP1/2B2P1r/PP6/5RK1 w - - 0 1"
+//                "8/p4kp1/2Qprp1q/5R2/4PbP1/2B2P1r/PP6/5RK1 w - - 0 1"
+//                "8/p1Q2kp1/3prp1q/5R2/4PbP1/2B2P1r/PP6/5RK1 b - - 0 1"
+//                "8/p1Q1rkp1/3p1p1q/5R2/4PbP1/2B2P1r/PP6/5RK1 w - - 0 1"
+//                "8/p3rkp1/3p1p1q/5R2/2Q1PbP1/2B2P1r/PP6/5RK1 b - - 0 1"
+//                "8/p4kp1/3prp1q/5R2/2Q1PbP1/2B2P1r/PP6/5RK1 w - - 0 1"
+                "8/p4kp1/Q2prp1q/5R2/4PbP1/2B2P1r/PP6/5RK1 b - - 0 1"
 
                 // Phi (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -238,7 +250,7 @@ public class BrainTeaser {
 //                "rnbq1rk1/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PPBP/R1BQK2R b KQ - 2 7"
 //                "rnbqr1k1/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PPBP/R1BQK2R w KQ - 3 8"
 //                "rnbqr1k1/pppp1ppp/5n2/6N1/2P1p3/2P3P1/PP2PPBP/R1BQ1RK1 b - - 4 8"
-                "rnbqr1k1/pppp1pp1/5n1p/6N1/2P1p3/2P3P1/PP2PPBP/R1BQ1RK1 w - - 0 9" // N g5 e4 ????!!
+//                "rnbqr1k1/pppp1pp1/5n1p/6N1/2P1p3/2P3P1/PP2PPBP/R1BQ1RK1 w - - 0 9" // N g5 e4 ????!!
 //                "rnbqr1k1/pppp1pp1/5n1p/8/2P1N3/2P3P1/PP2PPBP/R1BQ1RK1 b - - 0 9"
 //                "rnbqr1k1/pppp1pp1/7p/8/2P1n3/2P3P1/PP2PPBP/R1BQ1RK1 w - - 0 10"
 //                "rnbqr1k1/pppp1pp1/7p/8/2P1n3/2P3P1/PPQ1PPBP/R1B2RK1 b - - 1 10"

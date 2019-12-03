@@ -13,6 +13,7 @@ import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
 import org.deeplearning4j.nn.api.NeuralNetwork;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
@@ -31,6 +32,7 @@ import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.AdaDelta;
 import org.nd4j.linalg.learning.config.AdaGrad;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.Nesterovs;
@@ -44,6 +46,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
@@ -52,22 +56,27 @@ import java.util.zip.GZIPInputStream;
 // https://towardsdatascience.com/deep-learning-which-loss-and-activation-functions-should-i-use-ac02f1c56aa8
 public class MoveTrainer {
     //-----------------------------------------------------------------------------------------------------------------
-    private static final boolean computeGraph = false;
-    private static final boolean valueOnly = true;
-//    private static final boolean computeGraph = true;
-//    private static final boolean valueOnly = false;
+//    private static final boolean computeGraph = false;
+//    private static final boolean valueOnly = true;
+    private static final boolean computeGraph = true;
+    private static final boolean valueOnly = false;
+
+//    private static final boolean snapshot = false;
+    private static final boolean snapshot = true;
 
     private static final boolean defaultBestAction = true;
     private static final boolean defaultValueAverage = true;
 //    private static final boolean measureOutcome = false;
 
-    private static final int miniBatchSize = 256;
+//    private static final int miniBatchSize = 64;
+    private static final int miniBatchSize = 128;
+//    private static final int miniBatchSize = 256;
 //    private static final int miniBatchSize = 512;
     private static final int saveOnceEvery = 1_000_000;
 
 //    private static final int trainingIterations = 0;
-//    private static final int trainingIterations = 1;
-    private static final int trainingIterations = 100;
+    private static final int trainingIterations = 1;
+//    private static final int trainingIterations = 100;
 
 //    private static final boolean testInitial = false;
     private static final boolean testInitial = true;
@@ -81,14 +90,13 @@ public class MoveTrainer {
             .build();
 
 
-//    private static final List<Path> inputs =
+    private static final List<Path> inputs =
+            mixRange(73, 2999);
 //            mixRange(161, 2999);
-////            mixRange(749, 999);
-    private static final List<Path> inputs = List.of(
-//            Paths.get("lookup/mix/0.txt"),
-//            Paths.get("lookup/mix/1.txt")
-            Paths.get("lookup/train/mix-small/champions_10000.txt")
-    );
+//            mixRange(749, 999);
+//    private static final List<Path> inputs = List.of(
+//            Paths.get("lookup/train/mix-small/champions_10000.txt")
+//    );
 
     private static List<Path> mixRange(int fromInclusive, int toInclusive) {
         List<Path> range = new ArrayList<>();
@@ -101,7 +109,8 @@ public class MoveTrainer {
     }
 
     private static final List<Path> test = List.of(
-            Paths.get("lookup/train/mix-small/champions_10000.txt")
+            Paths.get("lookup/train/mix-small/champions_1000.txt")
+//            Paths.get("lookup/train/mix-small/champions_10000.txt"),
 //            Paths.get("lookup/pgn/small/Adams.txt")
     );
 
@@ -109,14 +118,13 @@ public class MoveTrainer {
     private static final Path saveFile =
 //            Paths.get("lookup/history/mix/all_mid_20191116.zip");
 //            Paths.get("lookup/history/mix/all_mid_20191117b.zip");
-//            Paths.get("lookup/history/mix/all_mid_batch_20191118b.zip");
 //            Paths.get("lookup/history/mix/all_mid_batch_20191124.zip");
 //            Paths.get("lookup/nn/all_mid_batch_20191124.zip");
-//            Paths.get("lookup/nn/multi_3_20191124b.zip");
-//            Paths.get("lookup/nn/multi_5x_20191125.zip");
+//            Paths.get("lookup/nn/multi_3_20191124b.zip");;
 //            Paths.get("lookup/nn/multi_6_20191129.zip");
-            Paths.get("lookup/nn/value_7i_20191127.zip");
-//            Paths.get("lookup/nn/value_7j_20191127.zip");
+//            Paths.get("lookup/nn/multi_6b_20191130.zip");
+            Paths.get("lookup/nn/multi_6c_20191203.zip");
+//            Paths.get("lookup/nn/value_7k_20191127.zip");
 
 
     private static class Prediction {
@@ -141,7 +149,9 @@ public class MoveTrainer {
         else {
 //            nn = createNeuralNetwork4();
 //            nn = createNeuralNetwork6();
-            nn = createValueNetwork7();
+//            nn = createNeuralNetwork6b();
+            nn = createNeuralNetwork6c();
+//            nn = createValueNetwork7();
         }
 
         if (testInitial) {
@@ -163,9 +173,9 @@ public class MoveTrainer {
                 System.out.println("input: " + input + " - " + inputMoves.size());
 
                 performTraining(inputMoves, epoch, nn);
-            }
 
-            testOutputs(nn);
+                testOutputs(nn);
+            }
         }
     }
 
@@ -203,29 +213,10 @@ public class MoveTrainer {
                         continue;
                     }
 
-                    if (valueOnly) {
-                        DataSetIterator miniBatchIterator = new ListDataSetIterator<>(
-                                Collections2.transform(miniBatch, NeuralCodec::convertToDataSetValueOnly),
-                                miniBatch.size());
-                        nn.fit(miniBatchIterator);
-                    }
-                    else {
-                        if (nn instanceof MultiLayerNetwork) {
-                            DataSetIterator miniBatchIterator = new ListDataSetIterator<>(
-                                    Collections2.transform(miniBatch, MoveTrainer::convertToDataSet),
-                                    miniBatch.size());
-                            nn.fit(miniBatchIterator);
-                        }
-                        else {
-                            MultiDataSetIterator miniBatchIterator = new IteratorMultiDataSetIterator(
-                                    Collections2.transform(miniBatch, MoveTrainer::convertToMultiDataSet).iterator(),
-                                    miniBatch.size());
-                            nn.fit(miniBatchIterator);
-                        }
-                    }
+                    fitMiniBatch(nn, miniBatch);
                 }
 
-                NeuralUtils.saveNeuralNetwork(nn, saveFile);
+                saveProgress(nn);
             }
 
             trainingCount += partition.size();
@@ -236,6 +227,50 @@ public class MoveTrainer {
                     " - " + LocalTime.now());
 
 //            Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
+        }
+    }
+
+
+    private static void fitMiniBatch(
+            NeuralNetwork nn,
+            List<MoveHistory> miniBatch)
+    {
+        if (valueOnly) {
+            DataSetIterator miniBatchIterator = new ListDataSetIterator<>(
+                    Collections2.transform(miniBatch, NeuralCodec::convertToDataSetValueOnly),
+                    miniBatch.size());
+            nn.fit(miniBatchIterator);
+        }
+        else if (nn instanceof MultiLayerNetwork) {
+            DataSetIterator miniBatchIterator = new ListDataSetIterator<>(
+                    Collections2.transform(miniBatch, MoveTrainer::convertToDataSet),
+                    miniBatch.size());
+            nn.fit(miniBatchIterator);
+        }
+        else {
+            MultiDataSetIterator miniBatchIterator = new IteratorMultiDataSetIterator(
+                    Collections2.transform(miniBatch, MoveTrainer::convertToMultiDataSet).iterator(),
+                    miniBatch.size());
+            nn.fit(miniBatchIterator);
+        }
+    }
+
+
+    private static void saveProgress(NeuralNetwork nn) {
+        NeuralUtils.saveNeuralNetwork(nn, saveFile);
+
+        if (snapshot) {
+            String timeSuffix = DateTimeFormatter
+                    .ofPattern("yyyy-MM-dd_HH-mm-ss")
+                    .format(ZonedDateTime.now());
+            Path snapshotFile = saveFile.resolveSibling("snapshot_" + timeSuffix + ".zip");
+
+            try {
+                Files.copy(saveFile, snapshotFile);
+            }
+            catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
     }
 
@@ -898,6 +933,190 @@ public class MoveTrainer {
     }
 
 
+    public static ComputationGraph createNeuralNetwork6b() {
+        int height = Location.FILES;
+        int width = Location.RANKS;
+        int channels = Figure.VALUES.length + 2;
+        int filters = 192;
+
+        ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
+                .seed(seed)
+
+                .l2(0.0001)
+                .weightInit(WeightInit.RELU)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
+                .updater(new Adam())
+
+                .graphBuilder()
+
+                .addInputs("input")
+                .setInputTypes(InputType.convolutional(height, width, channels))
+
+                .addLayer("L1",
+                        new ConvolutionLayer.Builder(3, 3)
+                                .nIn(channels)
+                                .stride(1, 1)
+                                .padding(1, 1)
+                                .nOut(filters)
+//                                .activation(Activation.LEAKYRELU)
+                                .activation(Activation.SWISH)
+                                .build(),
+                        "input")
+
+                .addLayer("L1-norm", new BatchNormalization(), "L1")
+
+                .addLayer("L2",
+                        new ConvolutionLayer.Builder(3, 3)
+                                .stride(1, 1)
+                                .padding(1, 1)
+                                .nOut(filters)
+                                .activation(Activation.SWISH)
+                                .build(),
+                        "L1-norm")
+
+                .addLayer("L2-norm", new BatchNormalization(), "L2")
+
+                .addLayer("L3",
+                        new ConvolutionLayer.Builder(3, 3)
+                                .stride(1, 1)
+                                .padding(1, 1)
+                                .nOut(filters)
+                                .activation(Activation.SWISH)
+                                .build(),
+                        "L2-norm")
+
+                .addLayer("L3-norm", new BatchNormalization(), "L3")
+
+                .addLayer("L4",
+                        new ConvolutionLayer.Builder(3, 3)
+                                .stride(1, 1)
+                                .padding(1, 1)
+                                .nOut(filters)
+                                .activation(Activation.SWISH)
+                                .build(),
+                        "L3-norm")
+
+                .addLayer("L4-norm", new BatchNormalization(), "L4")
+
+                .addLayer("out-from",
+                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                                .activation(Activation.SOFTMAX)
+                                .nOut(Location.COUNT)
+                                .build(),
+                        "L4-norm")
+
+                .addLayer("out-to",
+                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                                .activation(Activation.SOFTMAX)
+                                .nOut(Location.COUNT)
+                                .build(),
+                        "L4-norm")
+
+                .addLayer("out-outcome",
+                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                                .activation(Activation.SOFTMAX)
+                                .nOut(Outcome.values.length)
+                                .build(),
+                        "L4-norm")
+
+                .setOutputs("out-from", "out-to", "out-outcome")
+
+                .build();
+
+        ComputationGraph net = new ComputationGraph(conf);
+        net.init();
+
+        return net;
+    }
+
+
+    public static ComputationGraph createNeuralNetwork6c() {
+        int height = Location.FILES;
+        int width = Location.RANKS;
+        int channels = Figure.VALUES.length + 2;
+        int filters = 192;
+
+        ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
+                .seed(seed)
+
+                .l2(0.0001)
+                .weightInit(WeightInit.RELU)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+//                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
+                .updater(new Adam())
+
+                .graphBuilder()
+
+                .addInputs("input")
+                .setInputTypes(InputType.convolutional(height, width, channels))
+
+                .addLayer("L1",
+                        new ConvolutionLayer.Builder(3, 3)
+                                .nIn(channels)
+                                .stride(1, 1)
+                                .padding(1, 1)
+                                .nOut(filters)
+                                .activation(Activation.LEAKYRELU)
+                                .build(),
+                        "input")
+
+                .addLayer("L1-norm", new BatchNormalization(), "L1")
+
+                .addLayer("L2",
+                        new ConvolutionLayer.Builder(3, 3)
+                                .stride(1, 1)
+                                .padding(1, 1)
+                                .nOut(filters)
+                                .activation(Activation.LEAKYRELU)
+                                .build(),
+                        "L1-norm")
+
+                .addLayer("L2-norm", new BatchNormalization(), "L2")
+
+                .addLayer("L3",
+                        new ConvolutionLayer.Builder(3, 3)
+                                .stride(1, 1)
+                                .padding(1, 1)
+                                .nOut(filters)
+                                .activation(Activation.LEAKYRELU)
+                                .build(),
+                        "L2-norm")
+
+                .addLayer("L3-norm", new BatchNormalization(), "L3")
+
+                .addLayer("out-from",
+                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                                .activation(Activation.SOFTMAX)
+                                .nOut(Location.COUNT)
+                                .build(),
+                        "L3-norm")
+
+                .addLayer("out-to",
+                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                                .activation(Activation.SOFTMAX)
+                                .nOut(Location.COUNT)
+                                .build(),
+                        "L3-norm")
+
+                .addLayer("out-outcome",
+                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                                .activation(Activation.SOFTMAX)
+                                .nOut(Outcome.values.length)
+                                .build(),
+                        "L3-norm")
+
+                .setOutputs("out-from", "out-to", "out-outcome")
+
+                .build();
+
+        ComputationGraph net = new ComputationGraph(conf);
+        net.init();
+
+        return net;
+    }
+
+
     public static MultiLayerNetwork createValueNetwork7() {
         int height = Location.FILES;
         int width = Location.RANKS;
@@ -910,7 +1129,8 @@ public class MoveTrainer {
                 .weightInit(WeightInit.XAVIER)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
 
-                .updater(new Adam())
+//                .updater(new Adam())
+                .updater(new AdaDelta())
 
                 .list()
 
@@ -921,6 +1141,8 @@ public class MoveTrainer {
                         .nOut(192)
                         .activation(Activation.RELU)
                         .build())
+
+                .layer(new BatchNormalization())
 
                 .layer(new ConvolutionLayer.Builder(3, 3)
                         .stride(1, 1)
@@ -942,14 +1164,14 @@ public class MoveTrainer {
                 .layer(new BatchNormalization())
 
 //                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)
-                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                        .nOut(1)
-                        .activation(Activation.IDENTITY)
-                        .build())
-//                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.XENT)
-//                        .activation(Activation.SIGMOID)
+//                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
 //                        .nOut(1)
+//                        .activation(Activation.IDENTITY)
 //                        .build())
+                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.XENT)
+                        .activation(Activation.SIGMOID)
+                        .nOut(1)
+                        .build())
 //                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
 //                        .activation(Activation.SOFTMAX)
 //                        .nOut(Outcome.values.length)
