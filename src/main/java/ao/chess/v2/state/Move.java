@@ -506,23 +506,30 @@ public class Move
     //--------------------------------------------------------------------
     public static String toInputNotation(int move)
     {
-        int from      = fromSquareIndex(move);
-        int to        =   toSquareIndex(move);
+        return toInputNotationSource(move) + toInputNotationDestination(move);
+    }
+
+
+    public static String toInputNotationSource(int move)
+    {
+        int from = fromSquareIndex(move);
+        return String.valueOf(State.FILES.charAt(Location.fileIndex(from))) +
+                (Location.rankIndex(from) + 1);
+    }
+
+
+    public static String toInputNotationDestination(int move)
+    {
+        int to = toSquareIndex(move);
         int promoteTo = promotion(move);
 
         String promoteToInput =
                 (promoteTo == 0)
                 ? "" : Figure.VALUES[ promoteTo ]
-                         .toString().substring(0, 1).toLowerCase();
-        return String.valueOf(
-                State.FILES.charAt(
-                        Location.fileIndex(from))) +
-                (Location.rankIndex(from) + 1)
-                +
-                State.FILES.charAt(
-                        Location.fileIndex(to)) +
-                (Location.rankIndex(to) + 1)
-                +
+                .toString().substring(0, 1).toLowerCase();
+
+        return String.valueOf(State.FILES.charAt(Location.fileIndex(to))) +
+                (Location.rankIndex(to) + 1) +
                 promoteToInput;
     }
 }

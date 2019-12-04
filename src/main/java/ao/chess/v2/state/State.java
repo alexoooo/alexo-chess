@@ -1397,7 +1397,8 @@ public class State
 
 
     //--------------------------------------------------------------------
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return Representation.displayPosition(
                 Representation.board(this),
                 nextToAct, reversibleMoves,
@@ -1414,9 +1415,23 @@ public class State
 
 
     //--------------------------------------------------------------------
-    @Override public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equalsIgnoringReversibleMovesAndCastlePath(State state) {
+        return castles == state.castles &&
+                enPassant == state.enPassant &&
+                Arrays.equals(bPieces, state.bPieces) &&
+                nextToAct == state.nextToAct &&
+                Arrays.equals(wPieces, state.wPieces);
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         State state = (State) o;
         return castlePath == state.castlePath &&
@@ -1428,7 +1443,9 @@ public class State
                 Arrays.equals(wPieces, state.wPieces);
     }
 
-    @Override public int hashCode() {
+
+    @Override
+    public int hashCode() {
         int result = Arrays.hashCode(wPieces);
         result = 31 * result + Arrays.hashCode(bPieces);
         result = 31 * result + (int) enPassant;

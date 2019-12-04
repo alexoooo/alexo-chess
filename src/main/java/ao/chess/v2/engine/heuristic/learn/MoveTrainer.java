@@ -68,8 +68,8 @@ public class MoveTrainer {
     private static final boolean defaultValueAverage = true;
 //    private static final boolean measureOutcome = false;
 
-    private static final int miniBatchSize = 64;
-//    private static final int miniBatchSize = 128;
+//    private static final int miniBatchSize = 64;
+    private static final int miniBatchSize = 128;
 //    private static final int miniBatchSize = 256;
 //    private static final int miniBatchSize = 512;
     private static final int saveOnceEvery = 1_000_000;
@@ -91,7 +91,7 @@ public class MoveTrainer {
 
 
     private static final List<Path> inputs =
-            mixRange(139, 2999);
+            mixRange(144, 2999);
 //            mixRange(161, 2999);
 //            mixRange(749, 999);
 //    private static final List<Path> inputs = List.of(
@@ -124,7 +124,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/multi_6_20191129.zip");
 //            Paths.get("lookup/nn/multi_6b_20191130.zip");
 //            Paths.get("lookup/nn/multi_6c_20191203.zip");
-            Paths.get("lookup/nn/multi_6c_20191204b.zip");
+            Paths.get("lookup/nn/multi_6c_20191204c.zip");
 //            Paths.get("lookup/nn/snapshot_2019-12-03_19-16-03.zip");
 //            Paths.get("lookup/nn/value_7k_20191127.zip");
 
