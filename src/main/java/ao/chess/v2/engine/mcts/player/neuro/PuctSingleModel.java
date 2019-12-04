@@ -1,12 +1,15 @@
 package ao.chess.v2.engine.mcts.player.neuro;
 
+import ao.chess.v2.data.Location;
 import ao.chess.v2.engine.heuristic.learn.NeuralUtils;
 import ao.chess.v2.engine.neuro.NeuralCodec;
+import ao.chess.v2.piece.Figure;
 import ao.chess.v2.state.State;
 import org.deeplearning4j.nn.api.NeuralNetwork;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
 import java.nio.file.Path;
 
@@ -18,6 +21,11 @@ public class PuctSingleModel
     private final boolean computeGraph;
 
     private NeuralNetwork nn;
+    private INDArray features;
+    private int[] propAttacks;
+    private int[] oppAttacks;
+    private double[] fromScores;
+    private double[] toScores;
 
 
     public PuctSingleModel(
@@ -40,6 +48,12 @@ public class PuctSingleModel
     public void load()
     {
         nn = NeuralUtils.loadNeuralNetwork(savedNeuralNetwork, true, computeGraph);
+
+        features = Nd4j.zeros(1, Figure.VALUES.length + 2, Location.RANKS, Location.FILES);
+        propAttacks = new int[Location.COUNT];
+        oppAttacks = new int[Location.COUNT];
+        fromScores = new double[Location.COUNT];
+        toScores = new double[Location.COUNT];
     }
 
 
@@ -50,18 +64,21 @@ public class PuctSingleModel
         double winProbability;
 
         if (computeGraph) {
-            INDArray input = NeuralCodec.INSTANCE.encodeMultiState(state);
+            NeuralCodec.INSTANCE.encodeMultiState(
+                    state, features, propAttacks, oppAttacks);
 
-            INDArray[] outputs = ((ComputationGraph) nn).output(input);
+            INDArray[] outputs = ((ComputationGraph) nn).output(features);
+
             moveProbabilities = NeuralCodec.INSTANCE
                     .decodeMoveMultiProbabilities(
                             outputs[0],
                             outputs[1],
                             state,
-                            legalMoves);
+                            legalMoves,
+                            fromScores,
+                            toScores);
 
             winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2]);
-//            winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeMax(outputs[2]);
         }
         else {
             INDArray input = NeuralCodec.INSTANCE.encodeState(state);

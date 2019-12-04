@@ -15,14 +15,16 @@ public class Bishop implements BoardPiece
 
 
     //--------------------------------------------------------------------
-//    public static long attacks(long bishop,
-//                               long proponentPieces,
-//                               long opponentPieces) {
-//        return slide(bishop,  1,  1, proponentPieces, opponentPieces) |
-//               slide(bishop,  1, -1, proponentPieces, opponentPieces) |
-//               slide(bishop, -1,  1, proponentPieces, opponentPieces) |
-//               slide(bishop, -1, -1, proponentPieces, opponentPieces);
-//    }
+    public static long attacks(
+            long bishop,
+            long notOccupied,
+            long opponent
+    ) {
+        return slide(bishop,  1,  1, notOccupied, opponent) |
+                slide(bishop,  1, -1, notOccupied, opponent) |
+                slide(bishop, -1,  1, notOccupied, opponent) |
+                slide(bishop, -1, -1, notOccupied, opponent);
+    }
 
 
     //--------------------------------------------------------------------

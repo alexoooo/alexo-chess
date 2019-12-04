@@ -146,7 +146,7 @@ public class Tournament
 
         Player b = NeuralNetworkPlayer.load(
 //                Paths.get("lookup/nn/multi_6_20191129.zip"),
-                Paths.get("lookup/nn/multi_6c_20191203.zip"),
+                Paths.get("lookup/nn/multi_6c_20191204.zip"),
                 true,
                 true);
 

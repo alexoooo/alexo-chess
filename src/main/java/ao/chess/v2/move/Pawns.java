@@ -16,8 +16,8 @@ public class Pawns
 
 
     //--------------------------------------------------------------------
-    private static final long WHITE_ATTACK[];
-    private static final long BLACK_ATTACK[];
+    public static final long WHITE_ATTACK[];
+    public static final long BLACK_ATTACK[];
 
     private static final long WHITE_PUSH[];
     private static final long BLACK_PUSH[];

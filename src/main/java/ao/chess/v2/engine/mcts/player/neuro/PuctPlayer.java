@@ -298,7 +298,7 @@ public class PuctPlayer
         int bestMove = root.bestMove(visitMax);
 
         String generalPrefix = String.format(
-                "%s - %s | %d / %.2f / %b / %d / %b | %d / %d | %s",
+                "%s - %s | %d / %.2f / %b / %d / %b/ %f | %d / %d | %s",
                 id,
                 model,
                 threads,
@@ -306,6 +306,7 @@ public class PuctPlayer
                 visitMax,
                 rollouts,
                 tablebase,
+                predictionUncertainty,
                 nnCache.size(),
                 cacheHits.longValue(),
                 Move.toString(bestMove));

@@ -44,7 +44,8 @@ public class King implements BoardPiece
                BitBoard.offset(king, -1, -1);
     }
 
-    public long attacks(int pieceLocation) {
+
+    public static long attacks(int pieceLocation) {
         return CACHE[ pieceLocation ];
     }
 
@@ -58,7 +59,6 @@ public class King implements BoardPiece
                       long opponent)
     {
         return attacks(BitLoc.bitBoardToLocation(king))
-               //attacks(king)
                 & notProponent;
     }
 }

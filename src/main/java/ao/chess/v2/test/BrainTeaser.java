@@ -86,34 +86,34 @@ public class BrainTeaser {
 //                false
 //        );
 
-        Player player = new PuctPlayer(
-                new PuctSingleModel(
-                        Paths.get("lookup/nn/all_mid_batch_20191120-travis.zip"),
-                        false
-                ),
-                2,
-                1.25,
-                true,
-                0,
-                true,
-                1.25,
-                0);
-
 //        Player player = new PuctPlayer(
 //                new PuctSingleModel(
-//                        Paths.get("lookup/nn/multi_6c_20191203.zip"),
-//                        true
+//                        Paths.get("lookup/nn/all_mid_batch_20191120-travis.zip"),
+//                        false
 //                ),
 //                2,
 //                1.25,
 //                true,
 //                0,
 //                true,
-//                1.0,
-////                0.5,
-////                0.25,
-////                0.0,
+//                1.25,
 //                0);
+
+        Player player = new PuctPlayer(
+                new PuctSingleModel(
+                        Paths.get("lookup/nn/multi_6c_20191204.zip"),
+                        true
+                ),
+                2,
+                1.25,
+                true,
+                0,
+                true,
+//                1.0,
+                0.5,
+//                0.25,
+//                0.0,
+                0);
 
         State state = State.fromFen(
                 // puzzles
@@ -129,6 +129,8 @@ public class BrainTeaser {
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8 (!!)
 //                "r1bqkb1r/pp1n1pp1/2p1pn1p/6N1/3P4/3B1N2/PPP2PPP/R1BQK2R w KQkq - 0 8" // g5 e6 (deep blue)
+
+                "r1bqkbnr/pp1pp2p/2n3p1/2p2p2/4N3/5N1P/PPPPPPP1/R1BQKB1R w KQkq f6 0 2"
 
                 // trivial
 //                "4R3/4R3/8/2k5/8/2p2K2/2P5/8 w"
@@ -197,13 +199,15 @@ public class BrainTeaser {
 //                "r7/p4kp1/2Qprpq1/8/4PbP1/2B2P2/PP6/3R1RK1 b - - 0 1"
 //                "7r/p4kp1/2Qprpq1/8/4PbP1/2B2P2/PP6/3R1RK1 w - - 0 1"
 //                "7r/p4kp1/2Qprpq1/3R4/4PbP1/2B2P2/PP6/5RK1 b - - 0 1"
-//                "8/p4kp1/2Qprpq1/3R4/4PbP1/2B2P1r/PP6/5RK1 w - - 0 1"
+//                "8/p4kp1/2Qprpq1/3R4/4PbP1/2B2P1r/PP6/5RK1 w - - 0 1" // ??
 //                "8/p4kp1/2Qprp1q/5R2/4PbP1/2B2P1r/PP6/5RK1 w - - 0 1"
 //                "8/p1Q2kp1/3prp1q/5R2/4PbP1/2B2P1r/PP6/5RK1 b - - 0 1"
 //                "8/p1Q1rkp1/3p1p1q/5R2/4PbP1/2B2P1r/PP6/5RK1 w - - 0 1"
 //                "8/p3rkp1/3p1p1q/5R2/2Q1PbP1/2B2P1r/PP6/5RK1 b - - 0 1"
 //                "8/p4kp1/3prp1q/5R2/2Q1PbP1/2B2P1r/PP6/5RK1 w - - 0 1"
-                "8/p4kp1/Q2prp1q/5R2/4PbP1/2B2P1r/PP6/5RK1 b - - 0 1"
+//                "8/p4kp1/Q2prp1q/5R2/4PbP1/2B2P1r/PP6/5RK1 b - - 0 1"
+//                "8/p4kp1/Q2prp1q/5R2/4PbP1/2B2P1r/PP6/5RK1 b - - 0 1"
+//                "8/p4kp1/Q2prp1q/5R2/4P1P1/2B1bP1r/PP6/5RK1 w - - 0 1"
 
                 // Phi (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

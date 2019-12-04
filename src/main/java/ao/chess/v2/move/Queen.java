@@ -20,7 +20,7 @@ public class Queen implements BoardPiece
                       long notProponent,
                       long opponent)
     {
-        return   Rook.MOVES.moves(
+        return Rook.MOVES.moves(
                     queen, occupied, notOccupied,
                     proponent, notProponent, opponent) |
                Bishop.MOVES.moves(

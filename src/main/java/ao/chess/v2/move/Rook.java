@@ -14,15 +14,17 @@ public class Rook implements BoardPiece
     public static final BoardPiece MOVES = new Rook();
 
 
-//    //--------------------------------------------------------------------
-//    public static long attacks(long rook,
-//                               long proponentPieces,
-//                               long  opponentPieces) {
-//        return slide(rook,  1,  0, proponentPieces, opponentPieces) |
-//               slide(rook, -1,  0, proponentPieces, opponentPieces) |
-//               slide(rook,  0,  1, proponentPieces, opponentPieces) |
-//               slide(rook,  0, -1, proponentPieces, opponentPieces);
-//    }
+    //--------------------------------------------------------------------
+    public static long attacks(
+            long rook,
+            long notOccupied,
+            long opponent
+    ) {
+        return slide(rook,  1,  0, notOccupied, opponent) |
+                slide(rook, -1,  0, notOccupied, opponent) |
+                slide(rook,  0,  1, notOccupied, opponent) |
+                slide(rook,  0, -1, notOccupied, opponent);
+    }
 
 
     //--------------------------------------------------------------------

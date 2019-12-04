@@ -4,7 +4,7 @@ import ao.chess.v2.data.BitBoard;
 import ao.chess.v2.data.BitLoc;
 import ao.chess.v2.data.BoardLocation;
 import ao.chess.v2.data.Location;
-import ao.chess.v2.move.SlidingPieces;
+import ao.chess.v2.move.*;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;
 import ao.chess.v2.piece.MaterialTally;
@@ -1058,8 +1058,10 @@ public class State
     }
 
 
-    public void attackCount(int[][] counts, Colour pov)
+    public void attackCount(int[] counts, Colour pov)
     {
+        Arrays.fill(counts, 0);
+
         long occupied = whiteBB | blackBB;
         long notOccupied = ~occupied;
 
@@ -1077,26 +1079,51 @@ public class State
             while (bb != 0)
             {
                 long pieceBoard = BitBoard.lowestOneBit(bb);
+                int pieceLocation;
 
                 long pseudoMoves;
-                if (f == Figure.PAWN) {
-                    pseudoMoves = Piece.valueOf(pov, f).moves(
-                            pieceBoard, -1, 0,
-                            pieceBoard, -1, -1);
-                }
-                else {
-                    pseudoMoves = Piece.valueOf(pov, f).moves(
-                            pieceBoard, occupied, notOccupied,
-                            pieceBoard, occupied, occupied);
+                switch (f) {
+                    case PAWN:
+                        pieceLocation = BitLoc.bitBoardToLocation(pieceBoard);
+                        pseudoMoves = pov == Colour.WHITE
+                                ? Pawns.WHITE_ATTACK[pieceLocation]
+                                : Pawns.BLACK_ATTACK[pieceLocation];
+                        break;
+
+                    case KNIGHT:
+                        pieceLocation = BitLoc.bitBoardToLocation(pieceBoard);
+                        pseudoMoves = Knight.attacks(pieceLocation);
+                        break;
+
+                    case BISHOP:
+                        pseudoMoves = Bishop.attacks(
+                                pieceBoard, notOccupied, occupied);
+                        break;
+
+                    case ROOK:
+                        pseudoMoves = Rook.attacks(
+                                pieceBoard, notOccupied, occupied);
+                        break;
+
+                    case QUEEN:
+                        pseudoMoves =
+                                Bishop.attacks(pieceBoard, notOccupied, occupied) |
+                                Rook.attacks(pieceBoard, notOccupied, occupied);
+                        break;
+
+                    case KING:
+                        pieceLocation = BitLoc.bitBoardToLocation(pieceBoard);
+                        pseudoMoves = King.attacks(pieceLocation);
+                        break;
+
+                    default:
+                        throw new IllegalStateException();
                 }
 
                 while (pseudoMoves != 0) {
                     int location = BitLoc.bitBoardToLocation(pseudoMoves);
 
-                    int rank = Location.rankIndex(location);
-                    int file = Location.fileIndex(location);
-
-                    counts[rank][file]++;
+                    counts[location]++;
 
                     pseudoMoves &= pseudoMoves - 1;
                 }

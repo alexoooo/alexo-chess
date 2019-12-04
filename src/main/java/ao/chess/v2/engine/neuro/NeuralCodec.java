@@ -12,6 +12,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 
+import java.util.Arrays;
+
 
 public enum NeuralCodec {
     INSTANCE;
@@ -36,6 +38,7 @@ public enum NeuralCodec {
         return encodeState(state, false);
     }
 
+
     public INDArray encodeState(
             State state,
             boolean normalized
@@ -44,8 +47,8 @@ public enum NeuralCodec {
 
         boolean flip = state.nextToAct() == Colour.BLACK;
 
-        int[][] propAttacks = new int[Location.RANKS][Location.FILES];
-        int[][] oppAttacks = new int[Location.RANKS][Location.FILES];
+        int[] propAttacks = new int[Location.COUNT];
+        int[] oppAttacks = new int[Location.COUNT];
 
         state.attackCount(propAttacks, state.nextToAct());
         state.attackCount(oppAttacks, state.nextToAct().invert());
@@ -54,20 +57,21 @@ public enum NeuralCodec {
             for (int file = 0; file < Location.FILES; file++) {
                 int adjustedRank = (flip ? Location.RANKS - rank - 1 : rank);
                 int adjustedFile = (flip ? Location.FILES - file - 1 : file);
+                int location = Location.squareIndex(rank, file);
 
                 if (normalized) {
                     features.put(new int[] {Figure.VALUES.length, adjustedRank, adjustedFile},
-                            Nd4j.scalar((double) propAttacks[rank][file] / 15));
+                            Nd4j.scalar((double) propAttacks[location] / 15));
 
                     features.put(new int[] {Figure.VALUES.length + 1, adjustedRank, adjustedFile},
-                            Nd4j.scalar((double) oppAttacks[rank][file] / 15));
+                            Nd4j.scalar((double) oppAttacks[location] / 15));
                 }
                 else {
                     features.put(new int[] {Figure.VALUES.length, adjustedRank, adjustedFile},
-                            Nd4j.scalar(propAttacks[rank][file]));
+                            Nd4j.scalar(propAttacks[location]));
 
                     features.put(new int[] {Figure.VALUES.length + 1, adjustedRank, adjustedFile},
-                            Nd4j.scalar(oppAttacks[rank][file]));
+                            Nd4j.scalar(oppAttacks[location]));
                 }
 
                 Piece piece = state.pieceAt(rank, file);
@@ -86,6 +90,51 @@ public enum NeuralCodec {
 
         long[] featureShape = features.shape();
         return features.reshape(1, featureShape[0], featureShape[1], featureShape[2]);
+    }
+
+
+    public void encodeMultiState(
+            State state,
+            INDArray features,
+            int[] propAttacks,
+            int[] oppAttacks
+    ) {
+        boolean flip = state.nextToAct() == Colour.BLACK;
+
+        state.attackCount(propAttacks, state.nextToAct());
+        state.attackCount(oppAttacks, state.nextToAct().invert());
+
+        for (int rank = 0; rank < Location.RANKS; rank++) {
+            for (int file = 0; file < Location.FILES; file++) {
+                int adjustedRank = (flip ? Location.RANKS - rank - 1 : rank);
+                int adjustedFile = (flip ? Location.FILES - file - 1 : file);
+                int square = Location.squareIndex(rank, file);
+
+                features.putScalar(0, Figure.VALUES.length, adjustedRank, adjustedFile,
+                        (double) propAttacks[square] / 15);
+
+                features.putScalar(0, Figure.VALUES.length + 1, adjustedRank, adjustedFile,
+                        (double) oppAttacks[square] / 15);
+
+                Piece piece = state.pieceAt(rank, file);
+                if (piece == null) {
+                    continue;
+                }
+
+                boolean isNextToAct = piece.colour() == state.nextToAct();
+                double value = (isNextToAct ? 1 : -1);
+
+                Figure figure = piece.figure();
+
+                features.putScalar(0, figure.ordinal(), adjustedRank, adjustedFile,
+                        value);
+                for (int i = 0; i < Figure.VALUES.length; i++) {
+                    if (i != figure.ordinal()){
+                        features.putScalar(0, i, adjustedRank, adjustedFile, 0);
+                    }
+                }
+            }
+        }
     }
 
 
@@ -245,6 +294,73 @@ public enum NeuralCodec {
         double fromTotal = 0;
 
         double[] toScores = new double[Location.COUNT];
+        double toTotal = 0;
+
+        for (int move : legalMoves) {
+            int fromIndex = Move.fromSquareIndex(move);
+            int fromAdjustedIndex = flipIndexIfRequired(fromIndex, flip);
+            if (fromScores[fromIndex] == 0) {
+                double prediction = outputFrom.getDouble(0, fromAdjustedIndex);
+                fromScores[fromIndex] = prediction;
+                fromTotal += prediction;
+            }
+
+            int toIndex = Move.toSquareIndex(move);
+            int toAdjustedIndex = flipIndexIfRequired(toIndex, flip);
+            if (toScores[toIndex] == 0) {
+                double prediction = outputTo.getDouble(0, toAdjustedIndex);
+                toScores[toIndex] = prediction;
+                toTotal += prediction;
+            }
+        }
+
+        double moveTotal = 0;
+        double[] moveScores = new double[legalMoveCount];
+
+        for (int i = 0; i < legalMoveCount; i++) {
+            int move = legalMoves[i];
+
+            if (Move.isPromotion(move) && Figure.VALUES[Move.promotion(move)] != Figure.QUEEN) {
+                // NB: under-promotions are not considered
+                continue;
+            }
+
+            int fromIndex = Move.fromSquareIndex(move);
+            double fromProbability = fromScores[fromIndex] / fromTotal;
+
+            int toIndex = Move.toSquareIndex(move);
+            double toProbability = toScores[toIndex] / toTotal;
+
+            double moveScore = fromProbability * toProbability;
+            moveScores[i] = moveScore;
+            moveTotal += moveScore;
+        }
+
+        if (moveTotal != 0) {
+            for (int i = 0; i < legalMoveCount; i++) {
+                moveScores[i] /= moveTotal;
+            }
+        }
+
+        return moveScores;
+    }
+
+
+    public double[] decodeMoveMultiProbabilities(
+            INDArray outputFrom,
+            INDArray outputTo,
+            State state,
+            int[] legalMoves,
+            double[] fromScores,
+            double[] toScores
+    ) {
+        Arrays.fill(fromScores, 0.0);
+        Arrays.fill(toScores, 0.0);
+
+        int legalMoveCount = legalMoves.length;
+        boolean flip = state.nextToAct() == Colour.BLACK;
+
+        double fromTotal = 0;
         double toTotal = 0;
 
         for (int move : legalMoves) {
