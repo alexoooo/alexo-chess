@@ -28,8 +28,8 @@ class PuctNode {
     private static final double maximumGuess = 0.9;
     private static final double guessRange = maximumGuess - minimumGuess;
 
-    private static final double firstPlayEstimate = 0.4;
-//    private static final double firstPlayEstimate = minimumGuess;
+    private static final double initialPlayEstimate = minimumGuess;
+    private static final double firstPlayDiscount = 0.2;
 
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
@@ -406,6 +406,7 @@ class PuctNode {
             parentVisitCount += childVisitCount;
         }
 
+        double firstPlayEstimate = 0;
         double maxScore = Double.NEGATIVE_INFINITY;
         int maxScoreIndex = 0;
 
@@ -423,10 +424,15 @@ class PuctNode {
                 prediction = underpromotionPrediction;
             }
             else {
-                averageOutcome =
-                        moveVisits == 0
-                        ? firstPlayEstimate
-                        : moveValueSums[i] / moveVisits;
+                if (moveVisits == 0) {
+                    if (firstPlayEstimate == 0) {
+                        firstPlayEstimate = childFirstPlayEstimate();
+                    }
+                    averageOutcome = firstPlayEstimate;
+                }
+                else {
+                    averageOutcome = moveValueSums[i] / moveVisits;
+                }
 
                 prediction = predictions[i];
             }
@@ -547,8 +553,22 @@ class PuctNode {
         long count = visitCount.longValue();
         double sum = valueSum.doubleValue();
         return count == 0
-                ? firstPlayEstimate
+                ? initialPlayEstimate
                 : 1.0 - sum / count;
+    }
+
+
+    private double childFirstPlayEstimate()
+    {
+        long count = visitCount.longValue();
+        if (count == 0) {
+            return initialPlayEstimate;
+        }
+
+        double sum = valueSum.doubleValue();
+        double inverseValue = 1.0 - sum / count;
+
+        return Math.max(minimumGuess, inverseValue - firstPlayDiscount);
     }
 
 
@@ -605,7 +625,7 @@ class PuctNode {
                         Move.toInputNotation(moves[i]),
                         counts[i],
                         counts[i] == 0 ? 0 : childNodes.get(i).maxDepth(),
-                        counts[i] == 0 ? firstPlayEstimate : values[i] / counts[i],
+                        counts[i] == 0 ? initialPlayEstimate : values[i] / counts[i],
                         predictions[i],
                         predictions[i] * Math.sqrt(parentVisitCount) / (counts[i] + 1)))
                 .collect(Collectors.joining(" | "));

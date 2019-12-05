@@ -91,14 +91,14 @@ public class MoveTrainer {
             .build();
 
 
-//    private static final List<Path> inputs =
-//            mixRange(69, 2999);
-////            mixRange(144, 2999);
-////            mixRange(161, 2999);
-////            mixRange(749, 999);
-    private static final List<Path> inputs = List.of(
-            Paths.get("lookup/train/mix-small/champions_10000.txt")
-    );
+    private static final List<Path> inputs =
+            mixRange(70, 2999);
+//            mixRange(144, 2999);
+//            mixRange(161, 2999);
+//            mixRange(749, 999);
+//    private static final List<Path> inputs = List.of(
+//            Paths.get("lookup/train/mix-small/champions_10000.txt")
+//    );
 
     private static List<Path> mixRange(int fromInclusive, int toInclusive) {
         List<Path> range = new ArrayList<>();
@@ -128,7 +128,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/multi_6c_20191203.zip");
 //            Paths.get("lookup/nn/multi_6c_20191204c.zip");
 //            Paths.get("lookup/nn/multi_6d_20191205.zip");
-            Paths.get("lookup/nn/multi_6d_20191205z.zip");
+//            Paths.get("lookup/nn/multi_6d_20191205.zip");
+            Paths.get("lookup/nn/multi_6d_20191205b.zip");
 //            Paths.get("lookup/nn/snapshot_2019-12-03_19-16-03.zip");
 //            Paths.get("lookup/nn/value_7k_20191127.zip");
 
