@@ -1,6 +1,7 @@
 package ao.chess.v2.engine.heuristic.learn;
 
 import ao.chess.v2.data.Location;
+import ao.chess.v2.engine.mcts.player.neuro.PuctEstimate;
 import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;
@@ -8,7 +9,6 @@ import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import org.deeplearning4j.datasets.iterator.IteratorMultiDataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
 import org.deeplearning4j.nn.api.NeuralNetwork;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -30,7 +30,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.AdaDelta;
 import org.nd4j.linalg.learning.config.AdaGrad;
@@ -68,21 +67,23 @@ public class MoveTrainer {
     private static final boolean defaultValueAverage = true;
 //    private static final boolean measureOutcome = false;
 
-//    private static final int miniBatchSize = 64;
-    private static final int miniBatchSize = 128;
+    private static final int miniBatchSize = 64;
+//    private static final int miniBatchSize = 128;
+//    private static final int miniBatchSize = 192;
 //    private static final int miniBatchSize = 256;
 //    private static final int miniBatchSize = 512;
     private static final int saveOnceEvery = 1_000_000;
 
 //    private static final int trainingIterations = 0;
-    private static final int trainingIterations = 1;
-//    private static final int trainingIterations = 100;
+//    private static final int trainingIterations = 1;
+    private static final int trainingIterations = 100;
 
 //    private static final boolean testInitial = false;
     private static final boolean testInitial = true;
 
     private static final int seed = 42;
     private static final Random seededRandom = new Random(seed);
+    private static final MoveTrainerEncoder encoder = new MoveTrainerEncoder(miniBatchSize);
 
 
     public static final WorkspaceConfiguration wsConfig = WorkspaceConfiguration.builder()
@@ -90,13 +91,14 @@ public class MoveTrainer {
             .build();
 
 
-    private static final List<Path> inputs =
-            mixRange(144, 2999);
-//            mixRange(161, 2999);
-//            mixRange(749, 999);
-//    private static final List<Path> inputs = List.of(
-//            Paths.get("lookup/train/mix-small/champions_10000.txt")
-//    );
+//    private static final List<Path> inputs =
+//            mixRange(69, 2999);
+////            mixRange(144, 2999);
+////            mixRange(161, 2999);
+////            mixRange(749, 999);
+    private static final List<Path> inputs = List.of(
+            Paths.get("lookup/train/mix-small/champions_10000.txt")
+    );
 
     private static List<Path> mixRange(int fromInclusive, int toInclusive) {
         List<Path> range = new ArrayList<>();
@@ -124,20 +126,11 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/multi_6_20191129.zip");
 //            Paths.get("lookup/nn/multi_6b_20191130.zip");
 //            Paths.get("lookup/nn/multi_6c_20191203.zip");
-            Paths.get("lookup/nn/multi_6c_20191204c.zip");
+//            Paths.get("lookup/nn/multi_6c_20191204c.zip");
+//            Paths.get("lookup/nn/multi_6d_20191205.zip");
+            Paths.get("lookup/nn/multi_6d_20191205z.zip");
 //            Paths.get("lookup/nn/snapshot_2019-12-03_19-16-03.zip");
 //            Paths.get("lookup/nn/value_7k_20191127.zip");
-
-
-    private static class Prediction {
-        public final double[] actionProbabilities;
-        public final double outcome;
-
-        public Prediction(double[] actionProbabilities, double outcome) {
-            this.actionProbabilities = actionProbabilities;
-            this.outcome = outcome;
-        }
-    }
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -152,7 +145,8 @@ public class MoveTrainer {
 //            nn = createNeuralNetwork4();
 //            nn = createNeuralNetwork6();
 //            nn = createNeuralNetwork6b();
-            nn = createNeuralNetwork6c();
+//            nn = createNeuralNetwork6c();
+            nn = createNeuralNetwork6d();
 //            nn = createValueNetwork7();
         }
 
@@ -183,18 +177,6 @@ public class MoveTrainer {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    private static int flipIndexIfRequired(
-            int locationIndex,
-            boolean flip
-    ) {
-        int rank = Location.rankIndex(locationIndex);
-        int file = Location.fileIndex(locationIndex);
-        int adjustedRank = (flip ? Location.RANKS - rank - 1 : rank);
-        int adjustedFile = (flip ? Location.FILES - file - 1 : file);
-        return Location.squareIndex(adjustedRank, adjustedFile);
-    }
-
-
     private static void performTraining(
             List<MoveHistory> allMoves,
             int epoch,
@@ -250,10 +232,18 @@ public class MoveTrainer {
             nn.fit(miniBatchIterator);
         }
         else {
-            MultiDataSetIterator miniBatchIterator = new IteratorMultiDataSetIterator(
-                    Collections2.transform(miniBatch, MoveTrainer::convertToMultiDataSet).iterator(),
-                    miniBatch.size());
-            nn.fit(miniBatchIterator);
+//            MultiDataSetIterator miniBatchIterator = new IteratorMultiDataSetIterator(
+//                    Collections2.transform(miniBatch, MoveTrainer::convertToMultiDataSet).iterator(),
+//                    miniBatch.size());
+//            MultiDataSet old = miniBatchIterator.next();
+
+            MultiDataSet encoded = encoder.encodeAllInPlace(miniBatch);
+            nn.fit(encoded);
+
+//            MultiDataSetIterator miniBatchIterator = new IteratorMultiDataSetIterator(
+//                    Collections2.transform(miniBatch, MoveTrainer::convertToMultiDataSet).iterator(),
+//                    miniBatch.size());
+//            nn.fit(miniBatchIterator);
         }
     }
 
@@ -321,7 +311,7 @@ public class MoveTrainer {
                 lines.forEach(line -> {
                     MoveHistory example = new MoveHistory(line);
 
-                    Prediction prediction = testExample(nn, example);
+                    PuctEstimate prediction = testExample(nn, example);
 
                     double[] errors = measureError(prediction, example);
 
@@ -347,7 +337,7 @@ public class MoveTrainer {
     }
 
 
-    private static Prediction testExample(NeuralNetwork nn, MoveHistory example) {
+    private static PuctEstimate testExample(NeuralNetwork nn, MoveHistory example) {
         if (valueOnly) {
             return testExampleValueOnly((MultiLayerNetwork) nn, example);
         }
@@ -362,7 +352,7 @@ public class MoveTrainer {
     }
 
 
-    private static Prediction testExampleValueOnly(MultiLayerNetwork nn, MoveHistory example) {
+    private static PuctEstimate testExampleValueOnly(MultiLayerNetwork nn, MoveHistory example) {
         INDArray input = NeuralCodec.convertToDataSetValueOnly(example).getFeatures();
         INDArray output = nn.output(input);
 
@@ -372,11 +362,11 @@ public class MoveTrainer {
         double outcome = NeuralCodec.INSTANCE
                 .decodeOutcomeValueOnly(output);
 
-        return new Prediction(moveProbabilities, outcome);
+        return new PuctEstimate(moveProbabilities, outcome);
     }
 
 
-    private static Prediction testExampleLayered(MultiLayerNetwork nn, MoveHistory example) {
+    private static PuctEstimate testExampleLayered(MultiLayerNetwork nn, MoveHistory example) {
         INDArray input = convertToDataSet(example).getFeatures();
         INDArray output = nn.output(input);
 
@@ -386,39 +376,25 @@ public class MoveTrainer {
         double outcome = NeuralCodec.INSTANCE
                 .decodeOutcome(output);
 
-        return new Prediction(moveProbabilities, outcome);
+        return new PuctEstimate(moveProbabilities, outcome);
     }
 
 
-    private static Prediction testExampleGraph(ComputationGraph nn, MoveHistory example) {
-        INDArray input = convertToMultiDataSet(example).getFeatures(0);
-        INDArray[] outputs = nn.output(input);
-
-        double[] moveProbabilities = NeuralCodec.INSTANCE
-                .decodeMoveMultiProbabilities(
-                        outputs[0],
-                        outputs[1],
-                        example.state(),
-                        example.legalMoves());
-
-        double outcome = NeuralCodec.INSTANCE
-                .decodeMultiOutcome(outputs[2]);
-//                .decodeMultiOutcomeMax(outputs[2]);
-
-        return new Prediction(moveProbabilities, outcome);
+    private static PuctEstimate testExampleGraph(ComputationGraph nn, MoveHistory example) {
+        return encoder.estimate(example, nn);
     }
 
 
     private static double[] measureError(
-            Prediction prediction,
+            PuctEstimate prediction,
             MoveHistory example)
     {
-        double predictedOutcome = prediction.outcome;
+        double predictedOutcome = prediction.winProbability;
         double actualOutcome = example.outcome().valueFor(example.state().nextToAct());
         double outcomeError = Math.abs(predictedOutcome - actualOutcome);
 
         double actionError;
-        double[] predictedMoveProbabilities = prediction.actionProbabilities;
+        double[] predictedMoveProbabilities = prediction.moveProbabilities;
         if (defaultBestAction) {
             double bestActualScore = 0;
             int bestActualIndex = 0;
@@ -499,7 +475,7 @@ public class MoveTrainer {
                     fromLocationScores.length > fromSquareIndex
                             ? fromLocationScores[fromSquareIndex]
                             : 0;
-            int adjustedFrom = flipIndexIfRequired(fromSquareIndex, flip);
+            int adjustedFrom = NeuralCodec.flipIndexIfRequired(fromSquareIndex, flip);
             labels.put(adjustedFrom, Nd4j.scalar(fromScore));
 
             int toSquareIndex = Move.toSquareIndex(move);
@@ -507,7 +483,7 @@ public class MoveTrainer {
                     toLocationScores.length > toSquareIndex
                             ? toLocationScores[toSquareIndex]
                             : 0;
-            int adjustedTo = flipIndexIfRequired(toSquareIndex, flip);
+            int adjustedTo = NeuralCodec.flipIndexIfRequired(toSquareIndex, flip);
             labels.put(adjustedTo + Location.COUNT, Nd4j.scalar(toScore));
         }
 
@@ -543,11 +519,11 @@ public class MoveTrainer {
         int bestMove = example.legalMoves()[bestMoveIndex];
 
         int fromSquareIndex = Move.fromSquareIndex(bestMove);
-        int adjustedFrom = flipIndexIfRequired(fromSquareIndex, flip);
+        int adjustedFrom = NeuralCodec.flipIndexIfRequired(fromSquareIndex, flip);
         labels.put(adjustedFrom, Nd4j.scalar(1));
 
         int toSquareIndex = Move.toSquareIndex(bestMove);
-        int adjustedTo = flipIndexIfRequired(toSquareIndex, flip);
+        int adjustedTo = NeuralCodec.flipIndexIfRequired(toSquareIndex, flip);
         labels.put(adjustedTo + Location.COUNT, Nd4j.scalar(1));
 
         labels.put(Location.COUNT * 2, Nd4j.scalar(
@@ -556,63 +532,6 @@ public class MoveTrainer {
                 : example.outcomeScore()));
 
         return labels.reshape(1, Location.COUNT * 2 + 1);
-    }
-
-
-    public static MultiDataSet convertToMultiDataSet(
-            MoveHistory example
-    ) {
-        INDArray features = NeuralCodec.INSTANCE
-                .encodeMultiState(example.state());
-
-        // from square and to square, independent probabilities
-        INDArray labelFrom = Nd4j.zeros(Location.COUNT);
-        INDArray labelTo = Nd4j.zeros(Location.COUNT);
-        INDArray labelOutcome = Nd4j.zeros(Outcome.values.length);
-//        INDArray labelOutcome = Nd4j.zeros(1);
-
-        boolean flip = example.state().nextToAct() == Colour.BLACK;
-
-        double bestMoveScore = 0;
-        int bestMoveIndex = 0;
-        for (int i = 0; i < example.moveScores().length; i++) {
-            double moveScore = example.moveScores()[i];
-            if (moveScore > bestMoveScore) {
-                bestMoveScore = moveScore;
-                bestMoveIndex = i;
-            }
-        }
-        int bestMove = example.legalMoves()[bestMoveIndex];
-
-        int fromSquareIndex = Move.fromSquareIndex(bestMove);
-        int adjustedFrom = flipIndexIfRequired(fromSquareIndex, flip);
-        labelFrom.put(adjustedFrom, Nd4j.scalar(1));
-
-        int toSquareIndex = Move.toSquareIndex(bestMove);
-        int adjustedTo = flipIndexIfRequired(toSquareIndex, flip);
-        labelTo.put(adjustedTo, Nd4j.scalar(1));
-
-        Outcome outcome = example.outcome();
-        if (outcome.winner() == example.state().nextToAct()) {
-            labelOutcome.put(0, Nd4j.scalar(1));
-        }
-        else if (outcome.loser() == example.state().nextToAct()) {
-            labelOutcome.put(1, Nd4j.scalar(1));
-        }
-        else {
-            labelOutcome.put(2, Nd4j.scalar(1));
-        }
-//        labelOutcome.put(0, Nd4j.scalar(example.outcomeValue()));
-
-        return new org.nd4j.linalg.dataset.MultiDataSet(
-                new INDArray[]{features},
-                new INDArray[]{
-                        labelFrom.reshape(1, Location.COUNT),
-                        labelTo.reshape(1, Location.COUNT),
-                        labelOutcome.reshape(1, Outcome.values.length)
-//                        labelOutcome.reshape(1, 1)
-                }
-        );
     }
 
 
@@ -1084,6 +1003,88 @@ public class MoveTrainer {
                                 .activation(Activation.LEAKYRELU)
                                 .build(),
                         "L2-norm")
+
+                .addLayer("L3-norm", new BatchNormalization(), "L3")
+
+                .addLayer("out-from",
+                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                                .activation(Activation.SOFTMAX)
+                                .nOut(Location.COUNT)
+                                .build(),
+                        "L3-norm")
+
+                .addLayer("out-to",
+                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                                .activation(Activation.SOFTMAX)
+                                .nOut(Location.COUNT)
+                                .build(),
+                        "L3-norm")
+
+                .addLayer("out-outcome",
+                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                                .activation(Activation.SOFTMAX)
+                                .nOut(Outcome.values.length)
+                                .build(),
+                        "L3-norm")
+
+                .setOutputs("out-from", "out-to", "out-outcome")
+
+                .build();
+
+        ComputationGraph net = new ComputationGraph(conf);
+        net.init();
+
+        return net;
+    }
+
+
+    public static ComputationGraph createNeuralNetwork6d() {
+        int height = Location.FILES;
+        int width = Location.RANKS;
+        int channels = Figure.VALUES.length + 2;
+        int filters = 192;
+
+        ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
+                .seed(seed)
+
+                .l2(0.0001)
+                .weightInit(WeightInit.RELU)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+//                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
+                .updater(new Adam())
+
+                .graphBuilder()
+
+                .addInputs("input")
+                .setInputTypes(InputType.convolutional(height, width, channels))
+
+                .addLayer("L1",
+                        new ConvolutionLayer.Builder(3, 3)
+                                .nIn(channels)
+                                .stride(1, 1)
+                                .padding(1, 1)
+                                .nOut(filters)
+                                .activation(Activation.LEAKYRELU)
+                                .build(),
+                        "input")
+
+                .addLayer("L2",
+                        new ConvolutionLayer.Builder(3, 3)
+                                .stride(1, 1)
+                                .padding(1, 1)
+                                .nOut(filters)
+                                .activation(Activation.LEAKYRELU)
+                                .build(),
+                        "L1")
+
+                .addLayer("L3",
+                        new ConvolutionLayer.Builder(3, 3)
+                                .stride(1, 1)
+                                .padding(1, 1)
+                                .nOut(filters)
+                                .activation(Activation.LEAKYRELU)
+                                .build(),
+                        "L2")
 
                 .addLayer("L3-norm", new BatchNormalization(), "L3")
 

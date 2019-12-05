@@ -32,8 +32,8 @@
 
         <ao.util.version>2.4.0</ao.util.version>
 
-        <nd4j.backend>nd4j-native-platform</nd4j.backend>
-<!--        <nd4j.backend>nd4j-cuda-10.1-platform</nd4j.backend>-->
+<!--        <nd4j.backend>nd4j-native-platform</nd4j.backend>-->
+        <nd4j.backend>nd4j-cuda-10.1-platform</nd4j.backend>
 
         <nd4j.version>1.0.0-beta5</nd4j.version>
         <dl4j.version>1.0.0-beta5</dl4j.version>
@@ -62,11 +62,11 @@
         </dependency>
 
         <!-- CUDA-->
-        <!--<dependency>
+        <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-cuda-10.1</artifactId>
             <version>1.0.0-beta5</version>
-        </dependency>-->
+        </dependency>
 
         <dependency>
             <groupId>ao.util</groupId>

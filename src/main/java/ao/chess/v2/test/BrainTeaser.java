@@ -101,11 +101,11 @@ public class BrainTeaser {
 
         Player player = new PuctPlayer(
                 new PuctSingleModel(
-                        Paths.get("lookup/nn/multi_6c_20191204.zip"),
+                        Paths.get("lookup/nn/multi_6d_20191205.zip"),
                         true
                 ),
-                2,
-                1.25,
+                4,
+                2.25,
                 true,
                 0,
                 true,
@@ -130,8 +130,6 @@ public class BrainTeaser {
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8 (!!)
 //                "r1bqkb1r/pp1n1pp1/2p1pn1p/6N1/3P4/3B1N2/PPP2PPP/R1BQK2R w KQkq - 0 8" // g5 e6 (deep blue)
 
-                "r1bqkbnr/pp1pp2p/2n3p1/2p2p2/4N3/5N1P/PPPPPPP1/R1BQKB1R w KQkq f6 0 2"
-
                 // trivial
 //                "4R3/4R3/8/2k5/8/2p2K2/2P5/8 w"
 //                "8/8/2p1b1k1/r6n/1K6/8/8/8 b - - 0 1"
@@ -144,6 +142,12 @@ public class BrainTeaser {
 
 
                 // Travis (black)
+                //  1. c2c4 e7e5 2. Ng1f3 Nb8c6 3. Nb1c3 d7d6 4. d2d4 e5xd4 5. Nf3xd4 Bc8d7 6. g2g3 Ng8f6
+                //  7. Bf1g2 Bf8e7 8. O-O O-O 9. Nd4xc6 Bd7xc6 10. Bg2xc6 b7xc6 11. Qd1c2 Qd8d7 12. Bc1e3 Rf8e8
+                //  13. Ra1d1 h7h5 14. Be3d4 h5h4 15. e2e4 Qd7g4 16. f2f3 Qg4g6 17. Qc2g2 h4xg3 18. h2xg3 Nf6h5
+                //  19. g3g4 Nh5f4 20. Qg2h2 Be7g5 21. Nc3e2 Nf4xe2+ 22. Qh2xe2 Bg5f4 23. Bd4c3 f7f6 24. c4c5 Kg8f7
+                //  25. c5xd6 c7xd6 26. Qe2c4+ Re8e6 27. Qc4xc6 Ra8h8 28. Rd1d5 Rh8h3 29. Rd5f5 Qg6h6
+                //  30. Qc6c7+ Re6e7 31. Qc7c4+ Re7e6 32. Qc4a6 Bf4e3+
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 //                "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1"
 //                "rnbqkbnr/pppp1ppp/8/4p3/2P5/8/PP1PPPPP/RNBQKBNR w KQkq e6 0 1"
@@ -216,7 +220,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/5N1P/PPPPPPP1/RNBQKB1R w KQkq - 0 1"
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
-//                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
+                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
 //                "r1bqk1nr/pp1pppbp/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
 //                "r1bqk1nr/pp1pppbp/2n3p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqk1nr/pp2ppbp/2np2p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
@@ -284,30 +288,6 @@ public class BrainTeaser {
 //                "r3r1k1/pp3ppp/5n2/2p5/N1Pq1P2/1Q1P4/PP2b2P/1R2KR2 b - - 0 1"
 //                "r3r1k1/pp3ppp/5n2/2p5/N1Pq1P2/1Q1b4/PP1K3P/1R3R2 b - - 0 1"
 //                "r3r1k1/pp3ppp/5n2/2p5/N1bq1P2/1Q6/PPK4P/1R3R2 b - - 0 1"
-
-                // Travis game
-//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-//                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
-//                "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 1"
-//                "rnbqkbnr/pp1ppppp/8/2p5/4P3/5P2/PPPP2PP/RNBQKBNR b KQkq - 0 1"
-//                "rnbqkbnr/pp1p1ppp/4p3/2p5/4P3/5P2/PPPP2PP/RNBQKBNR w KQkq - 0 1"
-//                "rnbqkbnr/pp1p1ppp/4p3/2p5/4P3/2P2P2/PP1P2PP/RNBQKBNR b KQkq - 0 1"
-//                "rnbqkbnr/pp3ppp/4p3/2pp4/4P3/2P2P2/PP1P2PP/RNBQKBNR w KQkq d6 0 1"
-//                "rnbqkbnr/pp3ppp/4p3/2pP4/8/2P2P2/PP1P2PP/RNBQKBNR b KQkq - 0 1"
-//                "rnbqkbnr/pp3ppp/8/2pp4/8/2P2P2/PP1P2PP/RNBQKBNR w KQkq - 0 1"
-//                "rnbqk1nr/pp3ppp/3b4/2pp4/8/1PP2P2/P2P2PP/RNBQKBNR w KQkq - 0 1"
-//                "rnbqk1nr/pp3ppp/3b4/2pp4/8/1PPP1P2/P5PP/RNBQKBNR b KQkq - 0 1"
-//                "rnb1k1nr/pp3ppp/3b4/2pp4/7q/1PPP1P2/P5PP/RNBQKBNR w KQkq - 0 1"
-//                "rnb1k1nr/pp3ppp/3b4/2pp4/7q/1PPP1PP1/P6P/RNBQKBNR b KQkq - 0 1"
-//                "rnb1k1nr/pp3ppp/8/2pp4/7q/1PPP1Pb1/P6P/RNBQKBNR w KQkq - 0 1"
-//                "rnb1k1nr/pp3ppp/8/2pp4/7q/1PPP1Pb1/P2K3P/RNBQ1BNR b kq - 0 1"
-//                "rnb1k2r/pp2nppp/8/2pp4/7q/1PPP1Pb1/P2K3P/RNBQ1BNR w kq - 0 1"
-//                "rnb1k2r/pp2nppp/8/2pp4/7q/1PPP1Pb1/P2KN2P/RNBQ1B1R b kq - 0 1"
-//                "rnb1k2r/pp2nppp/3b4/2pp4/7q/1PPP1P2/P2KN2P/RNBQ1B1R w kq - 0 1"
-//                "rnb2rk1/pp2nppp/3b4/2pp4/7q/BPPP1P2/P2KN2P/RN1Q1B1R w - - 0 1"
-//                "rnb2rk1/pp2nppp/3b4/2Bp4/7q/1PPP1P2/P2KN2P/RN1Q1B1R b - - 0 1"
-//                "rnb2rk1/pp2nppp/8/2bp4/7q/1PPP1P2/P2KN2P/RN1Q1B1R w - - 0 1"
-//                "rnb2rk1/pp2nppp/8/2bp4/P6q/1PPP1P2/3KN2P/RN1Q1B1R b - a3 0 1"
 
                 // Mable game 4 (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

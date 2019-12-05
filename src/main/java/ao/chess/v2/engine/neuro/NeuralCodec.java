@@ -99,10 +99,21 @@ public enum NeuralCodec {
             int[] propAttacks,
             int[] oppAttacks
     ) {
-        boolean flip = state.nextToAct() == Colour.BLACK;
+        encodeMultiState(state, features, propAttacks, oppAttacks, 0);
+    }
 
-        state.attackCount(propAttacks, state.nextToAct());
-        state.attackCount(oppAttacks, state.nextToAct().invert());
+    public void encodeMultiState(
+            State state,
+            INDArray features,
+            int[] propAttacks,
+            int[] oppAttacks,
+            int batchIndex
+    ) {
+        Colour nextToAct = state.nextToAct();
+        boolean flip = nextToAct == Colour.BLACK;
+
+        state.attackCount(propAttacks, nextToAct);
+        state.attackCount(oppAttacks, nextToAct.invert());
 
         for (int rank = 0; rank < Location.RANKS; rank++) {
             for (int file = 0; file < Location.FILES; file++) {
@@ -110,29 +121,29 @@ public enum NeuralCodec {
                 int adjustedFile = (flip ? Location.FILES - file - 1 : file);
                 int square = Location.squareIndex(rank, file);
 
-                features.putScalar(0, Figure.VALUES.length, adjustedRank, adjustedFile,
+                features.putScalar(batchIndex, Figure.VALUES.length, adjustedRank, adjustedFile,
                         (double) propAttacks[square] / 15);
 
-                features.putScalar(0, Figure.VALUES.length + 1, adjustedRank, adjustedFile,
+                features.putScalar(batchIndex, Figure.VALUES.length + 1, adjustedRank, adjustedFile,
                         (double) oppAttacks[square] / 15);
+
+                for (int i = 0; i < Figure.VALUES.length; i++) {
+                    features.putScalar(batchIndex, i, adjustedRank, adjustedFile,
+                            0.0);
+                }
 
                 Piece piece = state.pieceAt(rank, file);
                 if (piece == null) {
                     continue;
                 }
 
-                boolean isNextToAct = piece.colour() == state.nextToAct();
+                boolean isNextToAct = piece.colour() == nextToAct;
                 double value = (isNextToAct ? 1 : -1);
 
                 Figure figure = piece.figure();
 
-                features.putScalar(0, figure.ordinal(), adjustedRank, adjustedFile,
+                features.putScalar(batchIndex, figure.ordinal(), adjustedRank, adjustedFile,
                         value);
-                for (int i = 0; i < Figure.VALUES.length; i++) {
-                    if (i != figure.ordinal()){
-                        features.putScalar(0, i, adjustedRank, adjustedFile, 0);
-                    }
-                }
             }
         }
     }
@@ -413,7 +424,7 @@ public enum NeuralCodec {
     }
 
 
-    private static int flipIndexIfRequired(
+    public static int flipIndexIfRequired(
             int locationIndex,
             boolean flip
     ) {

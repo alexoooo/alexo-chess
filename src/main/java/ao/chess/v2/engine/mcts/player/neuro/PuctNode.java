@@ -28,8 +28,8 @@ class PuctNode {
     private static final double maximumGuess = 0.9;
     private static final double guessRange = maximumGuess - minimumGuess;
 
-//    private static final double firstPlayEstimate = 0.45;
-    private static final double firstPlayEstimate = minimumGuess;
+    private static final double firstPlayEstimate = 0.4;
+//    private static final double firstPlayEstimate = minimumGuess;
 
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
