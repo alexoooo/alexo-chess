@@ -1,39 +1,30 @@
 package ao.chess.v2.engine.neuro;
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.heuristic.learn.NeuralUtils;
+import ao.chess.v2.engine.mcts.player.neuro.PuctEstimate;
+import ao.chess.v2.engine.mcts.player.neuro.PuctModel;
 import ao.chess.v2.state.State;
-import org.deeplearning4j.nn.api.NeuralNetwork;
-import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.nd4j.linalg.api.ndarray.INDArray;
-
-import java.nio.file.Path;
 
 
 public class NeuralNetworkPlayer implements Player {
     public static NeuralNetworkPlayer load(
-            Path savedNeuralNetwork,
-            boolean computeGraph,
+            PuctModel puctModel,
             boolean randomize)
     {
-        NeuralNetwork nn = NeuralUtils.loadNeuralNetwork(savedNeuralNetwork, true, computeGraph);
-        return new NeuralNetworkPlayer(nn, computeGraph, randomize);
+        puctModel.load();
+        return new NeuralNetworkPlayer(puctModel, randomize);
     }
 
 
-    private final NeuralNetwork nn;
-    private final boolean computeGraph;
+    private final PuctModel puctModel;
     private final boolean randomize;
 
 
     public NeuralNetworkPlayer(
-            NeuralNetwork neuralNetwork,
-            boolean computeGraph,
+            PuctModel puctModel,
             boolean randomize
     ) {
-        nn = neuralNetwork;
-        this.computeGraph = computeGraph;
+        this.puctModel = puctModel;
         this.randomize = randomize;
     }
 
@@ -50,23 +41,9 @@ public class NeuralNetworkPlayer implements Player {
             return -1;
         }
 
-        double[] moveProbabilities;
-        if (computeGraph) {
-            INDArray input = NeuralCodec.INSTANCE.encodeMultiState(position);
-            INDArray[] outputs = ((ComputationGraph) nn).output(input);
-            moveProbabilities = NeuralCodec.INSTANCE
-                    .decodeMoveMultiProbabilities(
-                            outputs[0],
-                            outputs[1],
-                            position,
-                            legalMoves);
-        }
-        else {
-            INDArray input = NeuralCodec.INSTANCE.encodeState(position);
-            INDArray output = ((MultiLayerNetwork) nn).output(input);
-            moveProbabilities = NeuralCodec.INSTANCE
-                    .decodeMoveProbabilities(output, position, legalMoves);
-        }
+        PuctEstimate estimate = puctModel.estimate(position, legalMoves);
+
+        double[] moveProbabilities = estimate.moveProbabilities;
 
         int maxMoveIndex = 0;
         double maxMoveProbability = 0;
@@ -76,7 +53,6 @@ public class NeuralNetworkPlayer implements Player {
         for (int i = 0; i < legalMoves.length; i++) {
             double probability = moveProbabilities[i];
 
-//            double score = Math.random() * (probability + smear);
             double score =
                     randomize
                     ? Math.random() * (probability + smear)
@@ -87,16 +63,6 @@ public class NeuralNetworkPlayer implements Player {
                 maxMoveIndex = i;
             }
         }
-
-//        List<Integer> indexes = new ArrayList<>();
-//        for (int i = 0; i < legalMoves.length; i++) {
-//            indexes.add(i);
-//        }
-//        String moveStats = indexes.stream()
-//                .sorted((a, b) -> -Double.compare(moveProbabilities[a], moveProbabilities[b]))
-//                .map(i -> Move.toInputNotation(legalMoves[i]) + " (" + moveProbabilities[i] + ")")
-//                .collect(Collectors.joining(" | "));
-//        System.out.println("NN moves: " + moveStats);
 
         return legalMoves[maxMoveIndex];
     }

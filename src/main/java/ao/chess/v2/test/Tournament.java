@@ -3,6 +3,7 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
+import ao.chess.v2.engine.mcts.player.neuro.PuctSingleModel;
 import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
 import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
@@ -145,9 +146,11 @@ public class Tournament
 //                true);
 
         Player b = NeuralNetworkPlayer.load(
-//                Paths.get("lookup/nn/multi_6_20191129.zip"),
-                Paths.get("lookup/nn/multi_6c_20191204.zip"),
-                true,
+                new PuctSingleModel(
+//                        Paths.get("lookup/nn/multi_6_20191129.zip"),
+                        Paths.get("lookup/nn/multi_6d_20191207.zip"),
+                        true
+                ),
                 true);
 
 //        Player a = new PuctPlayer(

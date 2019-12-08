@@ -23,6 +23,10 @@ class PuctContext {
 
 
     public final double exploration;
+    public final double explorationLog;
+    public final double firstPlayDiscount;
+
+    public final boolean randomize;
     public final int rollouts;
     public final boolean tablebase;
     public final double predictionUncertainty;
@@ -37,6 +41,9 @@ class PuctContext {
     public PuctContext(
             PuctModel model,
             double exploration,
+            double explorationLog,
+            double firstPlayDiscount,
+            boolean randomize,
             int rollouts,
             boolean tablebase,
             double predictionUncertainty,
@@ -44,12 +51,13 @@ class PuctContext {
             LongAdder cacheHits)
     {
         this.model = model;
-
         this.exploration = exploration;
+        this.explorationLog = explorationLog;
+        this.randomize = randomize;
         this.rollouts = rollouts;
         this.tablebase = tablebase;
         this.predictionUncertainty = predictionUncertainty;
-
+        this.firstPlayDiscount = firstPlayDiscount;
         this.nnCache = nnCache;
         this.cacheHits = cacheHits;
     }

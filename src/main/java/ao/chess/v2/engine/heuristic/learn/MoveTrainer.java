@@ -67,16 +67,18 @@ public class MoveTrainer {
     private static final boolean defaultValueAverage = true;
 //    private static final boolean measureOutcome = false;
 
-    private static final int miniBatchSize = 64;
+//    private static final int miniBatchSize = 64;
 //    private static final int miniBatchSize = 128;
 //    private static final int miniBatchSize = 192;
 //    private static final int miniBatchSize = 256;
+//    private static final int miniBatchSize = 320;
+    private static final int miniBatchSize = 384;
 //    private static final int miniBatchSize = 512;
     private static final int saveOnceEvery = 1_000_000;
 
 //    private static final int trainingIterations = 0;
-//    private static final int trainingIterations = 1;
-    private static final int trainingIterations = 100;
+    private static final int trainingIterations = 1;
+//    private static final int trainingIterations = 100;
 
 //    private static final boolean testInitial = false;
     private static final boolean testInitial = true;
@@ -92,7 +94,7 @@ public class MoveTrainer {
 
 
     private static final List<Path> inputs =
-            mixRange(70, 2999);
+            mixRange(709, 2999);
 //            mixRange(144, 2999);
 //            mixRange(161, 2999);
 //            mixRange(749, 999);
@@ -129,7 +131,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/multi_6c_20191204c.zip");
 //            Paths.get("lookup/nn/multi_6d_20191205.zip");
 //            Paths.get("lookup/nn/multi_6d_20191205.zip");
-            Paths.get("lookup/nn/multi_6d_20191205b.zip");
+            Paths.get("lookup/nn/multi_6d_20191208.zip");
 //            Paths.get("lookup/nn/snapshot_2019-12-03_19-16-03.zip");
 //            Paths.get("lookup/nn/value_7k_20191127.zip");
 
@@ -211,7 +213,7 @@ public class MoveTrainer {
                     (double) (System.currentTimeMillis() - trainingStart) / 1000 +
                     " - " + LocalTime.now());
 
-//            Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
+            Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
         }
     }
 
@@ -233,18 +235,8 @@ public class MoveTrainer {
             nn.fit(miniBatchIterator);
         }
         else {
-//            MultiDataSetIterator miniBatchIterator = new IteratorMultiDataSetIterator(
-//                    Collections2.transform(miniBatch, MoveTrainer::convertToMultiDataSet).iterator(),
-//                    miniBatch.size());
-//            MultiDataSet old = miniBatchIterator.next();
-
             MultiDataSet encoded = encoder.encodeAllInPlace(miniBatch);
             nn.fit(encoded);
-
-//            MultiDataSetIterator miniBatchIterator = new IteratorMultiDataSetIterator(
-//                    Collections2.transform(miniBatch, MoveTrainer::convertToMultiDataSet).iterator(),
-//                    miniBatch.size());
-//            nn.fit(miniBatchIterator);
         }
     }
 
@@ -328,9 +320,12 @@ public class MoveTrainer {
             }
 
             double took = (double) (System.currentTimeMillis() - predictStart) / 1000;
-            System.out.println("Path error: " +
-                    outcomeStats.getAverage() + " / " + actionStats.getAverage() +
-                    " - took: " + took + " - " + testPath);
+            System.out.println("Path error:\t" +
+                    outcomeStats.getAverage() + "\t" +
+                    actionStats.getAverage() + "\t" +
+                    "took: " + took + " - " + testPath);
+
+            Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
         }
 
         System.out.println("Average error: " +

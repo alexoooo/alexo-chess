@@ -23,13 +23,11 @@ import java.util.stream.IntStream;
 // https://arxiv.org/pdf/1911.08265.pdf
 class PuctNode {
     //-----------------------------------------------------------------------------------------------------------------
-    private static final double explorationLog = 16384;
     private static final double minimumGuess = 0.1;
     private static final double maximumGuess = 0.9;
     private static final double guessRange = maximumGuess - minimumGuess;
 
     private static final double initialPlayEstimate = minimumGuess;
-    private static final double firstPlayDiscount = 0.2;
 
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
@@ -426,7 +424,7 @@ class PuctNode {
             else {
                 if (moveVisits == 0) {
                     if (firstPlayEstimate == 0) {
-                        firstPlayEstimate = childFirstPlayEstimate();
+                        firstPlayEstimate = childFirstPlayEstimate(context);
                     }
                     averageOutcome = firstPlayEstimate;
                 }
@@ -438,20 +436,21 @@ class PuctNode {
             }
 
             double unvisitedBonus =
-                    prediction * Math.sqrt(parentVisitCount) / (moveVisits + 1);
+                    prediction *
+                    (Math.sqrt(parentVisitCount) / (moveVisits + 1)) *
+                    (context.exploration +
+                            Math.log((parentVisitCount + context.explorationLog + 1) / context.explorationLog));
 
-            double score =
-//                    averageOutcome + context.exploration * unvisitedBonus;
-                    averageOutcome + unvisitedBonus * (
-                            context.exploration +
-                            Math.log((parentVisitCount + explorationLog + 1) / explorationLog)
-                    );
+            double score = averageOutcome + unvisitedBonus;
 
-            // explorationLog
+            double adjustedScore =
+                    context.randomize
+                    ? context.random.nextDouble() * score * score
+                    : score;
 
-            if (score > maxScore ||
-                    score == maxScore && context.random.nextBoolean()) {
-                maxScore = score;
+            if (adjustedScore > maxScore ||
+                    adjustedScore == maxScore && context.random.nextBoolean()) {
+                maxScore = adjustedScore;
                 maxScoreIndex = i;
             }
         }
@@ -558,17 +557,17 @@ class PuctNode {
     }
 
 
-    private double childFirstPlayEstimate()
+    private double childFirstPlayEstimate(PuctContext context)
     {
         long count = visitCount.longValue();
         if (count == 0) {
-            return initialPlayEstimate;
+            return minimumGuess;
         }
 
         double sum = valueSum.doubleValue();
         double inverseValue = 1.0 - sum / count;
 
-        return Math.max(minimumGuess, inverseValue - firstPlayDiscount);
+        return Math.max(minimumGuess, inverseValue - context.firstPlayDiscount);
     }
 
 
@@ -592,8 +591,7 @@ class PuctNode {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    @Override
-    public String toString() {
+    public String toString(PuctContext context) {
         List<Integer> indexes = IntStream.range(0, moves.length).boxed().collect(Collectors.toList());
 
         long parentCount = 0;
@@ -633,7 +631,7 @@ class PuctNode {
         return String.format("%d - %.4f - %.4f - %s",
                 visitCount.longValue(),
                 inverse,
-                Math.log((parentVisitCount + explorationLog + 1) / explorationLog),
+                Math.log((parentVisitCount + context.explorationLog + 1) / context.explorationLog),
                 childSummary);
     }
 }

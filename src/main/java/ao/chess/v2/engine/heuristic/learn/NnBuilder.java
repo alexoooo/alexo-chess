@@ -1,9 +1,12 @@
 package ao.chess.v2.engine.heuristic.learn;
 
 
+import ao.chess.v2.data.Location;
+import ao.chess.v2.engine.neuro.NeuralCodec;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.learning.config.Adam;
 
@@ -16,20 +19,21 @@ public class NnBuilder {
     public NnBuilder() {
         this.conf = new NeuralNetConfiguration.Builder()
                 .l2(0.0001)
-                .weightInit(WeightInit.XAVIER)
+
+//                .weightInit(WeightInit.XAVIER)
+                .weightInit(WeightInit.RELU)
+
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+
                 .updater(new Adam())
-                .graphBuilder();
-    }
 
+                .graphBuilder()
 
-    public void addInputs(String name) {
-        conf.addInputs(name);
-    }
+                .addInputs("input")
+                .setInputTypes(InputType.convolutional(
+                        Location.FILES, Location.RANKS, NeuralCodec.inputChannels))
 
-
-    public void addOutputs(String... names) {
-        conf.setOutputs(names);
+                .setOutputs("out-from", "out-to", "out-outcome");
     }
 
 

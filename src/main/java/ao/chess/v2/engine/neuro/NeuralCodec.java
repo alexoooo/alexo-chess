@@ -21,6 +21,8 @@ public enum NeuralCodec {
 //    private static final boolean winOnly = true;
     private static final boolean winOnly = false;
 
+    public static final int inputChannels = Figure.VALUES.length + 2;
+
 
     public INDArray encodeMultiState(State state) {
         return encodeState(state, true);

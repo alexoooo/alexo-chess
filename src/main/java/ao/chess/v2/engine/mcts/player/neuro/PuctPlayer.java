@@ -25,7 +25,8 @@ public class PuctPlayer
     private final PuctModel model;
     private final int threads;
     private final double exploration;
-    private final boolean visitMax;
+    private final boolean randomize;
+//    private final boolean visitMax;
     private final int rollouts;
     private final boolean tablebase;
     private final double predictionUncertainty;
@@ -65,7 +66,7 @@ public class PuctPlayer
             PuctModel model,
             int threads,
             double exploration,
-            boolean visitMax,
+            boolean randomize,
             int rollouts,
             boolean tablebase,
             double predictionUncertainty,
@@ -74,7 +75,7 @@ public class PuctPlayer
         this(model,
                 threads,
                 exploration,
-                visitMax,
+                randomize,
                 rollouts,
                 tablebase,
                 predictionUncertainty,
@@ -87,7 +88,7 @@ public class PuctPlayer
             PuctModel model,
             int threads,
             double exploration,
-            boolean visitMax,
+            boolean randomize,
             int rollouts,
             boolean tablebase,
             double predictionUncertainty,
@@ -98,7 +99,7 @@ public class PuctPlayer
         this(model,
                 threads,
                 exploration,
-                visitMax,
+                randomize,
                 rollouts,
                 tablebase,
                 predictionUncertainty,
@@ -113,7 +114,7 @@ public class PuctPlayer
             PuctModel model,
             int threads,
             double exploration,
-            boolean visitMax,
+            boolean randomize,
             int rollouts,
             boolean tablebase,
             double predictionUncertainty,
@@ -125,7 +126,7 @@ public class PuctPlayer
         this.model = model;
         this.threads = threads;
         this.exploration = exploration;
-        this.visitMax = visitMax;
+        this.randomize = randomize;
         this.rollouts = rollouts;
         this.tablebase = tablebase;
         this.predictionUncertainty = predictionUncertainty;
@@ -209,7 +210,7 @@ public class PuctPlayer
             }
         }
 
-        return root.bestMove(visitMax);
+        return root.bestMove(true);
     }
 
 
@@ -251,8 +252,15 @@ public class PuctPlayer
 
             contexts.add(new PuctContext(
                     modelProto,
-                    exploration, rollouts, tablebase, predictionUncertainty,
-                    nnCache, cacheHits));
+                    exploration,
+                    18432,
+                    0.2,
+                    randomize,
+                    rollouts,
+                    tablebase,
+                    predictionUncertainty,
+                    nnCache,
+                    cacheHits));
         }
 
         MovePicker.init();
@@ -295,7 +303,7 @@ public class PuctPlayer
     private void reportProgress(
             PuctNode root
     ) {
-        int bestMove = root.bestMove(visitMax);
+        int bestMove = root.bestMove(true);
 
         String generalPrefix = String.format(
                 "%s - %s | %d / %.2f / %b / %d / %b / %.2f | %d / %d | %s",
@@ -303,7 +311,7 @@ public class PuctPlayer
                 model,
                 threads,
                 exploration,
-                visitMax,
+                randomize,
                 rollouts,
                 tablebase,
                 predictionUncertainty,
@@ -312,7 +320,7 @@ public class PuctPlayer
                 Move.toString(bestMove));
 
         String moveSuffix =
-                root.toString();
+                root.toString(contexts.get(0));
 
         System.out.println(generalPrefix + " | " + moveSuffix);
     }
@@ -327,7 +335,7 @@ public class PuctPlayer
     //-----------------------------------------------------------------------------------------------------------------
     @Override
     public double moveScoreInternal(int move) {
-        return previousRoot.moveValue(move, visitMax);
+        return previousRoot.moveValue(move, true);
     }
 
 
