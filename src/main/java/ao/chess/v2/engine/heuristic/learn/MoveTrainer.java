@@ -13,7 +13,6 @@ import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
 import org.deeplearning4j.nn.api.NeuralNetwork;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
-import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
@@ -67,18 +66,18 @@ public class MoveTrainer {
     private static final boolean defaultValueAverage = true;
 //    private static final boolean measureOutcome = false;
 
-//    private static final int miniBatchSize = 64;
+    private static final int miniBatchSize = 64;
 //    private static final int miniBatchSize = 128;
 //    private static final int miniBatchSize = 192;
 //    private static final int miniBatchSize = 256;
 //    private static final int miniBatchSize = 320;
-    private static final int miniBatchSize = 384;
+//    private static final int miniBatchSize = 384;
 //    private static final int miniBatchSize = 512;
     private static final int saveOnceEvery = 1_000_000;
 
 //    private static final int trainingIterations = 0;
-    private static final int trainingIterations = 1;
-//    private static final int trainingIterations = 100;
+//    private static final int trainingIterations = 1;
+    private static final int trainingIterations = 100;
 
 //    private static final boolean testInitial = false;
     private static final boolean testInitial = true;
@@ -93,14 +92,12 @@ public class MoveTrainer {
             .build();
 
 
-    private static final List<Path> inputs =
-            mixRange(709, 2999);
-//            mixRange(144, 2999);
-//            mixRange(161, 2999);
-//            mixRange(749, 999);
-//    private static final List<Path> inputs = List.of(
-//            Paths.get("lookup/train/mix-small/champions_10000.txt")
-//    );
+//    private static final List<Path> inputs =
+//            mixRange(0, 2999);
+////            mixRange(709, 2999);
+    private static final List<Path> inputs = List.of(
+            Paths.get("lookup/train/mix-small/champions_10000.txt")
+    );
 
     private static List<Path> mixRange(int fromInclusive, int toInclusive) {
         List<Path> range = new ArrayList<>();
@@ -125,15 +122,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/history/mix/all_mid_batch_20191124.zip");
 //            Paths.get("lookup/nn/all_mid_batch_20191124.zip");
 //            Paths.get("lookup/nn/multi_3_20191124b.zip");
-//            Paths.get("lookup/nn/multi_6_20191129.zip");
-//            Paths.get("lookup/nn/multi_6b_20191130.zip");
-//            Paths.get("lookup/nn/multi_6c_20191203.zip");
-//            Paths.get("lookup/nn/multi_6c_20191204c.zip");
-//            Paths.get("lookup/nn/multi_6d_20191205.zip");
-//            Paths.get("lookup/nn/multi_6d_20191205.zip");
-            Paths.get("lookup/nn/multi_6d_20191208.zip");
-//            Paths.get("lookup/nn/snapshot_2019-12-03_19-16-03.zip");
-//            Paths.get("lookup/nn/value_7k_20191127.zip");
+//            Paths.get("lookup/nn/multi_6d_20191208.zip");
+            Paths.get("lookup/nn/res_2_20191208.zip");
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -149,7 +139,8 @@ public class MoveTrainer {
 //            nn = createNeuralNetwork6();
 //            nn = createNeuralNetwork6b();
 //            nn = createNeuralNetwork6c();
-            nn = createNeuralNetwork6d();
+//            nn = createNeuralNetwork6d();
+            nn = createResidualNetwork2();
 //            nn = createValueNetwork7();
         }
 
@@ -850,190 +841,6 @@ public class MoveTrainer {
     }
 
 
-    public static ComputationGraph createNeuralNetwork6b() {
-        int height = Location.FILES;
-        int width = Location.RANKS;
-        int channels = Figure.VALUES.length + 2;
-        int filters = 192;
-
-        ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(seed)
-
-                .l2(0.0001)
-                .weightInit(WeightInit.RELU)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
-                .updater(new Adam())
-
-                .graphBuilder()
-
-                .addInputs("input")
-                .setInputTypes(InputType.convolutional(height, width, channels))
-
-                .addLayer("L1",
-                        new ConvolutionLayer.Builder(3, 3)
-                                .nIn(channels)
-                                .stride(1, 1)
-                                .padding(1, 1)
-                                .nOut(filters)
-//                                .activation(Activation.LEAKYRELU)
-                                .activation(Activation.SWISH)
-                                .build(),
-                        "input")
-
-                .addLayer("L1-norm", new BatchNormalization(), "L1")
-
-                .addLayer("L2",
-                        new ConvolutionLayer.Builder(3, 3)
-                                .stride(1, 1)
-                                .padding(1, 1)
-                                .nOut(filters)
-                                .activation(Activation.SWISH)
-                                .build(),
-                        "L1-norm")
-
-                .addLayer("L2-norm", new BatchNormalization(), "L2")
-
-                .addLayer("L3",
-                        new ConvolutionLayer.Builder(3, 3)
-                                .stride(1, 1)
-                                .padding(1, 1)
-                                .nOut(filters)
-                                .activation(Activation.SWISH)
-                                .build(),
-                        "L2-norm")
-
-                .addLayer("L3-norm", new BatchNormalization(), "L3")
-
-                .addLayer("L4",
-                        new ConvolutionLayer.Builder(3, 3)
-                                .stride(1, 1)
-                                .padding(1, 1)
-                                .nOut(filters)
-                                .activation(Activation.SWISH)
-                                .build(),
-                        "L3-norm")
-
-                .addLayer("L4-norm", new BatchNormalization(), "L4")
-
-                .addLayer("out-from",
-                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                                .activation(Activation.SOFTMAX)
-                                .nOut(Location.COUNT)
-                                .build(),
-                        "L4-norm")
-
-                .addLayer("out-to",
-                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                                .activation(Activation.SOFTMAX)
-                                .nOut(Location.COUNT)
-                                .build(),
-                        "L4-norm")
-
-                .addLayer("out-outcome",
-                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                                .activation(Activation.SOFTMAX)
-                                .nOut(Outcome.values.length)
-                                .build(),
-                        "L4-norm")
-
-                .setOutputs("out-from", "out-to", "out-outcome")
-
-                .build();
-
-        ComputationGraph net = new ComputationGraph(conf);
-        net.init();
-
-        return net;
-    }
-
-
-    public static ComputationGraph createNeuralNetwork6c() {
-        int height = Location.FILES;
-        int width = Location.RANKS;
-        int channels = Figure.VALUES.length + 2;
-        int filters = 192;
-
-        ComputationGraphConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(seed)
-
-                .l2(0.0001)
-                .weightInit(WeightInit.RELU)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-//                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer)
-                .updater(new Adam())
-
-                .graphBuilder()
-
-                .addInputs("input")
-                .setInputTypes(InputType.convolutional(height, width, channels))
-
-                .addLayer("L1",
-                        new ConvolutionLayer.Builder(3, 3)
-                                .nIn(channels)
-                                .stride(1, 1)
-                                .padding(1, 1)
-                                .nOut(filters)
-                                .activation(Activation.LEAKYRELU)
-                                .build(),
-                        "input")
-
-                .addLayer("L1-norm", new BatchNormalization(), "L1")
-
-                .addLayer("L2",
-                        new ConvolutionLayer.Builder(3, 3)
-                                .stride(1, 1)
-                                .padding(1, 1)
-                                .nOut(filters)
-                                .activation(Activation.LEAKYRELU)
-                                .build(),
-                        "L1-norm")
-
-                .addLayer("L2-norm", new BatchNormalization(), "L2")
-
-                .addLayer("L3",
-                        new ConvolutionLayer.Builder(3, 3)
-                                .stride(1, 1)
-                                .padding(1, 1)
-                                .nOut(filters)
-                                .activation(Activation.LEAKYRELU)
-                                .build(),
-                        "L2-norm")
-
-                .addLayer("L3-norm", new BatchNormalization(), "L3")
-
-                .addLayer("out-from",
-                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                                .activation(Activation.SOFTMAX)
-                                .nOut(Location.COUNT)
-                                .build(),
-                        "L3-norm")
-
-                .addLayer("out-to",
-                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                                .activation(Activation.SOFTMAX)
-                                .nOut(Location.COUNT)
-                                .build(),
-                        "L3-norm")
-
-                .addLayer("out-outcome",
-                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-                                .activation(Activation.SOFTMAX)
-                                .nOut(Outcome.values.length)
-                                .build(),
-                        "L3-norm")
-
-                .setOutputs("out-from", "out-to", "out-outcome")
-
-                .build();
-
-        ComputationGraph net = new ComputationGraph(conf);
-        net.init();
-
-        return net;
-    }
-
-
     public static ComputationGraph createNeuralNetwork6d() {
         int height = Location.FILES;
         int width = Location.RANKS;
@@ -1110,6 +917,23 @@ public class MoveTrainer {
                 .build();
 
         ComputationGraph net = new ComputationGraph(conf);
+        net.init();
+
+        return net;
+    }
+
+
+    public static ComputationGraph createResidualNetwork2() {
+        NnBuilder builder = new NnBuilder(192, 32);
+
+        builder.addInitialConvolution();
+
+        String body = builder.addResidualTower(2, NnBuilder.layerInitialActivation);
+
+        builder.addPolicyHead(body);
+        builder.addValueHead(body);
+
+        ComputationGraph net = new ComputationGraph(builder.build());
         net.init();
 
         return net;
