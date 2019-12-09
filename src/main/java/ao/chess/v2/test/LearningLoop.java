@@ -45,6 +45,7 @@ public class LearningLoop {
 
 //    private final static double thinkingExploration = 1.5;
     private final static double thinkingExploration = 1.5;
+    private final static double thinkingExplorationLog = 18432;
 //    private final static boolean thinkingMaxVisits = false;
     private final static double thinkingAlpha = 0.3;
     private final static double thinkingMoveUncertainty = 0.4;
@@ -263,6 +264,7 @@ public class LearningLoop {
                         ),
                         1,
                         thinkingExploration,
+                        thinkingExplorationLog,
                         aVisitMax,
                         thinkingRollounts,
                         thinkingTablebase,
@@ -278,6 +280,7 @@ public class LearningLoop {
                         ),
                         1,
                         thinkingExploration,
+                        thinkingExplorationLog,
                         bVisitMax,
                         thinkingRollounts,
                         thinkingTablebase,
@@ -364,6 +367,7 @@ public class LearningLoop {
                     ),
                     1,
                     thinkingExploration,
+                    thinkingExplorationLog,
                     aVisitMax,
                     thinkingRollounts,
                     thinkingTablebase,
@@ -379,6 +383,7 @@ public class LearningLoop {
                     ),
                     1,
                     thinkingExploration,
+                    thinkingExplorationLog,
                     bVisitMax,
                     thinkingRollounts,
                     thinkingTablebase,

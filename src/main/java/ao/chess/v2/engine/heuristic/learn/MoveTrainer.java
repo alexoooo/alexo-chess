@@ -92,12 +92,12 @@ public class MoveTrainer {
             .build();
 
 
-//    private static final List<Path> inputs =
-//            mixRange(0, 2999);
-////            mixRange(709, 2999);
-    private static final List<Path> inputs = List.of(
-            Paths.get("lookup/train/mix-small/champions_10000.txt")
-    );
+    private static final List<Path> inputs =
+            mixRange(32, 2999);
+//            mixRange(709, 2999);
+//    private static final List<Path> inputs = List.of(
+//            Paths.get("lookup/train/mix-small/champions_10000.txt")
+//    );
 
     private static List<Path> mixRange(int fromInclusive, int toInclusive) {
         List<Path> range = new ArrayList<>();
@@ -928,7 +928,7 @@ public class MoveTrainer {
 
         builder.addInitialConvolution();
 
-        String body = builder.addResidualTower(2, NnBuilder.layerInitialActivation);
+        String body = builder.addResidualTower(2, NnBuilder.layerInitial);
 
         builder.addPolicyHead(body);
         builder.addValueHead(body);

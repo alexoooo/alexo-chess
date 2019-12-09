@@ -25,6 +25,7 @@ public class PuctPlayer
     private final PuctModel model;
     private final int threads;
     private final double exploration;
+    private final double explorationLog;
     private final boolean randomize;
 //    private final boolean visitMax;
     private final int rollouts;
@@ -54,7 +55,8 @@ public class PuctPlayer
         this(model,
                 threads,
                 1.5,
-                true,
+                18432,
+                false,
                 7,
                 true,
                 0.4,
@@ -66,6 +68,7 @@ public class PuctPlayer
             PuctModel model,
             int threads,
             double exploration,
+            double explorationLog,
             boolean randomize,
             int rollouts,
             boolean tablebase,
@@ -75,6 +78,7 @@ public class PuctPlayer
         this(model,
                 threads,
                 exploration,
+                explorationLog,
                 randomize,
                 rollouts,
                 tablebase,
@@ -88,6 +92,7 @@ public class PuctPlayer
             PuctModel model,
             int threads,
             double exploration,
+            double explorationLog,
             boolean randomize,
             int rollouts,
             boolean tablebase,
@@ -99,6 +104,7 @@ public class PuctPlayer
         this(model,
                 threads,
                 exploration,
+                explorationLog,
                 randomize,
                 rollouts,
                 tablebase,
@@ -114,6 +120,7 @@ public class PuctPlayer
             PuctModel model,
             int threads,
             double exploration,
+            double explorationLog,
             boolean randomize,
             int rollouts,
             boolean tablebase,
@@ -126,6 +133,7 @@ public class PuctPlayer
         this.model = model;
         this.threads = threads;
         this.exploration = exploration;
+        this.explorationLog = explorationLog;
         this.randomize = randomize;
         this.rollouts = rollouts;
         this.tablebase = tablebase;
@@ -253,7 +261,7 @@ public class PuctPlayer
             contexts.add(new PuctContext(
                     modelProto,
                     exploration,
-                    18432,
+                    explorationLog,
                     0.2,
                     randomize,
                     rollouts,

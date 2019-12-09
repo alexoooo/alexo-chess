@@ -25,7 +25,7 @@ import java.util.Map;
 public class NnBuilder {
     //-----------------------------------------------------------------------------------------------------------------
     public static final String layerInput = "input";
-    public static final String layerInitialActivation = "init-act";
+    public static final String layerInitial = "init";
     public static final String layerHeadFrom = "out-from";
     public static final String layerHeadTo = "out-to";
     public static final String layerHeadOutcome = "out-outcome";
@@ -39,6 +39,7 @@ public class NnBuilder {
     private final ComputationGraphConfiguration.GraphBuilder conf;
 
 
+    //-----------------------------------------------------------------------------------------------------------------
     public NnBuilder(
             int bodyFilters,
             int headFilters
@@ -51,8 +52,6 @@ public class NnBuilder {
 
 //                .weightInit(WeightInit.XAVIER)
                 .weightInit(WeightInit.RELU)
-
-                .activation(bodyActivation)
 
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
 
@@ -68,6 +67,7 @@ public class NnBuilder {
     }
 
 
+    //-----------------------------------------------------------------------------------------------------------------
     public void addInitialConvolution() {
         String convName = "init-conv";
         String bnName = "init-bn";
@@ -82,14 +82,37 @@ public class NnBuilder {
 
         conf.addLayer(bnName, new BatchNormalization.Builder().nOut(bodyFilters).build(), convName);
 
-        conf.addLayer(layerInitialActivation,
+        conf.addLayer(layerInitial,
                 new ActivationLayer.Builder()
-//                        .activation(bodyActivation)
+                        .activation(bodyActivation)
                         .build(),
                 bnName);
     }
 
 
+    public void addInitialSingleton() {
+        String convName = "init-conv";
+        String bnName = "init-bn";
+
+        conf.addLayer(convName,
+                new ConvolutionLayer.Builder().kernelSize(1, 1)
+                        .stride(1, 1)
+                        .padding(0, 0)
+                        .nOut(bodyFilters)
+                        .build(),
+                layerInput);
+
+        conf.addLayer(bnName, new BatchNormalization.Builder().nOut(bodyFilters).build(), convName);
+
+        conf.addLayer(layerInitial,
+                new ActivationLayer.Builder()
+                        .activation(bodyActivation)
+                        .build(),
+                bnName);
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     public String addNormActivationConvolution(String blockName, String inName) {
         String normName = blockName + "-bn";
         String activationName = blockName + "-act";
@@ -99,7 +122,7 @@ public class NnBuilder {
 
         conf.addLayer(activationName,
                 new ActivationLayer.Builder()
-//                        .activation(bodyActivation)
+                        .activation(bodyActivation)
                         .build(),
                 normName);
 
@@ -139,6 +162,7 @@ public class NnBuilder {
     }
 
 
+    //-----------------------------------------------------------------------------------------------------------------
     public void addPolicyHead(String inName) {
         String convName = "policy_head_conv";
         String bnName = "policy_head_batch_norm";
@@ -150,21 +174,14 @@ public class NnBuilder {
                         .stride(1, 1)
                         .padding(1, 1)
                         .nOut(headFilters)
-//                        .nIn(bodyFilters)
                         .build(),
                 inName);
 
-        conf.addLayer(bnName,
-                new BatchNormalization.Builder()
-//                        .nOut(2)
-                        .build(),
-                convName);
+        conf.addLayer(bnName, new BatchNormalization.Builder().build(), convName);
 
-        conf.addLayer(actName,
-                new ActivationLayer.Builder()
-//                        .activation(bodyActivation)
-                        .build(),
-                bnName);
+        conf.addLayer(actName, new ActivationLayer.Builder()
+                .activation(bodyActivation)
+                .build(), bnName);
 
         conf.addLayer(layerHeadFrom,
                 new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
@@ -210,7 +227,7 @@ public class NnBuilder {
 
         conf.addLayer(actName,
                 new ActivationLayer.Builder()
-//                        .activation(bodyActivation)
+                        .activation(bodyActivation)
                         .build(),
                 bnName);
 
@@ -231,6 +248,7 @@ public class NnBuilder {
     }
 
 
+    //-----------------------------------------------------------------------------------------------------------------
     public ComputationGraphConfiguration build() {
         return conf.build();
     }

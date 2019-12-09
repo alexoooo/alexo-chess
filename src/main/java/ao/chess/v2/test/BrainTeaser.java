@@ -99,13 +99,29 @@ public class BrainTeaser {
 //                1.25,
 //                0);
 
+//        Player player = new PuctPlayer(
+//                new PuctSingleModel(
+//                        Paths.get("lookup/nn/multi_6d_20191208.zip"),
+//                        true
+//                ),
+//                4,
+//                2.5,
+//                false,
+//                0,
+//                true,
+//                0.75,
+//                0);
+
         Player player = new PuctPlayer(
                 new PuctSingleModel(
-                        Paths.get("lookup/nn/multi_6d_20191208.zip"),
+                        Paths.get("lookup/nn/res_2_20191208.zip"),
                         true
                 ),
-                4,
-                2.5,
+                2,
+//                1.0,
+                1.25,
+//                3.0,
+                65536,
                 false,
                 0,
                 true,
