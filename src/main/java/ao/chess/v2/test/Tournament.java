@@ -149,7 +149,7 @@ public class Tournament
                 new PuctSingleModel(
 //                        Paths.get("lookup/nn/multi_6_20191129.zip"),
 //                        Paths.get("lookup/nn/multi_6d_20191207.zip"),
-                        Paths.get("lookup/nn/res_2_20191208.zip"),
+                        Paths.get("lookup/nn/res_2_20191209b.zip"),
                         true
                 ),
                 true);

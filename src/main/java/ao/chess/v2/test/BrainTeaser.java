@@ -114,7 +114,7 @@ public class BrainTeaser {
 
         Player player = new PuctPlayer(
                 new PuctSingleModel(
-                        Paths.get("lookup/nn/res_2_20191208.zip"),
+                        Paths.get("lookup/nn/res_2_20191209b.zip"),
                         true
                 ),
                 2,
@@ -125,8 +125,8 @@ public class BrainTeaser {
                 false,
                 0,
                 true,
-//                1.0,
-                0.75,
+                1.0,
+//                0.75,
 //                0.5,
 //                0.25,
 //                0.0,
