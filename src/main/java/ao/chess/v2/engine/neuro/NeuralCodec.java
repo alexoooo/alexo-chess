@@ -209,10 +209,18 @@ public enum NeuralCodec {
     public double decodeMultiOutcome(
             INDArray output
     ) {
-//        return output.getDouble(0, 0);
-        double winProbability = output.getDouble(0, 0);
-//        double lossProbability = output.getDouble(0, 1);
-        double drawProbability = output.getDouble(0, 2);
+        return decodeMultiOutcome(output, 0);
+    }
+
+
+    public double decodeMultiOutcome(
+            INDArray output,
+            int batch
+    ) {
+//        return output.getDouble(batch, 0);
+        double winProbability = output.getDouble(batch, 0);
+//        double lossProbability = output.getDouble(batch, 1);
+        double drawProbability = output.getDouble(batch, 2);
 
 //        return 1.0 - lossProbability;
         return winOnly
@@ -298,64 +306,12 @@ public enum NeuralCodec {
             INDArray outputFrom,
             INDArray outputTo,
             State state,
-            int[] legalMoves
+            int[] legalMoves,
+            double[] fromScores,
+            double[] toScores
     ) {
-        int legalMoveCount = legalMoves.length;
-        boolean flip = state.nextToAct() == Colour.BLACK;
-
-        double[] fromScores = new double[Location.COUNT];
-        double fromTotal = 0;
-
-        double[] toScores = new double[Location.COUNT];
-        double toTotal = 0;
-
-        for (int move : legalMoves) {
-            int fromIndex = Move.fromSquareIndex(move);
-            int fromAdjustedIndex = flipIndexIfRequired(fromIndex, flip);
-            if (fromScores[fromIndex] == 0) {
-                double prediction = outputFrom.getDouble(0, fromAdjustedIndex);
-                fromScores[fromIndex] = prediction;
-                fromTotal += prediction;
-            }
-
-            int toIndex = Move.toSquareIndex(move);
-            int toAdjustedIndex = flipIndexIfRequired(toIndex, flip);
-            if (toScores[toIndex] == 0) {
-                double prediction = outputTo.getDouble(0, toAdjustedIndex);
-                toScores[toIndex] = prediction;
-                toTotal += prediction;
-            }
-        }
-
-        double moveTotal = 0;
-        double[] moveScores = new double[legalMoveCount];
-
-        for (int i = 0; i < legalMoveCount; i++) {
-            int move = legalMoves[i];
-
-            if (Move.isPromotion(move) && Figure.VALUES[Move.promotion(move)] != Figure.QUEEN) {
-                // NB: under-promotions are not considered
-                continue;
-            }
-
-            int fromIndex = Move.fromSquareIndex(move);
-            double fromProbability = fromScores[fromIndex] / fromTotal;
-
-            int toIndex = Move.toSquareIndex(move);
-            double toProbability = toScores[toIndex] / toTotal;
-
-            double moveScore = fromProbability * toProbability;
-            moveScores[i] = moveScore;
-            moveTotal += moveScore;
-        }
-
-        if (moveTotal != 0) {
-            for (int i = 0; i < legalMoveCount; i++) {
-                moveScores[i] /= moveTotal;
-            }
-        }
-
-        return moveScores;
+        return decodeMoveMultiProbabilities(
+                outputFrom, outputTo, state, legalMoves, fromScores, toScores, 0);
     }
 
 
@@ -365,7 +321,8 @@ public enum NeuralCodec {
             State state,
             int[] legalMoves,
             double[] fromScores,
-            double[] toScores
+            double[] toScores,
+            int batchIndex
     ) {
         Arrays.fill(fromScores, 0.0);
         Arrays.fill(toScores, 0.0);
@@ -380,7 +337,7 @@ public enum NeuralCodec {
             int fromIndex = Move.fromSquareIndex(move);
             int fromAdjustedIndex = flipIndexIfRequired(fromIndex, flip);
             if (fromScores[fromIndex] == 0) {
-                double prediction = outputFrom.getDouble(0, fromAdjustedIndex);
+                double prediction = outputFrom.getDouble(batchIndex, fromAdjustedIndex);
                 fromScores[fromIndex] = prediction;
                 fromTotal += prediction;
             }
@@ -388,7 +345,7 @@ public enum NeuralCodec {
             int toIndex = Move.toSquareIndex(move);
             int toAdjustedIndex = flipIndexIfRequired(toIndex, flip);
             if (toScores[toIndex] == 0) {
-                double prediction = outputTo.getDouble(0, toAdjustedIndex);
+                double prediction = outputTo.getDouble(batchIndex, toAdjustedIndex);
                 toScores[toIndex] = prediction;
                 toTotal += prediction;
             }

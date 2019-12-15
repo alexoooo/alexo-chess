@@ -149,10 +149,13 @@ public class Tournament
                 new PuctSingleModel(
 //                        Paths.get("lookup/nn/multi_6_20191129.zip"),
 //                        Paths.get("lookup/nn/multi_6d_20191207.zip"),
-                        Paths.get("lookup/nn/res_2_20191209b.zip"),
+//                        Paths.get("lookup/nn/res_2_20191209b.zip"),
+                        Paths.get("lookup/nn/res_4h_20191215.zip"),
                         true
                 ),
-                true);
+                true
+//                false
+        );
 
 //        Player a = new PuctPlayer(
 //                new PuctSingleModel(
@@ -161,46 +164,29 @@ public class Tournament
 //                ),
 //                1,
 //                3.0,
-//                true,
-//                0,
-//                true,
-//                1.25,
-//                0,
-//                0.3, 0.75);
-//        Player b = new PuctPlayer(
-//                Paths.get("lookup/history/mix/all_mid_batch_20191124.zip"),
+//                1024 * 8,
 //                false,
-//                1,
-//                3.0,
-//                true,
 //                0,
 //                true,
 //                1.25,
-//                0);
-
-//        Player a = new PuctPlayer(
-//                Paths.get("lookup/nn/multi_6_20191126.zip"),
-//                true,
-//                1,
-//                0.4,
-//                true,
 //                0,
-//                true,
-//                0,
-//                0);
+//                0.3,
+//                0.75);
 //        Player b = new PuctPlayer(
 //                new PuctSingleModel(
-//                        Paths.get("lookup/nn/multi_6_20191128.zip"),
+//                        Paths.get("lookup/nn/res_4h_20191215.zip"),
 //                        true
 //                ),
 //                1,
 //                1.0,
-//                true,
+//                65536,
+//                false,
 //                0,
 //                true,
+//                0.0,
 //                0,
-//                0,
-//                0.3, 0.75);
+//                0.3,
+//                0.75);
 
 //        Player a = new TopLeftPlayer();
         Player a = new RandomPlayer();

@@ -22,6 +22,7 @@ public class BrainTeaser {
     //--------------------------------------------------------------------
     public static void main(String[] args) {
 //        int time = 7 * 24 * 60 * 60 * 1000;
+//        int time = 10 * 1000;
 //        int time = 60 * 1000;
         int time = 10 * 60 * 1000;
 //        int time = 60 * 60 * 1000;
@@ -114,22 +115,27 @@ public class BrainTeaser {
 
         Player player = new PuctPlayer(
                 new PuctSingleModel(
-                        Paths.get("lookup/nn/res_2_20191209b.zip"),
+//                        Paths.get("lookup/nn/res_2_20191209b.zip"),
+                        Paths.get("lookup/nn/res_4h_20191215.zip"),
                         true
                 ),
-                2,
+//                1,
+                6,
 //                1.0,
                 1.25,
 //                3.0,
+//                32768,
                 65536,
-                false,
+//                false,
+                true,
                 0,
                 true,
-                1.0,
+//                1.25,
+//                1.0,
 //                0.75,
 //                0.5,
 //                0.25,
-//                0.0,
+                0.0,
                 0);
 
         State state = State.fromFen(
@@ -165,6 +171,64 @@ public class BrainTeaser {
 //                "rnbqkb1r/pppppppp/5n2/8/2PP4/8/PP2PPPP/RNBQKBNR b KQkq c3 0 1"
 //                "rnbqkb1r/pppp1ppp/4pn2/8/2PP4/5N2/PP2PPPP/RNBQKB1R b KQkq - 0 1"
 //                "rnbqkb1r/ppp2ppp/4pn2/3p4/2PP4/5N2/PP2PPPP/RNBQKB1R w KQkq d6 0 1"
+//                "rnbqkb1r/ppp2ppp/4pn2/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R b KQkq - 0 1"
+//                "rnbqkb1r/pp3ppp/4pn2/2pp4/2PP4/2N2N2/PP2PPPP/R1BQKB1R w KQkq c6 0 1"
+//                "rnbqkb1r/pp3ppp/4pn2/2pp4/2PP4/2N1PN2/PP3PPP/R1BQKB1R b KQkq - 0 1"
+//                "r1bqkb1r/pp3ppp/2n1pn2/2pp4/2PP4/2N1PN2/PP3PPP/R1BQKB1R w KQkq - 0 1"
+
+                // Pira (white)
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
+//                "rnbqkbnr/pp1ppppp/8/2p5/8/4P3/PPPP1PPP/RNBQKBNR w KQkq c6 0 1"
+//                "rnbqkbnr/pp1ppppp/8/1Bp5/8/4P3/PPPP1PPP/RNBQK1NR b KQkq - 0 1"
+//                "rnbqkb1r/pp1ppppp/5n2/1Bp5/8/2P1P3/PP1P1PPP/RNBQK1NR b KQkq - 0 1"
+//                "rnbqkb1r/1p1ppppp/p4n2/1Bp5/8/2P1P3/PP1P1PPP/RNBQK1NR w KQkq - 0 1"
+//                "rnbqkb1r/1p1ppppp/p4n2/2p5/B7/2P1P3/PP1P1PPP/RNBQK1NR b KQkq - 0 1"
+//                "rnbqkb1r/3ppppp/p4n2/1pp5/B7/2P1P3/PP1P1PPP/RNBQK1NR w KQkq b6 0 1"
+//                "rnbqkb1r/3ppppp/p4n2/1pp5/B7/2P1PQ2/PP1P1PPP/RNB1K1NR b KQkq - 0 1"
+//                "rnbqkb1r/4pppp/p4n2/1ppp4/B7/2P1PQ2/PP1P1PPP/RNB1K1NR w KQkq d6 0 1"
+//                "rnbqkb1r/4pppp/p4n2/1ppp4/8/2P1PQ2/PPBP1PPP/RNB1K1NR b KQkq - 0 1"
+//                "rnbqkb1r/5ppp/p4n2/1pppp3/8/2P1PQ2/PPBP1PPP/RNB1K1NR w KQkq e6 0 1"
+//                "rnbqkb1r/5ppp/p4n2/1pppp3/P7/2P1PQ2/1PBP1PPP/RNB1K1NR b KQkq a3 0 1"
+//                "rnbqkb1r/5ppp/p4n2/2ppp3/Pp6/2P1PQ2/1PBP1PPP/RNB1K1NR w KQkq - 0 1"
+//                "rnbqkb1r/5ppp/p4n2/2ppp3/PpP5/4PQ2/1PBP1PPP/RNB1K1NR b KQkq - 0 1"
+//                "rnbqkb1r/5ppp/p4n2/2pp4/PpP1p3/4PQ2/1PBP1PPP/RNB1K1NR w KQkq - 0 1"
+//                "rnbqkb1r/5ppp/p4n2/2pp4/PpP1pQ2/4P3/1PBP1PPP/RNB1K1NR b KQkq - 0 1"
+//                "rnbqk2r/5ppp/p2b1n2/2pp4/PpP1pQ2/4P3/1PBP1PPP/RNB1K1NR w KQkq - 0 1"
+//                "rnbqk2r/5ppp/p2b1n2/2pp4/PpP1p2Q/4P3/1PBP1PPP/RNB1K1NR b KQkq - 0 1"
+//                "rn1qk2r/5ppp/p2bbn2/2pp4/PpP1p2Q/4P3/1PBP1PPP/RNB1K1NR w KQkq - 0 1"
+//                "rn1qk2r/5ppp/p2bbn2/2pP4/Pp2p2Q/4P3/1PBP1PPP/RNB1K1NR b KQkq - 0 1"
+//                "rn1qk2r/5ppp/p2b1n2/2pb4/Pp2p2Q/4P3/1PBP1PPP/RNB1K1NR w KQkq - 0 1"
+//                "rn1qk2r/5ppp/p2b1n2/2pb2Q1/Pp2p3/4P3/1PBP1PPP/RNB1K1NR b KQkq - 0 1"
+//                "rn1q1rk1/5ppp/p2b1n2/2pb2Q1/Pp2p3/4P3/1PBP1PPP/RNB1K1NR w KQ - 0 1"
+//                "rn1q1rk1/5ppp/p2b1n2/2pb2Q1/Pp2p3/4P2N/1PBP1PPP/RNB1K2R b KQ - 0 1"
+//                "rn1q1rk1/5pp1/p2b1n1p/2pb2Q1/Pp2p3/4P2N/1PBP1PPP/RNB1K2R w KQ - 0 1"
+//                "rn1q1rk1/5pp1/p2b1n1p/2pb4/Pp2p2Q/4P2N/1PBP1PPP/RNB1K2R b KQ - 0 1"
+//                "r2q1rk1/5pp1/p1nb1n1p/2pb4/Pp2p2Q/4P2N/1PBP1PPP/RNB1K2R w KQ - 0 1"
+//                "r2q1rk1/5pp1/p1nb1n1p/2pb4/Pp2p2Q/3PP2N/1PB2PPP/RNB1K2R b KQ - 0 1"
+//                "r2q1rk1/5pp1/p1nb1n1p/2pb4/Pp5Q/3pP2N/1PB2PPP/RNB1K2R w KQ - 0 1"
+//                "r2q1rk1/5pp1/p1nb1n1p/2pb4/Pp5Q/3BP2N/1P3PPP/RNB1K2R b KQ - 0 1"
+//                "r2q1rk1/5pp1/p2b1n1p/2pbn3/Pp5Q/3BP2N/1P3PPP/RNB1K2R w KQ - 0 1"
+                "r2q1rk1/5pp1/p2b1n1p/2pbn3/Pp3N1Q/3BP3/1P3PPP/RNB1K2R b KQ - 0 1" // ??
+//                "r2q1rk1/5pp1/p2b1n1p/2pb4/Pp3N1Q/3nP3/1P3PPP/RNB1K2R w KQ - 0 1"
+//                "r2q1rk1/5pp1/p2b1n1p/2pb4/Pp5Q/3NP3/1P3PPP/RNB1K2R b KQ - 0 1"
+//                "r4rk1/2q2pp1/p2b1n1p/2pb4/Pp5Q/3NP3/1P3PPP/RNB1K2R w KQ - 0 1"
+//                "r4rk1/2q2pp1/p2b1n1p/2pb4/Pp5Q/3NPP2/1P4PP/RNB1K2R b KQ - 0 1"
+//                "r4rk1/2q2pp1/p2b1n1p/3b4/Ppp4Q/3NPP2/1P4PP/RNB1K2R w KQ - 0 1"
+//                "r4rk1/2q2pp1/p2b1n1p/3b4/Ppp2N1Q/4PP2/1P4PP/RNB1K2R b KQ - 0 1"
+//                "r4rk1/1bq2pp1/p2b1n1p/8/Ppp2N1Q/4PP2/1P4PP/RNB1K2R w KQ - 0 1"
+//                "r4rk1/1bq2pp1/p2b1n1p/8/Ppp2N1Q/4PP2/1P1N2PP/R1B1K2R b KQ - 0 1"
+//                "r3r1k1/1bq2pp1/p2b1n1p/8/Ppp2N1Q/4PP2/1P1N2PP/R1B1K2R w KQ - 0 1"
+//                "r3r1k1/1bq2pp1/p2b1n1p/8/Ppp2N1Q/4PP2/1P1NK1PP/R1B4R b - - 0 1"
+//                "r3r1k1/1bq2pp1/p4n1p/8/Ppp2b1Q/4PP2/1P1NK1PP/R1B4R w - - 0 1"
+//                "r3r1k1/1bq2pp1/p4n1p/8/Ppp2Q2/4PP2/1P1NK1PP/R1B4R b - - 0 1"
+//                "r3r1k1/1b3pp1/p4n1p/8/Ppp2q2/4PP2/1P1NK1PP/R1B4R w - - 0 1"
+//                "r3r1k1/1b3pp1/p4n1p/8/Ppp2q2/4PP2/1P1NK1PP/R1B2R2 b - - 0 1"
+//                "r3r1k1/1b3pp1/p4n1p/8/Ppp5/4qP2/1P1NK1PP/R1B2R2 w - - 0 1"
+//                "r3r1k1/1b3pp1/p4n1p/8/Ppp5/4qP2/1P1N2PP/R1BK1R2 b - - 0 1"
+//                "3rr1k1/1b3pp1/p4n1p/8/Ppp5/4qP2/1P1N2PP/R1BK1R2 w - - 0 1"
+//                "3rr1k1/1b3pp1/p4n1p/P7/1pp5/4qP2/1P1N2PP/R1BK1R2 b - - 0 1"
+//                "3rr1k1/1b3pp1/p4n1p/P7/1pp5/1q3P2/1P1N2PP/R1BK1R2 w - - 0 1"
 
                 // Travis (black)
                 //  1. c2c4 e7e5 2. Ng1f3 Nb8c6 3. Nb1c3 d7d6 4. d2d4 e5xd4 5. Nf3xd4 Bc8d7 6. g2g3 Ng8f6
@@ -245,7 +309,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/5N1P/PPPPPPP1/RNBQKB1R w KQkq - 0 1"
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
-                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
+//                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
 //                "r1bqk1nr/pp1pppbp/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
 //                "r1bqk1nr/pp1pppbp/2n3p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqk1nr/pp2ppbp/2np2p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"

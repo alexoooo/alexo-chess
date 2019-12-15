@@ -170,6 +170,9 @@ public class NnBuilder {
         for (int i = 0; i < numBlocks; i++) {
             name = addResidual(i, name);
         }
+
+        // TODO: add batch norm here?
+
         return name;
     }
 
@@ -179,6 +182,8 @@ public class NnBuilder {
         String convName = "policy_head_conv";
         String bnName = "policy_head_batch_norm";
         String actName = "policy_head_activation";
+
+        // TODO: add batch norm here?
 
         conf.addLayer(convName,
                 new ConvolutionLayer.Builder()

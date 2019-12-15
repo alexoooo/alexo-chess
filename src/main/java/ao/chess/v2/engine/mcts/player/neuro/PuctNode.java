@@ -23,9 +23,9 @@ import java.util.stream.IntStream;
 // https://arxiv.org/pdf/1911.08265.pdf
 class PuctNode {
     //-----------------------------------------------------------------------------------------------------------------
-    private static final double minimumGuess = 0.1;
+    public static final double minimumGuess = 0.1;
     private static final double maximumGuess = 0.9;
-    private static final double guessRange = maximumGuess - minimumGuess;
+    public static final double guessRange = maximumGuess - minimumGuess;
 
     private static final double initialPlayEstimate = minimumGuess;
 
@@ -50,6 +50,10 @@ class PuctNode {
     //-----------------------------------------------------------------------------------------------------------------
     public PuctNode(int[] moves, double[] predictions, DeepOutcome deepOutcomeOrNull)
     {
+//        if (moves.length != predictions.length) {
+//            System.out.println("foo");
+//        }
+
         this.moves = moves;
         this.predictions = predictions;
         this.deepOutcomeOrNull = deepOutcomeOrNull;
@@ -207,8 +211,12 @@ class PuctNode {
 
         PuctEstimate estimate;
         if (cached == null) {
-            estimate = context.model.estimate(state, legalMoves);
-            estimate.postProcess(context.predictionUncertainty, guessRange, minimumGuess);
+//            estimate = context.model.estimate(state, legalMoves);
+//            estimate.postProcess(context.predictionUncertainty, guessRange, minimumGuess);
+
+            estimate = context.pool.estimateBlocking(
+                    state, legalMoves);
+
             context.nnCache.put(positionKey, estimate);
         }
         else {
@@ -222,11 +230,12 @@ class PuctNode {
         PuctNode existing = parent.childNodes.set(childIndex, newChild);
         if (existing != null) {
             parent.childNodes.set(childIndex, existing);
+            context.collisions.increment();
             return false;
         }
 
         double drawProximity =
-                (double) state.reversibleMoves() / 200;
+                (double) state.reversibleMoves() / 250;
 //                state.reversibleMoves() <= 30
 //                ? 0
 //                : state.reversibleMoves() <= 70
@@ -445,7 +454,8 @@ class PuctNode {
 
             double adjustedScore =
                     context.randomize
-                    ? context.random.nextDouble() * score * score
+//                    ? context.random.nextDouble() * score * score
+                    ? context.random.nextDouble() * Math.pow(32, score * score)
                     : score;
 
             if (adjustedScore > maxScore ||

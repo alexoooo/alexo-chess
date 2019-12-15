@@ -1,6 +1,9 @@
 package ao.chess.v2.engine.mcts.player.neuro;
 
 import ao.chess.v2.state.State;
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
 
 
 public interface PuctModel {
@@ -9,4 +12,7 @@ public interface PuctModel {
     void load();
 
     PuctEstimate estimate(State state, int[] legalMoves);
+
+    ImmutableList<PuctEstimate> estimateAll(
+            List<PuctQuery> queries, double uncertainty, double outcomeRange, double minOutcome);
 }

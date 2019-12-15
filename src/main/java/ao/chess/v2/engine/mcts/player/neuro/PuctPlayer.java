@@ -23,11 +23,11 @@ public class PuctPlayer
     //-----------------------------------------------------------------------------------------------------------------
     private final String id;
     private final PuctModel model;
+    private final PuctModelPool pool;
     private final int threads;
     private final double exploration;
     private final double explorationLog;
     private final boolean randomize;
-//    private final boolean visitMax;
     private final int rollouts;
     private final boolean tablebase;
     private final double predictionUncertainty;
@@ -38,6 +38,7 @@ public class PuctPlayer
 
     private final ConcurrentHashMap<Long, PuctEstimate> nnCache = new ConcurrentHashMap<>();
     private final LongAdder cacheHits = new LongAdder();
+    private final LongAdder collisions = new LongAdder();
 
     private final CopyOnWriteArrayList<PuctContext> contexts;
     private ExecutorService executorService;
@@ -143,6 +144,10 @@ public class PuctPlayer
         this.signal = signal;
         this.train = train;
 
+        pool = new PuctModelPool(
+                threads, model,
+                predictionUncertainty, PuctNode.guessRange, PuctNode.minimumGuess);
+
         contexts = new CopyOnWriteArrayList<>();
 
         id = Integer.toHexString((int) (Math.random() * 1024));
@@ -244,22 +249,25 @@ public class PuctPlayer
     private void initIfRequired() {
         nnCache.clear();
         cacheHits.reset();
+        cacheHits.reset();
 
         if (! contexts.isEmpty()) {
             return;
         }
+
+        pool.start();
 
         if (threads != 1) {
             executorService = Executors.newFixedThreadPool(threads);
         }
 
         for (int i = 0; i < threads; i++) {
-            PuctModel modelProto = model.prototype();
-
-            modelProto.load();
+//            PuctModel modelProto = model.prototype();
+//            modelProto.load();
 
             contexts.add(new PuctContext(
-                    modelProto,
+//                    modelProto,
+                    pool,
                     exploration,
                     explorationLog,
                     0.2,
@@ -268,7 +276,8 @@ public class PuctPlayer
                     tablebase,
                     predictionUncertainty,
                     nnCache,
-                    cacheHits));
+                    cacheHits,
+                    collisions));
         }
 
         MovePicker.init();
@@ -287,7 +296,8 @@ public class PuctPlayer
 
         int[] legalMoves = state.legalMoves();
 
-        PuctEstimate estimate = contexts.get(0).model.estimate(state, legalMoves);
+//        PuctEstimate estimate = contexts.get(0).model.estimate(state, legalMoves);
+        PuctEstimate estimate = contexts.get(0).pool.estimateRoot(state, legalMoves);
 
         if (train) {
             double[] buffer = new double[estimate.moveProbabilities.length];
@@ -314,7 +324,7 @@ public class PuctPlayer
         int bestMove = root.bestMove(true);
 
         String generalPrefix = String.format(
-                "%s - %s | %d / %.2f / %b / %d / %b / %.2f | %d / %d | %s",
+                "%s - %s | %d / %.2f / %b / %d / %b / %.2f | %d / %d / %d | %s",
                 id,
                 model,
                 threads,
@@ -325,6 +335,7 @@ public class PuctPlayer
                 predictionUncertainty,
                 nnCache.size(),
                 cacheHits.longValue(),
+                collisions.longValue(),
                 Move.toString(bestMove));
 
         String moveSuffix =
@@ -352,6 +363,7 @@ public class PuctPlayer
     public void close() {
         if (executorService != null) {
             executorService.shutdown();
+            pool.close();
         }
     }
 }

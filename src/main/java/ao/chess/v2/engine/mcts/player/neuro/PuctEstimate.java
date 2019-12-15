@@ -3,26 +3,30 @@ package ao.chess.v2.engine.mcts.player.neuro;
 
 public class PuctEstimate {
     public final double[] moveProbabilities;
-    public double winProbability;
+    public final double winProbability;
 
 
     public PuctEstimate(
             double[] moveProbabilities,
             double winProbability
     ) {
+
         this.moveProbabilities = moveProbabilities;
         this.winProbability = winProbability;
     }
 
 
-    public void postProcess(
+    public PuctEstimate(
+            double[] moveProbabilities,
+            double winProbability,
             double uncertainty,
             double outcomeRange,
             double minOutcome
     ) {
         PuctUtils.smearProbabilities(
                 moveProbabilities, uncertainty);
+        this.moveProbabilities = moveProbabilities;
 
-        winProbability = outcomeRange * winProbability + minOutcome;
+        this.winProbability = outcomeRange * winProbability + minOutcome;
     }
 }

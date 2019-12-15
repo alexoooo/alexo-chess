@@ -10,7 +10,8 @@ import java.util.concurrent.atomic.LongAdder;
 
 
 class PuctContext {
-    public final PuctModel model;
+//    public final PuctModel model;
+    public final PuctModelPool pool;
 
     public final Random random = new Random();
     public final List<PuctNode> path = new ArrayList<>();
@@ -36,10 +37,12 @@ class PuctContext {
 
     public final ConcurrentHashMap<Long, PuctEstimate> nnCache;
     public final LongAdder cacheHits;
+    public final LongAdder collisions;
 
 
     public PuctContext(
-            PuctModel model,
+//            PuctModel model,
+            PuctModelPool pool,
             double exploration,
             double explorationLog,
             double firstPlayDiscount,
@@ -48,9 +51,12 @@ class PuctContext {
             boolean tablebase,
             double predictionUncertainty,
             ConcurrentHashMap<Long, PuctEstimate> nnCache,
-            LongAdder cacheHits)
+            LongAdder cacheHits,
+            LongAdder collisions)
     {
-        this.model = model;
+//        this.model = model;
+        this.pool = pool;
+
         this.exploration = exploration;
         this.explorationLog = explorationLog;
         this.randomize = randomize;
@@ -60,5 +66,6 @@ class PuctContext {
         this.firstPlayDiscount = firstPlayDiscount;
         this.nnCache = nnCache;
         this.cacheHits = cacheHits;
+        this.collisions = collisions;
     }
 }

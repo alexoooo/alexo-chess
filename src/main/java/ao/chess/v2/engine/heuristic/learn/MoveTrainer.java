@@ -67,9 +67,9 @@ public class MoveTrainer {
 //    private static final boolean measureOutcome = false;
 
 //    private static final int miniBatchSize = 64;
-    private static final int miniBatchSize = 128;
+//    private static final int miniBatchSize = 128;
 //    private static final int miniBatchSize = 192;
-//    private static final int miniBatchSize = 256;
+    private static final int miniBatchSize = 256;
 //    private static final int miniBatchSize = 320;
 //    private static final int miniBatchSize = 384;
 //    private static final int miniBatchSize = 512;
@@ -93,9 +93,7 @@ public class MoveTrainer {
 
 
     private static final List<Path> inputs =
-            mixRange(0, 2999);
-////            mixRange(8, 2999);
-////            mixRange(26, 2999);
+            mixRange(352, 2999);
 ////            mixRange(117, 2999);
 ////            mixRange(709, 2999);
 //    private static final List<Path> inputs = List.of(
@@ -131,7 +129,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/res_2g_20191209.zip");
 //            Paths.get("lookup/nn/res_4d_20191209.zip");
 //            Paths.get("lookup/nn/res_4d_20191210.zip");
-            Paths.get("lookup/nn/res_4h_20191210.zip");
+//            Paths.get("lookup/nn/res_4h_20191210.zip");
+            Paths.get("lookup/nn/res_4h_20191215.zip");
 //            Paths.get("lookup/nn/res_3c_20191210.zip");
 
 
