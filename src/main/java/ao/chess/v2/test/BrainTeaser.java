@@ -133,9 +133,9 @@ public class BrainTeaser {
 //                1.25,
 //                1.0,
 //                0.75,
-//                0.5,
+                0.5,
 //                0.25,
-                0.0,
+//                0.0,
                 0);
 
         State state = State.fromFen(
@@ -209,7 +209,7 @@ public class BrainTeaser {
 //                "r2q1rk1/5pp1/p1nb1n1p/2pb4/Pp5Q/3pP2N/1PB2PPP/RNB1K2R w KQ - 0 1"
 //                "r2q1rk1/5pp1/p1nb1n1p/2pb4/Pp5Q/3BP2N/1P3PPP/RNB1K2R b KQ - 0 1"
 //                "r2q1rk1/5pp1/p2b1n1p/2pbn3/Pp5Q/3BP2N/1P3PPP/RNB1K2R w KQ - 0 1"
-                "r2q1rk1/5pp1/p2b1n1p/2pbn3/Pp3N1Q/3BP3/1P3PPP/RNB1K2R b KQ - 0 1" // ??
+//                "r2q1rk1/5pp1/p2b1n1p/2pbn3/Pp3N1Q/3BP3/1P3PPP/RNB1K2R b KQ - 0 1" // ??
 //                "r2q1rk1/5pp1/p2b1n1p/2pb4/Pp3N1Q/3nP3/1P3PPP/RNB1K2R w KQ - 0 1"
 //                "r2q1rk1/5pp1/p2b1n1p/2pb4/Pp5Q/3NP3/1P3PPP/RNB1K2R b KQ - 0 1"
 //                "r4rk1/2q2pp1/p2b1n1p/2pb4/Pp5Q/3NP3/1P3PPP/RNB1K2R w KQ - 0 1"
@@ -255,7 +255,7 @@ public class BrainTeaser {
 //                "r2qk2r/pppbbppp/2np1n2/8/2PN4/2N3P1/PP2PPBP/R1BQ1RK1 b kq - 0 1"
 //                "r2q1rk1/pppbbppp/2np1n2/8/2PN4/2N3P1/PP2PPBP/R1BQ1RK1 w - - 0 1"
 //                "r2q1rk1/pppbbppp/2Np1n2/8/2P5/2N3P1/PP2PPBP/R1BQ1RK1 b - - 0 1"
-//                "r2q1rk1/ppp1bppp/2bp1n2/8/2P5/2N3P1/PP2PPBP/R1BQ1RK1 w - - 0 1" // ??
+//                "r2q1rk1/ppp1bppp/2bp1n2/8/2P5/2N3P1/PP2PPBP/R1BQ1RK1 w - - 0 1" // g2c6??
 //                "r2q1rk1/ppp1bppp/2Bp1n2/8/2P5/2N3P1/PP2PP1P/R1BQ1RK1 b - - 0 1"
 //                "r2q1rk1/p1p1bppp/2pp1n2/8/2P5/2N3P1/PP2PP1P/R1BQ1RK1 w - - 0 1"
 //                "r2q1rk1/p1p1bppp/2pp1n2/8/2P5/2N3P1/PPQ1PP1P/R1B2RK1 b - - 0 1"
@@ -309,7 +309,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/5N1P/PPPPPPP1/RNBQKB1R w KQkq - 0 1"
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
-//                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
+                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
 //                "r1bqk1nr/pp1pppbp/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
 //                "r1bqk1nr/pp1pppbp/2n3p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqk1nr/pp2ppbp/2np2p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"

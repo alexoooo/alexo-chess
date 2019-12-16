@@ -67,9 +67,9 @@ public class MoveTrainer {
 //    private static final boolean measureOutcome = false;
 
 //    private static final int miniBatchSize = 64;
-//    private static final int miniBatchSize = 128;
+    private static final int miniBatchSize = 128;
 //    private static final int miniBatchSize = 192;
-    private static final int miniBatchSize = 256;
+//    private static final int miniBatchSize = 256;
 //    private static final int miniBatchSize = 320;
 //    private static final int miniBatchSize = 384;
 //    private static final int miniBatchSize = 512;
@@ -93,9 +93,8 @@ public class MoveTrainer {
 
 
     private static final List<Path> inputs =
-            mixRange(352, 2999);
-////            mixRange(117, 2999);
-////            mixRange(709, 2999);
+            mixRange(9, 2999);
+//            mixRange(377, 2999);
 //    private static final List<Path> inputs = List.of(
 //            Paths.get("lookup/train/mix-small/champions_10000.txt")
 //    );
@@ -130,8 +129,8 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/res_4d_20191209.zip");
 //            Paths.get("lookup/nn/res_4d_20191210.zip");
 //            Paths.get("lookup/nn/res_4h_20191210.zip");
-            Paths.get("lookup/nn/res_4h_20191215.zip");
-//            Paths.get("lookup/nn/res_3c_20191210.zip");
+//            Paths.get("lookup/nn/res_4h_20191215.zip");
+            Paths.get("lookup/nn/res_10_20191216.zip");
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -151,8 +150,8 @@ public class MoveTrainer {
 //            nn = createNeuralNetwork6d();
 //            nn = createResidualNetwork2();
 //            nn = createResidualNetwork3();
-            nn = createResidualNetwork4();
-//            nn = createValueNetwork7();
+//            nn = createResidualNetwork4();
+            nn = createResidualNetwork10();
         }
 
         if (testInitial) {
@@ -982,6 +981,23 @@ public class MoveTrainer {
 //        builder.addInitialConvolution();
 
         String body = builder.addResidualTower(4, NnBuilder.layerInitial);
+
+        builder.addPolicyHead(body, 64);
+        builder.addValueHead(body, 64);
+
+        ComputationGraph net = new ComputationGraph(builder.build());
+        net.init();
+
+        return net;
+    }
+
+
+    public static ComputationGraph createResidualNetwork10() {
+        NnBuilder builder = new NnBuilder(256, Activation.LEAKYRELU);
+
+        builder.addInitialConvolution();
+
+        String body = builder.addResidualTower(10, NnBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
         builder.addValueHead(body, 64);
