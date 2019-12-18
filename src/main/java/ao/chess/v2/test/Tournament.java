@@ -3,7 +3,7 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
-import ao.chess.v2.engine.mcts.player.neuro.PuctSingleModel;
+import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
 import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
 import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;

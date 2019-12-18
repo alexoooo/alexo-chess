@@ -1,8 +1,8 @@
 package ao.chess.v2.engine.neuro;
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.mcts.player.neuro.PuctEstimate;
-import ao.chess.v2.engine.mcts.player.neuro.PuctModel;
+import ao.chess.v2.engine.neuro.puct.PuctEstimate;
+import ao.chess.v2.engine.neuro.puct.PuctModel;
 import ao.chess.v2.state.State;
 
 

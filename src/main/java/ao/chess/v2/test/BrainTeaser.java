@@ -1,8 +1,8 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.mcts.player.neuro.PuctPlayer;
-import ao.chess.v2.engine.mcts.player.neuro.PuctSingleModel;
+import ao.chess.v2.engine.neuro.puct.PuctPlayer;
+import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 
@@ -115,8 +115,8 @@ public class BrainTeaser {
 
         Player player = new PuctPlayer(
                 new PuctSingleModel(
-//                        Paths.get("lookup/nn/res_2_20191209b.zip"),
                         Paths.get("lookup/nn/res_4h_20191215.zip"),
+//                        Paths.get("lookup/nn/res_10_20191217.zip"),
                         true
                 ),
 //                1,
@@ -133,8 +133,8 @@ public class BrainTeaser {
 //                1.25,
 //                1.0,
 //                0.75,
-                0.5,
-//                0.25,
+//                0.5,
+                0.25,
 //                0.0,
                 0);
 
@@ -149,7 +149,7 @@ public class BrainTeaser {
 //                "r1b2k1r/ppppq3/5N1p/4P2Q/4PP2/1B6/PP5P/n2K2R1 w - - 1 0" // Q from h5 to h6 (!!)
 
 //                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
-//                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1
+//                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1 (!!)
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8 (!!)
 //                "r1bqkb1r/pp1n1pp1/2p1pn1p/6N1/3P4/3B1N2/PPP2PPP/R1BQK2R w KQkq - 0 8" // g5 e6 (deep blue)
 
@@ -175,6 +175,15 @@ public class BrainTeaser {
 //                "rnbqkb1r/pp3ppp/4pn2/2pp4/2PP4/2N2N2/PP2PPPP/R1BQKB1R w KQkq c6 0 1"
 //                "rnbqkb1r/pp3ppp/4pn2/2pp4/2PP4/2N1PN2/PP3PPP/R1BQKB1R b KQkq - 0 1"
 //                "r1bqkb1r/pp3ppp/2n1pn2/2pp4/2PP4/2N1PN2/PP3PPP/R1BQKB1R w KQkq - 0 1"
+//                "r1bqkb1r/pp3ppp/2n1pn2/2pP4/3P4/2N1PN2/PP3PPP/R1BQKB1R b KQkq - 0 1"
+//                "r1bqkb1r/pp3ppp/2n2n2/2pp4/3P4/2N1PN2/PP3PPP/R1BQKB1R w KQkq - 0 1"
+
+                // Gus (white)
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+//                "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 1"
+//                "rnbqkbnr/pp1ppppp/8/2p4Q/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 0 1"
+                "rnbqkbnr/pp2pppp/3p4/2p4Q/4P3/8/PPPP1PPP/RNB1KBNR w KQkq - 0 1"
 
                 // Pira (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -309,7 +318,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/5N1P/PPPPPPP1/RNBQKB1R w KQkq - 0 1"
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
-                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
+//                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
 //                "r1bqk1nr/pp1pppbp/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
 //                "r1bqk1nr/pp1pppbp/2n3p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqk1nr/pp2ppbp/2np2p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"

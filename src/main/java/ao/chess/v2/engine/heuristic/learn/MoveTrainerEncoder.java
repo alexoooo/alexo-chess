@@ -2,7 +2,7 @@ package ao.chess.v2.engine.heuristic.learn;
 
 
 import ao.chess.v2.data.Location;
-import ao.chess.v2.engine.mcts.player.neuro.PuctEstimate;
+import ao.chess.v2.engine.neuro.puct.PuctEstimate;
 import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;

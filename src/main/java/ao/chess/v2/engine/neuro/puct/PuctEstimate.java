@@ -1,4 +1,4 @@
-package ao.chess.v2.engine.mcts.player.neuro;
+package ao.chess.v2.engine.neuro.puct;
 
 
 public class PuctEstimate {

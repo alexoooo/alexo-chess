@@ -1,7 +1,7 @@
 package ao.chess.v2.engine.heuristic.learn;
 
 import ao.chess.v2.data.Location;
-import ao.chess.v2.engine.mcts.player.neuro.PuctEstimate;
+import ao.chess.v2.engine.neuro.puct.PuctEstimate;
 import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;
@@ -67,9 +67,9 @@ public class MoveTrainer {
 //    private static final boolean measureOutcome = false;
 
 //    private static final int miniBatchSize = 64;
-    private static final int miniBatchSize = 128;
+//    private static final int miniBatchSize = 128;
 //    private static final int miniBatchSize = 192;
-//    private static final int miniBatchSize = 256;
+    private static final int miniBatchSize = 256;
 //    private static final int miniBatchSize = 320;
 //    private static final int miniBatchSize = 384;
 //    private static final int miniBatchSize = 512;
@@ -93,7 +93,7 @@ public class MoveTrainer {
 
 
     private static final List<Path> inputs =
-            mixRange(9, 2999);
+            mixRange(55, 2999);
 //            mixRange(377, 2999);
 //    private static final List<Path> inputs = List.of(
 //            Paths.get("lookup/train/mix-small/champions_10000.txt")
@@ -130,7 +130,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/res_4d_20191210.zip");
 //            Paths.get("lookup/nn/res_4h_20191210.zip");
 //            Paths.get("lookup/nn/res_4h_20191215.zip");
-            Paths.get("lookup/nn/res_10_20191216.zip");
+            Paths.get("lookup/nn/res_10_20191218.zip");
 
 
     //-----------------------------------------------------------------------------------------------------------------
