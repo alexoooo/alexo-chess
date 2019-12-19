@@ -3,9 +3,9 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
+import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
+import ao.chess.v2.engine.neuro.puct.PuctPlayer;
 import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
-import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
-import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -29,7 +29,7 @@ import java.util.List;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 2_000;
+    private static final int TIME_PER_MOVE = 1_000;
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
@@ -39,29 +39,6 @@ public class Tournament
     //--------------------------------------------------------------------
     public static void main(String[] args)
     {
-//        Player a = new MultiMctsPlayer(List.of(
-//                mctsFallbackPrototype.prototype(),
-//                mctsFallbackPrototype.prototype(),
-//                mctsFallbackDeepPrototype.prototype(),
-//                mctsMaterialMixedRandomPrototype.prototype(),
-//                mctsMaterialMixedRandomPrototype.prototype(),
-//                mctsMaterialMixedRandomDeepPrototype.prototype()));
-//        Player a = new MultiMctsPlayer(List.of(
-//                MctsPrototypes.mctsFallbackOptPrototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeepOptPrototype.prototype(),
-//                MctsPrototypes.mctsFallbackPrototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeepPrototype.prototype(),
-//                MctsPrototypes.mctsMaterialMixedPrototype.prototype(),
-//                MctsPrototypes.mctsMaterialMixedRandomPrototype.prototype(),
-//                MctsPrototypes.mctsMaterialMixedDeepPrototype.prototype(),
-//                MctsPrototypes.mctsMaterialMixedRandomDeepPrototype.prototype()));
-//        Player a = new MultiMctsPlayer(List.of(
-//                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype(),
-//                MctsPrototypes.mctsFallbackDeep3Opt192Prototype.prototype()));
 //        Player a = new MctsPlayer(
 //                new MctsNodeImpl.Factory<>(),
 //                new Ucb1Value2.Factory(),
@@ -131,13 +108,13 @@ public class Tournament
 //                1,
 //                false
 //        );
-//        ParallelMctsPlayer a = new ParallelMctsPlayer(
-//                "par",
-//                9,
-//                0.3,
-//                3,
-//                false
-//        );
+        ParallelMctsPlayer a = new ParallelMctsPlayer(
+                "par",
+                9,
+                0.3,
+                3,
+                false
+        );
 //        ParallelMctsPlayer b = a.prototype();
 
 //        Player a = NeuralNetworkPlayer.load(
@@ -145,51 +122,50 @@ public class Tournament
 //                false,
 //                true);
 
-        Player b = NeuralNetworkPlayer.load(
-                new PuctSingleModel(
-//                        Paths.get("lookup/nn/multi_6_20191129.zip"),
-//                        Paths.get("lookup/nn/multi_6d_20191207.zip"),
-//                        Paths.get("lookup/nn/res_2_20191209b.zip"),
-                        Paths.get("lookup/nn/res_4h_20191215.zip"),
-                        true
-                ),
-                true
-//                false
-        );
+//        Player b = NeuralNetworkPlayer.load(
+//                new PuctSingleModel(
+////                        Paths.get("lookup/nn/multi_6_20191129.zip"),
+////                        Paths.get("lookup/nn/multi_6d_20191207.zip"),
+////                        Paths.get("lookup/nn/res_2_20191209b.zip"),
+//                        Paths.get("lookup/nn/res_4h_20191215.zip"),
+//                        true
+//                ),
+//                true
+////                false
+//        );
 
 //        Player a = new PuctPlayer(
-//                new PuctSingleModel(
-//                        Paths.get("lookup/nn/all_mid_batch_20191124.zip"),
-//                        false
-//                ),
-//                1,
-//                3.0,
-//                1024 * 8,
-//                false,
-//                0,
-//                true,
-//                1.25,
-//                0,
-//                0.3,
-//                0.75);
-//        Player b = new PuctPlayer(
 //                new PuctSingleModel(
 //                        Paths.get("lookup/nn/res_4h_20191215.zip"),
 //                        true
 //                ),
-//                1,
-//                1.0,
+//                6,
+//                1.25,
 //                65536,
-//                false,
+//                true,
 //                0,
 //                true,
-//                0.0,
+//                0.25,
 //                0,
-//                0.3,
-//                0.75);
+//                true);
+
+        Player b = new PuctPlayer(
+                new PuctSingleModel(
+                        Paths.get("lookup/nn/res_4h_20191215.zip"),
+                        true
+                ),
+                6,
+                1.25,
+                65536,
+                true,
+                0,
+                true,
+                0.25,
+                0,
+                false);
 
 //        Player a = new TopLeftPlayer();
-        Player a = new RandomPlayer();
+//        Player a = new RandomPlayer();
 //        Player b = new RandomPlayer();
 
         int aWins = 0;

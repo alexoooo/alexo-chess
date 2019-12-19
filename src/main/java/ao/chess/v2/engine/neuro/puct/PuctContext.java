@@ -10,6 +10,8 @@ import java.util.concurrent.atomic.LongAdder;
 
 
 class PuctContext {
+    public final int index;
+
 //    public final PuctModel model;
     public final PuctModelPool pool;
 
@@ -41,6 +43,7 @@ class PuctContext {
 
 
     public PuctContext(
+            int index,
 //            PuctModel model,
             PuctModelPool pool,
             double exploration,
@@ -54,6 +57,8 @@ class PuctContext {
             LongAdder cacheHits,
             LongAdder collisions)
     {
+        this.index = index;
+
 //        this.model = model;
         this.pool = pool;
 

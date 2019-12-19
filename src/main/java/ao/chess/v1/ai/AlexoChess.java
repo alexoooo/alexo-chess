@@ -6,8 +6,12 @@ import ao.chess.v1.old.Engine;
 import ao.chess.v1.old.Evaluation;
 import ao.chess.v1.old.Mediocre;
 import ao.chess.v1.util.Io;
+import ao.chess.v2.engine.Player;
+import ao.chess.v2.engine.neuro.puct.PuctPlayer;
+import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -46,18 +50,43 @@ public class AlexoChess
     {
         try
         {
-//            Mediocre.initSettings();
-//            Mediocre.initHashes();
-
             Io.display( Arrays.toString(args) );
-            Bot bot = new UctBot(1024, false);
-            String botName = (args.length > 0 ? args[0] : "");
-            if (botName.equals("random")) bot = new RandomBot();
-            if (botName.matches("\\d+"))
-            {
-                bot = new UctBot(
-                        Integer.parseInt(botName), true);
-            }
+
+//            Player player = new RandomPlayer();
+//            Player player = NeuralNetworkPlayer.load(
+//                    new PuctSingleModel(
+//                            Paths.get("lookup/nn/res_4h_20191215.zip"),
+//                            true
+//                    ),
+//                    true);
+            Player player = new PuctPlayer(
+                    new PuctSingleModel(
+                            Paths.get("lookup/nn/res_4h_20191215.zip"),
+                            true
+                    ),
+                    6,
+                    1.25,
+                    65536,
+                    true,
+                    0,
+                    true,
+                    0.25,
+                    0,
+                    true);
+
+            Bot bot = new V2Bot(player);
+
+            bot.init();
+
+//            Bot bot = new UctBot(1024, false);
+//            String botName = (args.length > 0 ? args[0] : "");
+//
+//            if (botName.equals("random")) bot = new RandomBot();
+//            if (botName.matches("\\d+"))
+//            {
+//                bot = new UctBot(
+//                        Integer.parseInt(botName), true);
+//            }
 //            if (botName.equals("opt"))
 //            {
 //                bot = new UctBot(1024*16, true);

@@ -51,6 +51,10 @@ public class PuctSingleModel
     @Override
     public void load()
     {
+        if (nn != null) {
+            return;
+        }
+
         nn = NeuralUtils.loadNeuralNetwork(savedNeuralNetwork, true, computeGraph);
 
         features = Nd4j.zeros(1, Figure.VALUES.length + 2, Location.RANKS, Location.FILES);

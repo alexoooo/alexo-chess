@@ -694,8 +694,6 @@ public class Mediocre implements Definitions
 	 */
 	public static int receiveMove(String move, Board board) throws IOException
 	{
-
-
 		int[] legalMoves = new int[128];
 		int totalMoves = board.generateMoves(false, legalMoves, 0); // All moves
 

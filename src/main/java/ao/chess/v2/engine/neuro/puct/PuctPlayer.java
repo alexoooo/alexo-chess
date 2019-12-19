@@ -1,5 +1,6 @@
 package ao.chess.v2.engine.neuro.puct;
 
+import ao.chess.v1.util.Io;
 import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
@@ -17,7 +18,8 @@ public class PuctPlayer
         implements ScoredPlayer
 {
     //-----------------------------------------------------------------------------------------------------------------
-    private final static int reportPeriod = 5_000;
+    private final static int reportPeriod = 1_000;
+//    private final static int reportPeriod = 5_000;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -34,6 +36,7 @@ public class PuctPlayer
     private final double alpha;
     private final double signal;
     private final int minimumTrajectories;
+    private final boolean useIo;
     private boolean train;
 
     private final ConcurrentHashMap<Long, PuctEstimate> nnCache = new ConcurrentHashMap<>();
@@ -99,6 +102,31 @@ public class PuctPlayer
             boolean tablebase,
             double predictionUncertainty,
             int minumumTrajectories,
+            boolean useIo)
+    {
+        this(model,
+                threads,
+                exploration,
+                explorationLog,
+                randomize,
+                rollouts,
+                tablebase,
+                predictionUncertainty,
+                minumumTrajectories,
+                0.3, 0.75, false, useIo);
+    }
+
+
+    public PuctPlayer(
+            PuctModel model,
+            int threads,
+            double exploration,
+            double explorationLog,
+            boolean randomize,
+            int rollouts,
+            boolean tablebase,
+            double predictionUncertainty,
+            int minumumTrajectories,
             double alpha,
             double signal)
     {
@@ -131,6 +159,37 @@ public class PuctPlayer
             double signal,
             boolean train)
     {
+        this(model,
+                threads,
+                exploration,
+                explorationLog,
+                randomize,
+                rollouts,
+                tablebase,
+                predictionUncertainty,
+                minumumTrajectories,
+                alpha,
+                signal,
+                train,
+                false);
+    }
+
+
+    public PuctPlayer(
+            PuctModel model,
+            int threads,
+            double exploration,
+            double explorationLog,
+            boolean randomize,
+            int rollouts,
+            boolean tablebase,
+            double predictionUncertainty,
+            int minumumTrajectories,
+            double alpha,
+            double signal,
+            boolean train,
+            boolean useIo)
+    {
         this.model = model;
         this.threads = threads;
         this.exploration = exploration;
@@ -143,6 +202,7 @@ public class PuctPlayer
         this.alpha = alpha;
         this.signal = signal;
         this.train = train;
+        this.useIo = useIo;
 
         pool = new PuctModelPool(
                 threads, model,
@@ -181,6 +241,8 @@ public class PuctPlayer
             return -1;
         }
 
+        pool.restart();
+
         PuctNode root = getOrCreateRoot(position);
 
         if (root.legalMoves().length == 0) {
@@ -199,6 +261,8 @@ public class PuctPlayer
                     System.currentTimeMillis() < deadline);
         }
         else {
+            display("Submitting threads: " + threads);
+
             List<Future<?>> futures = new ArrayList<>();
             for (int thread = 0; thread < threads; thread++) {
                 boolean progressThread = thread == 0;
@@ -234,11 +298,19 @@ public class PuctPlayer
             long episodeMillis,
             boolean progressThread
     ) {
-        long episodeDeadline = System.currentTimeMillis() + episodeMillis;
-        do {
-            root.runTrajectory(state.prototype(), context);
+        display("Thinking episode: " + context.index + " - " + episodeMillis);
+
+        try {
+            long episodeDeadline = System.currentTimeMillis() + episodeMillis;
+            do {
+                root.runTrajectory(state.prototype(), context);
+            }
+            while (System.currentTimeMillis() < episodeDeadline);
         }
-        while (System.currentTimeMillis() < episodeDeadline);
+        catch (Throwable t) {
+            log("ERROR! " + t.getMessage());
+            throw t;
+        }
 
         if (progressThread) {
             reportProgress(root);
@@ -255,8 +327,6 @@ public class PuctPlayer
             return;
         }
 
-        pool.start();
-
         if (threads != 1) {
             executorService = Executors.newFixedThreadPool(threads);
         }
@@ -266,6 +336,7 @@ public class PuctPlayer
 //            modelProto.load();
 
             contexts.add(new PuctContext(
+                    i,
 //                    modelProto,
                     pool,
                     exploration,
@@ -291,12 +362,12 @@ public class PuctPlayer
         long positionHash = state.staticHashCode();
 
         if (previousRoot != null && previousPositionHash == positionHash) {
+            display("Retrieved root" + previousRoot);
             return previousRoot;
         }
 
         int[] legalMoves = state.legalMoves();
 
-//        PuctEstimate estimate = contexts.get(0).model.estimate(state, legalMoves);
         PuctEstimate estimate = contexts.get(0).pool.estimateRoot(state, legalMoves);
 
         if (train) {
@@ -314,6 +385,7 @@ public class PuctPlayer
         previousRoot = root;
         previousPositionHash = positionHash;
 
+        display("Created root: " + root);
         return root;
     }
 
@@ -341,7 +413,8 @@ public class PuctPlayer
         String moveSuffix =
                 root.toString(contexts.get(0));
 
-        System.out.println(generalPrefix + " | " + moveSuffix);
+
+        log(generalPrefix + " | " + moveSuffix);
     }
 
 
@@ -364,6 +437,22 @@ public class PuctPlayer
         if (executorService != null) {
             executorService.shutdown();
             pool.close();
+        }
+    }
+
+
+    private void log(String message)
+    {
+        System.out.println(message);
+        display(message);
+    }
+
+
+    private void display(String message)
+    {
+        if (useIo)
+        {
+            Io.display(message);
         }
     }
 }

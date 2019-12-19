@@ -24,7 +24,7 @@ class PuctModelPool
     private final double minOutcome;
 
     private final BlockingDeque<PuctQuery> queryQueue;
-    private final Thread worker;
+    private Thread worker;
     private volatile boolean isRoot = false;
 
 
@@ -40,13 +40,23 @@ class PuctModelPool
         this.outcomeRange = outcomeRange;
         this.minOutcome = minOutcome;
 
-        worker = new Thread(this::workerLoop);
         queryQueue = new LinkedBlockingDeque<>();
+    }
+
+
+    public void restart()
+    {
+        if (worker != null) {
+            close();
+        }
+
+        start();
     }
 
 
     public void start()
     {
+        worker = new Thread(this::workerLoop);
         worker.start();
     }
 
@@ -60,6 +70,8 @@ class PuctModelPool
         catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        worker = null;
     }
 
 
@@ -99,7 +111,7 @@ class PuctModelPool
                 buffer.addAll(newQueries);
                 checkState(buffer.size() == 1);
                 List<PuctEstimate> estimates = model.estimateAll(
-                        newQueries, 0.0, 1.0, 0.0);
+                        buffer, 0.0, 1.0, 0.0);
                 buffer.get(0).result.complete(estimates.get(0));
                 buffer.clear();
             }
