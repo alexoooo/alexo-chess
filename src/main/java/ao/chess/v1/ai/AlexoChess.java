@@ -74,7 +74,7 @@ public class AlexoChess
                     0,
                     true);
 
-            Bot bot = new V2Bot(player);
+            Bot bot = new V2Bot(player, 10_000);
 
             bot.init();
 

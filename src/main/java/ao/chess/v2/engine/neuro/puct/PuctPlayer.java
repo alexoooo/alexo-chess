@@ -18,8 +18,8 @@ public class PuctPlayer
         implements ScoredPlayer
 {
     //-----------------------------------------------------------------------------------------------------------------
-    private final static int reportPeriod = 1_000;
-//    private final static int reportPeriod = 5_000;
+//    private final static int reportPeriod = 1_000;
+    private final static int reportPeriod = 5_000;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -298,7 +298,7 @@ public class PuctPlayer
             long episodeMillis,
             boolean progressThread
     ) {
-        display("Thinking episode: " + context.index + " - " + episodeMillis);
+//        display("Thinking episode: " + context.index + " - " + episodeMillis);
 
         try {
             long episodeDeadline = System.currentTimeMillis() + episodeMillis;
@@ -362,7 +362,7 @@ public class PuctPlayer
         long positionHash = state.staticHashCode();
 
         if (previousRoot != null && previousPositionHash == positionHash) {
-            display("Retrieved root" + previousRoot);
+//            display("Retrieved root" + previousRoot);
             return previousRoot;
         }
 
@@ -385,7 +385,7 @@ public class PuctPlayer
         previousRoot = root;
         previousPositionHash = positionHash;
 
-        display("Created root: " + root);
+//        display("Created root: " + root);
         return root;
     }
 

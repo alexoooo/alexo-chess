@@ -130,7 +130,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/res_4d_20191210.zip");
 //            Paths.get("lookup/nn/res_4h_20191210.zip");
 //            Paths.get("lookup/nn/res_4h_20191215.zip");
-            Paths.get("lookup/nn/res_10_20191218.zip");
+            Paths.get("lookup/nn/res_10_20191219.zip");
 
 
     //-----------------------------------------------------------------------------------------------------------------

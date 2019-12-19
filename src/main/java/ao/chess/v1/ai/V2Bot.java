@@ -12,11 +12,13 @@ public class V2Bot
         implements Bot
 {
     private final Player player;
+    private final int moveMillis;
 
 
-    public V2Bot(Player player)
+    public V2Bot(Player player, int moveMillis)
     {
         this.player = player;
+        this.moveMillis = moveMillis;
     }
 
 
@@ -36,7 +38,7 @@ public class V2Bot
         Io.display("Act:\n" + position);
 
         int move = player.move(
-                position, 5_000, 5_000, 5_000);
+                position, moveMillis, moveMillis, moveMillis);
 
         Io.display("Move: " + Move.toString(move));
 
