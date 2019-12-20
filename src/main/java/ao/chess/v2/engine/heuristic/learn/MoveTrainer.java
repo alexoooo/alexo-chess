@@ -93,7 +93,7 @@ public class MoveTrainer {
 
 
     private static final List<Path> inputs =
-            mixRange(55, 2999);
+            mixRange(69, 2999);
 //            mixRange(377, 2999);
 //    private static final List<Path> inputs = List.of(
 //            Paths.get("lookup/train/mix-small/champions_10000.txt")

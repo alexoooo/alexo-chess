@@ -6,7 +6,7 @@ import ao.chess.v1.model.Definitions;
 /**
  *  class Evaluation
  *
- *  This is class conataining static evaluation methods
+ *  This is class containing static evaluation methods
  *  We have this in an own class to easily switch evaluation if needed
  *  
  *  Ideas and inspiration from the open source of Scorpio (Daniel Shawul) and Glaurung (Tord Romstad),
