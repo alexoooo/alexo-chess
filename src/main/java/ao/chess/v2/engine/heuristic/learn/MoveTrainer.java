@@ -43,6 +43,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -76,8 +77,8 @@ public class MoveTrainer {
     private static final int saveOnceEvery = 1_000_000;
 
 //    private static final int trainingIterations = 0;
-//    private static final int trainingIterations = 1;
-    private static final int trainingIterations = 100;
+    private static final int trainingIterations = 1;
+//    private static final int trainingIterations = 100;
 
 //    private static final boolean testInitial = false;
     private static final boolean testInitial = true;
@@ -92,12 +93,54 @@ public class MoveTrainer {
             .build();
 
 
-    private static final List<Path> inputs =
-            mixRange(69, 2999);
+    private static final Path checkpointPath = Paths.get("lookup/train/checkpoint.txt");
+    private static final Path progressPath = Paths.get("lookup/train/progress.tsv");
+
+//    private static final List<Path> inputs =
+//            mixRange(69, 2999);
 //            mixRange(377, 2999);
 //    private static final List<Path> inputs = List.of(
 //            Paths.get("lookup/train/mix-small/champions_10000.txt")
 //    );
+
+
+    private static int readCheckpoint() {
+        if (! Files.exists(checkpointPath)) {
+            return -1;
+        }
+
+        try {
+            String checkpointBody = Files.readString(checkpointPath);
+            return Integer.parseInt(checkpointBody);
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+
+    private static void writeCheckpoint(int number) {
+        try {
+            Files.writeString(checkpointPath, String.valueOf(number));
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+
+    private static void writeProgress(
+            int checkpoint, double valueError, double policyError) {
+        try {
+            Files.writeString(progressPath,
+                    String.format("%s\t%s\t%s\n", checkpoint, valueError, policyError),
+                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
 
     private static List<Path> mixRange(int fromInclusive, int toInclusive) {
         List<Path> range = new ArrayList<>();
@@ -130,7 +173,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/res_4d_20191210.zip");
 //            Paths.get("lookup/nn/res_4h_20191210.zip");
 //            Paths.get("lookup/nn/res_4h_20191215.zip");
-            Paths.get("lookup/nn/res_10_20191219.zip");
+            Paths.get("lookup/nn/res_10_20191220.zip");
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -154,19 +197,21 @@ public class MoveTrainer {
             nn = createResidualNetwork10();
         }
 
+        int checkpoint = readCheckpoint();
+        List<Path> inputs = mixRange(checkpoint + 1, checkpoint + 5);
+
         if (testInitial) {
-            testOutputs(nn);
+            testOutputs(nn, checkpoint, false);
         }
 
         if (trainingIterations == 0) {
             return;
         }
-//        List<MoveHistory> allMoves = readAllMoves();
-//        System.out.println("Loaded moves: " + allMoves.size());
 
         for (int epoch = 0; epoch < trainingIterations; epoch++) {
             System.out.println("Training epoch = " + (epoch + 1));
 
+            int nextCheckpoint = checkpoint + 1;
             for (var input : inputs) {
                 List<MoveHistory> inputMoves = readMoves(input);
 
@@ -174,7 +219,10 @@ public class MoveTrainer {
 
                 performTraining(inputMoves, epoch, nn);
 
-                testOutputs(nn);
+                testOutputs(nn, nextCheckpoint, true);
+
+                writeCheckpoint(nextCheckpoint);
+                nextCheckpoint++;
             }
         }
     }
@@ -288,7 +336,8 @@ public class MoveTrainer {
     }
 
 
-    private static void testOutputs(NeuralNetwork nn)
+    private static void testOutputs(
+            NeuralNetwork nn, int checkpoint, boolean write)
     {
         DoubleSummaryStatistics globalOutcomeStats = new DoubleSummaryStatistics();
         DoubleSummaryStatistics globalActionStats = new DoubleSummaryStatistics();
@@ -325,6 +374,10 @@ public class MoveTrainer {
                     outcomeStats.getAverage() + "\t" +
                     actionStats.getAverage() + "\t" +
                     "took: " + took + " - " + testPath);
+
+            if (write) {
+                writeProgress(checkpoint, outcomeStats.getAverage(), actionStats.getAverage());
+            }
 
             Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
         }
