@@ -321,7 +321,7 @@ public class PuctPlayer
     private void initIfRequired() {
         nnCache.clear();
         cacheHits.reset();
-        cacheHits.reset();
+        collisions.reset();
 
         if (! contexts.isEmpty()) {
             return;
@@ -337,6 +337,7 @@ public class PuctPlayer
 
             contexts.add(new PuctContext(
                     i,
+                    threads,
 //                    modelProto,
                     pool,
                     exploration,

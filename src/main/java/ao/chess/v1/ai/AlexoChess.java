@@ -78,7 +78,7 @@ public class AlexoChess
             else {
                 player = new PuctPlayer(
                         puctModel,
-                        6,
+                        12,
                         1.25,
                         65536,
                         true,

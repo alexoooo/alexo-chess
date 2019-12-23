@@ -14,6 +14,8 @@ import java.util.List;
 
 public class MoveTrainerRepeater {
     private static final Path repeaterPath = Paths.get("lookup/train/repeater.txt");
+    private static final String SUN_JAVA_COMMAND = "sun.java.command";
+
 
     public static void main(String[] args) throws IOException {
 //        double random = Math.random();
@@ -30,7 +32,6 @@ public class MoveTrainerRepeater {
 //        }
     }
 
-    public static final String SUN_JAVA_COMMAND = "sun.java.command";
 
     /**
      * see: https://dzone.com/articles/programmatically-restart-java

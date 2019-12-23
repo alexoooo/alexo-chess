@@ -3,7 +3,6 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
-import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.engine.neuro.puct.PuctPlayer;
 import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
 import ao.chess.v2.piece.Colour;
@@ -29,7 +28,7 @@ import java.util.List;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 1_000;
+    private static final int TIME_PER_MOVE = 2_000;
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
@@ -58,19 +57,7 @@ public class Tournament
 //                new MctsSchedulerImpl.Factory()
 //        );
 
-//        Player a = new RandomPlayer();
-//        Player a = new SimPlayer(false);
-//        Player a = new HeuristicPlayer(
-////                new SimpleWinTally("test"));
-//                new LinearBinarySingular("test"));
-
-//        Player b = new SimPlayer(false);
-//        Player b = new HeuristicPlayer(
-//                LinearByMaterial.retrieve("test"),
-//                true);
-//                new LinearBinarySingular("test"));
 //        Player b = new RandomPlayer();
-//        Player b = new TransPlayer();
 //        Player b = new MctsPlayer(
 //                new MctsNodeImpl.Factory<Ucb1TunedValue>(),
 //                new Ucb1TunedValue.Factory(),
@@ -108,13 +95,13 @@ public class Tournament
 //                1,
 //                false
 //        );
-        ParallelMctsPlayer a = new ParallelMctsPlayer(
-                "par",
-                9,
-                0.3,
-                3,
-                false
-        );
+//        ParallelMctsPlayer a = new ParallelMctsPlayer(
+//                "par",
+//                9,
+//                0.3,
+//                3,
+//                false
+//        );
 //        ParallelMctsPlayer b = a.prototype();
 
 //        Player a = NeuralNetworkPlayer.load(
@@ -122,7 +109,7 @@ public class Tournament
 //                false,
 //                true);
 
-//        Player b = NeuralNetworkPlayer.load(
+//        Player a = NeuralNetworkPlayer.load(
 //                new PuctSingleModel(
 ////                        Paths.get("lookup/nn/multi_6_20191129.zip"),
 ////                        Paths.get("lookup/nn/multi_6d_20191207.zip"),
@@ -131,30 +118,37 @@ public class Tournament
 //                        true
 //                ),
 //                true
-////                false
 //        );
-
-//        Player a = new PuctPlayer(
+//
+//        Player b = NeuralNetworkPlayer.load(
 //                new PuctSingleModel(
-//                        Paths.get("lookup/nn/res_4h_20191215.zip"),
+//                        Paths.get("lookup/nn/res_10_20191222.zip"),
 //                        true
 //                ),
-//                6,
-//                1.25,
-//                65536,
-//                true,
-//                0,
-//                true,
-//                0.25,
-//                0,
-//                true);
+//                true
+//        );
 
-        Player b = new PuctPlayer(
+        Player a = new PuctPlayer(
                 new PuctSingleModel(
                         Paths.get("lookup/nn/res_4h_20191215.zip"),
                         true
                 ),
-                6,
+                12,
+                1.25,
+                65536,
+                true,
+                0,
+                true,
+                0.25,
+                0,
+                false);
+
+        Player b = new PuctPlayer(
+                new PuctSingleModel(
+                        Paths.get("lookup/nn/res_10_20191222.zip"),
+                        true
+                ),
+                12,
                 1.25,
                 65536,
                 true,

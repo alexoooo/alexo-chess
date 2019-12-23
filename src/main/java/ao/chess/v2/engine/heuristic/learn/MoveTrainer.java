@@ -70,10 +70,11 @@ public class MoveTrainer {
 //    private static final int miniBatchSize = 64;
 //    private static final int miniBatchSize = 128;
 //    private static final int miniBatchSize = 192;
-    private static final int miniBatchSize = 256;
+//    private static final int miniBatchSize = 256;
 //    private static final int miniBatchSize = 320;
-//    private static final int miniBatchSize = 384;
+    private static final int miniBatchSize = 384;
 //    private static final int miniBatchSize = 512;
+
     private static final int saveOnceEvery = 1_000_000;
 
 //    private static final int trainingIterations = 0;
@@ -95,6 +96,7 @@ public class MoveTrainer {
 
     private static final Path checkpointPath = Paths.get("lookup/train/checkpoint.txt");
     private static final Path progressPath = Paths.get("lookup/train/progress.tsv");
+    private static final int progressSteps = 1;
 
 //    private static final List<Path> inputs =
 //            mixRange(69, 2999);
@@ -173,7 +175,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/res_4d_20191210.zip");
 //            Paths.get("lookup/nn/res_4h_20191210.zip");
 //            Paths.get("lookup/nn/res_4h_20191215.zip");
-            Paths.get("lookup/nn/res_10_20191220.zip");
+            Paths.get("lookup/nn/res_10_20191222.zip");
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -198,7 +200,7 @@ public class MoveTrainer {
         }
 
         int checkpoint = readCheckpoint();
-        List<Path> inputs = mixRange(checkpoint + 1, checkpoint + 5);
+        List<Path> inputs = mixRange(checkpoint + 1, checkpoint + progressSteps);
 
         if (testInitial) {
             testOutputs(nn, checkpoint, false);

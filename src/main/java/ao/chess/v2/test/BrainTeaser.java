@@ -116,11 +116,11 @@ public class BrainTeaser {
         Player player = new PuctPlayer(
                 new PuctSingleModel(
                         Paths.get("lookup/nn/res_4h_20191215.zip"),
-//                        Paths.get("lookup/nn/res_10_20191217.zip"),
+//                        Paths.get("lookup/nn/res_10_20191222.zip"),
                         true
                 ),
-//                1,
-                6,
+//                6,
+                12,
 //                1.0,
                 1.25,
 //                3.0,
@@ -137,6 +137,21 @@ public class BrainTeaser {
                 0.25,
 //                0.0,
                 0);
+
+//        Player player = new PuctPlayer(
+//                new PuctSingleModel(
+//                        Paths.get("lookup/nn/res_10_20191222.zip"),
+//                        true
+//                ),
+////                8,
+//                12,
+//                1.25,
+//                65536,
+//                true,
+//                0,
+//                true,
+//                0.25,
+//                0);
 
         State state = State.fromFen(
                 // puzzles
@@ -201,7 +216,21 @@ public class BrainTeaser {
 //                "r2qkb1r/pp1b1ppp/4pn2/1Bp5/3npQ2/P1N4N/RPPP1PPP/2B1K2R b kq - 0 1"
 //                "r2qkb1r/pp1b1ppp/4pn2/1np5/4pQ2/P1N4N/RPPP1PPP/2B1K2R w kq - 0 1"
 //                "r2qkb1r/pp1b1ppp/4pn2/1np5/P3pQ2/2N4N/RPPP1PPP/2B1K2R b kq - 0 1"
-                "r2qkb1r/pp1b1ppp/4pn2/2p5/P3pQ2/2n4N/RPPP1PPP/2B1K2R w kq - 0 1"
+//                "r2qkb1r/pp1b1ppp/4pn2/2p5/P3pQ2/2n4N/RPPP1PPP/2B1K2R w kq - 0 1"
+//                "r2qkb1r/pp1b1ppp/4pn2/2p5/P3pQ2/2P4N/R1PP1PPP/2B1K2R b kq - 0 1"
+//                "r2qkb1r/pp3ppp/2b1pn2/2p5/P3pQ2/2P4N/R1PP1PPP/2B1K2R w kq - 0 1"
+//                "r2qkb1r/pp3ppp/2b1pn2/2p3Q1/P3p3/2P4N/R1PP1PPP/2B1K2R b kq - 0 1"
+//                "r2qkb1r/pp3pp1/2b1pn1p/2p3Q1/P3p3/2P4N/R1PP1PPP/2B1K2R w kq - 0 1"
+//                "r2qkb1r/pp3pp1/2b1pn1p/2Q5/P3p3/2P4N/R1PP1PPP/2B1K2R b kq - 0 1"
+//                "r2qk2r/pp3pp1/2b1pn1p/2b5/P3p3/2P4N/R1PP1PPP/2B1K2R w kq - 0 1"
+//                "r2qk2r/pp3pp1/2b1pn1p/2b5/P3p3/B1P4N/R1PP1PPP/4K2R b kq - 0 1"
+//                "r1q1k2r/pp3pp1/2b1pn1p/2b5/P3p3/B1P4N/R1PP1PPP/4K2R w kq - 0 1"
+//                "r1q1k2r/pp3pp1/2b1pn1p/2B5/P3p3/2P4N/R1PP1PPP/4K2R b kq - 0 1"
+//                "r1q1k2r/p4pp1/1pb1pn1p/2B5/P3p3/2P4N/R1PP1PPP/4K2R w kq - 0 1"
+//                "r1q1k2r/p4pp1/1pb1pn1p/8/P2Bp3/2P4N/R1PP1PPP/4K2R b kq - 0 1"
+//                "r1q2rk1/p4pp1/1pb1pn1p/8/P2Bp3/2P4N/R1PP1PPP/4K2R w - - 0 1"
+//                "r1q2rk1/p4pp1/1pb1pn1p/8/P2Bp3/2P4N/R1PP1PPP/5RK1 b - - 0 1" // illegal move
+//                "r1q2rk1/p2n1pp1/1pb1p2p/8/P2Bp3/2P4N/R1PP1PPP/5RK1 w - - 0 1"
 
                 // Pira (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -336,7 +365,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/5N1P/PPPPPPP1/RNBQKB1R w KQkq - 0 1"
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
-//                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
+                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
 //                "r1bqk1nr/pp1pppbp/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
 //                "r1bqk1nr/pp1pppbp/2n3p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqk1nr/pp2ppbp/2np2p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"

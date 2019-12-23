@@ -32,7 +32,7 @@ class PuctNode {
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
     private static final double rolloutWeight = 0.25;
-    private static final double randomizationWeight = 1.0 / 250.0;
+    private static final double randomizationWeight = 1 / 200.0;
 
     private static final boolean valueUncertainty = false;
 
@@ -457,7 +457,11 @@ class PuctNode {
                     context.randomize
 //                    ? context.random.nextDouble() * score * score
 //                    ? context.random.nextDouble() * Math.pow(32, score * score)
-                    ? context.random.nextDouble() * randomizationWeight + score
+                    ? context.random.nextDouble() *
+                            context.threads *
+                            (1.0 / Math.sqrt(Math.max(1, moveVisits - 10))) *
+                            randomizationWeight +
+                            score
                     : score;
 
             if (adjustedScore > maxScore ||
