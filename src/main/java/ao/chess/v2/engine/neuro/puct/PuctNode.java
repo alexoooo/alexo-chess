@@ -84,6 +84,18 @@ class PuctNode {
     }
 
 
+    public double expectedValue(int moveIndex) {
+        long count = visitCount(moveIndex);
+        if (count == 0) {
+            return initialPlayEstimate;
+        }
+
+        PuctNode child = childNodes.get(moveIndex);
+        double childValueSum = child.valueSum.doubleValue();
+        return childValueSum / count;
+    }
+
+
     public void initRoot() {
         visitCount.increment();
     }
@@ -404,31 +416,68 @@ class PuctNode {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public int bestMove(boolean visitMax) {
+    public int bestMove(
+            State state,
+//            boolean visitMax,
+            boolean isRepeat,
+            long[] history,
+            int historyCount
+    ) {
         if (moves.length == 0) {
             return -1;
         }
 
-        int visitSqrt = (int) Math.sqrt(visitCount.longValue());
+//        int visitSqrt = (int) Math.sqrt(visitCount.longValue());
 
         int bestMoveIndex = 0;
-        double bestMoveScore = 0;
+        long bestMoveScore = 0;
+
+        State repeatCursorOrNull =
+                isRepeat
+                ? null
+                : state.prototype();
 
         for (int i = 0; i < moves.length; i++)
         {
-            long moveVisits = visitCount(i);
-            if (! visitMax && moveVisits < visitSqrt) {
-                continue;
+            boolean moveRepeat = false;
+            int move;
+            if (repeatCursorOrNull != null) {
+                move = Move.apply(moves[i], repeatCursorOrNull);
+                long hash = repeatCursorOrNull.staticHashCode();
+                for (int h = 0; h < historyCount; h++) {
+                    if (history[h] == hash) {
+                        moveRepeat = true;
+                        break;
+                    }
+                }
+            }
+            else {
+                move = -1;
             }
 
-            double moveScore = moveValueInternal(i, visitMax);
+            long moveVisits = visitCount(i);
 
-            if (bestMoveScore < moveScore ||
-                    bestMoveScore == moveScore &&
-                            visitCount(bestMoveIndex) < moveVisits
-            ) {
+            long moveScore;
+            if (moveRepeat) {
+                double moveValue = expectedValue(i);
+                if (moveValue > 0.5) {
+                    moveScore = 0;
+                }
+                else {
+                    moveScore = moveVisits;
+                }
+            }
+            else {
+                moveScore = moveVisits;
+            }
+
+            if (bestMoveScore < moveScore) {
                 bestMoveScore = moveScore;
                 bestMoveIndex = i;
+            }
+
+            if (repeatCursorOrNull != null) {
+                Move.unApply(move, repeatCursorOrNull);
             }
         }
 
@@ -446,30 +495,30 @@ class PuctNode {
     }
 
 
-    public long moveValue(int move, boolean visitMax) {
+    public long moveValue(int move/*, boolean visitMax*/) {
         int moveIndex = moveIndex(move);
-        return (long) moveValueInternal(moveIndex, visitMax);
+        return (long) childVisitCount(moveIndex/*, visitMax*/);
     }
 
 
-    private double moveValueInternal(int moveIndex, boolean visitMax) {
+    private double childVisitCount(int moveIndex/*, boolean visitMax*/) {
         PuctNode child = childNodes.get(moveIndex);
 
         if (child == null) {
             return 0;
         }
 
-        long visits = child.visitCount.longValue();
-        if (visitMax || visits == 0) {
-            return visits;
-        }
+        return child.visitCount.longValue();
+//        if (/*visitMax ||*/ visits == 0) {
+//            return visits;
+//        }
 
-        double certainty =
-                valueUncertainty
-                ? 1.0 - (1 / Math.sqrt(visits + 1))
-                : 1.0;
-
-        return certainty * child.valueSum.doubleValue() / visits * 10_000;
+//        double certainty =
+//                valueUncertainty
+//                ? 1.0 - (1 / Math.sqrt(visits + 1))
+//                : 1.0;
+//
+//        return certainty * child.valueSum.doubleValue() / visits * 10_000;
     }
 
 

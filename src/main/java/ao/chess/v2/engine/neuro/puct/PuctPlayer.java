@@ -31,7 +31,6 @@ public class PuctPlayer
     private final double explorationLog;
     private final boolean randomize;
     private final boolean tablebase;
-//    private final double predictionUncertainty;
     private final double alpha;
     private final double signal;
     private final int minimumTrajectories;
@@ -47,6 +46,9 @@ public class PuctPlayer
 
     private long previousPositionHash = -1;
     private PuctNode previousRoot;
+
+    private final long[] history;
+    private int historyIndex = 0;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -199,6 +201,9 @@ public class PuctPlayer
         contexts = new CopyOnWriteArrayList<>();
 
         id = Integer.toHexString((int) (Math.random() * 1024));
+
+        history = new long[4096];
+        historyIndex = -1;
     }
 
 
@@ -231,11 +236,14 @@ public class PuctPlayer
 
         pool.restart();
 
-        PuctNode root = getOrCreateRoot(position);
+        long positionHash = position.staticHashCode();
+        PuctNode root = getOrCreateRoot(position, positionHash);
 
         if (root.legalMoves().length == 0) {
             return -1;
         }
+
+        boolean isRepeat = isHistoryRepeat(position, positionHash);
 
         long episodeMillis = Math.min(reportPeriod, timePerMove);
         long deadline = System.currentTimeMillis() + timePerMove;
@@ -243,7 +251,8 @@ public class PuctPlayer
         if (threads == 1) {
             PuctContext context = contexts.get(0);
             do {
-                thinkingEpisode(root, context, position, episodeMillis, true);
+                thinkingEpisode(
+                        root, context, position, isRepeat, episodeMillis, true);
             }
             while (root.visitCount() < minimumTrajectories ||
                     System.currentTimeMillis() < deadline);
@@ -257,7 +266,8 @@ public class PuctPlayer
                 PuctContext context = contexts.get(thread);
                 Future<?> future = executorService.submit(() -> {
                     do {
-                        thinkingEpisode(root, context, position, episodeMillis, progressThread);
+                        thinkingEpisode(
+                                root, context, position, isRepeat, episodeMillis, progressThread);
                     }
                     while (root.visitCount() < minimumTrajectories ||
                             System.currentTimeMillis() < deadline);
@@ -275,7 +285,8 @@ public class PuctPlayer
             }
         }
 
-        return root.bestMove(true);
+        return root.bestMove(
+                position, isRepeat, history, historyIndex + 1);
     }
 
 
@@ -283,6 +294,7 @@ public class PuctPlayer
             PuctNode root,
             PuctContext context,
             State state,
+            boolean isRepeat,
             long episodeMillis,
             boolean progressThread
     ) {
@@ -291,7 +303,8 @@ public class PuctPlayer
         try {
             long episodeDeadline = System.currentTimeMillis() + episodeMillis;
             do {
-                root.runTrajectory(state.prototype(), context);
+                root.runTrajectory(
+                        state.prototype(), context);
             }
             while (System.currentTimeMillis() < episodeDeadline);
         }
@@ -301,7 +314,7 @@ public class PuctPlayer
         }
 
         if (progressThread) {
-            reportProgress(root);
+            reportProgress(root, state, isRepeat);
         }
     }
 
@@ -346,9 +359,26 @@ public class PuctPlayer
     }
 
 
-    private PuctNode getOrCreateRoot(State state) {
-        long positionHash = state.staticHashCode();
+    private boolean isHistoryRepeat(State state, long positionHash) {
+        if (State.isInitial(state)) {
+            historyIndex = 0;
+            history[historyIndex] = positionHash;
+            return false;
+        }
 
+        for (int i = 0; i <= historyIndex; i++) {
+            if (history[i] == positionHash) {
+                return true;
+            }
+        }
+
+        historyIndex++;
+        history[historyIndex] = positionHash;
+
+        return false;
+    }
+
+    private PuctNode getOrCreateRoot(State state, long positionHash) {
         if (previousRoot != null && previousPositionHash == positionHash) {
 //            display("Retrieved root" + previousRoot);
             return previousRoot;
@@ -379,9 +409,11 @@ public class PuctPlayer
 
 
     private void reportProgress(
-            PuctNode root
+            PuctNode root,
+            State state,
+            boolean isRepeat
     ) {
-        int bestMove = root.bestMove(true);
+        int bestMove = root.bestMove(state, isRepeat, history, historyIndex);
 
         String generalPrefix = String.format(
                 "%s - %s | %d / %.2f / %b / %b | %d / %d / %d | %s",
@@ -414,7 +446,7 @@ public class PuctPlayer
     //-----------------------------------------------------------------------------------------------------------------
     @Override
     public double moveScoreInternal(int move) {
-        return previousRoot.moveValue(move, true);
+        return previousRoot.moveValue(move);
     }
 
 

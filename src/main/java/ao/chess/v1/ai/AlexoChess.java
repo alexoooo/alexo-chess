@@ -118,7 +118,7 @@ public class AlexoChess
                 : "must use WinBoard protocol";
         Io.write(WINBOARD_INIT);
 
-        int history[]    = new int[4096];
+        int[] history = new int[4096];
         int historyIndex = 0;
 
         int     movetime  = 0;
@@ -266,7 +266,7 @@ public class AlexoChess
 					}
 
                     FullOutcome outcome = outcome(board, history, historyIndex);
-					if(outcome != FullOutcome.UNDECIDED)
+					if (outcome != FullOutcome.UNDECIDED)
 					{
 						Io.write(outcome);
 					}
@@ -277,15 +277,15 @@ public class AlexoChess
 
     public static FullOutcome outcome(
             Board board,
-            int   history[],
-            int   historyIndex)
+            int[] history,
+            int historyIndex)
     {
         int[] legalMoves = new int[258];
-		if(board.generateMoves(false, legalMoves, 0) == 0)
+		if (board.generateMoves(false, legalMoves, 0) == 0)
 		{
-			if(Engine.isInCheck(board))
+			if (Engine.isInCheck(board))
 			{
-				if(board.toMove == Board.WHITE_TO_MOVE)
+				if (board.toMove == Board.WHITE_TO_MOVE)
 				{
 					return FullOutcome.BLACK_MATES;
 				}
@@ -300,7 +300,7 @@ public class AlexoChess
 			}
 		}
 
-		if(board.movesFifty >= 100)
+		if (board.movesFifty >= 100)
 		{
 			return FullOutcome.FIFTY_MOVES;
 		}
@@ -314,7 +314,7 @@ public class AlexoChess
                 if (history[i] == lastHistory)
                 {
                     repetitions++;
-                    if (repetitions == 2)
+                    if (repetitions == 3)
                     {
                         return FullOutcome.REPETITION;
                     }
@@ -322,7 +322,7 @@ public class AlexoChess
             }
         }
 
-		if(Evaluation.drawByMaterial(board, 0))
+		if (Evaluation.drawByMaterial(board, 0))
 		{
 			return FullOutcome.MATERIAL;
 		}

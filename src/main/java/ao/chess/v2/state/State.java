@@ -173,6 +173,11 @@ public class State
         return INITIAL.prototype();
     }
 
+    public static boolean isInitial(State state) {
+        return INITIAL.equals(state);
+    }
+
+
     public static State fromFen(String fen) {
         return Representation.fromFen(fen);
     }
