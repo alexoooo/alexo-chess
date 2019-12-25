@@ -19,12 +19,12 @@ import java.util.zip.GZIPOutputStream;
 
 public class MoveShuffler {
     private static final Random rand = new Random();
-    private static final int partitions = 3000;
+    private static final int partitions = 10_000;
 
 
     public static void main(String[] args) throws IOException {
         Path inputDir = Paths.get("lookup/train/history");
-        Path outputDir = Paths.get("lookup/mix-big");
+        Path outputDir = Paths.get("lookup/mix-big-2");
 
         Files.createDirectories(outputDir);
 

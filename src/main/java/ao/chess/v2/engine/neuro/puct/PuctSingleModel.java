@@ -111,7 +111,7 @@ public class PuctSingleModel
     @Override
     public ImmutableList<PuctEstimate> estimateAll(
             List<PuctQuery> queries,
-            double uncertainty,
+//            double uncertainty,
             double outcomeRange,
             double minOutcome)
     {
@@ -153,7 +153,7 @@ public class PuctSingleModel
 
             PuctEstimate estimate = new PuctEstimate(
                     moveProbabilities, winProbability,
-                    uncertainty, outcomeRange, minOutcome);
+                    /*uncertainty,*/ outcomeRange, minOutcome);
             all.add(estimate);
         }
 

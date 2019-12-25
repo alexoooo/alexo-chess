@@ -30,9 +30,8 @@ public class PuctPlayer
     private final double exploration;
     private final double explorationLog;
     private final boolean randomize;
-    private final int rollouts;
     private final boolean tablebase;
-    private final double predictionUncertainty;
+//    private final double predictionUncertainty;
     private final double alpha;
     private final double signal;
     private final int minimumTrajectories;
@@ -61,9 +60,8 @@ public class PuctPlayer
                 1.5,
                 18432,
                 false,
-                7,
                 true,
-                0.4,
+//                0.4,
                 minimumTrajectories);
     }
 
@@ -74,9 +72,8 @@ public class PuctPlayer
             double exploration,
             double explorationLog,
             boolean randomize,
-            int rollouts,
             boolean tablebase,
-            double predictionUncertainty,
+//            double predictionUncertainty,
             int minumumTrajectories)
     {
         this(model,
@@ -84,9 +81,8 @@ public class PuctPlayer
                 exploration,
                 explorationLog,
                 randomize,
-                rollouts,
                 tablebase,
-                predictionUncertainty,
+//                predictionUncertainty,
                 minumumTrajectories,
                 0.3, 0.75, false);
     }
@@ -98,9 +94,8 @@ public class PuctPlayer
             double exploration,
             double explorationLog,
             boolean randomize,
-            int rollouts,
             boolean tablebase,
-            double predictionUncertainty,
+//            double predictionUncertainty,
             int minumumTrajectories,
             boolean useIo)
     {
@@ -109,9 +104,8 @@ public class PuctPlayer
                 exploration,
                 explorationLog,
                 randomize,
-                rollouts,
                 tablebase,
-                predictionUncertainty,
+//                predictionUncertainty,
                 minumumTrajectories,
                 0.3, 0.75, false, useIo);
     }
@@ -123,9 +117,8 @@ public class PuctPlayer
             double exploration,
             double explorationLog,
             boolean randomize,
-            int rollouts,
             boolean tablebase,
-            double predictionUncertainty,
+//            double predictionUncertainty,
             int minumumTrajectories,
             double alpha,
             double signal)
@@ -135,9 +128,8 @@ public class PuctPlayer
                 exploration,
                 explorationLog,
                 randomize,
-                rollouts,
                 tablebase,
-                predictionUncertainty,
+//                predictionUncertainty,
                 minumumTrajectories,
                 alpha,
                 signal,
@@ -151,9 +143,8 @@ public class PuctPlayer
             double exploration,
             double explorationLog,
             boolean randomize,
-            int rollouts,
             boolean tablebase,
-            double predictionUncertainty,
+//            double predictionUncertainty,
             int minumumTrajectories,
             double alpha,
             double signal,
@@ -164,9 +155,8 @@ public class PuctPlayer
                 exploration,
                 explorationLog,
                 randomize,
-                rollouts,
                 tablebase,
-                predictionUncertainty,
+//                predictionUncertainty,
                 minumumTrajectories,
                 alpha,
                 signal,
@@ -181,9 +171,8 @@ public class PuctPlayer
             double exploration,
             double explorationLog,
             boolean randomize,
-            int rollouts,
             boolean tablebase,
-            double predictionUncertainty,
+//            double predictionUncertainty,
             int minumumTrajectories,
             double alpha,
             double signal,
@@ -195,9 +184,8 @@ public class PuctPlayer
         this.exploration = exploration;
         this.explorationLog = explorationLog;
         this.randomize = randomize;
-        this.rollouts = rollouts;
         this.tablebase = tablebase;
-        this.predictionUncertainty = predictionUncertainty;
+//        this.predictionUncertainty = predictionUncertainty;
         this.minimumTrajectories = minumumTrajectories;
         this.alpha = alpha;
         this.signal = signal;
@@ -206,7 +194,7 @@ public class PuctPlayer
 
         pool = new PuctModelPool(
                 threads, model,
-                predictionUncertainty, PuctNode.guessRange, PuctNode.minimumGuess);
+                /*predictionUncertainty,*/ PuctNode.guessRange, PuctNode.minimumGuess);
 
         contexts = new CopyOnWriteArrayList<>();
 
@@ -344,9 +332,8 @@ public class PuctPlayer
                     explorationLog,
                     0.2,
                     randomize,
-                    rollouts,
                     tablebase,
-                    predictionUncertainty,
+//                    predictionUncertainty,
                     nnCache,
                     cacheHits,
                     collisions));
@@ -375,10 +362,10 @@ public class PuctPlayer
             double[] buffer = new double[estimate.moveProbabilities.length];
             PuctUtils.smearProbabilities(estimate.moveProbabilities, alpha, signal, new Random(), buffer);
         }
-        else {
-            PuctUtils.smearProbabilities(
-                    estimate.moveProbabilities, predictionUncertainty);
-        }
+//        else {
+//            PuctUtils.smearProbabilities(
+//                    estimate.moveProbabilities, predictionUncertainty);
+//        }
 
         PuctNode root = new PuctNode(legalMoves, estimate.moveProbabilities, null);
         root.initRoot();
@@ -397,15 +384,14 @@ public class PuctPlayer
         int bestMove = root.bestMove(true);
 
         String generalPrefix = String.format(
-                "%s - %s | %d / %.2f / %b / %d / %b / %.2f | %d / %d / %d | %s",
+                "%s - %s | %d / %.2f / %b / %b | %d / %d / %d | %s",
                 id,
                 model,
                 threads,
                 exploration,
                 randomize,
-                rollouts,
                 tablebase,
-                predictionUncertainty,
+//                predictionUncertainty,
                 nnCache.size(),
                 cacheHits.longValue(),
                 collisions.longValue(),

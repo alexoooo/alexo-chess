@@ -119,13 +119,13 @@ public class Tournament
 //                ),
 //                true
 //        );
-//
+
 //        Player b = NeuralNetworkPlayer.load(
 //                new PuctSingleModel(
-//                        Paths.get("lookup/nn/res_10_20191222.zip"),
+//                        Paths.get("lookup/nn/res_10_20191224.zip"),
 //                        true
 //                ),
-//                true
+//                false
 //        );
 
         Player a = new PuctPlayer(
@@ -137,24 +137,20 @@ public class Tournament
                 1.25,
                 65536,
                 true,
-                0,
                 true,
-                0.25,
                 0,
                 false);
 
         Player b = new PuctPlayer(
                 new PuctSingleModel(
-                        Paths.get("lookup/nn/res_10_20191222.zip"),
+                        Paths.get("lookup/nn/res_10_20191224.zip"),
                         true
                 ),
                 12,
-                1.25,
+                1.0,
                 65536,
                 true,
-                0,
                 true,
-                0.25,
                 0,
                 false);
 

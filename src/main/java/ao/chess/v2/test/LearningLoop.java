@@ -266,9 +266,7 @@ public class LearningLoop {
                         thinkingExploration,
                         thinkingExplorationLog,
                         aVisitMax,
-                        thinkingRollounts,
                         thinkingTablebase,
-                        thinkingMoveUncertainty,
                         thinkingMinimumTrajectories,
                         thinkingAlpha,
                         thinkingSignal);
@@ -282,9 +280,7 @@ public class LearningLoop {
                         thinkingExploration,
                         thinkingExplorationLog,
                         bVisitMax,
-                        thinkingRollounts,
                         thinkingTablebase,
-                        thinkingMoveUncertainty,
                         thinkingMinimumTrajectories,
                         thinkingAlpha,
                         thinkingSignal);
@@ -369,9 +365,7 @@ public class LearningLoop {
                     thinkingExploration,
                     thinkingExplorationLog,
                     aVisitMax,
-                    thinkingRollounts,
                     thinkingTablebase,
-                    thinkingMoveUncertainty,
                     thinkingMinimumTrajectories,
                     thinkingAlpha,
                     thinkingSignal);
@@ -385,9 +379,7 @@ public class LearningLoop {
                     thinkingExploration,
                     thinkingExplorationLog,
                     bVisitMax,
-                    thinkingRollounts,
                     thinkingTablebase,
-                    thinkingMoveUncertainty,
                     thinkingMinimumTrajectories,
                     thinkingAlpha,
                     thinkingSignal);

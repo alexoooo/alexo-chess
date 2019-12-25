@@ -19,7 +19,7 @@ class PuctModelPool
     private final int batchSize;
     private final PuctModel model;
 
-    private final double uncertainty;
+//    private final double uncertainty;
     private final double outcomeRange;
     private final double minOutcome;
 
@@ -31,12 +31,14 @@ class PuctModelPool
     public PuctModelPool(
             int batchSize,
             PuctModel model,
-            double uncertainty, double outcomeRange, double minOutcome)
+//            double uncertainty,
+            double outcomeRange,
+            double minOutcome)
     {
         this.batchSize = batchSize;
         this.model = model;
 
-        this.uncertainty = uncertainty;
+//        this.uncertainty = uncertainty;
         this.outcomeRange = outcomeRange;
         this.minOutcome = minOutcome;
 
@@ -111,7 +113,7 @@ class PuctModelPool
                 buffer.addAll(newQueries);
                 checkState(buffer.size() == 1);
                 List<PuctEstimate> estimates = model.estimateAll(
-                        buffer, 0.0, 1.0, 0.0);
+                        buffer, /*0.0,*/ 1.0, 0.0);
                 buffer.get(0).result.complete(estimates.get(0));
                 buffer.clear();
             }
@@ -140,7 +142,7 @@ class PuctModelPool
 
     private void processBuffer(List<PuctQuery> buffer) {
         List<PuctEstimate> estimates = model.estimateAll(
-                buffer, uncertainty, outcomeRange, minOutcome);
+                buffer, /*uncertainty,*/ outcomeRange, minOutcome);
 
         for (int i = 0; i < buffer.size(); i++) {
             PuctQuery query = buffer.get(i);

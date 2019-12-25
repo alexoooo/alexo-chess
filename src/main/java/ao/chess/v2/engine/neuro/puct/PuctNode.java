@@ -1,7 +1,6 @@
 package ao.chess.v2.engine.neuro.puct;
 
 
-import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
 import ao.chess.v2.piece.Colour;
@@ -31,8 +30,7 @@ class PuctNode {
 
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
-    private static final double rolloutWeight = 0.25;
-    private static final double randomizationWeight = 1 / 200.0;
+    private static final double randomizationWeight = 1 / 175.0;
 
     private static final boolean valueUncertainty = false;
 
@@ -244,15 +242,7 @@ class PuctNode {
 //                : Math.pow((double) state.reversibleMoves() / 100, 2);
         double adjusted = drawProximity * 0.5 + (1 - drawProximity) * estimate.winProbability;
 
-        if (context.rollouts == 0) {
-            context.estimatedValue = adjusted;
-        }
-        else {
-            double rolloutValue = randomRollouts(state, context);
-            context.estimatedValue =
-                    rolloutWeight * rolloutValue +
-                    (1 - rolloutWeight) * adjusted;
-        }
+        context.estimatedValue = adjusted;
 
         return true;
     }
@@ -295,92 +285,6 @@ class PuctNode {
     }
 
 
-
-    private double randomRollouts(
-            State state,
-            PuctContext context)
-    {
-        Colour pov = state.nextToAct();
-
-        double sum = 0;
-        int count = 0;
-        for (int i = context.rollouts - 1; i >= 0; i--) {
-            State freshState =
-                    (i == 0)
-                    ? state
-                    : state.prototype();
-
-            double value = computeMonteCarloPlayout(
-                    freshState, pov, context);
-
-            sum += value;
-            count++;
-        }
-
-        return sum / count;
-    }
-
-
-    private double computeMonteCarloPlayout(
-            State state,
-            Colour pov,
-            PuctContext context
-    ) {
-        int[] moves = context.movesA;
-        int[] nextMoves = context.movesB;
-
-        int nextCount = 0;
-        int nMoves = state.moves(moves);
-        Outcome outcome = null;
-
-        boolean wasDrawnBy50MovesRule = false;
-        do
-        {
-            boolean madeMove = false;
-
-            int[] randomMoveOrder = MovePicker.pickRandom(nMoves);
-            for (int moveIndex : randomMoveOrder)
-            {
-                int undoable = Move.apply(moves[ moveIndex ], state);
-
-                // opponent moves
-                nextCount = state.moves(nextMoves);
-
-                if (nextCount < 0) {
-                    Move.unApply(undoable, state);
-                }
-                else {
-                    madeMove = true;
-                    break;
-                }
-            }
-
-            if (! madeMove) {
-                outcome = state.isInCheck(state.nextToAct())
-                        ? Outcome.loses(state.nextToAct())
-                        : Outcome.DRAW;
-                break;
-            }
-
-            {
-                int[] tempMoves = nextMoves;
-                nextMoves       = moves;
-                moves           = tempMoves;
-                nMoves          = nextCount;
-            }
-        }
-        while (! (wasDrawnBy50MovesRule =
-                state.isDrawnBy50MovesRule()));
-
-        if (wasDrawnBy50MovesRule) {
-            return 0.5;
-//            return MaterialEvaluation.evaluate(state, pov);
-        }
-
-        return outcome.valueFor( pov );
-    }
-
-
     //-----------------------------------------------------------------------------------------------------------------
     private int puctChild(
             PuctContext context)
@@ -418,6 +322,10 @@ class PuctNode {
         double maxScore = Double.NEGATIVE_INFINITY;
         int maxScoreIndex = 0;
 
+        double uncertainty = 1.0 - 1.0 / Math.max(1, Math.log(parentVisitCount) - 5);
+        double moveUncertainty = uncertainty / moveCount;
+        double predictionDenominator = 1.0 + uncertainty;
+
         for (int i = 0; i < moveCount; i++) {
             long moveVisits = moveVisitCounts[i];
 
@@ -445,8 +353,10 @@ class PuctNode {
                 prediction = predictions[i];
             }
 
+            double smearedPrediction = (prediction + moveUncertainty) / predictionDenominator;
+
             double unvisitedBonus =
-                    prediction *
+                    smearedPrediction *
                     (Math.sqrt(parentVisitCount) / (moveVisits + 1)) *
                     (context.exploration +
                             Math.log((parentVisitCount + context.explorationLog + 1) / context.explorationLog));
@@ -633,6 +543,10 @@ class PuctNode {
         double inverse = inverseValue();
         long parentVisitCount = parentCount;
 
+        double uncertainty = 1.0 - 1.0 / Math.max(1, Math.log(parentVisitCount) - 4);
+        double moveUncertainty = uncertainty / moves.length;
+        double predictionDenominator = 1.0 + uncertainty;
+
         String childSummary = indexes
                 .stream()
                 .map(i -> String.format("%s %d %d %.4f %.4f %.4f",
@@ -641,7 +555,12 @@ class PuctNode {
                         counts[i] == 0 ? 0 : childNodes.get(i).maxDepth(),
                         counts[i] == 0 ? initialPlayEstimate : values[i] / counts[i],
                         predictions[i],
-                        predictions[i] * Math.sqrt(parentVisitCount) / (counts[i] + 1)))
+                        (predictions[i] + moveUncertainty) / predictionDenominator *
+                                Math.sqrt(parentVisitCount) /
+                                (counts[i] + 1) *
+                                (context.exploration +
+                                        Math.log((parentVisitCount + context.explorationLog + 1) / context.explorationLog))
+                        ))
                 .collect(Collectors.joining(" | "));
 
         return String.format("%d - %.4f - %.4f - %s",

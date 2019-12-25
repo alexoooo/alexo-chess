@@ -10,7 +10,6 @@ public class PuctEstimate {
             double[] moveProbabilities,
             double winProbability
     ) {
-
         this.moveProbabilities = moveProbabilities;
         this.winProbability = winProbability;
     }
@@ -19,12 +18,12 @@ public class PuctEstimate {
     public PuctEstimate(
             double[] moveProbabilities,
             double winProbability,
-            double uncertainty,
+//            double uncertainty,
             double outcomeRange,
             double minOutcome
     ) {
-        PuctUtils.smearProbabilities(
-                moveProbabilities, uncertainty);
+//        PuctUtils.smearProbabilities(
+//                moveProbabilities, uncertainty);
         this.moveProbabilities = moveProbabilities;
 
         this.winProbability = outcomeRange * winProbability + minOutcome;

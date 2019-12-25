@@ -116,7 +116,6 @@ public class BrainTeaser {
         Player player = new PuctPlayer(
                 new PuctSingleModel(
                         Paths.get("lookup/nn/res_4h_20191215.zip"),
-//                        Paths.get("lookup/nn/res_10_20191222.zip"),
                         true
                 ),
 //                6,
@@ -128,29 +127,23 @@ public class BrainTeaser {
                 65536,
 //                false,
                 true,
-                0,
                 true,
-//                1.25,
-//                1.0,
-//                0.75,
-//                0.5,
-                0.25,
-//                0.0,
                 0);
 
 //        Player player = new PuctPlayer(
 //                new PuctSingleModel(
-//                        Paths.get("lookup/nn/res_10_20191222.zip"),
+//                        Paths.get("lookup/nn/res_10_20191224.zip"),
 //                        true
 //                ),
-////                8,
 //                12,
-//                1.25,
+////                1.25,
+//                1.0,
+////                32768,
 //                65536,
 //                true,
-//                0,
 //                true,
 //                0.25,
+////                0.0,
 //                0);
 
         State state = State.fromFen(

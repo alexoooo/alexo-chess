@@ -51,7 +51,10 @@ public class AlexoChess
     //--------------------------------------------------------------------
     public static void main(String[] args)
     {
-        Path nnPath = Paths.get("lookup/nn/res_4h_20191215.zip");
+        Path nnPath =
+//                Paths.get("lookup/nn/res_4h_20191215.zip");
+                Paths.get("lookup/nn/res_10_20191224.zip");
+
         PuctModel puctModel = new PuctSingleModel(
                 nnPath, true);
 
@@ -82,9 +85,7 @@ public class AlexoChess
                         1.25,
                         65536,
                         true,
-                        0,
                         true,
-                        0.25,
                         0,
                         true);
             }
