@@ -113,38 +113,37 @@ public class BrainTeaser {
 //                0.75,
 //                0);
 
+//        Player player = new PuctPlayer(
+//                new PuctSingleModel(
+//                        Paths.get("lookup/nn/res_4h_20191215.zip"),
+//                        true
+//                ),
+////                6,
+//                12,
+////                1.0,
+//                1.25,
+////                3.0,
+//                32768,
+////                65536,
+////                false,
+//                true,
+//                true,
+//                0);
+
         Player player = new PuctPlayer(
                 new PuctSingleModel(
-                        Paths.get("lookup/nn/res_4h_20191215.zip"),
+                        Paths.get("lookup/nn/res_10_20191227.zip"),
                         true
                 ),
-//                6,
                 12,
+                1.0,
 //                1.0,
-                1.25,
-//                3.0,
-//                32768,
-                65536,
-//                false,
+//                24576,
+                32768,
+//                65536,
                 true,
                 true,
                 0);
-
-//        Player player = new PuctPlayer(
-//                new PuctSingleModel(
-//                        Paths.get("lookup/nn/res_10_20191224.zip"),
-//                        true
-//                ),
-//                12,
-////                1.25,
-//                1.0,
-////                32768,
-//                65536,
-//                true,
-//                true,
-//                0.25,
-////                0.0,
-//                0);
 
         State state = State.fromFen(
                 // puzzles

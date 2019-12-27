@@ -30,9 +30,10 @@ class PuctNode {
 
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
-    private static final double randomizationWeight = 1 / 175.0;
-
-    private static final boolean valueUncertainty = false;
+    private static final double randomizationWeight = 1 / 150.0;
+    private static final double uncertaintyLogBase = Math.log(16);
+    private static final double uncertaintyLogOffset = 2.5;
+    private static final double uncertaintyLogShift = 16200;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -334,9 +335,13 @@ class PuctNode {
         double maxScore = Double.NEGATIVE_INFINITY;
         int maxScoreIndex = 0;
 
-        double uncertainty = 1.0 - 1.0 / Math.max(1, Math.log(parentVisitCount) - 5);
-        double moveUncertainty = uncertainty / moveCount;
-        double predictionDenominator = 1.0 + uncertainty;
+        double uncertainty = 1.0 - 1.0 / Math.max(1,
+                Math.log(parentVisitCount + uncertaintyLogShift) / uncertaintyLogBase - uncertaintyLogOffset);
+//        double uncertainty = 1.0 - 1.0 / Math.max(1, Math.log(parentVisitCount) - 4);
+//        double uncertainty = 0.25;
+//        double moveUncertainty = uncertainty / moveCount;
+        double moveUncertainty = uncertainty;
+        double predictionDenominator = 1.0 + uncertainty * moveCount;
 
         for (int i = 0; i < moveCount; i++) {
             long moveVisits = moveVisitCounts[i];
@@ -434,8 +439,8 @@ class PuctNode {
 
         State repeatCursorOrNull =
                 isRepeat
-                ? null
-                : state.prototype();
+                ? state.prototype()
+                : null;
 
         for (int i = 0; i < moves.length; i++)
         {
@@ -592,9 +597,14 @@ class PuctNode {
         double inverse = inverseValue();
         long parentVisitCount = parentCount;
 
-        double uncertainty = 1.0 - 1.0 / Math.max(1, Math.log(parentVisitCount) - 4);
-        double moveUncertainty = uncertainty / moves.length;
-        double predictionDenominator = 1.0 + uncertainty;
+//        double uncertainty = 1.0 - 1.0 / Math.max(1, Math.log(parentVisitCount) - 4);
+//        double moveUncertainty = uncertainty / moves.length;
+//        double predictionDenominator = 1.0 + uncertainty;
+
+        double uncertainty = 1.0 - 1.0 / Math.max(1,
+                Math.log(parentVisitCount + uncertaintyLogShift) / uncertaintyLogBase - uncertaintyLogOffset);
+        double moveUncertainty = uncertainty;
+        double predictionDenominator = 1.0 + uncertainty * moves.length;
 
         String childSummary = indexes
                 .stream()

@@ -1,8 +1,8 @@
 package ao.chess.v2.engine.heuristic.learn;
 
 import ao.chess.v2.data.Location;
-import ao.chess.v2.engine.neuro.puct.PuctEstimate;
 import ao.chess.v2.engine.neuro.NeuralCodec;
+import ao.chess.v2.engine.neuro.puct.PuctEstimate;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;
 import ao.chess.v2.state.Move;
@@ -44,7 +44,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -59,6 +59,8 @@ public class MoveTrainer {
 //    private static final boolean valueOnly = true;
     private static final boolean computeGraph = true;
     private static final boolean valueOnly = false;
+//    private static final boolean useCheckpoint = false;
+    private static final boolean useCheckpoint = true;
 
 //    private static final boolean snapshot = false;
     private static final boolean snapshot = true;
@@ -73,6 +75,7 @@ public class MoveTrainer {
 //    private static final int miniBatchSize = 256;
 //    private static final int miniBatchSize = 320;
     private static final int miniBatchSize = 384;
+//    private static final int miniBatchSize = 448;
 //    private static final int miniBatchSize = 512;
 
     private static final int saveOnceEvery = 1_000_000;
@@ -149,6 +152,7 @@ public class MoveTrainer {
         for (int i = fromInclusive; i <= toInclusive; i++) {
 //            Path mixFile = Paths.get("lookup/train/mix-pgnmentor-2/" + i + ".txt.gz");
             Path mixFile = Paths.get("lookup/train/mix-big/" + i + ".txt.gz");
+//            Path mixFile = Paths.get("lookup/train/mix-big-2/" + i + ".txt.gz");
             range.add(mixFile);
         }
         return range;
@@ -162,20 +166,9 @@ public class MoveTrainer {
 
 
     private static final Path saveFile =
-//            Paths.get("lookup/history/mix/all_mid_20191116.zip");
-//            Paths.get("lookup/history/mix/all_mid_20191117b.zip");
-//            Paths.get("lookup/history/mix/all_mid_batch_20191124.zip");
-//            Paths.get("lookup/nn/all_mid_batch_20191124.zip");
-//            Paths.get("lookup/nn/multi_3_20191124b.zip");
-//            Paths.get("lookup/nn/multi_6d_20191208.zip");
-//            Paths.get("lookup/nn/res_2_20191209b.zip");
-//            Paths.get("lookup/nn/res_2b_20191209.zip");
-//            Paths.get("lookup/nn/res_2g_20191209.zip");
-//            Paths.get("lookup/nn/res_4d_20191209.zip");
-//            Paths.get("lookup/nn/res_4d_20191210.zip");
-//            Paths.get("lookup/nn/res_4h_20191210.zip");
 //            Paths.get("lookup/nn/res_4h_20191215.zip");
-            Paths.get("lookup/nn/res_10_20191224.zip");
+            Paths.get("lookup/nn/res_10_20191227.zip");
+//            Paths.get("lookup/nn/res_32_20191227.zip");
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -196,11 +189,19 @@ public class MoveTrainer {
 //            nn = createResidualNetwork2();
 //            nn = createResidualNetwork3();
 //            nn = createResidualNetwork4();
-            nn = createResidualNetwork10();
+//            nn = createResidualNetwork10();
+            nn = createResidualNetwork32();
         }
 
-        int checkpoint = readCheckpoint();
-        List<Path> inputs = mixRange(checkpoint + 1, checkpoint + progressSteps);
+        int checkpoint =
+                useCheckpoint
+                ? readCheckpoint()
+                : -1;
+        List<Path> inputs =
+                mixRange(checkpoint + 1, checkpoint + progressSteps);
+//                List.of(
+//                        Paths.get("lookup/train/mix-small/champions_10000.txt")
+//                );
 
         if (testInitial) {
             testOutputs(nn, checkpoint, false);
@@ -223,7 +224,9 @@ public class MoveTrainer {
 
                 testOutputs(nn, nextCheckpoint, true);
 
-                writeCheckpoint(nextCheckpoint);
+                if (useCheckpoint) {
+                    writeCheckpoint(nextCheckpoint);
+                }
                 nextCheckpoint++;
             }
         }
@@ -262,7 +265,7 @@ public class MoveTrainer {
                     " - " + trainingCount + " of " + allMoves.size() +
                     " - Training took: " +
                     (double) (System.currentTimeMillis() - trainingStart) / 1000 +
-                    " - " + LocalTime.now());
+                    " - " + LocalDateTime.now());
 
             Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
         }
@@ -377,7 +380,7 @@ public class MoveTrainer {
                     actionStats.getAverage() + "\t" +
                     "took: " + took + " - " + testPath);
 
-            if (write) {
+            if (write && useCheckpoint) {
                 writeProgress(checkpoint, outcomeStats.getAverage(), actionStats.getAverage());
             }
 
@@ -1053,6 +1056,23 @@ public class MoveTrainer {
         builder.addInitialConvolution();
 
         String body = builder.addResidualTower(10, NnBuilder.layerInitial);
+
+        builder.addPolicyHead(body, 64);
+        builder.addValueHead(body, 64);
+
+        ComputationGraph net = new ComputationGraph(builder.build());
+        net.init();
+
+        return net;
+    }
+
+
+    public static ComputationGraph createResidualNetwork32() {
+        NnBuilder builder = new NnBuilder(64, Activation.LEAKYRELU);
+
+        builder.addInitialConvolution();
+
+        String body = builder.addResidualTower(32, NnBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
         builder.addValueHead(body, 64);

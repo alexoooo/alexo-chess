@@ -53,7 +53,7 @@ public class AlexoChess
     {
         Path nnPath =
 //                Paths.get("lookup/nn/res_4h_20191215.zip");
-                Paths.get("lookup/nn/res_10_20191224.zip");
+                Paths.get("lookup/nn/res_10_20191226.zip");
 
         PuctModel puctModel = new PuctSingleModel(
                 nnPath, true);
@@ -83,7 +83,7 @@ public class AlexoChess
                         puctModel,
                         12,
                         1.25,
-                        65536,
+                        24576,
                         true,
                         true,
                         0,
