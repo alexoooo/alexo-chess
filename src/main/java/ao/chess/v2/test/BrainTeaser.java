@@ -158,6 +158,7 @@ public class BrainTeaser {
 //                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1 (!!)
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8 (!!)
+//                "rn3rk1/pbppq1pp/1p2pb2/4N2Q/3PN3/3B4/PPP2PPP/R3K2R w KQ - 7 11" // Q from h5 to h7
 //                "r1bqkb1r/pp1n1pp1/2p1pn1p/6N1/3P4/3B1N2/PPP2PPP/R1BQK2R w KQkq - 0 8" // g5 e6 (deep blue)
 
                 // trivial
@@ -184,6 +185,12 @@ public class BrainTeaser {
 //                "r1bqkb1r/pp3ppp/2n1pn2/2pp4/2PP4/2N1PN2/PP3PPP/R1BQKB1R w KQkq - 0 1"
 //                "r1bqkb1r/pp3ppp/2n1pn2/2pP4/3P4/2N1PN2/PP3PPP/R1BQKB1R b KQkq - 0 1"
 //                "r1bqkb1r/pp3ppp/2n2n2/2pp4/3P4/2N1PN2/PP3PPP/R1BQKB1R w KQkq - 0 1"
+//                "r1bqkb1r/pp3ppp/2n2n2/2pp4/3P4/2N1PN2/PP2BPPP/R1BQK2R b KQkq - 0 1"
+//                "r1bqkb1r/pp3ppp/2n2n2/3p4/3p4/2N1PN2/PP2BPPP/R1BQK2R w KQkq - 0 1"
+//                "r1bqkb1r/pp3ppp/2n2n2/3p4/3N4/2N1P3/PP2BPPP/R1BQK2R b KQkq - 0 1"
+//                "r1bqkb1r/1p3ppp/p1n2n2/3p4/3N4/2N1P3/PP2BPPP/R1BQK2R w KQkq - 0 1"
+//                "r1bqkb1r/1p3ppp/p1n2n2/3p4/3N4/2N1P3/PP2BPPP/R1BQ1RK1 b kq - 0 1"
+                "r1bqk2r/1p3ppp/p1nb1n2/3p4/3N4/2N1P3/PP2BPPP/R1BQ1RK1 w kq - 0 1"
 
                 // Gus (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -357,7 +364,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/5N1P/PPPPPPP1/RNBQKB1R w KQkq - 0 1"
 //                "r1bqkbnr/pp1ppppp/2n5/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/8/2N2N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
-                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
+//                "r1bqkbnr/pp1ppp1p/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1" // ?? f8g7 - give up pawn
 //                "r1bqk1nr/pp1pppbp/2n3p1/2p5/4N3/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"
 //                "r1bqk1nr/pp1pppbp/2n3p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R b KQkq - 0 1"
 //                "r1bqk1nr/pp2ppbp/2np2p1/2N5/8/5N1P/PPPPPPP1/R1BQKB1R w KQkq - 0 1"

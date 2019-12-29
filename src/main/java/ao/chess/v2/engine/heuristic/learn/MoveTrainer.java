@@ -72,11 +72,13 @@ public class MoveTrainer {
 //    private static final int miniBatchSize = 64;
 //    private static final int miniBatchSize = 128;
 //    private static final int miniBatchSize = 192;
-//    private static final int miniBatchSize = 256;
+    private static final int miniBatchSize = 256;
 //    private static final int miniBatchSize = 320;
-    private static final int miniBatchSize = 384;
+//    private static final int miniBatchSize = 384;
 //    private static final int miniBatchSize = 448;
 //    private static final int miniBatchSize = 512;
+//    private static final int miniBatchSize = 768;
+//    private static final int miniBatchSize = 1024;
 
     private static final int saveOnceEvery = 1_000_000;
 
@@ -167,7 +169,8 @@ public class MoveTrainer {
 
     private static final Path saveFile =
 //            Paths.get("lookup/nn/res_4h_20191215.zip");
-            Paths.get("lookup/nn/res_10_20191227.zip");
+//            Paths.get("lookup/nn/res_10_20191227.zip");
+            Paths.get("lookup/nn/res_5a_20191229.zip");
 //            Paths.get("lookup/nn/res_32_20191227.zip");
 
 
@@ -189,8 +192,8 @@ public class MoveTrainer {
 //            nn = createResidualNetwork2();
 //            nn = createResidualNetwork3();
 //            nn = createResidualNetwork4();
-//            nn = createResidualNetwork10();
-            nn = createResidualNetwork32();
+            nn = createResidualNetwork5();
+//            nn = createResidualNetwork32();
         }
 
         int checkpoint =
@@ -1039,6 +1042,23 @@ public class MoveTrainer {
 //        builder.addInitialConvolution();
 
         String body = builder.addResidualTower(4, NnBuilder.layerInitial);
+
+        builder.addPolicyHead(body, 64);
+        builder.addValueHead(body, 64);
+
+        ComputationGraph net = new ComputationGraph(builder.build());
+        net.init();
+
+        return net;
+    }
+
+
+    public static ComputationGraph createResidualNetwork5() {
+        NnBuilder builder = new NnBuilder(256, Activation.RELU);
+
+        builder.addInitialConvolution();
+
+        String body = builder.addResidualTower(5, NnBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
         builder.addValueHead(body, 64);

@@ -35,9 +35,13 @@
 <!--        <nd4j.backend>nd4j-native-platform</nd4j.backend>-->
         <nd4j.backend>nd4j-cuda-10.1-platform</nd4j.backend>
 
-        <nd4j.version>1.0.0-beta5</nd4j.version>
+        <!--<nd4j.version>1.0.0-beta5</nd4j.version>
         <dl4j.version>1.0.0-beta5</dl4j.version>
-        <rl4j.version>1.0.0-beta5</rl4j.version>
+        <rl4j.version>1.0.0-beta5</rl4j.version>-->
+        <nd4j.version>1.0.0-beta6</nd4j.version>
+        <dl4j.version>1.0.0-beta6</dl4j.version>
+        <rl4j.version>1.0.0-beta6</rl4j.version>
+        <cuda.version>1.0.0-beta6</cuda.version>
     </properties>
 
 
@@ -64,8 +68,9 @@
         <!-- CUDA-->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-cuda-10.1</artifactId>
-            <version>1.0.0-beta5</version>
+<!--            <artifactId>deeplearning4j-cuda-10.1</artifactId>-->
+            <artifactId>deeplearning4j-cuda-10.2</artifactId>
+            <version>${cuda.version}</version>
         </dependency>
 
         <dependency>

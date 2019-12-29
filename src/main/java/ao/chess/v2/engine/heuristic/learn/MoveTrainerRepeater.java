@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -21,7 +21,7 @@ public class MoveTrainerRepeater {
 //        double random = Math.random();
         Files.writeString(repeaterPath,
 //                LocalTime.now() + " | " + random + "\n",
-                LocalTime.now() + "\n",
+                LocalDateTime.now() + "\n",
                 StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 
         MoveTrainer.main(args);
