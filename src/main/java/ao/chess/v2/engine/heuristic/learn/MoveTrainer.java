@@ -72,11 +72,11 @@ public class MoveTrainer {
 //    private static final int miniBatchSize = 64;
 //    private static final int miniBatchSize = 128;
 //    private static final int miniBatchSize = 192;
-    private static final int miniBatchSize = 256;
+//    private static final int miniBatchSize = 256;
 //    private static final int miniBatchSize = 320;
 //    private static final int miniBatchSize = 384;
 //    private static final int miniBatchSize = 448;
-//    private static final int miniBatchSize = 512;
+    private static final int miniBatchSize = 512;
 //    private static final int miniBatchSize = 768;
 //    private static final int miniBatchSize = 1024;
 
@@ -170,7 +170,7 @@ public class MoveTrainer {
     private static final Path saveFile =
 //            Paths.get("lookup/nn/res_4h_20191215.zip");
 //            Paths.get("lookup/nn/res_10_20191227.zip");
-            Paths.get("lookup/nn/res_5a_20191229.zip");
+            Paths.get("lookup/nn/res_5a_head.zip");
 //            Paths.get("lookup/nn/res_32_20191227.zip");
 
 

@@ -33,11 +33,13 @@
         <ao.util.version>2.4.0</ao.util.version>
 
 <!--        <nd4j.backend>nd4j-native-platform</nd4j.backend>-->
-        <nd4j.backend>nd4j-cuda-10.1-platform</nd4j.backend>
+<!--        <nd4j.backend>nd4j-cuda-10.1-platform</nd4j.backend>-->
+        <nd4j.backend>nd4j-cuda-10.2-platform</nd4j.backend>
 
-        <!--<nd4j.version>1.0.0-beta5</nd4j.version>
-        <dl4j.version>1.0.0-beta5</dl4j.version>
-        <rl4j.version>1.0.0-beta5</rl4j.version>-->
+<!--        <nd4j.version>1.0.0-beta5</nd4j.version>-->
+<!--        <dl4j.version>1.0.0-beta5</dl4j.version>-->
+<!--        <rl4j.version>1.0.0-beta5</rl4j.version>-->
+<!--        <cuda.version>1.0.0-beta5</cuda.version>-->
         <nd4j.version>1.0.0-beta6</nd4j.version>
         <dl4j.version>1.0.0-beta6</dl4j.version>
         <rl4j.version>1.0.0-beta6</rl4j.version>
@@ -64,14 +66,20 @@
             <artifactId>nd4j-native</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-native</artifactId>
+            <version>${nd4j.version}</version>
+            <classifier>windows-x86_64-avx2</classifier>
+        </dependency>
 
         <!-- CUDA-->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-<!--            <artifactId>deeplearning4j-cuda-10.1</artifactId>-->
             <artifactId>deeplearning4j-cuda-10.2</artifactId>
             <version>${cuda.version}</version>
         </dependency>
+
 
         <dependency>
             <groupId>ao.util</groupId>
@@ -84,17 +92,7 @@
             <version>${ao.util.version}</version>
         </dependency>
 
-        <!--<dependency>
-            <groupId>ao.ai</groupId>
-            <artifactId>ai-classification</artifactId>
-            <version>0.0.8-SNAPSHOT</version>
-        </dependency>-->
 
-        <!--<dependency>-->
-            <!--<groupId>it.unimi.dsi</groupId>-->
-            <!--<artifactId>dsituils</artifactId>-->
-            <!--<version>1.0.11</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>it.unimi.dsi</groupId>
             <artifactId>sux4j</artifactId>

@@ -16,7 +16,6 @@ import java.nio.file.Paths;
  * 
  * See
  *   http://en.wikibooks.org/wiki/Chess/Puzzles/Directmates
- *
  */
 public class BrainTeaser {
     //--------------------------------------------------------------------
@@ -132,14 +131,17 @@ public class BrainTeaser {
 
         Player player = new PuctPlayer(
                 new PuctSingleModel(
-                        Paths.get("lookup/nn/res_10_20191227.zip"),
+                        Paths.get("lookup/nn/res_5a_head.zip"),
+//                        Paths.get("lookup/nn/res_10_20191227.zip"),
                         true
                 ),
-                12,
-                1.0,
+//                12,
+//                36,
+                48,
 //                1.0,
-//                24576,
-                32768,
+                1.25,
+                24576,
+//                32768,
 //                65536,
                 true,
                 true,
@@ -172,6 +174,9 @@ public class BrainTeaser {
 //                "K7/8/8/8/5r2/6p1/4q1kq/8 b  - 91 n"
 
 
+                // Josh
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
                 // Travis 2 (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 //                "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1"
@@ -190,7 +195,7 @@ public class BrainTeaser {
 //                "r1bqkb1r/pp3ppp/2n2n2/3p4/3N4/2N1P3/PP2BPPP/R1BQK2R b KQkq - 0 1"
 //                "r1bqkb1r/1p3ppp/p1n2n2/3p4/3N4/2N1P3/PP2BPPP/R1BQK2R w KQkq - 0 1"
 //                "r1bqkb1r/1p3ppp/p1n2n2/3p4/3N4/2N1P3/PP2BPPP/R1BQ1RK1 b kq - 0 1"
-                "r1bqk2r/1p3ppp/p1nb1n2/3p4/3N4/2N1P3/PP2BPPP/R1BQ1RK1 w kq - 0 1"
+//                "r1bqk2r/1p3ppp/p1nb1n2/3p4/3N4/2N1P3/PP2BPPP/R1BQ1RK1 w kq - 0 1"
 
                 // Gus (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
