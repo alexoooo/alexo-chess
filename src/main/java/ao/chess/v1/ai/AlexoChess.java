@@ -53,7 +53,8 @@ public class AlexoChess
     {
         Path nnPath =
 //                Paths.get("lookup/nn/res_4h_20191215.zip");
-                Paths.get("lookup/nn/res_10_20191226.zip");
+//                Paths.get("lookup/nn/res_10_20191226.zip");
+                Paths.get("lookup/nn/res_5a_head.zip");
 
         PuctModel puctModel = new PuctSingleModel(
                 nnPath, true);
@@ -79,15 +80,11 @@ public class AlexoChess
                         true);
             }
             else {
-                player = new PuctPlayer(
-                        puctModel,
-                        12,
-                        1.25,
-                        24576,
-                        true,
-                        true,
-                        0,
-                        true);
+                player = new PuctPlayer.Builder(puctModel)
+                        .threads(48)
+                        .stochastic(true)
+                        .useIo(true)
+                        .build();
             }
 
             Bot bot = new V2Bot(player, thinkMillis);

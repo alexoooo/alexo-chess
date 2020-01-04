@@ -532,4 +532,21 @@ public class Move
                 (Location.rankIndex(to) + 1) +
                 promoteToInput;
     }
+
+
+    public static int findMove(State from, State to)
+    {
+        int[] legalMoves = from.legalMoves();
+
+        for (int legalMove : legalMoves) {
+            int move = Move.apply(legalMove, from);
+            if (from.equals(to)) {
+                Move.unApply(move, from);
+                return move;
+            }
+            Move.unApply(move, from);
+        }
+
+        return -1;
+    }
 }

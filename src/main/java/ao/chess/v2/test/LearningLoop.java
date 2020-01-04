@@ -51,6 +51,7 @@ public class LearningLoop {
     private final static double thinkingMoveUncertainty = 0.4;
     private final static double thinkingSignal = 0.75;
     private final static int thinkingMinimumTrajectories = 1000;
+    private final static boolean thinkingStochastic = true;
     private final static int thinkingRollounts = 7;
     private final static boolean thinkingTablebase = true;
 //    private final static int thinkingTimeMs = 10_000;
@@ -268,8 +269,11 @@ public class LearningLoop {
                         aVisitMax,
                         thinkingTablebase,
                         thinkingMinimumTrajectories,
+                        thinkingStochastic,
                         thinkingAlpha,
-                        thinkingSignal);
+                        thinkingSignal,
+                        true,
+                        false);
 
                 PuctPlayer b = new PuctPlayer(
                         new PuctSingleModel(
@@ -282,8 +286,11 @@ public class LearningLoop {
                         bVisitMax,
                         thinkingTablebase,
                         thinkingMinimumTrajectories,
+                        thinkingStochastic,
                         thinkingAlpha,
-                        thinkingSignal);
+                        thinkingSignal,
+                        true,
+                        false);
 
                 int whiteThinkingMs = aThinkingTimeMs;
                 int blackThinkingMs = bThinkingTimeMs;
@@ -367,8 +374,11 @@ public class LearningLoop {
                     aVisitMax,
                     thinkingTablebase,
                     thinkingMinimumTrajectories,
+                    thinkingStochastic,
                     thinkingAlpha,
-                    thinkingSignal);
+                    thinkingSignal,
+                    true,
+                    false);
 
             PuctPlayer b = new PuctPlayer(
                     new PuctSingleModel(
@@ -381,8 +391,11 @@ public class LearningLoop {
                     bVisitMax,
                     thinkingTablebase,
                     thinkingMinimumTrajectories,
+                    thinkingStochastic,
                     thinkingAlpha,
-                    thinkingSignal);
+                    thinkingSignal,
+                    true,
+                    false);
 
             int whiteThinkingMs = aThinkingTimeMs;
             int blackThinkingMs = bThinkingTimeMs;
@@ -426,13 +439,11 @@ public class LearningLoop {
 
         Path nnFile = generationDir.resolve(nnFilename);
 
-        Player a = new PuctPlayer(
+        Player a = new PuctPlayer.Builder(
                 new PuctSingleModel(
                         nnFile,
                         computeGraph
-                ),
-                1,
-                500);
+                )).build();
 
         Player b;
         if (previousGenerationDirs.isEmpty()) {
@@ -443,13 +454,11 @@ public class LearningLoop {
                     .get(previousGenerationDirs.size() - 1)
                     .resolve(nnFilename);
 
-            b = new PuctPlayer(
+            b = new PuctPlayer.Builder(
                     new PuctSingleModel(
                             previousNnFile,
                             computeGraph
-                    ),
-                    1,
-                    500);
+            )).build();
         }
 
         GameLoop gameLoop = new GameLoop();

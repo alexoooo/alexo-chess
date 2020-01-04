@@ -128,31 +128,16 @@ public class Tournament
 //                false
 //        );
 
-        Player a = new PuctPlayer(
+        Player a = new PuctPlayer.Builder(
                 new PuctSingleModel(
-                        Paths.get("lookup/nn/res_4h_20191215.zip"),
+                        Paths.get("lookup/nn/res_5a_head.zip"),
                         true
-                ),
-                12,
-                1.25,
-                65536,
-                true,
-                true,
-                0,
-                false);
-
-        Player b = new PuctPlayer(
+                )).build();
+        Player b = new PuctPlayer.Builder(
                 new PuctSingleModel(
                         Paths.get("lookup/nn/res_10_20191224.zip"),
                         true
-                ),
-                12,
-                1.0,
-                65536,
-                true,
-                true,
-                0,
-                false);
+                )).build();
 
 //        Player a = new TopLeftPlayer();
 //        Player a = new RandomPlayer();
@@ -208,15 +193,16 @@ public class Tournament
 ////                        "8/4n1k1/8/8/5K1p/8/8/8 b - - 0 1"
 ////                        "4b3/5k2/8/4p3/8/8/2K5/8 b - - 0 1"
 ////                        "8/8/2p1b1k1/r6n/1K6/8/8/8 b - - 0 1"
-//                        "8/8/8/5R1P/4k1B1/6P1/8/6K1 w - - 0 1"
+////                        "8/8/8/5R1P/4k1B1/6P1/8/6K1 w - - 0 1"
+//                        "3r4/6R1/1p6/pNb4k/P3KP1p/8/6B1/8 b - - 3 51"
 //                );
 
         Outcome outcome = Outcome.DRAW;
 
         while (! state.isDrawnBy50MovesRule())
         {
-//            System.out.println("---------------------------------------");
-//            System.out.println(state);
+            System.out.println("---------------------------------------");
+            System.out.println(state);
 
             Player nextToAct =
                     (state.nextToAct() == Colour.WHITE)

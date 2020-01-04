@@ -423,7 +423,7 @@ class PuctNode {
     //-----------------------------------------------------------------------------------------------------------------
     public int bestMove(
             State state,
-//            boolean visitMax,
+            boolean stochastic,
             boolean isRepeat,
             long[] history,
             int historyCount
@@ -432,10 +432,11 @@ class PuctNode {
             return -1;
         }
 
-//        int visitSqrt = (int) Math.sqrt(visitCount.longValue());
-
-        int bestMoveIndex = 0;
-        long bestMoveScore = 0;
+        int contenderCount = 0;
+        int[] moveContendersIndexes = new int[moves.length];
+        int[] moveContendersCounts = new int[moves.length];
+        int expectedCount = (int) Math.round((double) visitCount() / moves.length + 0.5);
+        int contenderTotal = 0;
 
         State repeatCursorOrNull =
                 isRepeat
@@ -476,13 +477,36 @@ class PuctNode {
                 moveScore = moveVisits;
             }
 
-            if (bestMoveScore < moveScore) {
-                bestMoveScore = moveScore;
-                bestMoveIndex = i;
-            }
-
             if (repeatCursorOrNull != null) {
                 Move.unApply(move, repeatCursorOrNull);
+            }
+
+            if (stochastic && moveVisits < expectedCount) {
+                continue;
+            }
+
+            contenderTotal += (int) moveScore;
+            moveContendersIndexes[contenderCount] = i;
+            moveContendersCounts[contenderCount] = (int) moveScore;
+            contenderCount++;
+        }
+
+        int bestMoveIndex = 0;
+        double bestMoveScore = 0;
+
+        for (int i = 0; i < contenderCount; i++) {
+            double moveScore;
+            if (stochastic) {
+                moveScore = Math.random() * Math.pow(
+                        ((double) moveContendersCounts[i] / contenderTotal), 2);
+            }
+            else {
+                moveScore = moveContendersCounts[i];
+            }
+
+            if (bestMoveScore < moveScore) {
+                bestMoveScore = moveScore;
+                bestMoveIndex = moveContendersIndexes[i];
             }
         }
 
@@ -503,6 +527,11 @@ class PuctNode {
     public long moveValue(int move/*, boolean visitMax*/) {
         int moveIndex = moveIndex(move);
         return (long) childVisitCount(moveIndex/*, visitMax*/);
+    }
+
+
+    public PuctNode childOrNull(int moveIndex) {
+        return childNodes.get(moveIndex);
     }
 
 

@@ -23,6 +23,68 @@ public class PuctPlayer
 
 
     //-----------------------------------------------------------------------------------------------------------------
+    public static class Builder
+    {
+        private PuctModel model;
+        private int threads = 1;
+        private double exploration = 1.25;
+        private double explorationLog = 18432;
+        private boolean randomize = true;
+        private boolean tablebase = true;
+        private int minumumTrajectories = 0;
+        private double alpha = 0.3;
+        private double signal = 0.75;
+        private boolean stochastic = false;
+        private boolean train = false;
+        private boolean useIo = false;
+
+
+        public Builder(PuctModel model) {
+            this.model = model;
+        }
+
+
+        public Builder threads(int threads) {
+            this.threads = threads;
+            return this;
+        }
+
+        public Builder useIo(boolean useIo) {
+            this.useIo = useIo;
+            return this;
+        }
+
+        public Builder stochastic(boolean stochastic) {
+            this.stochastic = stochastic;
+            return this;
+        }
+
+        public Builder train(boolean train) {
+            this.train = train;
+            return this;
+        }
+
+
+        public PuctPlayer build()
+        {
+            return new PuctPlayer(
+                    model,
+                    threads,
+                    exploration,
+                    explorationLog,
+                    randomize,
+                    tablebase,
+                    minumumTrajectories,
+                    stochastic,
+                    alpha,
+                    signal,
+                    true,
+                    useIo);
+        }
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     private final String id;
     private final PuctModel model;
     private final PuctModelPool pool;
@@ -34,6 +96,7 @@ public class PuctPlayer
     private final double alpha;
     private final double signal;
     private final int minimumTrajectories;
+    private final boolean stochastic;
     private final boolean useIo;
     private boolean train;
 
@@ -48,24 +111,117 @@ public class PuctPlayer
     private PuctNode previousRoot;
 
     private final long[] history;
-    private int historyIndex = 0;
+    private int historyIndex;
+
+    private State prevState = null;
+    private PuctNode prevPlay  = null;
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public PuctPlayer(
-            PuctModel model,
-            int threads,
-            int minimumTrajectories)
-    {
-        this(model,
-                threads,
-                1.5,
-                18432,
-                false,
-                true,
-//                0.4,
-                minimumTrajectories);
-    }
+//    public PuctPlayer(
+//            PuctModel model,
+//            int threads,
+//            int minimumTrajectories)
+//    {
+//        this(model,
+//                threads,
+//                1.5,
+//                18432,
+//                false,
+//                true,
+//                minimumTrajectories);
+//    }
+//
+//
+//    public PuctPlayer(
+//            PuctModel model,
+//            int threads,
+//            double exploration,
+//            double explorationLog,
+//            boolean randomize,
+//            boolean tablebase,
+//            int minumumTrajectories)
+//    {
+//        this(model,
+//                threads,
+//                exploration,
+//                explorationLog,
+//                randomize,
+//                tablebase,
+//                minumumTrajectories,
+//                0.3, 0.75, false);
+//    }
+//
+//
+//    public PuctPlayer(
+//            PuctModel model,
+//            int threads,
+//            double exploration,
+//            double explorationLog,
+//            boolean randomize,
+//            boolean tablebase,
+//            int minumumTrajectories,
+//            boolean useIo)
+//    {
+//        this(model,
+//                threads,
+//                exploration,
+//                explorationLog,
+//                randomize,
+//                tablebase,
+//                minumumTrajectories,
+//                0.3, 0.75, false, useIo);
+//    }
+//
+//
+//    public PuctPlayer(
+//            PuctModel model,
+//            int threads,
+//            double exploration,
+//            double explorationLog,
+//            boolean randomize,
+//            boolean tablebase,
+//            int minumumTrajectories,
+//            double alpha,
+//            double signal)
+//    {
+//        this(model,
+//                threads,
+//                exploration,
+//                explorationLog,
+//                randomize,
+//                tablebase,
+//                minumumTrajectories,
+//                alpha,
+//                signal,
+//                true);
+//    }
+//
+//
+//    public PuctPlayer(
+//            PuctModel model,
+//            int threads,
+//            double exploration,
+//            double explorationLog,
+//            boolean randomize,
+//            boolean tablebase,
+//            int minumumTrajectories,
+//            double alpha,
+//            double signal,
+//            boolean train)
+//    {
+//        this(model,
+//                threads,
+//                exploration,
+//                explorationLog,
+//                randomize,
+//                tablebase,
+//                minumumTrajectories,
+//                alpha,
+//                signal,
+//                train,
+//                false);
+//    }
 
 
     public PuctPlayer(
@@ -75,107 +231,8 @@ public class PuctPlayer
             double explorationLog,
             boolean randomize,
             boolean tablebase,
-//            double predictionUncertainty,
-            int minumumTrajectories)
-    {
-        this(model,
-                threads,
-                exploration,
-                explorationLog,
-                randomize,
-                tablebase,
-//                predictionUncertainty,
-                minumumTrajectories,
-                0.3, 0.75, false);
-    }
-
-
-    public PuctPlayer(
-            PuctModel model,
-            int threads,
-            double exploration,
-            double explorationLog,
-            boolean randomize,
-            boolean tablebase,
-//            double predictionUncertainty,
             int minumumTrajectories,
-            boolean useIo)
-    {
-        this(model,
-                threads,
-                exploration,
-                explorationLog,
-                randomize,
-                tablebase,
-//                predictionUncertainty,
-                minumumTrajectories,
-                0.3, 0.75, false, useIo);
-    }
-
-
-    public PuctPlayer(
-            PuctModel model,
-            int threads,
-            double exploration,
-            double explorationLog,
-            boolean randomize,
-            boolean tablebase,
-//            double predictionUncertainty,
-            int minumumTrajectories,
-            double alpha,
-            double signal)
-    {
-        this(model,
-                threads,
-                exploration,
-                explorationLog,
-                randomize,
-                tablebase,
-//                predictionUncertainty,
-                minumumTrajectories,
-                alpha,
-                signal,
-                true);
-    }
-
-
-    public PuctPlayer(
-            PuctModel model,
-            int threads,
-            double exploration,
-            double explorationLog,
-            boolean randomize,
-            boolean tablebase,
-//            double predictionUncertainty,
-            int minumumTrajectories,
-            double alpha,
-            double signal,
-            boolean train)
-    {
-        this(model,
-                threads,
-                exploration,
-                explorationLog,
-                randomize,
-                tablebase,
-//                predictionUncertainty,
-                minumumTrajectories,
-                alpha,
-                signal,
-                train,
-                false);
-    }
-
-
-    public PuctPlayer(
-            PuctModel model,
-            int threads,
-            double exploration,
-            double explorationLog,
-            boolean randomize,
-            boolean tablebase,
-//            double predictionUncertainty,
-            int minumumTrajectories,
+            boolean stochastic,
             double alpha,
             double signal,
             boolean train,
@@ -187,8 +244,8 @@ public class PuctPlayer
         this.explorationLog = explorationLog;
         this.randomize = randomize;
         this.tablebase = tablebase;
-//        this.predictionUncertainty = predictionUncertainty;
         this.minimumTrajectories = minumumTrajectories;
+        this.stochastic = stochastic;
         this.alpha = alpha;
         this.signal = signal;
         this.train = train;
@@ -196,7 +253,7 @@ public class PuctPlayer
 
         pool = new PuctModelPool(
                 threads, model,
-                /*predictionUncertainty,*/ PuctNode.guessRange, PuctNode.minimumGuess);
+                PuctNode.guessRange, PuctNode.minimumGuess);
 
         contexts = new CopyOnWriteArrayList<>();
 
@@ -231,6 +288,8 @@ public class PuctPlayer
         initIfRequired();
 
         if (position.knownOutcome() != null) {
+            prevPlay = null;
+            prevState = null;
             return -1;
         }
 
@@ -239,7 +298,24 @@ public class PuctPlayer
         long positionHash = position.staticHashCode();
         PuctNode root = getOrCreateRoot(position, positionHash);
 
-        if (root.legalMoves().length == 0) {
+        if (prevState != null && prevPlay != null) {
+            int move = Move.findMove(prevState, position);
+            if (move != -1) {
+                int index = prevPlay.moveIndex(move);
+                if (index != -1) {
+                    PuctNode child = prevPlay.childOrNull(index);
+                    if (child != null) {
+                        log(id + " - restored: " + child.visitCount());
+                        root = child;
+                    }
+                }
+            }
+        }
+
+        if (root.legalMoves() == null ||
+                root.legalMoves().length == 0) {
+            prevPlay = null;
+            prevState = null;
             return -1;
         }
 
@@ -264,12 +340,13 @@ public class PuctPlayer
             for (int thread = 0; thread < threads; thread++) {
                 boolean progressThread = thread == 0;
                 PuctContext context = contexts.get(thread);
+                PuctNode currentRoot = root;
                 Future<?> future = executorService.submit(() -> {
                     do {
                         thinkingEpisode(
-                                root, context, position, isRepeat, episodeMillis, progressThread);
+                                currentRoot, context, position, isRepeat, episodeMillis, progressThread);
                     }
-                    while (root.visitCount() < minimumTrajectories ||
+                    while (currentRoot.visitCount() < minimumTrajectories ||
                             System.currentTimeMillis() < deadline);
                 });
                 futures.add(future);
@@ -285,8 +362,16 @@ public class PuctPlayer
             }
         }
 
-        return root.bestMove(
-                position, isRepeat, history, historyIndex + 1);
+        int bestMove = root.bestMove(
+                position, stochastic, isRepeat, history, historyIndex + 1);
+
+        int bestMoveIndex = root.moveIndex(bestMove);
+        prevPlay = root.childOrNull(bestMoveIndex);
+        prevState = position.prototype();
+        Move.apply(bestMove, prevState);
+        addHistoryMoveIfAbsent(prevState);
+
+        return bestMove;
     }
 
 
@@ -378,6 +463,20 @@ public class PuctPlayer
         return false;
     }
 
+
+    private void addHistoryMoveIfAbsent(State moveState) {
+        long positionHash = moveState.staticHashCode();
+        for (int i = 0; i <= historyIndex; i++) {
+            if (history[i] == positionHash) {
+                return;
+            }
+        }
+
+        historyIndex++;
+        history[historyIndex] = positionHash;
+    }
+
+
     private PuctNode getOrCreateRoot(State state, long positionHash) {
         if (previousRoot != null && previousPositionHash == positionHash) {
 //            display("Retrieved root" + previousRoot);
@@ -413,7 +512,7 @@ public class PuctPlayer
             State state,
             boolean isRepeat
     ) {
-        int bestMove = root.bestMove(state, isRepeat, history, historyIndex);
+        int bestMove = root.bestMove(state, stochastic, isRepeat, history, historyIndex);
 
         String generalPrefix = String.format(
                 "%s - %s | %d / %.2f / %b / %b | %d / %d / %d | %s",
@@ -431,7 +530,6 @@ public class PuctPlayer
 
         String moveSuffix =
                 root.toString(contexts.get(0));
-
 
         log(generalPrefix + " | " + moveSuffix);
     }

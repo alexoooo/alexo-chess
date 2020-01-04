@@ -129,23 +129,13 @@ public class BrainTeaser {
 //                true,
 //                0);
 
-        Player player = new PuctPlayer(
+        Player player = new PuctPlayer.Builder(
                 new PuctSingleModel(
                         Paths.get("lookup/nn/res_5a_head.zip"),
-//                        Paths.get("lookup/nn/res_10_20191227.zip"),
-                        true
-                ),
-//                12,
-//                36,
-                48,
-//                1.0,
-                1.25,
-                24576,
-//                32768,
-//                65536,
-                true,
-                true,
-                0);
+                        true))
+                .threads(48)
+                .stochastic(true)
+                .build();
 
         State state = State.fromFen(
                 // puzzles
@@ -174,8 +164,38 @@ public class BrainTeaser {
 //                "K7/8/8/8/5r2/6p1/4q1kq/8 b  - 91 n"
 
 
-                // Josh
+                // Josh (black)
                 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1"
+//                "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq d6 0 1"
+//                "rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KQkq c3 0 1"
+//                "rnbqkb1r/ppp1pppp/5n2/3p4/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkb1r/ppp1pppp/5n2/3P4/3P4/8/PP2PPPP/RNBQKBNR b KQkq - 0 1"
+//                "rnb1kb1r/ppp1pppp/5n2/3q4/3P4/8/PP2PPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnb1kb1r/ppp1pppp/5n2/3q4/3P4/2N5/PP2PPPP/R1BQKBNR b KQkq - 0 1"
+//                "rnb1kb1r/ppp1pppp/5n2/q7/3P4/2N5/PP2PPPP/R1BQKBNR w KQkq - 0 1"
+//                "rnb1kb1r/ppp1pppp/5n2/q7/3P4/2N2N2/PP2PPPP/R1BQKB1R b KQkq - 0 1"
+//                "rn2kb1r/ppp1pppp/5n2/q7/3P2b1/2N2N2/PP2PPPP/R1BQKB1R w KQkq - 0 1"
+//                "rn2kb1r/ppp1pppp/5n2/q3N3/3P2b1/2N5/PP2PPPP/R1BQKB1R b KQkq - 0 1" // ??
+//                "rn2kb1r/pp2pppp/5n2/q1p1N3/3P2b1/2N5/PP2PPPP/R1BQKB1R w KQkq c6 0 1"
+//                "rn2kb1r/pp2pppp/5n2/q1p5/3P2N1/2N5/PP2PPPP/R1BQKB1R b KQkq - 0 1"
+//                "rn2kb1r/pp2pppp/5n2/q7/3p2N1/2N5/PP2PPPP/R1BQKB1R w KQkq - 0 1"
+//                "rn2kb1r/pp2pppp/5n2/q7/3Q2N1/2N5/PP2PPPP/R1B1KB1R b KQkq - 0 1"
+//                "r3kb1r/pp2pppp/2n2n2/q7/3Q2N1/2N5/PP2PPPP/R1B1KB1R w KQkq - 0 1"
+//                "r3kb1r/pp2pppp/2n2N2/q7/3Q4/2N5/PP2PPPP/R1B1KB1R b KQkq - 0 1"
+//                "r3kb1r/pp2pp1p/2n2p2/q7/3Q4/2N5/PP2PPPP/R1B1KB1R w KQkq - 0 1"
+//                "r3kb1r/pp2pp1p/2n2p2/q2Q4/8/2N5/PP2PPPP/R1B1KB1R b KQkq - 0 1"
+//                "r3kb1r/pp3p1p/2n1pp2/q2Q4/8/2N5/PP2PPPP/R1B1KB1R w KQkq - 0 1"
+//                "r3kb1r/pp3p1p/2n1pp2/Q7/8/2N5/PP2PPPP/R1B1KB1R b KQkq - 0 1"
+//                "r3kb1r/pp3p1p/4pp2/n7/8/2N5/PP2PPPP/R1B1KB1R w KQkq - 0 1"
+//                "r3kb1r/pp3p1p/4pp2/n7/8/2N3P1/PP2PP1P/R1B1KB1R b KQkq - 0 1"
+//                "2kr1b1r/pp3p1p/4pp2/n7/8/2N3P1/PP2PP1P/R1B1KB1R w KQ - 0 1"
+//                "2kr3r/pp3p1p/4pp2/n7/1b6/2N3P1/PP2PPBP/R1B1K2R w KQ - 0 1"
+//                "2kr3r/pp3p1p/4pp2/n7/1b6/2N3P1/PP2PPBP/R1B2RK1 b - - 0 1"
+//                "2kr3r/pp3p1p/2n1pp2/8/1b6/2N3P1/PP2PPBP/R1B2RK1 w - - 0 1"
+//                "2kr3r/pp3p1p/2B1pp2/8/1b6/2N3P1/PP2PP1P/R1B2RK1 b - - 0 1"
+//                "2kr3r/p4p1p/2p1pp2/8/1b6/2N3P1/PP2PP1P/R1B2RK1 w - - 0 1"
+//                "2kr3r/p4p1p/2p1pp2/8/Nb6/6P1/PP2PP1P/R1B2RK1 b - - 0 1"
 
                 // Travis 2 (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -196,6 +216,8 @@ public class BrainTeaser {
 //                "r1bqkb1r/1p3ppp/p1n2n2/3p4/3N4/2N1P3/PP2BPPP/R1BQK2R w KQkq - 0 1"
 //                "r1bqkb1r/1p3ppp/p1n2n2/3p4/3N4/2N1P3/PP2BPPP/R1BQ1RK1 b kq - 0 1"
 //                "r1bqk2r/1p3ppp/p1nb1n2/3p4/3N4/2N1P3/PP2BPPP/R1BQ1RK1 w kq - 0 1"
+//                "r1bqk2r/1p3ppp/p1nb1n2/3p4/8/2N1PN2/PP2BPPP/R1BQ1RK1 b kq - 0 1"
+//                "r1bq1rk1/1p3ppp/p1nb1n2/3p4/8/2N1PN2/PP2BPPP/R1BQ1RK1 w - - 0 1"
 
                 // Gus (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

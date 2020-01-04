@@ -76,7 +76,8 @@ public class MoveTrainer {
 //    private static final int miniBatchSize = 320;
 //    private static final int miniBatchSize = 384;
 //    private static final int miniBatchSize = 448;
-    private static final int miniBatchSize = 512;
+//    private static final int miniBatchSize = 512;
+    private static final int miniBatchSize = 704;
 //    private static final int miniBatchSize = 768;
 //    private static final int miniBatchSize = 1024;
 
