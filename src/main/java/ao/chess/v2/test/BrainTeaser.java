@@ -165,7 +165,7 @@ public class BrainTeaser {
 
 
                 // Josh (black)
-                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 //                "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1"
 //                "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq d6 0 1"
 //                "rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KQkq c3 0 1"
@@ -196,6 +196,20 @@ public class BrainTeaser {
 //                "2kr3r/pp3p1p/2B1pp2/8/1b6/2N3P1/PP2PP1P/R1B2RK1 b - - 0 1"
 //                "2kr3r/p4p1p/2p1pp2/8/1b6/2N3P1/PP2PP1P/R1B2RK1 w - - 0 1"
 //                "2kr3r/p4p1p/2p1pp2/8/Nb6/6P1/PP2PP1P/R1B2RK1 b - - 0 1"
+//                "2kr3r/p4p1p/2p2p2/4p3/Nb6/6P1/PP2PP1P/R1B2RK1 w - - 0 1"
+//                "2kr3r/p4p1p/2p2p2/4p3/Nb6/4B1P1/PP2PP1P/R4RK1 b - - 0 1"
+//                "3r3r/pk3p1p/2p2p2/4p3/Nb6/4B1P1/PP2PP1P/R4RK1 w - - 0 1"
+//                "3r3r/pk3p1p/2p2p2/4p3/Nb6/P3B1P1/1P2PP1P/R4RK1 b - - 0 1"
+//                "3r3r/pk3p1p/2pb1p2/4p3/N7/P3B1P1/1P2PP1P/R4RK1 w - - 0 1"
+//                "3r3r/pk3p1p/2pb1p2/4p3/N7/P3B1P1/1P2PP1P/2R2RK1 b - - 0 1"
+//                "3r3r/pk3p1p/2pb4/4pp2/N7/P3B1P1/1P2PP1P/2R2RK1 w - - 0 1"
+//                "3r3r/pk3p1p/2pb4/4ppB1/N7/P5P1/1P2PP1P/2R2RK1 b - - 0 1"
+//                "5r1r/pk3p1p/2pb4/4ppB1/N7/P5P1/1P2PP1P/2R2RK1 w - - 0 1"
+//                "5r1r/pk3p1p/2pb4/4pp2/N6B/P5P1/1P2PP1P/2R2RK1 b - - 0 1"
+//                "5r1r/pk5p/2pb1p2/4pp2/N6B/P5P1/1P2PP1P/2R2RK1 w - - 0 1"
+//                "5r1r/pk5p/2pb1p2/4pp2/NP5B/P5P1/4PP1P/2R2RK1 b - b3 0 1"
+//                "5rr1/pk5p/2pb1p2/4pp2/NP5B/P5P1/4PP1P/2R2RK1 w - - 0 1"
+                "5rr1/pk5p/2pb1p2/4pp2/NP5B/P5P1/4PP1P/2RR2K1 b - - 0 1"
 
                 // Travis 2 (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

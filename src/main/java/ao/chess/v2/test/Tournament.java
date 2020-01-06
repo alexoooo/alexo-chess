@@ -3,8 +3,9 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
-import ao.chess.v2.engine.neuro.puct.PuctPlayer;
+import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
 import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
+import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -120,27 +121,28 @@ public class Tournament
 //                true
 //        );
 
-//        Player b = NeuralNetworkPlayer.load(
+        Player b = NeuralNetworkPlayer.load(
+                new PuctSingleModel(
+//                        Paths.get("lookup/nn/res_10_20191224.zip"),
+                        Paths.get("lookup/nn/res_5a_head.zip"),
+                        true
+                ),
+                false
+        );
+
+//        Player a = new PuctPlayer.Builder(
+//                new PuctSingleModel(
+//                        Paths.get("lookup/nn/res_5a_head.zip"),
+//                        true
+//                )).build();
+//        Player b = new PuctPlayer.Builder(
 //                new PuctSingleModel(
 //                        Paths.get("lookup/nn/res_10_20191224.zip"),
 //                        true
-//                ),
-//                false
-//        );
-
-        Player a = new PuctPlayer.Builder(
-                new PuctSingleModel(
-                        Paths.get("lookup/nn/res_5a_head.zip"),
-                        true
-                )).build();
-        Player b = new PuctPlayer.Builder(
-                new PuctSingleModel(
-                        Paths.get("lookup/nn/res_10_20191224.zip"),
-                        true
-                )).build();
+//                )).build();
 
 //        Player a = new TopLeftPlayer();
-//        Player a = new RandomPlayer();
+        Player a = new RandomPlayer();
 //        Player b = new RandomPlayer();
 
         int aWins = 0;
@@ -201,8 +203,8 @@ public class Tournament
 
         while (! state.isDrawnBy50MovesRule())
         {
-            System.out.println("---------------------------------------");
-            System.out.println(state);
+//            System.out.println("---------------------------------------");
+//            System.out.println(state);
 
             Player nextToAct =
                     (state.nextToAct() == Colour.WHITE)

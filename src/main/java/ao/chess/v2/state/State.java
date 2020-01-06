@@ -1039,8 +1039,7 @@ public class State
 
     public Map<BoardLocation, Piece> material() {
         Map<BoardLocation, Piece> locationToPiece =
-                new EnumMap<BoardLocation, Piece>(
-                        BoardLocation.class);
+                new EnumMap<>(BoardLocation.class);
         material(locationToPiece, wPieces, Colour.WHITE);
         material(locationToPiece, bPieces, Colour.BLACK);
         return locationToPiece;

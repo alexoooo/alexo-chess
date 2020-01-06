@@ -95,7 +95,12 @@ public class MoveHistory {
 
     //-----------------------------------------------------------------------------------------------------------------
     public MoveHistory(
-            State state, int[] legalMoves, double[] moveScores, double expectedValue, Outcome outcome) {
+            State state,
+            int[] legalMoves,
+            double[] moveScores,
+            double expectedValue,
+            Outcome outcome
+    ) {
         this.state = state;
         this.legalMoves = legalMoves;
         this.moveScores = moveScores;

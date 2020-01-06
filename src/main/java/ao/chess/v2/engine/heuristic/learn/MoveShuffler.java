@@ -1,6 +1,7 @@
 package ao.chess.v2.engine.heuristic.learn;
 
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.Closer;
 
 import java.io.BufferedReader;
@@ -19,18 +20,41 @@ import java.util.zip.GZIPOutputStream;
 
 public class MoveShuffler {
     private static final Random rand = new Random();
-    private static final int partitions = 10_000;
 
 
     public static void main(String[] args) throws IOException {
-        Path inputDir = Paths.get("lookup/train/history");
-        Path outputDir = Paths.get("lookup/mix-big-2");
+//        List<Path> inputs = List.of(
+//                Paths.get("lookup/train/history")
+//        );
+//
+//        Path outputDir = Paths.get("lookup/mix-big-2");
+//
+//        partition(inputs, outputDir, 10_000);
+
+        Path dir = Paths.get("lookup/train/pieces");
+        for (int i = 0; i <= 32; i++)
+        {
+            Path input = dir.resolve(i + ".txt.gz");
+            Path outputDir = dir.resolve(String.valueOf(i));
+
+            long size = Files.size(input);
+            int partitions = (int) (size / 1024 / 1024 / 10 + 1);
+
+            partition(List.of(input), outputDir, partitions);
+        }
+    }
+
+
+    public static void partition(
+            List<Path> inputs,
+            Path outputDir,
+            int partitions) throws IOException
+    {
+        List<Path> historyFiles = historyFiles(inputs);
 
         Files.createDirectories(outputDir);
 
-        try (Closer outputCloser = Closer.create();
-             var files = Files.newDirectoryStream(inputDir)
-        ) {
+        try (Closer outputCloser = Closer.create()) {
             List<PrintWriter> outputs = new ArrayList<>();
             for (int i = 0; i < partitions; i++) {
                 Path partitionPath = outputDir.resolve(i + ".txt.gz");
@@ -40,11 +64,7 @@ public class MoveShuffler {
                 outputs.add(partitionWriter);
             }
 
-            for (var historyFile : files) {
-                String filename = historyFile.getFileName().toString();
-                if (! filename.endsWith(".txt.gz")) {
-                    continue;
-                }
+            for (var historyFile : historyFiles) {
                 System.out.println("> " + historyFile);
 
                 try (BufferedReader reader = new BufferedReader(
@@ -62,5 +82,36 @@ public class MoveShuffler {
                 outputs.forEach(PrintWriter::flush);
             }
         }
+    }
+
+
+    public static List<Path> historyFiles(List<Path> paths) throws IOException
+    {
+        ImmutableList.Builder<Path> builder = ImmutableList.builder();
+
+        for (var path : paths)
+        {
+            if (Files.isDirectory(path))
+            {
+                try (var files = Files.newDirectoryStream(path))
+                {
+                    for (var historyFile : files)
+                    {
+                        String filename = historyFile.getFileName().toString();
+                        if (! filename.endsWith(".txt.gz")) {
+                            continue;
+                        }
+
+                        builder.add(path);
+                    }
+                }
+            }
+            else
+            {
+                builder.add(path);
+            }
+        }
+
+        return builder.build();
     }
 }
