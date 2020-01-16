@@ -3,7 +3,6 @@ package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
-import ao.chess.v2.engine.heuristic.learn.MoveTrainer;
 import ao.chess.v2.engine.heuristic.learn.NeuralUtils;
 import ao.chess.v2.engine.neuro.puct.PuctPlayer;
 import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
@@ -12,7 +11,6 @@ import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Outcome;
 import com.google.common.collect.Lists;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.FileNotFoundException;
@@ -171,7 +169,9 @@ public class LearningLoop {
 
 
     private static MultiLayerNetwork emptyNeuralNetwork() {
-        return MoveTrainer.createNeuralNetwork4();
+        // TODO: add compute graph support
+        throw new UnsupportedOperationException();
+        //return MoveTrainer.createNeuralNetwork4();
     }
 
 
@@ -232,12 +232,14 @@ public class LearningLoop {
             MultiLayerNetwork nn,
             List<MoveHistory> moveHistories
     ) {
-        for (var example : moveHistories) {
-            DataSet dataSet = MoveTrainer.convertToDataSet(example);
-            nn.fit(dataSet);
-        }
+        // TODO: add support for batching
+        throw new UnsupportedOperationException();
+//        for (var example : moveHistories) {
+//            DataSet dataSet = MoveTrainer.convertToDataSet(example);
+//            nn.fit(dataSet);
+//        }
 
-        Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
+//        Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
     }
 
 
@@ -259,10 +261,7 @@ public class LearningLoop {
         {
             if (selfPlayThreads == 1) {
                 PuctPlayer a = new PuctPlayer(
-                        new PuctSingleModel(
-                                nnFile,
-                                computeGraph
-                        ),
+                        new PuctSingleModel(nnFile),
                         1,
                         thinkingExploration,
                         thinkingExplorationLog,
@@ -276,10 +275,7 @@ public class LearningLoop {
                         false);
 
                 PuctPlayer b = new PuctPlayer(
-                        new PuctSingleModel(
-                                nnFile,
-                                computeGraph
-                        ),
+                        new PuctSingleModel(nnFile),
                         1,
                         thinkingExploration,
                         thinkingExplorationLog,
@@ -364,10 +360,7 @@ public class LearningLoop {
     ) {
         Thread thread = new Thread(() -> {
             PuctPlayer a = new PuctPlayer(
-                    new PuctSingleModel(
-                            nnFile,
-                            computeGraph
-                    ),
+                    new PuctSingleModel(nnFile),
                     1,
                     thinkingExploration,
                     thinkingExplorationLog,
@@ -381,10 +374,7 @@ public class LearningLoop {
                     false);
 
             PuctPlayer b = new PuctPlayer(
-                    new PuctSingleModel(
-                            nnFile,
-                            computeGraph
-                    ),
+                    new PuctSingleModel(nnFile),
                     1,
                     thinkingExploration,
                     thinkingExplorationLog,
@@ -440,10 +430,7 @@ public class LearningLoop {
         Path nnFile = generationDir.resolve(nnFilename);
 
         Player a = new PuctPlayer.Builder(
-                new PuctSingleModel(
-                        nnFile,
-                        computeGraph
-                )).build();
+                new PuctSingleModel(nnFile)).build();
 
         Player b;
         if (previousGenerationDirs.isEmpty()) {
@@ -455,10 +442,7 @@ public class LearningLoop {
                     .resolve(nnFilename);
 
             b = new PuctPlayer.Builder(
-                    new PuctSingleModel(
-                            previousNnFile,
-                            computeGraph
-            )).build();
+                    new PuctSingleModel(previousNnFile)).build();
         }
 
         GameLoop gameLoop = new GameLoop();

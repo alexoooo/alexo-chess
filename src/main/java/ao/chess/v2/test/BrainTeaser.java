@@ -25,57 +25,7 @@ public class BrainTeaser {
 //        int time = 60 * 1000;
         int time = 10 * 60 * 1000;
 //        int time = 60 * 60 * 1000;
-//        int time = 150 * 60 * 1000;
-
-//        Player player = new MultiMctsPlayer(List.of(
-//                mctsCapturePrototype.prototype(),
-////                mctsCapturePrototype.prototype(),
-////                mctsPrototype.prototype(),
-//                mctsPrototype.prototype(),
-//                mctsPrototype.prototype(),
-//                mctsPrototype.prototype(),
-//                mctsPrototype.prototype(),
-//                mctsPrototype.prototype()
-//        ));
-
-//        Player player = MctsPrototypes.mctsFallbackDeep2LargeOpt8Prototype.prototype();
-//        Player player = MctsPrototypes.mctsFallbackDeep5Opt8Prototype.prototype();
-//        Player player = MctsPrototypes.mctsFallbackDeep5Opt32Prototype.prototype();
-//        Player player = MctsPrototypes.mctsFallbackDeep5Rand8Prototype.prototype();
-//        Player player = MctsPrototypes.mctsFallbackDeep5Opt192Prototype.prototype();
-//        Player player = MctsPrototypes.mctsFallbackDeep1LargeOpt192Prototype.prototype();
-
-//        Player player = MctsPrototypes.mctsUcb5DeepPrototype.prototype();
-//        Player player = MctsPrototypes.mctsUcb5Deep2x2Prototype.prototype();
-//        Player player = MctsPrototypes.mctsUcb1Deep1x1Prototype.prototype();
-//        Player player = MctsPrototypes.mctsUcb1Deep2x2Prototype.prototype();
-
-//        BanditPlayer protoA = new ParallelMctsPlayer(
-//                "par",
-//                3,
-//                0.5,
-//                7,
-//                true
-//        );
-//        BanditPlayer protoB = new ParallelMctsPlayer(
-//                "par",
-//                3,
-//                0.4,
-//                15,
-//                true
-//        );
-//        BanditPlayer protoC = new ParallelMctsPlayer(
-//                "par",
-//                3,
-//                0.4,
-//                15,
-//                false
-//        );
-//        Player player = new MultiMctsPlayer(List.of(
-//                protoC.prototype(),
-//                protoC.prototype(),
-//                protoC.prototype()
-//        ));
+//        int time = 24 * 60 * 60 * 1000;
 
 //        Player player = new ParallelMctsPlayer(
 //                "par",
@@ -131,8 +81,10 @@ public class BrainTeaser {
 
         Player player = new PuctPlayer.Builder(
                 new PuctSingleModel(
-                        Paths.get("lookup/nn/res_5a_head.zip"),
-                        true))
+                        Paths.get("lookup/nn/res_5a_head.zip")
+//                        Paths.get("lookup/nn/res_5_p_2_12_head.zip")
+//                        Paths.get("lookup/nn/res_5_p_13_22_head.zip")
+                ))
                 .threads(48)
                 .stochastic(true)
                 .build();
@@ -165,51 +117,20 @@ public class BrainTeaser {
 
 
                 // Josh (black)
+                // 1. d2d4 d7d5 2. c2c4 Ng8f6 3. c4xd5 Qd8xd5 4. Nb1c3 Qd5a5 5. Ng1f3 Bc8g4 6. Nf3e5 c7c5
+                // 7. Ne5xg4 c5xd4 8. Qd1xd4 Nb8c6 9. Ng4xf6+ g7xf6 10. Qd4d5 e7e6 11. Qd5xa5 Nc6xa5
+                // 12. g2g3 O-O-O 13. Bf1g2 Bf8b4 14. O-O Na5c6 15. Bg2xc6 b7xc6 16. Nc3a4 e6e5 17. Bc1e3 Kc8b7
+                // 18. a2a3 Bb4d6 19. Ra1c1 f6f5 20. Be3g5 Rd8f8 21. Bg5h4 f7f6 22. b2b4 Rh8g8 23. Rf1d1 Kb7c7
+                // 24. Rc1c2 f5f4 25. Kg1f1 f4xg3 26. h2xg3 f6f5 27. b4b5 f5f4 28. Rc2xc6+ Kc7d7 29. Rd1xd6+
+
+                // Josh (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-//                "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1"
-//                "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq d6 0 1"
-//                "rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KQkq c3 0 1"
-//                "rnbqkb1r/ppp1pppp/5n2/3p4/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 1"
-//                "rnbqkb1r/ppp1pppp/5n2/3P4/3P4/8/PP2PPPP/RNBQKBNR b KQkq - 0 1"
-//                "rnb1kb1r/ppp1pppp/5n2/3q4/3P4/8/PP2PPPP/RNBQKBNR w KQkq - 0 1"
-//                "rnb1kb1r/ppp1pppp/5n2/3q4/3P4/2N5/PP2PPPP/R1BQKBNR b KQkq - 0 1"
-//                "rnb1kb1r/ppp1pppp/5n2/q7/3P4/2N5/PP2PPPP/R1BQKBNR w KQkq - 0 1"
-//                "rnb1kb1r/ppp1pppp/5n2/q7/3P4/2N2N2/PP2PPPP/R1BQKB1R b KQkq - 0 1"
-//                "rn2kb1r/ppp1pppp/5n2/q7/3P2b1/2N2N2/PP2PPPP/R1BQKB1R w KQkq - 0 1"
-//                "rn2kb1r/ppp1pppp/5n2/q3N3/3P2b1/2N5/PP2PPPP/R1BQKB1R b KQkq - 0 1" // ??
-//                "rn2kb1r/pp2pppp/5n2/q1p1N3/3P2b1/2N5/PP2PPPP/R1BQKB1R w KQkq c6 0 1"
-//                "rn2kb1r/pp2pppp/5n2/q1p5/3P2N1/2N5/PP2PPPP/R1BQKB1R b KQkq - 0 1"
-//                "rn2kb1r/pp2pppp/5n2/q7/3p2N1/2N5/PP2PPPP/R1BQKB1R w KQkq - 0 1"
-//                "rn2kb1r/pp2pppp/5n2/q7/3Q2N1/2N5/PP2PPPP/R1B1KB1R b KQkq - 0 1"
-//                "r3kb1r/pp2pppp/2n2n2/q7/3Q2N1/2N5/PP2PPPP/R1B1KB1R w KQkq - 0 1"
-//                "r3kb1r/pp2pppp/2n2N2/q7/3Q4/2N5/PP2PPPP/R1B1KB1R b KQkq - 0 1"
-//                "r3kb1r/pp2pp1p/2n2p2/q7/3Q4/2N5/PP2PPPP/R1B1KB1R w KQkq - 0 1"
-//                "r3kb1r/pp2pp1p/2n2p2/q2Q4/8/2N5/PP2PPPP/R1B1KB1R b KQkq - 0 1"
-//                "r3kb1r/pp3p1p/2n1pp2/q2Q4/8/2N5/PP2PPPP/R1B1KB1R w KQkq - 0 1"
-//                "r3kb1r/pp3p1p/2n1pp2/Q7/8/2N5/PP2PPPP/R1B1KB1R b KQkq - 0 1"
-//                "r3kb1r/pp3p1p/4pp2/n7/8/2N5/PP2PPPP/R1B1KB1R w KQkq - 0 1"
-//                "r3kb1r/pp3p1p/4pp2/n7/8/2N3P1/PP2PP1P/R1B1KB1R b KQkq - 0 1"
-//                "2kr1b1r/pp3p1p/4pp2/n7/8/2N3P1/PP2PP1P/R1B1KB1R w KQ - 0 1"
-//                "2kr3r/pp3p1p/4pp2/n7/1b6/2N3P1/PP2PPBP/R1B1K2R w KQ - 0 1"
-//                "2kr3r/pp3p1p/4pp2/n7/1b6/2N3P1/PP2PPBP/R1B2RK1 b - - 0 1"
-//                "2kr3r/pp3p1p/2n1pp2/8/1b6/2N3P1/PP2PPBP/R1B2RK1 w - - 0 1"
-//                "2kr3r/pp3p1p/2B1pp2/8/1b6/2N3P1/PP2PP1P/R1B2RK1 b - - 0 1"
-//                "2kr3r/p4p1p/2p1pp2/8/1b6/2N3P1/PP2PP1P/R1B2RK1 w - - 0 1"
-//                "2kr3r/p4p1p/2p1pp2/8/Nb6/6P1/PP2PP1P/R1B2RK1 b - - 0 1"
-//                "2kr3r/p4p1p/2p2p2/4p3/Nb6/6P1/PP2PP1P/R1B2RK1 w - - 0 1"
-//                "2kr3r/p4p1p/2p2p2/4p3/Nb6/4B1P1/PP2PP1P/R4RK1 b - - 0 1"
-//                "3r3r/pk3p1p/2p2p2/4p3/Nb6/4B1P1/PP2PP1P/R4RK1 w - - 0 1"
-//                "3r3r/pk3p1p/2p2p2/4p3/Nb6/P3B1P1/1P2PP1P/R4RK1 b - - 0 1"
-//                "3r3r/pk3p1p/2pb1p2/4p3/N7/P3B1P1/1P2PP1P/R4RK1 w - - 0 1"
-//                "3r3r/pk3p1p/2pb1p2/4p3/N7/P3B1P1/1P2PP1P/2R2RK1 b - - 0 1"
-//                "3r3r/pk3p1p/2pb4/4pp2/N7/P3B1P1/1P2PP1P/2R2RK1 w - - 0 1"
-//                "3r3r/pk3p1p/2pb4/4ppB1/N7/P5P1/1P2PP1P/2R2RK1 b - - 0 1"
-//                "5r1r/pk3p1p/2pb4/4ppB1/N7/P5P1/1P2PP1P/2R2RK1 w - - 0 1"
-//                "5r1r/pk3p1p/2pb4/4pp2/N6B/P5P1/1P2PP1P/2R2RK1 b - - 0 1"
-//                "5r1r/pk5p/2pb1p2/4pp2/N6B/P5P1/1P2PP1P/2R2RK1 w - - 0 1"
-//                "5r1r/pk5p/2pb1p2/4pp2/NP5B/P5P1/4PP1P/2R2RK1 b - b3 0 1"
-//                "5rr1/pk5p/2pb1p2/4pp2/NP5B/P5P1/4PP1P/2R2RK1 w - - 0 1"
-                "5rr1/pk5p/2pb1p2/4pp2/NP5B/P5P1/4PP1P/2RR2K1 b - - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+//                "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 1"
+//                "rnbqkbnr/pp1ppppp/8/2p5/3PP3/8/PPP2PPP/RNBQKBNR b KQkq d3 0 1"
+//                "rnbqkbnr/pp1ppppp/8/8/3pP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pp1ppppp/8/8/3QP3/8/PPP2PPP/RNB1KBNR b KQkq - 0 1"
+//                "rnbqkbnr/1p1ppppp/p7/8/3QP3/8/PPP2PPP/RNB1KBNR w KQkq - 0 1"
 
                 // Travis 2 (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -232,6 +153,14 @@ public class BrainTeaser {
 //                "r1bqk2r/1p3ppp/p1nb1n2/3p4/3N4/2N1P3/PP2BPPP/R1BQ1RK1 w kq - 0 1"
 //                "r1bqk2r/1p3ppp/p1nb1n2/3p4/8/2N1PN2/PP2BPPP/R1BQ1RK1 b kq - 0 1"
 //                "r1bq1rk1/1p3ppp/p1nb1n2/3p4/8/2N1PN2/PP2BPPP/R1BQ1RK1 w - - 0 1"
+//                "r1bq1rk1/1p3ppp/p1nb1n2/3p4/8/P1N1PN2/1P2BPPP/R1BQ1RK1 b - - 0 1"
+//                "r2q1rk1/1p3ppp/p1nbbn2/3p4/8/P1N1PN2/1P2BPPP/R1BQ1RK1 w - - 0 1"
+//                "r2q1rk1/1p3ppp/p1nbbn2/3p4/1P6/P1N1PN2/4BPPP/R1BQ1RK1 b - b3 0 1"
+//                "r4rk1/1p2qppp/p1nbbn2/3p4/1P6/P1N1PN2/4BPPP/R1BQ1RK1 w - - 0 1"
+//                "r4rk1/1p2qppp/p1nbbn2/3p4/1P6/P1N1PN2/1B2BPPP/R2Q1RK1 b - - 0 1"
+//                "3r1rk1/1p2qppp/p1nbbn2/3p4/1P6/P1N1PN2/1B2BPPP/R2Q1RK1 w - - 0 1"
+//                "3r1rk1/1p2qppp/p1nbbn2/3p4/1P1N4/P1N1P3/1B2BPPP/R2Q1RK1 b - - 0 1"
+//                "3r1rk1/1p2qppp/p2bbn2/3pn3/1P1N4/P1N1P3/1B2BPPP/R2Q1RK1 w - - 0 1"
 
                 // Gus (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -269,8 +198,6 @@ public class BrainTeaser {
 //                "r1q1k2r/p4pp1/1pb1pn1p/2B5/P3p3/2P4N/R1PP1PPP/4K2R w kq - 0 1"
 //                "r1q1k2r/p4pp1/1pb1pn1p/8/P2Bp3/2P4N/R1PP1PPP/4K2R b kq - 0 1"
 //                "r1q2rk1/p4pp1/1pb1pn1p/8/P2Bp3/2P4N/R1PP1PPP/4K2R w - - 0 1"
-//                "r1q2rk1/p4pp1/1pb1pn1p/8/P2Bp3/2P4N/R1PP1PPP/5RK1 b - - 0 1" // illegal move
-//                "r1q2rk1/p2n1pp1/1pb1p2p/8/P2Bp3/2P4N/R1PP1PPP/5RK1 w - - 0 1"
 
                 // Pira (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -333,70 +260,10 @@ public class BrainTeaser {
                 //  19. g3g4 Nh5f4 20. Qg2h2 Be7g5 21. Nc3e2 Nf4xe2+ 22. Qh2xe2 Bg5f4 23. Bd4c3 f7f6 24. c4c5 Kg8f7
                 //  25. c5xd6 c7xd6 26. Qe2c4+ Re8e6 27. Qc4xc6 Ra8h8 28. Rd1d5 Rh8h3 29. Rd5f5 Qg6h6
                 //  30. Qc6c7+ Re6e7 31. Qc7c4+ Re7e6 32. Qc4a6 Bf4e3+
-//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-//                "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1"
-//                "rnbqkbnr/pppp1ppp/8/4p3/2P5/8/PP1PPPPP/RNBQKBNR w KQkq e6 0 1"
-//                "rnbqkbnr/pppp1ppp/8/4p3/2P5/5N2/PP1PPPPP/RNBQKB1R b KQkq - 0 1"
-//                "r1bqkbnr/pppp1ppp/2n5/4p3/2P5/5N2/PP1PPPPP/RNBQKB1R w KQkq - 0 1"
-//                "rnbqkbnr/pppp1ppp/8/4p3/2P5/2N2N2/PP1PPPPP/R1BQKB1R b KQkq - 0 1"
-//                "r1bqkbnr/ppp2ppp/2np4/4p3/2P5/2N2N2/PP1PPPPP/R1BQKB1R w KQkq - 0 1"
-//                "r1bqkbnr/ppp2ppp/2np4/4p3/2PP4/2N2N2/PP2PPPP/R1BQKB1R b KQkq d3 0 1"
-//                "r1bqkbnr/ppp2ppp/2np4/8/2Pp4/2N2N2/PP2PPPP/R1BQKB1R w KQkq - 0 1"
-//                "r1bqkbnr/ppp2ppp/2np4/8/2PN4/2N5/PP2PPPP/R1BQKB1R b KQkq - 0 1"
-//                "r2qkbnr/pppb1ppp/2np4/8/2PN4/2N5/PP2PPPP/R1BQKB1R w KQkq - 0 1"
-//                "r2qkbnr/pppb1ppp/2np4/8/2PN4/2N3P1/PP2PP1P/R1BQKB1R b KQkq - 0 1"
-//                "r2qkb1r/pppb1ppp/2np1n2/8/2PN4/2N3P1/PP2PP1P/R1BQKB1R w KQkq - 0 1"
-//                "r2qkb1r/pppb1ppp/2np1n2/8/2PN4/2N3P1/PP2PPBP/R1BQK2R b KQkq - 0 1"
-//                "r2qk2r/pppbbppp/2np1n2/8/2PN4/2N3P1/PP2PPBP/R1BQK2R w KQkq - 0 1"
-//                "r2qk2r/pppbbppp/2np1n2/8/2PN4/2N3P1/PP2PPBP/R1BQ1RK1 b kq - 0 1"
-//                "r2q1rk1/pppbbppp/2np1n2/8/2PN4/2N3P1/PP2PPBP/R1BQ1RK1 w - - 0 1"
-//                "r2q1rk1/pppbbppp/2Np1n2/8/2P5/2N3P1/PP2PPBP/R1BQ1RK1 b - - 0 1"
 //                "r2q1rk1/ppp1bppp/2bp1n2/8/2P5/2N3P1/PP2PPBP/R1BQ1RK1 w - - 0 1" // g2c6??
-//                "r2q1rk1/ppp1bppp/2Bp1n2/8/2P5/2N3P1/PP2PP1P/R1BQ1RK1 b - - 0 1"
-//                "r2q1rk1/p1p1bppp/2pp1n2/8/2P5/2N3P1/PP2PP1P/R1BQ1RK1 w - - 0 1"
-//                "r2q1rk1/p1p1bppp/2pp1n2/8/2P5/2N3P1/PPQ1PP1P/R1B2RK1 b - - 0 1"
-//                "r4rk1/p1pqbppp/2pp1n2/8/2P5/2N3P1/PPQ1PP1P/R1B2RK1 w - - 0 1"
-//                "r4rk1/p1pqbppp/2pp1n2/8/2P5/2N1B1P1/PPQ1PP1P/R4RK1 b - - 0 1"
-//                "r3r1k1/p1pqbppp/2pp1n2/8/2P5/2N1B1P1/PPQ1PP1P/R4RK1 w - - 0 1"
-//                "r3r1k1/p1pqbppp/2pp1n2/8/2P5/2N1B1P1/PPQ1PP1P/3R1RK1 b - - 0 1"
-//                "r3r1k1/p1pqbpp1/2pp1n2/7p/2P5/2N1B1P1/PPQ1PP1P/3R1RK1 w - h6 0 1"
-//                "r3r1k1/p1pqbpp1/2pp1n2/7p/2PB4/2N3P1/PPQ1PP1P/3R1RK1 b - - 0 1"
-//                "r3r1k1/p1pqbpp1/2pp1n2/8/2PB3p/2N3P1/PPQ1PP1P/3R1RK1 w - - 0 1"
-//                "r3r1k1/p1pqbpp1/2pp1n2/8/2PBP2p/2N3P1/PPQ2P1P/3R1RK1 b - e3 0 1"
-//                "r3r1k1/p1p1bpp1/2pp1n2/8/2PBP1qp/2N3P1/PPQ2P1P/3R1RK1 w - - 0 1"
-//                "r3r1k1/p1p1bpp1/2pp1n2/8/2PBP1qp/2N2PP1/PPQ4P/3R1RK1 b - - 0 1"
-//                "r3r1k1/p1p1bpp1/2pp1nq1/8/2PBP2p/2N2PP1/PPQ4P/3R1RK1 w - - 0 1"
-//                "r3r1k1/p1p1bpp1/2pp1nq1/8/2PBP2p/2N2PP1/PP4QP/3R1RK1 b - - 0 1"
-//                "r3r1k1/p1p1bpp1/2pp1nq1/8/2PBP3/2N2Pp1/PP4QP/3R1RK1 w - - 0 1"
-//                "r3r1k1/p1p1bpp1/2pp2q1/7n/2PBP3/2N2PP1/PP4Q1/3R1RK1 w - - 0 1"
-//                "r3r1k1/p1p1bpp1/2pp2q1/7n/2PBP1P1/2N2P2/PP4Q1/3R1RK1 b - - 0 1"
-//                "r3r1k1/p1p1bpp1/2pp2q1/8/2PBPnP1/2N2P2/PP4Q1/3R1RK1 w - - 0 1"
-//                "r3r1k1/p1p1bpp1/2pp2q1/8/2PBPnP1/2N2P2/PP5Q/3R1RK1 b - - 0 1"
 //                "r3r1k1/p1p2pp1/2pp2q1/6b1/2PBPnP1/2N2P2/PP5Q/3R1RK1 w - - 0 1" // c3e2?
-//                "r3r1k1/p1p2pp1/2pp2q1/6b1/2PBPnP1/5P2/PP2N2Q/3R1RK1 b - - 0 1"
-//                "r3r1k1/p1p2pp1/2pp2q1/6b1/2PBP1P1/5P2/PP2n2Q/3R1RK1 w - - 0 1"
-//                "r3r1k1/p1p2pp1/2pp2q1/6b1/2PBP1P1/5P2/PP2Q3/3R1RK1 b - - 0 1"
 //                "r3r1k1/p1p2pp1/2pp2q1/8/2PBPbP1/5P2/PP2Q3/3R1RK1 w - - 0 1" // d4c3?
-//                "r3r1k1/p1p2pp1/2pp2q1/8/2P1PbP1/2B2P2/PP2Q3/3R1RK1 b - - 0 1"
-//                "r3r1k1/p1p3p1/2pp1pq1/8/2P1PbP1/2B2P2/PP2Q3/3R1RK1 w - - 0 1"
-//                "r3r1k1/p1p3p1/2pp1pq1/2P5/4PbP1/2B2P2/PP2Q3/3R1RK1 b - - 0 1"
-//                "r3r3/p1p2kp1/2pp1pq1/2P5/4PbP1/2B2P2/PP2Q3/3R1RK1 w - - 0 1"
-//                "r3r3/p1p2kp1/2pP1pq1/8/4PbP1/2B2P2/PP2Q3/3R1RK1 b - - 0 1"
-//                "r3r3/p4kp1/2pp1pq1/8/4PbP1/2B2P2/PP2Q3/3R1RK1 w - - 0 1"
-//                "r3r3/p4kp1/2pp1pq1/8/2Q1PbP1/2B2P2/PP6/3R1RK1 b - - 0 1"
-//                "r7/p4kp1/2pprpq1/8/2Q1PbP1/2B2P2/PP6/3R1RK1 w - - 0 1"
-//                "r7/p4kp1/2Qprpq1/8/4PbP1/2B2P2/PP6/3R1RK1 b - - 0 1"
-//                "7r/p4kp1/2Qprpq1/8/4PbP1/2B2P2/PP6/3R1RK1 w - - 0 1"
-//                "7r/p4kp1/2Qprpq1/3R4/4PbP1/2B2P2/PP6/5RK1 b - - 0 1"
 //                "8/p4kp1/2Qprpq1/3R4/4PbP1/2B2P1r/PP6/5RK1 w - - 0 1" // ??
-//                "8/p4kp1/2Qprp1q/5R2/4PbP1/2B2P1r/PP6/5RK1 w - - 0 1"
-//                "8/p1Q2kp1/3prp1q/5R2/4PbP1/2B2P1r/PP6/5RK1 b - - 0 1"
-//                "8/p1Q1rkp1/3p1p1q/5R2/4PbP1/2B2P1r/PP6/5RK1 w - - 0 1"
-//                "8/p3rkp1/3p1p1q/5R2/2Q1PbP1/2B2P1r/PP6/5RK1 b - - 0 1"
-//                "8/p4kp1/3prp1q/5R2/2Q1PbP1/2B2P1r/PP6/5RK1 w - - 0 1"
-//                "8/p4kp1/Q2prp1q/5R2/4PbP1/2B2P1r/PP6/5RK1 b - - 0 1"
-//                "8/p4kp1/Q2prp1q/5R2/4PbP1/2B2P1r/PP6/5RK1 b - - 0 1"
-//                "8/p4kp1/Q2prp1q/5R2/4P1P1/2B1bP1r/PP6/5RK1 w - - 0 1"
 
                 // Phi (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -534,8 +401,8 @@ public class BrainTeaser {
                 // http://www.chess-poster.com/chess_problems/mate_in_5.htm
 //                "n1rb4/1p3p1p/1p6/1R5K/8/p3p1PN/1PP1R3/N6k w"
 
-                // mate in 9 (19)
-//                "1Nr1n3/p3p1q1/P2p1prk/4p3/1pB1n1P1/1P1R4/3b2KN/8 w"
+                // mate in 9 (17)
+                "1Nr1n3/p3p1q1/P2p1prk/4p3/1pB1n1P1/1P1R4/3b2KN/8 w"
 
                 // easy
 //                "1rbq1rk1/p1b1nppp/1p2p3/8/1B1pN3/P2B4/1P3PPP/2RQ1R1K w" // bm Nf6+ (325,000)

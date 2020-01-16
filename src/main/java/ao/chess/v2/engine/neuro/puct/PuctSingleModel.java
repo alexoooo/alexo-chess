@@ -8,7 +8,6 @@ import ao.chess.v2.state.State;
 import com.google.common.collect.ImmutableList;
 import org.deeplearning4j.nn.api.NeuralNetwork;
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -21,7 +20,6 @@ public class PuctSingleModel
         implements PuctModel
 {
     private final Path savedNeuralNetwork;
-    private final boolean computeGraph;
 
     private NeuralNetwork nn;
     private INDArray features;
@@ -33,18 +31,16 @@ public class PuctSingleModel
 
 
     public PuctSingleModel(
-            Path savedNeuralNetwork,
-            boolean computeGraph)
+            Path savedNeuralNetwork)
     {
         this.savedNeuralNetwork = savedNeuralNetwork;
-        this.computeGraph = computeGraph;
     }
 
 
     @Override
     public PuctModel prototype()
     {
-        return new PuctSingleModel(savedNeuralNetwork, computeGraph);
+        return new PuctSingleModel(savedNeuralNetwork);
     }
 
 
@@ -55,7 +51,7 @@ public class PuctSingleModel
             return;
         }
 
-        nn = NeuralUtils.loadNeuralNetwork(savedNeuralNetwork, true, computeGraph);
+        nn = NeuralUtils.loadNeuralNetwork(savedNeuralNetwork, true, true);
 
         features = Nd4j.zeros(1, Figure.VALUES.length + 2, Location.RANKS, Location.FILES);
         propAttacks = new int[Location.COUNT];
@@ -73,33 +69,21 @@ public class PuctSingleModel
         double[] moveProbabilities;
         double winProbability;
 
-        if (computeGraph) {
-            NeuralCodec.INSTANCE.encodeMultiState(
-                    state, features, propAttacks, oppAttacks);
+        NeuralCodec.INSTANCE.encodeMultiState(
+                state, features, propAttacks, oppAttacks);
 
-            INDArray[] outputs = ((ComputationGraph) nn).output(features);
+        INDArray[] outputs = ((ComputationGraph) nn).output(features);
 
-            moveProbabilities = NeuralCodec.INSTANCE
-                    .decodeMoveMultiProbabilities(
-                            outputs[0],
-                            outputs[1],
-                            state,
-                            legalMoves,
-                            fromScores,
-                            toScores);
+        moveProbabilities = NeuralCodec.INSTANCE
+                .decodeMoveMultiProbabilities(
+                        outputs[0],
+                        outputs[1],
+                        state,
+                        legalMoves,
+                        fromScores,
+                        toScores);
 
-            winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2]);
-        }
-        else {
-            INDArray input = NeuralCodec.INSTANCE.encodeState(state);
-
-            INDArray output = ((MultiLayerNetwork) nn).output(input);
-
-            moveProbabilities = NeuralCodec.INSTANCE
-                    .decodeMoveProbabilities(output, state, legalMoves);
-
-            winProbability = NeuralCodec.INSTANCE.decodeOutcome(output);
-        }
+        winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2]);
 
         return new PuctEstimate(
                 moveProbabilities,
@@ -111,7 +95,6 @@ public class PuctSingleModel
     @Override
     public ImmutableList<PuctEstimate> estimateAll(
             List<PuctQuery> queries,
-//            double uncertainty,
             double outcomeRange,
             double minOutcome)
     {
@@ -153,7 +136,7 @@ public class PuctSingleModel
 
             PuctEstimate estimate = new PuctEstimate(
                     moveProbabilities, winProbability,
-                    /*uncertainty,*/ outcomeRange, minOutcome);
+                    outcomeRange, minOutcome);
             all.add(estimate);
         }
 

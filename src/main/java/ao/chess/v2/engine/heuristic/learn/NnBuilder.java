@@ -31,6 +31,7 @@ public class NnBuilder {
     public static final String layerHeadFrom = "out-from";
     public static final String layerHeadTo = "out-to";
     public static final String layerHeadOutcome = "out-outcome";
+    public static final String layerHeadError = "out-error";
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -44,10 +45,18 @@ public class NnBuilder {
             int bodyFilters,
             Activation bodyActivation
     ) {
+        this(bodyFilters, bodyActivation, false);
+    }
+
+    public NnBuilder(
+            int bodyFilters,
+            Activation bodyActivation,
+            boolean meta
+    ) {
         this.bodyFilters = bodyFilters;
         this.bodyActivation = bodyActivation;
 
-        this.conf = new NeuralNetConfiguration.Builder()
+        conf = new NeuralNetConfiguration.Builder()
                 .l2(0.0001)
 
 //                .weightInit(WeightInit.XAVIER)
@@ -61,9 +70,14 @@ public class NnBuilder {
 
                 .addInputs(layerInput)
                 .setInputTypes(InputType.convolutional(
-                        Location.FILES, Location.RANKS, NeuralCodec.inputChannels))
+                        Location.FILES, Location.RANKS, NeuralCodec.inputChannels));
 
-                .setOutputs(layerHeadFrom, layerHeadTo, layerHeadOutcome);
+        if (meta) {
+            conf.setOutputs(layerHeadFrom, layerHeadTo, layerHeadOutcome, layerHeadError);
+        }
+        else {
+            conf.setOutputs(layerHeadFrom, layerHeadTo, layerHeadOutcome);
+        }
     }
 
 
@@ -281,7 +295,60 @@ public class NnBuilder {
 
         Map<String, InputPreProcessor> preProcessorMap = new HashMap<>();
         preProcessorMap.put(denseName, new CnnToFeedForwardPreProcessor(
-//                Location.FILES - 2, Location.RANKS - 2, headFilters));
+                Location.FILES, Location.RANKS, headFilters));
+        conf.setInputPreProcessors(preProcessorMap);
+    }
+
+
+    public void addErrorHead(String inName, int headFilters) {
+        String convName = "error_head_conv";
+        String convBnName = "error_head_conv_bn";
+        String actName = "error_head_activation";
+        String denseName = "error_head_dense";
+        String denseBnName = "error_head_dense_bn";
+
+        conf.addLayer(convName,
+                new ConvolutionLayer.Builder()
+                        .kernelSize(3, 3)
+                        .stride(1, 1)
+                        .padding(1, 1)
+                        .nOut(headFilters)
+                        .activation(Activation.IDENTITY)
+                        .build(),
+                inName);
+
+        conf.addLayer(convBnName,
+                new BatchNormalization.Builder().build(),
+                convName);
+
+        conf.addLayer(actName,
+                new ActivationLayer.Builder()
+                        .activation(bodyActivation)
+                        .build(),
+                convBnName);
+
+        conf.addLayer(denseName,
+                new DenseLayer.Builder()
+                        .nOut(bodyFilters)
+                        .activation(bodyActivation)
+                        .build(),
+                actName);
+
+        conf.addLayer(denseBnName,
+                new BatchNormalization.Builder().build(),
+                denseName);
+
+        conf.addLayer(layerHeadError,
+                new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+//                new OutputLayer.Builder(LossFunctions.LossFunction.L1)
+                        .activation(Activation.SIGMOID)
+                        .nOut(1)
+                        .weightInit(WeightInit.XAVIER)
+                        .build(),
+                denseBnName);
+
+        Map<String, InputPreProcessor> preProcessorMap = new HashMap<>();
+        preProcessorMap.put(denseName, new CnnToFeedForwardPreProcessor(
                 Location.FILES, Location.RANKS, headFilters));
         conf.setInputPreProcessors(preProcessorMap);
     }

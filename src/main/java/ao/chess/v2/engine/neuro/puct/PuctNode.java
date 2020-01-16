@@ -30,7 +30,8 @@ class PuctNode {
 
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
-    private static final double randomizationWeight = 1 / 150.0;
+//    private static final double randomizationWeight = 1 / 150.0;
+    private static final double randomizationWeight = 1 / 175.0;
 
 //    private static final boolean uncertaintyEnabled = false;
     private static final boolean uncertaintyEnabled = true;

@@ -23,25 +23,47 @@ public class MoveShuffler {
 
 
     public static void main(String[] args) throws IOException {
-//        List<Path> inputs = List.of(
-//                Paths.get("lookup/train/history")
-//        );
+        List<Path> inputs = List.of(
+//                Paths.get("lookup/train/pieces/2.txt.gz"),
+//                Paths.get("lookup/train/pieces/3.txt.gz"),
+//                Paths.get("lookup/train/pieces/4.txt.gz"),
+//                Paths.get("lookup/train/pieces/5.txt.gz"),
+//                Paths.get("lookup/train/pieces/6.txt.gz"),
+//                Paths.get("lookup/train/pieces/7.txt.gz"),
+//                Paths.get("lookup/train/pieces/8.txt.gz"),
+//                Paths.get("lookup/train/pieces/9.txt.gz"),
+//                Paths.get("lookup/train/pieces/10.txt.gz"),
+//                Paths.get("lookup/train/pieces/11.txt.gz"),
+//                Paths.get("lookup/train/pieces/12.txt.gz"),
+                Paths.get("lookup/train/pieces/13.txt.gz"),
+                Paths.get("lookup/train/pieces/14.txt.gz"),
+                Paths.get("lookup/train/pieces/15.txt.gz"),
+                Paths.get("lookup/train/pieces/16.txt.gz"),
+                Paths.get("lookup/train/pieces/17.txt.gz"),
+                Paths.get("lookup/train/pieces/18.txt.gz"),
+                Paths.get("lookup/train/pieces/19.txt.gz"),
+                Paths.get("lookup/train/pieces/20.txt.gz"),
+                Paths.get("lookup/train/pieces/21.txt.gz"),
+                Paths.get("lookup/train/pieces/22.txt.gz")
+        );
+
+        Path outputDir =
+//                Paths.get("lookup/train/pieces/p_2_12");
+                Paths.get("lookup/train/pieces/p_13_22");
+
+        partition(inputs, outputDir, 1350);
+
+//        Path dir = Paths.get("lookup/train/pieces");
+//        for (int i = 12; i <= 32; i++)
+//        {
+//            Path input = dir.resolve(i + ".txt.gz");
+//            Path outputDir = dir.resolve(String.valueOf(i));
 //
-//        Path outputDir = Paths.get("lookup/mix-big-2");
+//            long size = Files.size(input);
+//            int partitions = (int) (size / 1024 / 1024 / 10 + 1);
 //
-//        partition(inputs, outputDir, 10_000);
-
-        Path dir = Paths.get("lookup/train/pieces");
-        for (int i = 0; i <= 32; i++)
-        {
-            Path input = dir.resolve(i + ".txt.gz");
-            Path outputDir = dir.resolve(String.valueOf(i));
-
-            long size = Files.size(input);
-            int partitions = (int) (size / 1024 / 1024 / 10 + 1);
-
-            partition(List.of(input), outputDir, partitions);
-        }
+//            partition(List.of(input), outputDir, partitions);
+//        }
     }
 
 

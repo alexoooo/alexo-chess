@@ -124,8 +124,7 @@ public class Tournament
         Player b = NeuralNetworkPlayer.load(
                 new PuctSingleModel(
 //                        Paths.get("lookup/nn/res_10_20191224.zip"),
-                        Paths.get("lookup/nn/res_5a_head.zip"),
-                        true
+                        Paths.get("lookup/nn/res_5a_head.zip")
                 ),
                 false
         );

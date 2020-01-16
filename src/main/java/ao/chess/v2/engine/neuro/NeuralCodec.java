@@ -2,14 +2,12 @@ package ao.chess.v2.engine.neuro;
 
 
 import ao.chess.v2.data.Location;
-import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;
 import ao.chess.v2.piece.Piece;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.Arrays;
@@ -166,46 +164,6 @@ public enum NeuralCodec {
     }
 
 
-    public static DataSet convertToDataSetValueOnly(
-            MoveHistory example
-    ) {
-        INDArray reshapedFeatures = NeuralCodec.INSTANCE.encodeStateNormalized(
-                example.state());
-
-        INDArray labels = Nd4j.zeros(1);
-        labels.put(0, Nd4j.scalar(example.outcomeValue()));
-        INDArray reshapedLabels = labels.reshape(1, 1);
-
-//        INDArray labels = Nd4j.zeros(3);
-//        Outcome outcome = example.outcome();
-//        if (outcome.winner() == example.state().nextToAct()) {
-//            labels.put(0, Nd4j.scalar(1));
-//        }
-//        else if (outcome.loser() == example.state().nextToAct()) {
-//            labels.put(1, Nd4j.scalar(1));
-//        }
-//        else {
-//            labels.put(2, Nd4j.scalar(1));
-//        }
-//        INDArray reshapedLabels = labels.reshape(1, 3);
-
-        return new DataSet(reshapedFeatures, reshapedLabels);
-    }
-
-
-    public double decodeOutcome(
-            INDArray output
-    ) {
-        double value = output.getDouble(0, Location.COUNT * 2);
-
-//        double ex = Math.exp(value * Math.E);
-//        return ex / (ex + 1);
-
-        double clipped = Math.max(-1, Math.min(1, value));
-        return (clipped + 1) / 2;
-    }
-
-
     public double decodeMultiOutcome(
             INDArray output
     ) {
@@ -226,79 +184,6 @@ public enum NeuralCodec {
         return winOnly
                 ? winProbability
                 : winProbability + 0.5 * drawProbability;
-    }
-
-
-    public double decodeMultiOutcomeMax(
-            INDArray output
-    ) {
-        double winProbability = output.getDouble(0, 0);
-        double lossProbability = output.getDouble(0, 1);
-        double drawProbability = output.getDouble(0, 2);
-
-        return winProbability > lossProbability && winProbability > drawProbability
-                ? 1.0
-                : lossProbability > winProbability && lossProbability > drawProbability
-                ? 0
-                : 0.5;
-    }
-
-
-    public double[] decodeMoveProbabilities(
-            INDArray output,
-            State state,
-            int[] legalMoves
-    ) {
-        int legalMoveCount = legalMoves.length;
-        boolean flip = state.nextToAct() == Colour.BLACK;
-
-        double[] fromScores = new double[Location.COUNT];
-        double[] toScores = new double[Location.COUNT];
-
-        double fromTotal = 0;
-        double toTotal = 0;
-
-        for (int i = 0; i < Location.COUNT; i++) {
-            int fromAdjustedIndex = flipIndexIfRequired(i, flip);
-            double fromValue = Math.max(0, output.getDouble(0, fromAdjustedIndex));
-            fromScores[i] = fromValue;
-            fromTotal += fromValue;
-
-            int toAdjustedIndex = fromAdjustedIndex + Location.COUNT;
-            double toValue = Math.max(0, output.getDouble(0, toAdjustedIndex));
-            toScores[i] = toValue;
-            toTotal += toValue;
-        }
-
-        double moveTotal = 0;
-        double[] moveScores = new double[legalMoveCount];
-
-        for (int i = 0; i < legalMoveCount; i++) {
-            int move = legalMoves[i];
-
-            if (Move.isPromotion(move) && Figure.VALUES[Move.promotion(move)] != Figure.QUEEN) {
-                // NB: under-promotions are not considered
-                continue;
-            }
-
-            int fromIndex = Move.fromSquareIndex(move);
-            double fromPrediction = fromScores[fromIndex] / fromTotal;
-
-            int toIndex = Move.toSquareIndex(move);
-            double toPrediction = toScores[toIndex] / toTotal;
-
-            double moveScore = fromPrediction * toPrediction;
-            moveScores[i] = moveScore;
-            moveTotal += moveScore;
-        }
-
-        if (moveTotal != 0) {
-            for (int i = 0; i < legalMoveCount; i++) {
-                moveScores[i] /= moveTotal;
-            }
-        }
-
-        return moveScores;
     }
 
 

@@ -57,7 +57,7 @@ public class AlexoChess
                 Paths.get("lookup/nn/res_5a_head.zip");
 
         PuctModel puctModel = new PuctSingleModel(
-                nnPath, true);
+                nnPath);
 
         try
         {

@@ -17,7 +17,9 @@ import java.util.List;
 public class PgnGenerator {
     public static void main(String[] args) throws IOException
     {
-        Path fenPath = Paths.get("C:/~/tmp/travis-game-1.txt");
+        Path fenPath =
+//                Paths.get("C:/~/tmp/travis-game-1.txt");
+                Paths.get("C:/~/tmp/josh-game-1.txt");
 
         List<String> lines = Files.readAllLines(fenPath);
 
@@ -58,9 +60,9 @@ public class PgnGenerator {
             Move.unApply(undo, cursor);
         }
 
-//        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//        System.out.println("Can't find move to:");
-//        System.out.println(to);
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        System.out.println("Can't find move to:");
+        System.out.println(to);
         throw new IllegalStateException();
     }
 
