@@ -24,6 +24,8 @@ import java.util.Map;
 // https://www.youtube.com/watch?v=Xogn6veSyxA&feature=youtu.be&t=325
 // https://github.com/eclipse/deeplearning4j-examples/blob/master/dl4j-examples/src/main/java/org/deeplearning4j/examples/convolution/alphagozero/DL4JAlphaGoZeroBuilder.java
 // TODO: remove bias before batch norm? https://stackoverflow.com/questions/46256747/can-not-use-both-bias-and-batch-normalization-in-convolution-layers
+// See also: https://github.com/eclipse/deeplearning4j-examples/blob/master/dl4j-examples/src/main/java/org/deeplearning4j/examples/denseNet/DenseNetBuilder.java
+// See also: https://towardsdatascience.com/squeeze-and-excitation-networks-9ef5e71eacd7
 public class NnBuilder {
     //-----------------------------------------------------------------------------------------------------------------
     public static final String layerInput = "input";

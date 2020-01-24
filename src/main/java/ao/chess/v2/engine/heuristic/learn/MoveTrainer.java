@@ -115,10 +115,14 @@ public class MoveTrainer {
 
 
     private static void writeProgress(
-            int checkpoint, double valueError, double policyError) {
+            int checkpoint,
+            double valueError,
+            double policyError,
+            double errorError
+    ) {
         try {
             Files.writeString(progressPath,
-                    String.format("%s\t%s\t%s\n", checkpoint, valueError, policyError),
+                    String.format("%s\t%s\t%s\t%s\n", checkpoint, valueError, policyError, errorError),
                     StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         }
         catch (IOException e) {
@@ -413,7 +417,11 @@ public class MoveTrainer {
                     "took: " + took + " - " + testPath);
 
             if (write && useCheckpoint) {
-                writeProgress(checkpoint, outcomeStats.getAverage(), actionStats.getAverage());
+                writeProgress(
+                        checkpoint,
+                        outcomeStats.getAverage(),
+                        actionStats.getAverage(),
+                        errorStats.getAverage());
             }
 
             Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();

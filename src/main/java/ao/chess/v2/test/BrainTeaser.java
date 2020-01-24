@@ -22,9 +22,11 @@ public class BrainTeaser {
     public static void main(String[] args) {
 //        int time = 7 * 24 * 60 * 60 * 1000;
 //        int time = 10 * 1000;
+//        int time = 15 * 1000;
+//        int time = 45 * 1000;
 //        int time = 60 * 1000;
-        int time = 10 * 60 * 1000;
-//        int time = 60 * 60 * 1000;
+//        int time = 10 * 60 * 1000;
+        int time = 60 * 60 * 1000;
 //        int time = 24 * 60 * 60 * 1000;
 
 //        Player player = new ParallelMctsPlayer(
@@ -105,23 +107,21 @@ public class BrainTeaser {
 //                "rn3rk1/pbppq1pp/1p2pb2/4N2Q/3PN3/3B4/PPP2PPP/R3K2R w KQ - 7 11" // Q from h5 to h7
 //                "r1bqkb1r/pp1n1pp1/2p1pn1p/6N1/3P4/3B1N2/PPP2PPP/R1BQK2R w KQkq - 0 8" // g5 e6 (deep blue)
 
-                // trivial
-//                "4R3/4R3/8/2k5/8/2p2K2/2P5/8 w"
-//                "8/8/2p1b1k1/r6n/1K6/8/8/8 b - - 0 1"
-//                "8/2p5/n7/8/8/2p5/4K3/6k1 b"
-//                "2k5/8/8/3K4/1B4Nb/1P5N/3R4/8 w"
-//                "8/P7/1bk4p/8/3BP3/RR6/3K4/8 w"
-//                "8/8/8/8/6R1/5B2/5K1k/8 w  - 98"
-//                "4kr2/pp3p1p/8/8/1KnRP2B/8/P1q1N3/8 b"
-//                "K7/8/8/8/5r2/6p1/4q1kq/8 b  - 91 n"
-
-
-                // Josh (black)
-                // 1. d2d4 d7d5 2. c2c4 Ng8f6 3. c4xd5 Qd8xd5 4. Nb1c3 Qd5a5 5. Ng1f3 Bc8g4 6. Nf3e5 c7c5
-                // 7. Ne5xg4 c5xd4 8. Qd1xd4 Nb8c6 9. Ng4xf6+ g7xf6 10. Qd4d5 e7e6 11. Qd5xa5 Nc6xa5
-                // 12. g2g3 O-O-O 13. Bf1g2 Bf8b4 14. O-O Na5c6 15. Bg2xc6 b7xc6 16. Nc3a4 e6e5 17. Bc1e3 Kc8b7
-                // 18. a2a3 Bb4d6 19. Ra1c1 f6f5 20. Be3g5 Rd8f8 21. Bg5h4 f7f6 22. b2b4 Rh8g8 23. Rf1d1 Kb7c7
-                // 24. Rc1c2 f5f4 25. Kg1f1 f4xg3 26. h2xg3 f6f5 27. b4b5 f5f4 28. Rc2xc6+ Kc7d7 29. Rd1xd6+
+                // Paul (white)
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+//                "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 1"
+//                "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 0 1"
+//                "rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 1"
+//                "rnbqkbnr/pp2pppp/3p4/2p5/4P3/2N2N2/PPPP1PPP/R1BQKB1R b KQkq - 0 1"
+//                "rnbqkbnr/1p2pppp/p2p4/2p5/4P3/2N2N2/PPPP1PPP/R1BQKB1R w KQkq - 0 1"
+//                "rnbqkbnr/1p2pppp/p2p4/2p5/4P3/2NP1N2/PPP2PPP/R1BQKB1R b KQkq - 0 1"
+//                "rnbqkbnr/1p2pppp/p2p4/2p5/4P3/2NP1N2/PPP2PPP/R1BQKB1R b KQkq - 0 1"
+//                "rnbqkbnr/4pppp/p2p4/1pp5/4P3/2NP1N2/PPP2PPP/R1BQKB1R w KQkq b6 0 1"
+//                "rnbqkbnr/4pppp/p2p4/1pp5/4P3/2NP1N2/PPP1BPPP/R1BQK2R b KQkq - 0 1"
+//                "rn1qkbnr/1b2pppp/p2p4/1pp5/4P3/2NP1N2/PPP1BPPP/R1BQK2R w KQkq - 0 1"
+//                "rn1qkbnr/1b2pppp/p2p4/1pp5/4PB2/2NP1N2/PPP1BPPP/R2QK2R b KQkq - 0 1"
+                "rn1qkb1r/1b2pppp/p2p1n2/1pp5/4PB2/2NP1N2/PPP1BPPP/R2QK2R w KQkq - 0 1"
 
                 // Josh (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -161,6 +161,13 @@ public class BrainTeaser {
 //                "3r1rk1/1p2qppp/p1nbbn2/3p4/1P6/P1N1PN2/1B2BPPP/R2Q1RK1 w - - 0 1"
 //                "3r1rk1/1p2qppp/p1nbbn2/3p4/1P1N4/P1N1P3/1B2BPPP/R2Q1RK1 b - - 0 1"
 //                "3r1rk1/1p2qppp/p2bbn2/3pn3/1P1N4/P1N1P3/1B2BPPP/R2Q1RK1 w - - 0 1"
+
+                // Josh (black)
+                // 1. d2d4 d7d5 2. c2c4 Ng8f6 3. c4xd5 Qd8xd5 4. Nb1c3 Qd5a5 5. Ng1f3 Bc8g4 6. Nf3e5 c7c5
+                // 7. Ne5xg4 c5xd4 8. Qd1xd4 Nb8c6 9. Ng4xf6+ g7xf6 10. Qd4d5 e7e6 11. Qd5xa5 Nc6xa5
+                // 12. g2g3 O-O-O 13. Bf1g2 Bf8b4 14. O-O Na5c6 15. Bg2xc6 b7xc6 16. Nc3a4 e6e5 17. Bc1e3 Kc8b7
+                // 18. a2a3 Bb4d6 19. Ra1c1 f6f5 20. Be3g5 Rd8f8 21. Bg5h4 f7f6 22. b2b4 Rh8g8 23. Rf1d1 Kb7c7
+                // 24. Rc1c2 f5f4 25. Kg1f1 f4xg3 26. h2xg3 f6f5 27. b4b5 f5f4 28. Rc2xc6+ Kc7d7 29. Rd1xd6+
 
                 // Gus (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -401,8 +408,8 @@ public class BrainTeaser {
                 // http://www.chess-poster.com/chess_problems/mate_in_5.htm
 //                "n1rb4/1p3p1p/1p6/1R5K/8/p3p1PN/1PP1R3/N6k w"
 
-                // mate in 9 (17)
-                "1Nr1n3/p3p1q1/P2p1prk/4p3/1pB1n1P1/1P1R4/3b2KN/8 w"
+                // mate in 9 (17) - mid net finds it
+//                "1Nr1n3/p3p1q1/P2p1prk/4p3/1pB1n1P1/1P1R4/3b2KN/8 w"
 
                 // easy
 //                "1rbq1rk1/p1b1nppp/1p2p3/8/1B1pN3/P2B4/1P3PPP/2RQ1R1K w" // bm Nf6+ (325,000)

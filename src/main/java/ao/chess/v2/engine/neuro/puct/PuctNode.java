@@ -8,11 +8,10 @@ import ao.chess.v2.piece.Figure;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
+import ao.chess.v2.util.ChildList;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.DoubleAdder;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
@@ -42,6 +41,9 @@ class PuctNode {
 
     private static final double stochasticPower = 3.0;
 
+    private static final boolean epsilonGreedy = false;
+    private static final double epsilonPerThread = 1 / 1000.0;
+
 
     //-----------------------------------------------------------------------------------------------------------------
     private final int[] moves;
@@ -50,7 +52,8 @@ class PuctNode {
     private final LongAdder visitCount;
     private final DoubleAdder valueSum;
 
-    private final CopyOnWriteArrayList<PuctNode> childNodes;
+//    private final CopyOnWriteArrayList<PuctNode> childNodes;
+    private final ChildList<PuctNode> childNodes;
     private final DeepOutcome deepOutcomeOrNull;
 
 
@@ -72,8 +75,7 @@ class PuctNode {
             childNodes = null;
         }
         else {
-            childNodes = new CopyOnWriteArrayList<>(
-                    Collections.nCopies(moves.length, null));
+            childNodes = new ChildList<>(moves.length);
         }
     }
 
@@ -246,12 +248,17 @@ class PuctNode {
         PuctNode newChild = new PuctNode(
                 legalMoves, estimate.moveProbabilities, null);
 
-        PuctNode existing = parent.childNodes.set(childIndex, newChild);
-        if (existing != null) {
-            parent.childNodes.set(childIndex, existing);
+        boolean wasSet = parent.childNodes.setIfAbsent(childIndex, newChild);
+        if (! wasSet) {
             context.collisions.increment();
             return false;
         }
+//        PuctNode existing = parent.childNodes.set(childIndex, newChild);
+//        if (existing != null) {
+//            parent.childNodes.set(childIndex, existing);
+//            context.collisions.increment();
+//            return false;
+//        }
 
         double drawProximity =
                 (double) state.reversibleMoves() / 250;
@@ -273,13 +280,15 @@ class PuctNode {
             PuctNode parent,
             int childIndex
     ) {
-        PuctNode existing = parent.childNodes.set(childIndex, newChild);
-        if (existing != null) {
-            parent.childNodes.set(childIndex, existing);
-            return false;
-        }
+        return parent.childNodes.setIfAbsent(childIndex, newChild);
 
-        return true;
+//        PuctNode existing = parent.childNodes.set(childIndex, newChild);
+//        if (existing != null) {
+//            parent.childNodes.set(childIndex, existing);
+//            return false;
+//        }
+//
+//        return true;
     }
 
 
@@ -309,7 +318,8 @@ class PuctNode {
     private int puctChild(
             PuctContext context)
     {
-        int moveCount = childNodes.size();
+//        int moveCount = childNodes.size();
+        int moveCount = moves.length;
         if (moveCount == 0) {
             return -1;
         }
@@ -338,15 +348,28 @@ class PuctNode {
             parentVisitCount += childVisitCount;
         }
 
+        return epsilonGreedy
+                ? puctChildEpsilon(moveCount, moveValueSums, moveVisitCounts, parentVisitCount, context)
+                : puctChildSmear(moveCount, moveValueSums, moveVisitCounts, parentVisitCount, context);
+    }
+
+
+    private int puctChildSmear(
+            int moveCount,
+            double[] moveValueSums,
+            long[] moveVisitCounts,
+            long parentVisitCount,
+            PuctContext context)
+    {
         double firstPlayEstimate = 0;
         double maxScore = Double.NEGATIVE_INFINITY;
         int maxScoreIndex = 0;
 
         double moveUncertainty =
                 uncertaintyEnabled
-                ? 1.0 - 1.0 / Math.max(1,
+                        ? 1.0 - 1.0 / Math.max(1,
                         Math.log(parentVisitCount + uncertaintyLogShift) / uncertaintyLogBase - uncertaintyLogOffset)
-                : 0;
+                        : 0;
         double predictionDenominator = 1.0 + moveUncertainty * moveCount;
 
         for (int i = 0; i < moveCount; i++) {
@@ -380,16 +403,14 @@ class PuctNode {
 
             double unvisitedBonus =
                     smearedPrediction *
-                    (Math.sqrt(parentVisitCount) / (moveVisits + 1)) *
-                    (context.exploration +
-                            Math.log((parentVisitCount + context.explorationLog + 1) / context.explorationLog));
+                            (Math.sqrt(parentVisitCount) / (moveVisits + 1)) *
+                            (context.exploration +
+                                    Math.log((parentVisitCount + context.explorationLog + 1) / context.explorationLog));
 
             double score = averageOutcome + unvisitedBonus;
 
             double adjustedScore =
                     context.randomize
-//                    ? context.random.nextDouble() * score * score
-//                    ? context.random.nextDouble() * Math.pow(32, score * score)
                     ? context.random.nextDouble() *
                             context.threads *
                             (1.0 / Math.sqrt(Math.max(1, moveVisits - 10))) *
@@ -400,6 +421,69 @@ class PuctNode {
             if (adjustedScore > maxScore ||
                     adjustedScore == maxScore && context.random.nextBoolean()) {
                 maxScore = adjustedScore;
+                maxScoreIndex = i;
+            }
+        }
+
+        return maxScoreIndex;
+    }
+
+
+    private int puctChildEpsilon(
+            int moveCount,
+            double[] moveValueSums,
+            long[] moveVisitCounts,
+            long parentVisitCount,
+            PuctContext context)
+    {
+        double epsilon = context.random.nextDouble();
+
+        if (epsilon < epsilonPerThread * context.threads)
+        {
+            return context.random.nextInt(moveCount);
+        }
+
+        double firstPlayEstimate = 0;
+        double maxScore = Double.NEGATIVE_INFINITY;
+        int maxScoreIndex = 0;
+
+        for (int i = 0; i < moveCount; i++) {
+            long moveVisits = moveVisitCounts[i];
+
+            boolean isUnderpromotion = Move.isPromotion(moves[i]) &&
+                    Figure.VALUES[Move.promotion(moves[i])] != Figure.QUEEN;
+
+            double averageOutcome;
+            double prediction;
+
+            if (isUnderpromotion) {
+                averageOutcome = underpromotionEstimate;
+                prediction = underpromotionPrediction;
+            }
+            else {
+                if (moveVisits == 0) {
+                    if (firstPlayEstimate == 0) {
+                        firstPlayEstimate = childFirstPlayEstimate(context);
+                    }
+                    averageOutcome = firstPlayEstimate;
+                }
+                else {
+                    averageOutcome = moveValueSums[i] / moveVisits;
+                }
+
+                prediction = predictions[i];
+            }
+
+            double unvisitedBonus =
+                    prediction *
+                    (Math.sqrt(parentVisitCount) / (moveVisits + 1)) *
+                    (context.exploration +
+                            Math.log((parentVisitCount + context.explorationLog + 1) / context.explorationLog));
+
+            double score = averageOutcome + unvisitedBonus;
+
+            if (score > maxScore) {
+                maxScore = score;
                 maxScoreIndex = i;
             }
         }
