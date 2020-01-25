@@ -18,7 +18,6 @@ public class PuctEstimate {
     public PuctEstimate(
             double[] moveProbabilities,
             double winProbability,
-//            double uncertainty,
             double outcomeRange,
             double minOutcome
     ) {

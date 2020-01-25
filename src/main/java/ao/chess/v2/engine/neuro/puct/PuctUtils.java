@@ -6,7 +6,7 @@ import ao.chess.v2.data.MovePicker;
 import java.util.Random;
 
 
-enum PuctUtils {
+public enum PuctUtils {
     ;
 
 

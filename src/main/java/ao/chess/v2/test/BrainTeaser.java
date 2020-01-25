@@ -1,8 +1,8 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.neuro.puct.PuctPlayer;
-import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
+import ao.chess.v2.engine.neuro.meta.MetaPlayer;
+import ao.chess.v2.engine.neuro.meta.MetaSingleModel;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 
@@ -81,12 +81,21 @@ public class BrainTeaser {
 //                true,
 //                0);
 
-        Player player = new PuctPlayer.Builder(
-                new PuctSingleModel(
-                        Paths.get("lookup/nn/res_5a_head.zip")
-//                        Paths.get("lookup/nn/res_5_p_2_12_head.zip")
-//                        Paths.get("lookup/nn/res_5_p_13_22_head.zip")
+//        Player player = new PuctPlayer.Builder(
+//                new PuctSingleModel(
+//                        Paths.get("lookup/nn/res_5a_head.zip")
+////                        Paths.get("lookup/nn/res_5_p_2_12_head.zip")
+////                        Paths.get("lookup/nn/res_5_p_13_22_head.zip")
+//                ))
+//                .threads(48)
+//                .stochastic(true)
+//                .build();
+
+        Player player = new MetaPlayer.Builder(
+                new MetaSingleModel(
+                        Paths.get("lookup/nn/res_5m_head.zip")
                 ))
+//                .threads(1)
                 .threads(48)
                 .stochastic(true)
                 .build();
@@ -101,11 +110,14 @@ public class BrainTeaser {
 //                "8/2k2p2/2b3p1/P1p1Np2/1p3b2/1P1K4/5r2/R3R3 b - - 0 1" // b from c6 to b5
 //                "r1b2k1r/ppppq3/5N1p/4P2Q/4PP2/1B6/PP5P/n2K2R1 w - - 1 0" // Q from h5 to h6 (!!)
 
-//                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
+                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1 (!!)
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8 (!!)
 //                "rn3rk1/pbppq1pp/1p2pb2/4N2Q/3PN3/3B4/PPP2PPP/R3K2R w KQ - 7 11" // Q from h5 to h7
 //                "r1bqkb1r/pp1n1pp1/2p1pn1p/6N1/3P4/3B1N2/PPP2PPP/R1BQK2R w KQkq - 0 8" // g5 e6 (deep blue)
+
+                // mate in 9 (17) - mid net finds it
+//                "1Nr1n3/p3p1q1/P2p1prk/4p3/1pB1n1P1/1P1R4/3b2KN/8 w"
 
                 // Paul (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -121,7 +133,7 @@ public class BrainTeaser {
 //                "rnbqkbnr/4pppp/p2p4/1pp5/4P3/2NP1N2/PPP1BPPP/R1BQK2R b KQkq - 0 1"
 //                "rn1qkbnr/1b2pppp/p2p4/1pp5/4P3/2NP1N2/PPP1BPPP/R1BQK2R w KQkq - 0 1"
 //                "rn1qkbnr/1b2pppp/p2p4/1pp5/4PB2/2NP1N2/PPP1BPPP/R2QK2R b KQkq - 0 1"
-                "rn1qkb1r/1b2pppp/p2p1n2/1pp5/4PB2/2NP1N2/PPP1BPPP/R2QK2R w KQkq - 0 1"
+//                "rn1qkb1r/1b2pppp/p2p1n2/1pp5/4PB2/2NP1N2/PPP1BPPP/R2QK2R w KQkq - 0 1"
 
                 // Josh (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -407,9 +419,6 @@ public class BrainTeaser {
                 // mate in five (11)
                 // http://www.chess-poster.com/chess_problems/mate_in_5.htm
 //                "n1rb4/1p3p1p/1p6/1R5K/8/p3p1PN/1PP1R3/N6k w"
-
-                // mate in 9 (17) - mid net finds it
-//                "1Nr1n3/p3p1q1/P2p1prk/4p3/1pB1n1P1/1P1R4/3b2KN/8 w"
 
                 // easy
 //                "1rbq1rk1/p1b1nppp/1p2p3/8/1B1pN3/P2B4/1P3PPP/2RQ1R1K w" // bm Nf6+ (325,000)
