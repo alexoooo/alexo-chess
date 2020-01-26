@@ -20,7 +20,7 @@ class PuctContext {
     public final List<PuctNode> path = new ArrayList<>();
 
     public final int[] movesA = new int[Move.MAX_PER_PLY];
-    public final int[] movesB = new int[Move.MAX_PER_PLY];
+//    public final int[] movesB = new int[Move.MAX_PER_PLY];
     public final double[] valueSums = new double[Move.MAX_PER_PLY];
     public final long[] visitCounts = new long[Move.MAX_PER_PLY];
 //    public final double[] probabilityBuffer = new double[Move.MAX_PER_PLY];
@@ -40,6 +40,9 @@ class PuctContext {
     public final ConcurrentHashMap<Long, PuctEstimate> nnCache;
     public final LongAdder cacheHits;
     public final LongAdder collisions;
+    public final LongAdder terminalHits;
+    public final LongAdder tablebaseHits;
+    public final LongAdder solutionHits;
 
 
     public PuctContext(
@@ -54,7 +57,10 @@ class PuctContext {
 //            double predictionUncertainty,
             ConcurrentHashMap<Long, PuctEstimate> nnCache,
             LongAdder cacheHits,
-            LongAdder collisions)
+            LongAdder collisions,
+            LongAdder terminalHits,
+            LongAdder tablebaseHits,
+            LongAdder solutionHits)
     {
         this.index = index;
         this.threads = threads;
@@ -71,5 +77,8 @@ class PuctContext {
         this.nnCache = nnCache;
         this.cacheHits = cacheHits;
         this.collisions = collisions;
+        this.terminalHits = terminalHits;
+        this.tablebaseHits = tablebaseHits;
+        this.solutionHits = solutionHits;
     }
 }

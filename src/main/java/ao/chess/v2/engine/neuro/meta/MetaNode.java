@@ -3,7 +3,7 @@ package ao.chess.v2.engine.neuro.meta;
 
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
-import ao.chess.v2.piece.Colour;
+import ao.chess.v2.engine.neuro.puct.PuctUtils;
 import ao.chess.v2.piece.Figure;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -42,6 +42,7 @@ class MetaNode {
     private static final double stochasticPower = 3.0;
 
     private static final double errorThreshold = 0.0;
+//    private static final double errorThreshold = 0.001;
 //    private static final double errorThreshold = 0.01;
 //    private static final double errorThreshold = 0.05;
 //    private static final double errorThreshold = 0.1;
@@ -91,7 +92,7 @@ class MetaNode {
                 deepOutcome,
                 0);
 
-        maxValueCache = deepOutcomeValue(state, deepOutcome);
+        maxValueCache = PuctUtils.deepOutcomeValue(state, deepOutcome);
     }
 
 
@@ -116,28 +117,6 @@ class MetaNode {
         }
 
         maxError = winError;
-    }
-
-
-    private static double deepOutcomeValue(State state, DeepOutcome deepOutcome) {
-        if (state.isDrawnBy50MovesRule()) {
-            return 0.5;
-        }
-
-        double horizon =
-                (double) Math.abs(deepOutcome.plyDistance()) / 400;
-
-        Colour pov = state.nextToAct();
-        Outcome outcome = deepOutcome.outcome();
-        if (outcome == Outcome.DRAW) {
-            return  0.5;
-        }
-        else if (outcome.winner() == pov) {
-            return 1 - horizon;
-        }
-        else {
-            return horizon;
-        }
     }
 
 

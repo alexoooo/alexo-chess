@@ -2,12 +2,38 @@ package ao.chess.v2.engine.neuro.puct;
 
 
 import ao.chess.v2.data.MovePicker;
+import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
+import ao.chess.v2.piece.Colour;
+import ao.chess.v2.state.Outcome;
+import ao.chess.v2.state.State;
 
 import java.util.Random;
 
 
 public enum PuctUtils {
     ;
+
+
+    public static double deepOutcomeValue(State state, DeepOutcome deepOutcome) {
+        if (state.isDrawnBy50MovesRule()) {
+            return 0.5;
+        }
+
+        double horizon =
+                (double) Math.abs(deepOutcome.plyDistance()) / 400;
+
+        Colour pov = state.nextToAct();
+        Outcome outcome = deepOutcome.outcome();
+        if (outcome == Outcome.DRAW) {
+            return  0.5;
+        }
+        else if (outcome.winner() == pov) {
+            return 1 - horizon;
+        }
+        else {
+            return horizon;
+        }
+    }
 
 
     public static void smearProbabilities(

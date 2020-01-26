@@ -3,7 +3,6 @@ package ao.chess.v2.engine.neuro.puct;
 
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
-import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -25,6 +24,7 @@ class PuctNode {
     private static final double maximumGuess = 0.9;
     public static final double guessRange = maximumGuess - minimumGuess;
 
+//    private static final double initialPlayEstimate = 0.2;
     private static final double initialPlayEstimate = minimumGuess;
 
     private static final double underpromotionEstimate = 0;
@@ -35,14 +35,21 @@ class PuctNode {
 //    private static final boolean uncertaintyEnabled = false;
     private static final boolean uncertaintyEnabled = true;
     private static final double uncertaintyLogBase = Math.log(16);
-    private static final double uncertaintyLogOffset = 2.5;
+//    private static final double uncertaintyLogOffset = 2.5;
+    private static final double uncertaintyLogOffset = 2.75;
+    private static final double uncertaintyLogShift = 32512;
 //    private static final double uncertaintyLogShift = 16200;
-    private static final double uncertaintyLogShift = 8192;
+//    private static final double uncertaintyLogShift = 12288;
+//    private static final double uncertaintyLogShift = 8192;
+    private static final double uncertaintyMinimum = 0.001;
 
     private static final double stochasticPower = 3.0;
 
     private static final boolean epsilonGreedy = false;
     private static final double epsilonPerThread = 1 / 1000.0;
+
+    private static final int[] emptyMoves = new int[0];
+    private static final double[] emptyPredictions = new double[0];
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -52,18 +59,39 @@ class PuctNode {
     private final LongAdder visitCount;
     private final DoubleAdder valueSum;
 
-//    private final CopyOnWriteArrayList<PuctNode> childNodes;
     private final ChildList<PuctNode> childNodes;
     private final DeepOutcome deepOutcomeOrNull;
 
+    private volatile double knownValue;
+
 
     //-----------------------------------------------------------------------------------------------------------------
-    public PuctNode(int[] moves, double[] predictions, DeepOutcome deepOutcomeOrNull)
+    public PuctNode(DeepOutcome deepOutcome, State state)
     {
-//        if (moves.length != predictions.length) {
-//            System.out.println("foo");
-//        }
+        this(null,
+                null,
+                deepOutcome,
+                PuctUtils.deepOutcomeValue(state, deepOutcome));
+    }
 
+
+    public PuctNode(Outcome outcome, State state)
+    {
+        this(emptyMoves,
+                emptyPredictions,
+                new DeepOutcome(outcome, 0),
+                outcome.valueFor(state.nextToAct()));
+    }
+
+
+    public PuctNode(int[] moves, double[] predictions)
+    {
+        this(moves, predictions, null, Double.NaN);
+    }
+
+
+    private PuctNode(int[] moves, double[] predictions, DeepOutcome deepOutcomeOrNull, double knownValue)
+    {
         this.moves = moves;
         this.predictions = predictions;
         this.deepOutcomeOrNull = deepOutcomeOrNull;
@@ -77,6 +105,8 @@ class PuctNode {
         else {
             childNodes = new ChildList<>(moves.length);
         }
+
+        this.knownValue = knownValue;
     }
 
 
@@ -132,8 +162,8 @@ class PuctNode {
         path.add(this);
         visitCount.increment();
 
-        boolean reachedTerminal = false;
         double estimatedValue = Double.NaN;
+//        boolean debug = false;
 
         while (! path.get( path.size() - 1 ).isUnvisitedVirtual())
         {
@@ -141,11 +171,20 @@ class PuctNode {
 
             int childIndex = node.puctChild(context);
 
-            if (childIndex == -1) {
-                // TODO: cleanup
-                reachedTerminal = true;
+            if (node.isValueKnown()) {
+//                System.out.println(">> " + state.toFen() + " - " + node.knownValue);
+                estimatedValue = node.knownValue;
+                context.solutionHits.increment();
+//                estimatedValue = 1.0 - node.knownValue;
                 break;
             }
+
+//            if (path.size() == 1) {
+//                if (childIndex == 3) {
+//                    debug = true;
+//                }
+//                System.out.println("!!!!! " + Move.toString(node.moves[childIndex]));
+//            }
 
             Move.apply(node.moves[childIndex], state);
 
@@ -165,12 +204,27 @@ class PuctNode {
             path.add( child );
             child.visitCount.increment();
 
-            if (expanded) {
-                estimatedValue = context.estimatedValue;
+            if (child.isValueKnown()) {
+                estimatedValue = child.knownValue;
+
+                if (child.moves == null) {
+                    context.tablebaseHits.increment();
+                }
+                else if (child.moves.length == 0) {
+                    context.terminalHits.increment();
+                }
+                else {
+                    context.solutionHits.increment();
+                }
+
+//                if (debug && state.nextToAct() == Colour.WHITE && child.knownValue == 1.0) {
+//                    System.out.println("??????");
+//                }
+//                System.out.println(">>> " + state.toFen() + " - " + child.knownValue);
                 break;
             }
-            else if (child.deepOutcomeOrNull != null) {
-                estimatedValue = child.deepOutcomeValue(state, child.deepOutcomeOrNull);
+            else if (expanded) {
+                estimatedValue = context.estimatedValue;
                 break;
             }
         }
@@ -180,11 +234,7 @@ class PuctNode {
             return;
         }
 
-        double leafValue = reachedTerminal
-                ? (state.isInCheck(state.nextToAct()) ? 0 : 0.5)
-                : estimatedValue;
-
-        backupValue(path, leafValue);
+        backupValue(path, estimatedValue, context);
     }
 
 
@@ -194,15 +244,15 @@ class PuctNode {
         int moveCount = state.legalMoves(context.movesA);
         if (moveCount == 0 || moveCount == -1) {
             Outcome knownOutcome = state.knownOutcome();
-            PuctNode newChild = new PuctNode(new int[0], new double[0],
-                    new DeepOutcome(knownOutcome, 0));
-
-            context.estimatedValue = knownOutcome.valueFor(state.nextToAct());
-
+            PuctNode newChild = new PuctNode(knownOutcome, state);
+            context.estimatedValue = newChild.knownValue;
+            context.terminalHits.increment();
             return addChildIfRequired(newChild, parent, childIndex);
         }
         else if (state.isDrawnBy50MovesRule()) {
-            PuctNode newChild = new PuctNode(null, null, DeepOutcome.DRAW);
+            PuctNode newChild = new PuctNode(DeepOutcome.DRAW, state);
+            context.estimatedValue = 0.5;
+            context.terminalHits.increment();
             return addChildIfRequired(newChild, parent, childIndex);
         }
 
@@ -219,10 +269,8 @@ class PuctNode {
                 throw new IllegalStateException("Missing tablebase: " + state);
             }
 
-            PuctNode newChild = new PuctNode(null, null, deepOutcome);
-
-//            adjusted = newChild.deepOutcomeValue(state, deepOutcome);
-
+            PuctNode newChild = new PuctNode(deepOutcome, state);
+            context.estimatedValue = newChild.knownValue;
             return addChildIfRequired(newChild, parent, childIndex);
         }
 
@@ -232,9 +280,6 @@ class PuctNode {
 
         PuctEstimate estimate;
         if (cached == null) {
-//            estimate = context.model.estimate(state, legalMoves);
-//            estimate.postProcess(context.predictionUncertainty, guessRange, minimumGuess);
-
             estimate = context.pool.estimateBlocking(
                     state, legalMoves);
 
@@ -246,27 +291,17 @@ class PuctNode {
         }
 
         PuctNode newChild = new PuctNode(
-                legalMoves, estimate.moveProbabilities, null);
+                legalMoves, estimate.moveProbabilities);
 
         boolean wasSet = parent.childNodes.setIfAbsent(childIndex, newChild);
         if (! wasSet) {
             context.collisions.increment();
             return false;
         }
-//        PuctNode existing = parent.childNodes.set(childIndex, newChild);
-//        if (existing != null) {
-//            parent.childNodes.set(childIndex, existing);
-//            context.collisions.increment();
-//            return false;
-//        }
 
         double drawProximity =
                 (double) state.reversibleMoves() / 250;
-//                state.reversibleMoves() <= 30
-//                ? 0
-//                : state.reversibleMoves() <= 70
-//                ? (double) state.reversibleMoves() / 100
-//                : Math.pow((double) state.reversibleMoves() / 100, 2);
+
         double adjusted = drawProximity * 0.5 + (1 - drawProximity) * estimate.winProbability;
 
         context.estimatedValue = adjusted;
@@ -281,36 +316,6 @@ class PuctNode {
             int childIndex
     ) {
         return parent.childNodes.setIfAbsent(childIndex, newChild);
-
-//        PuctNode existing = parent.childNodes.set(childIndex, newChild);
-//        if (existing != null) {
-//            parent.childNodes.set(childIndex, existing);
-//            return false;
-//        }
-//
-//        return true;
-    }
-
-
-    private double deepOutcomeValue(State state, DeepOutcome deepOutcome) {
-        if (state.isDrawnBy50MovesRule()) {
-            return 0.5;
-        }
-
-        double horizon =
-                (double) Math.abs(deepOutcome.plyDistance()) / 400;
-
-        Colour pov = state.nextToAct();
-        Outcome outcome = deepOutcome.outcome();
-        if (outcome == Outcome.DRAW) {
-            return  0.5;
-        }
-        else if (outcome.winner() == pov) {
-            return 1 - horizon;
-        }
-        else {
-            return horizon;
-        }
     }
 
 
@@ -318,11 +323,12 @@ class PuctNode {
     private int puctChild(
             PuctContext context)
     {
-//        int moveCount = childNodes.size();
         int moveCount = moves.length;
         if (moveCount == 0) {
             return -1;
         }
+
+        int nonWinKnownCount = 0;
 
         double[] moveValueSums = context.valueSums;
         long[] moveVisitCounts = context.visitCounts;
@@ -340,12 +346,42 @@ class PuctNode {
             else {
                 childValueSum = child.valueSum.sum();
                 childVisitCount = child.visitCount.sum();
+
+                double known = child.knownValue;
+                if (! Double.isNaN(known)) {
+                    if (known == 0.0) {
+                        knownValue = 1.0;
+                        return i;
+                    }
+
+                    nonWinKnownCount++;
+                    childValueSum = (1.0 - known) * childVisitCount;
+//                    childValueSum = known * childVisitCount;
+                }
             }
 
             moveValueSums[i] = childValueSum;
             moveVisitCounts[i] = childVisitCount;
 
             parentVisitCount += childVisitCount;
+        }
+
+        if (nonWinKnownCount == moveCount) {
+            double childValue = 1.0;
+//            double childValue = 0.0;
+            int childIndex = 0;
+            for (int i = 0; i < moveCount; i++) {
+                PuctNode child = childNodes.get(i);
+                double value = child.knownValue;
+                if (value < childValue) {
+//                if (value > childValue) {
+                    childValue = value;
+                    childIndex = i;
+                }
+            }
+            knownValue = 1.0 - childValue;
+//            knownValue = childValue;
+            return childIndex;
         }
 
         return epsilonGreedy
@@ -367,9 +403,9 @@ class PuctNode {
 
         double moveUncertainty =
                 uncertaintyEnabled
-                        ? 1.0 - 1.0 / Math.max(1,
-                        Math.log(parentVisitCount + uncertaintyLogShift) / uncertaintyLogBase - uncertaintyLogOffset)
-                        : 0;
+                ? Math.max(uncertaintyMinimum, 1.0 - 1.0 / Math.max(1,
+                        Math.log(parentVisitCount + uncertaintyLogShift) / uncertaintyLogBase - uncertaintyLogOffset))
+                : 0;
         double predictionDenominator = 1.0 + moveUncertainty * moveCount;
 
         for (int i = 0; i < moveCount; i++) {
@@ -403,9 +439,9 @@ class PuctNode {
 
             double unvisitedBonus =
                     smearedPrediction *
-                            (Math.sqrt(parentVisitCount) / (moveVisits + 1)) *
-                            (context.exploration +
-                                    Math.log((parentVisitCount + context.explorationLog + 1) / context.explorationLog));
+                    (Math.sqrt(parentVisitCount) / (moveVisits + 1)) *
+                    (context.exploration +
+                            Math.log((parentVisitCount + context.explorationLog + 1) / context.explorationLog));
 
             double score = averageOutcome + unvisitedBonus;
 
@@ -495,22 +531,38 @@ class PuctNode {
     //-----------------------------------------------------------------------------------------------------------------
     private void backupValue(
             List<PuctNode> path,
-            double leafPlayout)
+            double leafValue,
+            PuctContext context)
     {
-        double reward = leafPlayout;
+        double inverseValue = 1.0 - leafValue;
+        // NB: negating all rewards so that we're always maximizing
+        boolean reverse = true;
+//        boolean reverse = false;
 
         for (int i = path.size() - 1; i >= 0; i--)
         {
-            // NB: negating all rewards so that we're always maximizing
-            reward = 1.0 - reward;
+            double negaMaxValue = reverse ? inverseValue : leafValue;
 
             PuctNode node = path.get(i);
-            node.valueSum.add(reward);
+
+//            if (i == 1) {
+//                System.out.println(" ## " + negaMaxValue + " - " + node.toString(context));
+//            }
+
+            node.valueSum.add(negaMaxValue);
+
+            reverse = ! reverse;
         }
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
+    public boolean isValueKnown()
+    {
+        return ! Double.isNaN(knownValue);
+    }
+
+
     public int bestMove(
             State state,
             boolean stochastic,
@@ -520,6 +572,21 @@ class PuctNode {
     ) {
         if (moves.length == 0) {
             return -1;
+        }
+        if (! Double.isNaN(knownValue)) {
+            double minChildValue = 1.0;
+            int minChildIndex = 0;
+            for (int i = 0; i < moves.length; i++) {
+                PuctNode child = childOrNull(i);
+                if (child == null) {
+                    continue;
+                }
+                if (minChildValue > child.knownValue) {
+                    minChildValue = child.knownValue;
+                    minChildIndex = i;
+                }
+            }
+            return moves[minChildIndex];
         }
 
         int contenderCount = 0;
@@ -648,6 +715,10 @@ class PuctNode {
 
     public double inverseValue()
     {
+        if (! Double.isNaN(knownValue)) {
+            return knownValue;
+        }
+
         long count = visitCount.longValue();
         double sum = valueSum.doubleValue();
         return count == 0
@@ -715,10 +786,6 @@ class PuctNode {
 
         double inverse = inverseValue();
         long parentVisitCount = parentCount;
-
-//        double uncertainty = 1.0 - 1.0 / Math.max(1, Math.log(parentVisitCount) - 4);
-//        double moveUncertainty = uncertainty / moves.length;
-//        double predictionDenominator = 1.0 + uncertainty;
 
         double moveUncertainty =
                 uncertaintyEnabled

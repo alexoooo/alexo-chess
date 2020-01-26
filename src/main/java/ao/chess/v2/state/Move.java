@@ -10,6 +10,10 @@ import ao.chess.v2.piece.Figure;
 public class Move
 {
     //--------------------------------------------------------------------
+    public static final int nullMove = -1;
+
+
+    //--------------------------------------------------------------------
     private Move() {}
 
 
@@ -455,6 +459,10 @@ public class Move
     //--------------------------------------------------------------------
     public static String toString(int move)
     {
+        if (move == nullMove) {
+            return "None";
+        }
+
         switch (moveType(move))
         {
             case MOBILITY: {
@@ -499,7 +507,7 @@ public class Move
             }
         }
 
-        return "Unknown";
+        throw new IllegalStateException();
     }
 
 

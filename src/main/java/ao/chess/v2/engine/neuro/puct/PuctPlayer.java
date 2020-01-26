@@ -18,6 +18,7 @@ public class PuctPlayer
         implements ScoredPlayer
 {
     //-----------------------------------------------------------------------------------------------------------------
+//    private final static int reportPeriod = 0;
 //    private final static int reportPeriod = 1_000;
     private final static int reportPeriod = 5_000;
 
@@ -103,6 +104,9 @@ public class PuctPlayer
     private final ConcurrentHashMap<Long, PuctEstimate> nnCache = new ConcurrentHashMap<>();
     private final LongAdder cacheHits = new LongAdder();
     private final LongAdder collisions = new LongAdder();
+    private final LongAdder terminalHits = new LongAdder();
+    private final LongAdder tablebaseHits = new LongAdder();
+    private final LongAdder solutionHits = new LongAdder();
 
     private final CopyOnWriteArrayList<PuctContext> contexts;
     private ExecutorService executorService;
@@ -224,8 +228,9 @@ public class PuctPlayer
                 thinkingEpisode(
                         root, context, position, isRepeat, episodeMillis, true);
             }
-            while (root.visitCount() < minimumTrajectories ||
-                    System.currentTimeMillis() < deadline);
+            while ((root.visitCount() < minimumTrajectories ||
+                    System.currentTimeMillis() <= deadline) &&
+                    ! root.isValueKnown());
         }
         else {
             display("Submitting threads: " + threads);
@@ -240,8 +245,9 @@ public class PuctPlayer
                         thinkingEpisode(
                                 currentRoot, context, position, isRepeat, episodeMillis, progressThread);
                     }
-                    while (currentRoot.visitCount() < minimumTrajectories ||
-                            System.currentTimeMillis() < deadline);
+                    while ((currentRoot.visitCount() < minimumTrajectories ||
+                            System.currentTimeMillis() <= deadline) &&
+                            ! currentRoot.isValueKnown());
                 });
                 futures.add(future);
             }
@@ -285,7 +291,8 @@ public class PuctPlayer
                 root.runTrajectory(
                         state.prototype(), context);
             }
-            while (System.currentTimeMillis() < episodeDeadline);
+            while (System.currentTimeMillis() < episodeDeadline &&
+                    ! root.isValueKnown());
         }
         catch (Throwable t) {
             log("ERROR! " + t.getMessage());
@@ -328,7 +335,10 @@ public class PuctPlayer
 //                    predictionUncertainty,
                     nnCache,
                     cacheHits,
-                    collisions));
+                    collisions,
+                    terminalHits,
+                    tablebaseHits,
+                    solutionHits));
         }
 
         MovePicker.init();
@@ -390,7 +400,7 @@ public class PuctPlayer
 //                    estimate.moveProbabilities, predictionUncertainty);
 //        }
 
-        PuctNode root = new PuctNode(legalMoves, estimate.moveProbabilities, null);
+        PuctNode root = new PuctNode(legalMoves, estimate.moveProbabilities);
         root.initRoot();
 
         previousRoot = root;
@@ -409,17 +419,19 @@ public class PuctPlayer
         int bestMove = root.bestMove(state, stochastic, isRepeat, history, historyIndex);
 
         String generalPrefix = String.format(
-                "%s - %s | %d / %.2f / %b / %b | %d / %d / %d | %s",
+                "%s - %s | %d / %.2f / %b / %b | u%d / c%d / x%d / t%d / e%d / s%d | %s",
                 id,
                 model,
                 threads,
                 exploration,
                 randomize,
                 tablebase,
-//                predictionUncertainty,
                 nnCache.size(),
                 cacheHits.longValue(),
                 collisions.longValue(),
+                terminalHits.longValue(),
+                tablebaseHits.longValue(),
+                solutionHits.longValue(),
                 Move.toString(bestMove));
 
         String moveSuffix =
