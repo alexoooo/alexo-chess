@@ -4,11 +4,11 @@ package ao.chess.v2.engine.heuristic.learn;
 import ao.chess.v2.data.Location;
 import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.state.Outcome;
+import com.google.common.collect.ImmutableList;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.InputPreProcessor;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.graph.ElementWiseVertex;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.conf.preprocessor.CnnToFeedForwardPreProcessor;
@@ -18,18 +18,14 @@ import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
-// https://www.youtube.com/watch?v=Xogn6veSyxA&feature=youtu.be&t=325
-// https://github.com/eclipse/deeplearning4j-examples/blob/master/dl4j-examples/src/main/java/org/deeplearning4j/examples/convolution/alphagozero/DL4JAlphaGoZeroBuilder.java
-// TODO: remove bias before batch norm? https://stackoverflow.com/questions/46256747/can-not-use-both-bias-and-batch-normalization-in-convolution-layers
-// See also: https://github.com/eclipse/deeplearning4j-examples/blob/master/dl4j-examples/src/main/java/org/deeplearning4j/examples/denseNet/DenseNetBuilder.java
-// See also: https://towardsdatascience.com/squeeze-and-excitation-networks-9ef5e71eacd7
-public class NnBuilder {
+public class NnDenseBuilder {
     //-----------------------------------------------------------------------------------------------------------------
     public static final String layerInput = "input";
-    public static final String layerInitial = "init";
+//    public static final String layerInitial = "init";
     public static final String layerHeadFrom = "out-from";
     public static final String layerHeadTo = "out-to";
     public static final String layerHeadOutcome = "out-outcome";
@@ -37,25 +33,26 @@ public class NnBuilder {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    private final int bodyFilters;
+//    private final int bodyFilters;
     private final Activation bodyActivation;
     private final ComputationGraphConfiguration.GraphBuilder conf;
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public NnBuilder(
-            int bodyFilters,
+    public NnDenseBuilder(
+//            int bodyFilters,
             Activation bodyActivation
     ) {
-        this(bodyFilters, bodyActivation, false);
+        this(/*bodyFilters,*/ bodyActivation, false);
     }
 
-    public NnBuilder(
-            int bodyFilters,
+
+    public NnDenseBuilder(
+//            int bodyFilters,
             Activation bodyActivation,
             boolean meta
     ) {
-        this.bodyFilters = bodyFilters;
+//        this.bodyFilters = bodyFilters;
         this.bodyActivation = bodyActivation;
 
         conf = new NeuralNetConfiguration.Builder()
@@ -84,66 +81,16 @@ public class NnBuilder {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public void addInitialConvolution() {
-        String convName = "init-conv";
-        String bnName = "init-bn";
-
-        conf.addLayer(convName,
-                new ConvolutionLayer.Builder().kernelSize(3, 3)
-                        .stride(1, 1)
-                        .padding(1, 1)
-                        .nOut(bodyFilters)
-                        .activation(Activation.IDENTITY)
-                        .build(),
-                layerInput);
-
-        conf.addLayer(bnName,
-                new BatchNormalization.Builder().build(),
-                convName);
-
-        conf.addLayer(layerInitial,
-                new ActivationLayer.Builder()
-                        .activation(bodyActivation)
-                        .build(),
-                bnName);
-    }
-
-
-    public void addInitialSingleton() {
-        String convName = "init-conv";
-        String bnName = "init-bn";
-
-        conf.addLayer(convName,
-                new ConvolutionLayer.Builder()
-                        .kernelSize(1, 1)
-                        .stride(1, 1)
-                        .padding(0, 0)
-                        .nOut(bodyFilters)
-                        .activation(Activation.IDENTITY)
-                        .build(),
-                layerInput);
-
-        conf.addLayer(bnName,
-                new BatchNormalization.Builder().build(),
-                convName);
-
-        conf.addLayer(layerInitial,
-                new ActivationLayer.Builder()
-                        .activation(bodyActivation)
-                        .build(),
-                bnName);
-    }
-
-
-    //-----------------------------------------------------------------------------------------------------------------
-    public String addNormActivationConvolution(String blockName, String inName) {
+    public String addNormActivationConvolution(
+            String blockName, List<String> inNames, int filterCount
+    ) {
         String normName = blockName + "-bn";
         String activationName = blockName + "-act";
         String convolutionName = blockName + "-conv";
 
         conf.addLayer(normName,
                 new BatchNormalization.Builder().build(),
-                inName);
+                inNames.toArray(String[]::new));
 
         conf.addLayer(activationName,
                 new ActivationLayer.Builder()
@@ -156,7 +103,7 @@ public class NnBuilder {
                         .kernelSize(3, 3)
                         .stride(1, 1)
                         .padding(1, 1)
-                        .nOut(bodyFilters)
+                        .nOut(filterCount)
                         .activation(Activation.IDENTITY)
                         .build(),
                 activationName);
@@ -165,41 +112,44 @@ public class NnBuilder {
     }
 
 
-    public String addResidual(int blockNumber, String inName) {
+    public String addBlock(
+            int blockNumber,
+            List<String> inNames,
+            int internalFilterCount,
+            int outputFilterCount
+    ) {
         String firstBlock = blockNumber + "-res-1" ;
         String secondBlock = blockNumber + "-res-2";
-        String merge = blockNumber + "-add";
 
-        String firstBlockOut = addNormActivationConvolution(firstBlock, inName);
-        String secondBlockOut = addNormActivationConvolution(secondBlock, firstBlockOut);
-
-        conf.addVertex(merge,
-                new ElementWiseVertex(ElementWiseVertex.Op.Add),
-                inName, secondBlockOut);
-
-        return merge;
+        String firstBlockOut = addNormActivationConvolution(firstBlock, inNames, internalFilterCount);
+        return addNormActivationConvolution(secondBlock, List.of(firstBlockOut), outputFilterCount);
     }
 
 
-    public String addResidualTower(int numBlocks, String inName) {
-        String name = inName;
+    public List<String> addDenseTower(
+            int numBlocks,
+            int internalFilters,
+            int filtersPerBlock,
+            String inName
+    ) {
+        ImmutableList.Builder<String> builder = ImmutableList.builder();
+
+        builder.add(inName);
+
         for (int i = 0; i < numBlocks; i++) {
-            name = addResidual(i, name);
+            String name = addBlock(i, builder.build(), internalFilters, filtersPerBlock);
+            builder.add(name);
         }
 
-        // TODO: add batch norm here?
-
-        return name;
+        return builder.build();
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public void addPolicyHead(String inName, int headFilters) {
+    public void addPolicyHead(List<String> inNames, int headFilters) {
         String convName = "policy_head_conv";
         String bnName = "policy_head_batch_norm";
         String actName = "policy_head_activation";
-
-        // TODO: add batch norm here?
 
         conf.addLayer(convName,
                 new ConvolutionLayer.Builder()
@@ -209,7 +159,7 @@ public class NnBuilder {
                         .nOut(headFilters)
                         .activation(Activation.IDENTITY)
                         .build(),
-                inName);
+                inNames.toArray(String[]::new));
 
         conf.addLayer(bnName,
                 new BatchNormalization.Builder().build(),
@@ -246,7 +196,7 @@ public class NnBuilder {
     }
 
 
-    public void addValueHead(String inName, int headFilters) {
+    public void addValueHead(List<String> inNames, int headFilters, int affineSize) {
         String convName = "value_head_conv";
         String convBnName = "value_head_conv_bn";
         String actName = "value_head_activation";
@@ -257,12 +207,11 @@ public class NnBuilder {
                 new ConvolutionLayer.Builder()
                         .kernelSize(3, 3)
                         .stride(1, 1)
-//                        .padding(0, 0)
                         .padding(1, 1)
                         .nOut(headFilters)
                         .activation(Activation.IDENTITY)
                         .build(),
-                inName);
+                inNames.toArray(String[]::new));
 
         conf.addLayer(convBnName,
                 new BatchNormalization.Builder().build(),
@@ -276,9 +225,8 @@ public class NnBuilder {
 
         conf.addLayer(denseName,
                 new DenseLayer.Builder()
-                        .nOut(bodyFilters)
+                        .nOut(affineSize)
                         .activation(bodyActivation)
-//                        .weightInit(WeightInit.XAVIER)
                         .build(),
                 actName);
 
@@ -293,7 +241,6 @@ public class NnBuilder {
                         .weightInit(WeightInit.XAVIER)
                         .build(),
                 denseBnName);
-//                denseName);
 
         Map<String, InputPreProcessor> preProcessorMap = new HashMap<>();
         preProcessorMap.put(denseName, new CnnToFeedForwardPreProcessor(
@@ -302,7 +249,7 @@ public class NnBuilder {
     }
 
 
-    public void addErrorHead(String inName, int headFilters) {
+    public void addErrorHead(List<String> inNames, int headFilters, int affineSize) {
         String convName = "error_head_conv";
         String convBnName = "error_head_conv_bn";
         String actName = "error_head_activation";
@@ -317,7 +264,7 @@ public class NnBuilder {
                         .nOut(headFilters)
                         .activation(Activation.IDENTITY)
                         .build(),
-                inName);
+                inNames.toArray(String[]::new));
 
         conf.addLayer(convBnName,
                 new BatchNormalization.Builder().build(),
@@ -331,7 +278,7 @@ public class NnBuilder {
 
         conf.addLayer(denseName,
                 new DenseLayer.Builder()
-                        .nOut(bodyFilters)
+                        .nOut(affineSize)
                         .activation(bodyActivation)
                         .build(),
                 actName);
@@ -342,7 +289,6 @@ public class NnBuilder {
 
         conf.addLayer(layerHeadError,
                 new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-//                new OutputLayer.Builder(LossFunctions.LossFunction.L1)
                         .activation(Activation.SIGMOID)
                         .nOut(1)
                         .weightInit(WeightInit.XAVIER)

@@ -30,18 +30,22 @@ class PuctNode {
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
 //    private static final double randomizationWeight = 1 / 150.0;
-    private static final double randomizationWeight = 1 / 175.0;
+//    private static final double randomizationWeight = 1 / 175.0;
+//    private static final double randomizationWeight = 1 / 200.0;
+//    private static final double randomizationWeight = 1 / 225.0;
+    private static final double randomizationWeight = 1 / 250.0;
 
 //    private static final boolean uncertaintyEnabled = false;
     private static final boolean uncertaintyEnabled = true;
     private static final double uncertaintyLogBase = Math.log(16);
-//    private static final double uncertaintyLogOffset = 2.5;
-    private static final double uncertaintyLogOffset = 2.75;
-    private static final double uncertaintyLogShift = 32512;
+    private static final double uncertaintyLogOffset = 2.5;
+//    private static final double uncertaintyLogOffset = 2.75;
+//    private static final double uncertaintyLogShift = 32512;
 //    private static final double uncertaintyLogShift = 16200;
 //    private static final double uncertaintyLogShift = 12288;
-//    private static final double uncertaintyLogShift = 8192;
-    private static final double uncertaintyMinimum = 0.001;
+    private static final double uncertaintyLogShift = 8192;
+//    private static final double uncertaintyMinimum = 0.001;
+    private static final double uncertaintyMinimum = 0.0;
 
     private static final double stochasticPower = 3.0;
 

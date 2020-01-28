@@ -34,11 +34,11 @@ public class MoveTrainer {
     private static final boolean useCheckpoint = true;
 //    private static final boolean useCheckpoint = false;
 
-//    private static final boolean snapshot = false;
-    private static final boolean snapshot = true;
+    private static final boolean snapshot = false;
+//    private static final boolean snapshot = true;
 
-//    private static final boolean meta = false;
-    private static final boolean meta = true;
+    private static final boolean meta = false;
+//    private static final boolean meta = true;
 
     private static final boolean defaultBestAction = true;
 //    private static final boolean defaultValueAverage = true;
@@ -47,11 +47,11 @@ public class MoveTrainer {
 //    private static final int miniBatchSize = 64;
 //    private static final int miniBatchSize = 128;
 //    private static final int miniBatchSize = 192;
-//    private static final int miniBatchSize = 256;
+    private static final int miniBatchSize = 256;
 //    private static final int miniBatchSize = 320;
 //    private static final int miniBatchSize = 384;
 //    private static final int miniBatchSize = 448;
-    private static final int miniBatchSize = 512;
+//    private static final int miniBatchSize = 512;
 //    public static final int miniBatchSize = 704;
 //    private static final int miniBatchSize = 768;
 //    private static final int miniBatchSize = 1024;
@@ -185,7 +185,12 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/res_5_p32_head.zip");
 //            Paths.get("lookup/nn/res_5_p_2_12_head.zip");
 //            Paths.get("lookup/nn/res_5_p_13_22_head.zip");
-            Paths.get("lookup/nn/res_5m_head.zip");
+//            Paths.get("lookup/nn/res_5m_head.zip");
+//            Paths.get("lookup/nn/dense_5c_48_head.zip");
+//            Paths.get("lookup/nn/dense_6_48_head.zip");
+//            Paths.get("lookup/nn/dense_6_48b_head.zip");
+//            Paths.get("lookup/nn/dense_7_48_head.zip");
+            Paths.get("lookup/nn/dense_7b_48_head.zip");
 //            Paths.get("lookup/nn/res_32_20191227.zip");
 
 
@@ -208,7 +213,13 @@ public class MoveTrainer {
 //            nn = createResidualNetwork3();
 //            nn = createResidualNetwork4();
 //            nn = createResidualNetwork5();
-            nn = createResidualNetwork5Meta();
+//            nn = createDenseNetwork5x48();
+//            nn = createDenseNetwork5x48c();
+//            nn = createDenseNetwork6x48();
+//            nn = createDenseNetwork6x48b();
+//            nn = createDenseNetwork7x48();
+            nn = createDenseNetwork7x48b();
+//            nn = createResidualNetwork5Meta();
 //            nn = createResidualNetwork32();
         }
 
@@ -549,13 +560,13 @@ public class MoveTrainer {
 
     //-----------------------------------------------------------------------------------------------------------------
     public static ComputationGraph createResidualNetwork2() {
-        NnBuilder builder = new NnBuilder(192, Activation.LEAKYRELU);
+        NnResBuilder builder = new NnResBuilder(192, Activation.LEAKYRELU);
 //        NnBuilder builder = new NnBuilder(256, Activation.LEAKYRELU);
 
 //        builder.addInitialSingleton();
         builder.addInitialConvolution();
 
-        String body = builder.addResidualTower(2, NnBuilder.layerInitial);
+        String body = builder.addResidualTower(2, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 32);
 //        builder.addPolicyHead(body, 64);
@@ -572,12 +583,12 @@ public class MoveTrainer {
 
 
     public static ComputationGraph createResidualNetwork3() {
-        NnBuilder builder = new NnBuilder(256, Activation.LEAKYRELU);
+        NnResBuilder builder = new NnResBuilder(256, Activation.LEAKYRELU);
 
         builder.addInitialSingleton();
 //        builder.addInitialConvolution();
 
-        String body = builder.addResidualTower(3, NnBuilder.layerInitial);
+        String body = builder.addResidualTower(3, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
         builder.addValueHead(body, 64);
@@ -590,12 +601,12 @@ public class MoveTrainer {
 
 
     public static ComputationGraph createResidualNetwork4() {
-        NnBuilder builder = new NnBuilder(256, Activation.LEAKYRELU);
+        NnResBuilder builder = new NnResBuilder(256, Activation.LEAKYRELU);
 
         builder.addInitialSingleton();
 //        builder.addInitialConvolution();
 
-        String body = builder.addResidualTower(4, NnBuilder.layerInitial);
+        String body = builder.addResidualTower(4, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
         builder.addValueHead(body, 64);
@@ -608,11 +619,11 @@ public class MoveTrainer {
 
 
     public static ComputationGraph createResidualNetwork5() {
-        NnBuilder builder = new NnBuilder(256, Activation.RELU);
+        NnResBuilder builder = new NnResBuilder(256, Activation.RELU);
 
         builder.addInitialConvolution();
 
-        String body = builder.addResidualTower(5, NnBuilder.layerInitial);
+        String body = builder.addResidualTower(5, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
         builder.addValueHead(body, 64);
@@ -624,12 +635,120 @@ public class MoveTrainer {
     }
 
 
+//    public static ComputationGraph createDenseNetwork5x48() {
+//        NnDenseBuilder builder = new NnDenseBuilder(Activation.RELU);
+//
+//        List<String> body = builder.addDenseTower(5, 48, NnDenseBuilder.layerInput);
+//
+//        builder.addPolicyHead(body, 64);
+//        builder.addValueHead(body, 64, 256);
+//
+//        ComputationGraph net = new ComputationGraph(builder.build());
+//        net.init();
+//
+//        return net;
+//    }
+
+
+    public static ComputationGraph createDenseNetwork5x48b() {
+        NnDenseBuilder builder = new NnDenseBuilder(Activation.RELU);
+
+        List<String> body = builder.addDenseTower(5, 48,48, NnDenseBuilder.layerInput);
+
+        builder.addPolicyHead(body, 64);
+        builder.addValueHead(body, 32, 384);
+
+        ComputationGraph net = new ComputationGraph(builder.build());
+        net.init();
+
+        return net;
+    }
+
+
+    public static ComputationGraph createDenseNetwork5x48c() {
+        NnDenseBuilder builder = new NnDenseBuilder(Activation.RELU);
+
+        List<String> body = builder.addDenseTower(5, 48,48, NnDenseBuilder.layerInput);
+
+        builder.addPolicyHead(body, 64);
+        builder.addValueHead(body, 64, 384);
+
+        ComputationGraph net = new ComputationGraph(builder.build());
+        net.init();
+
+        return net;
+    }
+
+
+    public static ComputationGraph createDenseNetwork6x48() {
+        NnDenseBuilder builder = new NnDenseBuilder(Activation.RELU);
+
+        List<String> body = builder.addDenseTower(6, 48,48, NnDenseBuilder.layerInput);
+
+        builder.addPolicyHead(body, 64);
+        builder.addValueHead(body, 64, 384);
+
+        ComputationGraph net = new ComputationGraph(builder.build());
+        net.init();
+
+        return net;
+    }
+
+
+    public static ComputationGraph createDenseNetwork6x48b() {
+        NnDenseBuilder builder = new NnDenseBuilder(Activation.RELU);
+
+        List<String> body = builder.addDenseTower(
+                6, 256,48, NnDenseBuilder.layerInput);
+
+        builder.addPolicyHead(body, 64);
+        builder.addValueHead(body, 64, 384);
+
+        ComputationGraph net = new ComputationGraph(builder.build());
+        net.init();
+
+        return net;
+    }
+
+
+    public static ComputationGraph createDenseNetwork7x48() {
+        NnDenseBuilder builder = new NnDenseBuilder(Activation.RELU);
+
+        List<String> body = builder.addDenseTower(
+                7, 256,48, NnDenseBuilder.layerInput);
+
+        builder.addPolicyHead(body, 64);
+        builder.addValueHead(body, 64, 384);
+
+        ComputationGraph net = new ComputationGraph(builder.build());
+        net.init();
+
+        return net;
+    }
+
+
+    public static ComputationGraph createDenseNetwork7x48b() {
+        NnDenseBuilder builder = new NnDenseBuilder(Activation.RELU);
+
+        List<String> body = builder.addDenseTower(
+                7, 288,48, NnDenseBuilder.layerInput);
+
+        builder.addPolicyHead(body, 96);
+        builder.addValueHead(body, 64, 384);
+
+        ComputationGraph net = new ComputationGraph(builder.build());
+        net.init();
+
+        return net;
+    }
+
+
     public static ComputationGraph createResidualNetwork5Meta() {
-        NnBuilder builder = new NnBuilder(256, Activation.RELU, true);
+        NnResBuilder builder = new NnResBuilder(256, Activation.RELU, true);
 
         builder.addInitialConvolution();
 
-        String body = builder.addResidualTower(5, NnBuilder.layerInitial);
+        String body = builder.addResidualTower(5, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
         builder.addValueHead(body, 64);
@@ -643,11 +762,11 @@ public class MoveTrainer {
 
 
     public static ComputationGraph createResidualNetwork10() {
-        NnBuilder builder = new NnBuilder(256, Activation.LEAKYRELU);
+        NnResBuilder builder = new NnResBuilder(256, Activation.LEAKYRELU);
 
         builder.addInitialConvolution();
 
-        String body = builder.addResidualTower(10, NnBuilder.layerInitial);
+        String body = builder.addResidualTower(10, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
         builder.addValueHead(body, 64);
@@ -660,11 +779,11 @@ public class MoveTrainer {
 
 
     public static ComputationGraph createResidualNetwork32() {
-        NnBuilder builder = new NnBuilder(64, Activation.LEAKYRELU);
+        NnResBuilder builder = new NnResBuilder(64, Activation.LEAKYRELU);
 
         builder.addInitialConvolution();
 
-        String body = builder.addResidualTower(32, NnBuilder.layerInitial);
+        String body = builder.addResidualTower(32, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
         builder.addValueHead(body, 64);
