@@ -23,10 +23,10 @@ public class BrainTeaser {
 //        int time = 7 * 24 * 60 * 60 * 1000;
 //        int time = 10 * 1000;
 //        int time = 15 * 1000;
-//        int time = 45 * 1000;
+        int time = 45 * 1000;
 //        int time = 60 * 1000;
 //        int time = 10 * 60 * 1000;
-        int time = 60 * 60 * 1000;
+//        int time = 60 * 60 * 1000;
 //        int time = 24 * 60 * 60 * 1000;
 
 //        Player player = new ParallelMctsPlayer(
@@ -118,7 +118,7 @@ public class BrainTeaser {
 //                "r1bqkb1r/pp1n1pp1/2p1pn1p/6N1/3P4/3B1N2/PPP2PPP/R1BQK2R w KQkq - 0 8" // g5 e6 (deep blue)
 
                 // mate in 9 (17) - mid net finds it
-                "1Nr1n3/p3p1q1/P2p1prk/4p3/1pB1n1P1/1P1R4/3b2KN/8 w"
+//                "1Nr1n3/p3p1q1/P2p1prk/4p3/1pB1n1P1/1P1R4/3b2KN/8 w"
 
                 // Paul (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -135,6 +135,10 @@ public class BrainTeaser {
 //                "rn1qkbnr/1b2pppp/p2p4/1pp5/4P3/2NP1N2/PPP1BPPP/R1BQK2R w KQkq - 0 1"
 //                "rn1qkbnr/1b2pppp/p2p4/1pp5/4PB2/2NP1N2/PPP1BPPP/R2QK2R b KQkq - 0 1"
 //                "rn1qkb1r/1b2pppp/p2p1n2/1pp5/4PB2/2NP1N2/PPP1BPPP/R2QK2R w KQkq - 0 1"
+//                "rn1qkb1r/1b2pppp/p2p1n2/1pp5/4PB2/2NP1N2/PPPQBPPP/R3K2R b KQkq - 0 1"
+//                "rn1qkb1r/1b3ppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/R3K2R w KQkq - 0 1"
+//                "rn1qkb1r/1b3ppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/R4RK1 b kq - 0 1"
+                "rn1qk2r/1b2bppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/R4RK1 w kq - 0 1"
 
                 // Josh (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

@@ -246,7 +246,7 @@ public class NnResBuilder {
     }
 
 
-    public void addValueHead(String inName, int headFilters) {
+    public void addValueHead(String inName, int headFilters, int headerDense) {
         String convName = "value_head_conv";
         String convBnName = "value_head_conv_bn";
         String actName = "value_head_activation";
@@ -276,7 +276,7 @@ public class NnResBuilder {
 
         conf.addLayer(denseName,
                 new DenseLayer.Builder()
-                        .nOut(bodyFilters)
+                        .nOut(headerDense)
                         .activation(bodyActivation)
 //                        .weightInit(WeightInit.XAVIER)
                         .build(),

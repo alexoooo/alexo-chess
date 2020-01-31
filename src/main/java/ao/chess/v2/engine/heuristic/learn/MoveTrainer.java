@@ -34,8 +34,8 @@ public class MoveTrainer {
     private static final boolean useCheckpoint = true;
 //    private static final boolean useCheckpoint = false;
 
-    private static final boolean snapshot = false;
-//    private static final boolean snapshot = true;
+//    private static final boolean snapshot = false;
+    private static final boolean snapshot = true;
 
     private static final boolean meta = false;
 //    private static final boolean meta = true;
@@ -135,17 +135,18 @@ public class MoveTrainer {
         List<Path> range = new ArrayList<>();
         for (int i = fromInclusive; i <= toInclusive; i++) {
 //            Path mixFile = Paths.get("lookup/train/mix-pgnmentor-2/" + i + ".txt.gz");
-            Path mixFile = Paths.get("lookup/train/mix-big/" + i + ".txt.gz");
+//            Path mixFile = Paths.get("lookup/train/mix-big/" + i + ".txt.gz");
 //            Path mixFile = Paths.get("lookup/train/pieces/32/" + i + ".txt.gz");
 //            Path mixFile = Paths.get("lookup/train/pieces/p_2_12/" + i + ".txt.gz");
 //            Path mixFile = Paths.get("lookup/train/pieces/p_13_22/" + i + ".txt.gz");
+            Path mixFile = Paths.get("lookup/train/pieces/p_23_32/" + i + ".txt.gz");
             range.add(mixFile);
         }
         return range;
     }
 
     private static final List<Path> test = List.of(
-            Paths.get("lookup/train/mix-small/champions_1000.txt")
+//            Paths.get("lookup/train/mix-small/champions_1000.txt")
 //            Paths.get("lookup/train/mix-small/champions_1000.txt"),
 //
 //            Paths.get("lookup/train/pieces/test/2.txt.gz"),
@@ -171,6 +172,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/train/pieces/test/22.txt.gz")
 //            Paths.get("lookup/train/pieces/test/12.txt.gz")
 //            Paths.get("lookup/train/pieces/test/22.txt.gz")
+            Paths.get("lookup/train/pieces/test/32.txt.gz")
 
 //            Paths.get("lookup/train/mix-small/champions_10000.txt")
 //            Paths.get("lookup/pgn/small/Adams.txt")
@@ -185,12 +187,13 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/res_5_p32_head.zip");
 //            Paths.get("lookup/nn/res_5_p_2_12_head.zip");
 //            Paths.get("lookup/nn/res_5_p_13_22_head.zip");
+            Paths.get("lookup/nn/res_7_p_23_32_head.zip");
 //            Paths.get("lookup/nn/res_5m_head.zip");
 //            Paths.get("lookup/nn/dense_5c_48_head.zip");
 //            Paths.get("lookup/nn/dense_6_48_head.zip");
 //            Paths.get("lookup/nn/dense_6_48b_head.zip");
 //            Paths.get("lookup/nn/dense_7_48_head.zip");
-            Paths.get("lookup/nn/dense_7b_48_head.zip");
+//            Paths.get("lookup/nn/dense_7b_48_head.zip");
 //            Paths.get("lookup/nn/res_32_20191227.zip");
 
 
@@ -213,12 +216,14 @@ public class MoveTrainer {
 //            nn = createResidualNetwork3();
 //            nn = createResidualNetwork4();
 //            nn = createResidualNetwork5();
+//            nn = createResidualNetwork5();
+            nn = createResidualNetwork7();
 //            nn = createDenseNetwork5x48();
 //            nn = createDenseNetwork5x48c();
 //            nn = createDenseNetwork6x48();
 //            nn = createDenseNetwork6x48b();
 //            nn = createDenseNetwork7x48();
-            nn = createDenseNetwork7x48b();
+//            nn = createDenseNetwork7x48b();
 //            nn = createResidualNetwork5Meta();
 //            nn = createResidualNetwork32();
         }
@@ -572,7 +577,7 @@ public class MoveTrainer {
 //        builder.addPolicyHead(body, 64);
 
 //        builder.addValueHead(body, 16);
-        builder.addValueHead(body, 32);
+        builder.addValueHead(body, 32, 192);
 //        builder.addValueHead(body, 64);
 
         ComputationGraph net = new ComputationGraph(builder.build());
@@ -591,7 +596,7 @@ public class MoveTrainer {
         String body = builder.addResidualTower(3, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
-        builder.addValueHead(body, 64);
+        builder.addValueHead(body, 64, 256);
 
         ComputationGraph net = new ComputationGraph(builder.build());
         net.init();
@@ -609,7 +614,7 @@ public class MoveTrainer {
         String body = builder.addResidualTower(4, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
-        builder.addValueHead(body, 64);
+        builder.addValueHead(body, 64, 256);
 
         ComputationGraph net = new ComputationGraph(builder.build());
         net.init();
@@ -626,7 +631,26 @@ public class MoveTrainer {
         String body = builder.addResidualTower(5, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
-        builder.addValueHead(body, 64);
+        builder.addValueHead(body, 64, 256);
+
+        ComputationGraph net = new ComputationGraph(builder.build());
+        net.init();
+
+        return net;
+    }
+
+
+    public static ComputationGraph createResidualNetwork7() {
+        NnResBuilder builder = new NnResBuilder(256, Activation.RELU);
+
+        builder.addInitialConvolution();
+
+        String body = builder.addResidualTower(7, NnResBuilder.layerInitial);
+
+        builder.addPolicyHead(body, 64);
+        builder.addValueHead(body, 64, 256);
+//        builder.addPolicyHead(body, 96);
+//        builder.addValueHead(body, 64, 384);
 
         ComputationGraph net = new ComputationGraph(builder.build());
         net.init();
@@ -751,7 +775,7 @@ public class MoveTrainer {
         String body = builder.addResidualTower(5, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
-        builder.addValueHead(body, 64);
+        builder.addValueHead(body, 64, 256);
         builder.addErrorHead(body, 64);
 
         ComputationGraph net = new ComputationGraph(builder.build());
@@ -769,7 +793,7 @@ public class MoveTrainer {
         String body = builder.addResidualTower(10, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
-        builder.addValueHead(body, 64);
+        builder.addValueHead(body, 64, 256);
 
         ComputationGraph net = new ComputationGraph(builder.build());
         net.init();
@@ -786,7 +810,7 @@ public class MoveTrainer {
         String body = builder.addResidualTower(32, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
-        builder.addValueHead(body, 64);
+        builder.addValueHead(body, 64, 64);
 
         ComputationGraph net = new ComputationGraph(builder.build());
         net.init();
