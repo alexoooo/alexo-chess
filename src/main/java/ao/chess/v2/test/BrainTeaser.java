@@ -1,11 +1,14 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
+import ao.chess.v2.engine.neuro.puct.PuctMultiModel;
 import ao.chess.v2.engine.neuro.puct.PuctPlayer;
-import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
+import com.google.common.collect.ImmutableRangeMap;
+import com.google.common.collect.Range;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 
@@ -23,9 +26,9 @@ public class BrainTeaser {
 //        int time = 7 * 24 * 60 * 60 * 1000;
 //        int time = 10 * 1000;
 //        int time = 15 * 1000;
-        int time = 45 * 1000;
+//        int time = 45 * 1000;
 //        int time = 60 * 1000;
-//        int time = 10 * 60 * 1000;
+        int time = 10 * 60 * 1000;
 //        int time = 60 * 60 * 1000;
 //        int time = 24 * 60 * 60 * 1000;
 
@@ -81,14 +84,32 @@ public class BrainTeaser {
 //                true,
 //                0);
 
+//        Player player = new PuctPlayer.Builder(
+//                new PuctSingleModel(
+////                        Paths.get("lookup/nn/res_5a_head.zip")
+////                        Paths.get("lookup/nn/res_5_p_2_12_head.zip")
+////                        Paths.get("lookup/nn/res_5_p_13_22_head.zip")
+//                        Paths.get("lookup/nn/res_7_p_23_32_head.zip")
+//                ))
+////                .threads(1)
+//                .threads(48)
+//                .stochastic(true)
+//                .build();
+
         Player player = new PuctPlayer.Builder(
-                new PuctSingleModel(
-                        Paths.get("lookup/nn/res_5a_head.zip")
-//                        Paths.get("lookup/nn/res_5_p_2_12_head.zip")
-//                        Paths.get("lookup/nn/res_5_p_13_22_head.zip")
+                new PuctMultiModel(
+                        ImmutableRangeMap.<Integer, Path>builder()
+                                .put(Range.closed(2, 12),
+                                        Paths.get("lookup/nn/res_5_p_2_12_head.zip"))
+                                .put(Range.closed(13, 22),
+                                        Paths.get("lookup/nn/res_5_p_13_22_head.zip"))
+                                .put(Range.closed(23, 32),
+                                        Paths.get("lookup/nn/res_7_p_23_32_head.zip"))
+                                .build()
                 ))
 //                .threads(1)
-                .threads(48)
+//                .threads(48)
+                .threads(52)
                 .stochastic(true)
                 .build();
 
@@ -114,7 +135,7 @@ public class BrainTeaser {
 //                "R6R/1r3pp1/4p1kp/3pP3/1r2qPP1/7P/1P1Q3K/8 w - - 1 0" // P from f4 to f5
 //                "4r1k1/5bpp/2p5/3pr3/8/1B3pPq/PPR2P2/2R2QK1 b - - 0 1" // r from e5 to e1 (!!)
 //                "7R/r1p1q1pp/3k4/1p1n1Q2/3N4/8/1PP2PPP/2B3K1 w - - 1 0" // R from h8 to d8 (!!)
-//                "rn3rk1/pbppq1pp/1p2pb2/4N2Q/3PN3/3B4/PPP2PPP/R3K2R w KQ - 7 11" // Q from h5 to h7 (!!!)
+                "rn3rk1/pbppq1pp/1p2pb2/4N2Q/3PN3/3B4/PPP2PPP/R3K2R w KQ - 7 11" // Q from h5 to h7 (!!!)
 //                "r1bqkb1r/pp1n1pp1/2p1pn1p/6N1/3P4/3B1N2/PPP2PPP/R1BQK2R w KQkq - 0 8" // g5 e6 (deep blue)
 
                 // mate in 9 (17) - mid net finds it
@@ -138,7 +159,7 @@ public class BrainTeaser {
 //                "rn1qkb1r/1b2pppp/p2p1n2/1pp5/4PB2/2NP1N2/PPPQBPPP/R3K2R b KQkq - 0 1"
 //                "rn1qkb1r/1b3ppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/R3K2R w KQkq - 0 1"
 //                "rn1qkb1r/1b3ppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/R4RK1 b kq - 0 1"
-                "rn1qk2r/1b2bppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/R4RK1 w kq - 0 1"
+//                "rn1qk2r/1b2bppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/R4RK1 w kq - 0 1"
 
                 // Josh (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -178,6 +199,8 @@ public class BrainTeaser {
 //                "3r1rk1/1p2qppp/p1nbbn2/3p4/1P6/P1N1PN2/1B2BPPP/R2Q1RK1 w - - 0 1"
 //                "3r1rk1/1p2qppp/p1nbbn2/3p4/1P1N4/P1N1P3/1B2BPPP/R2Q1RK1 b - - 0 1"
 //                "3r1rk1/1p2qppp/p2bbn2/3pn3/1P1N4/P1N1P3/1B2BPPP/R2Q1RK1 w - - 0 1"
+//                "3r1rk1/1p2qppp/p2bbn2/3pn3/1P1N4/P1N1P3/1BQ1BPPP/R4RK1 b - - 0 1"
+//                "2r2rk1/1p2qppp/p2bbn2/3pn3/1P1N4/P1N1P3/1BQ1BPPP/R4RK1 w - - 0 1"
 
                 // Josh (black)
                 // 1. d2d4 d7d5 2. c2c4 Ng8f6 3. c4xd5 Qd8xd5 4. Nb1c3 Qd5a5 5. Ng1f3 Bc8g4 6. Nf3e5 c7c5

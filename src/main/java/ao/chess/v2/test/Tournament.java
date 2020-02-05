@@ -3,18 +3,21 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
-import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
+import ao.chess.v2.engine.neuro.puct.PuctMultiModel;
+import ao.chess.v2.engine.neuro.puct.PuctPlayer;
 import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
-import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
+import com.google.common.collect.ImmutableRangeMap;
+import com.google.common.collect.Range;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,7 +32,7 @@ import java.util.List;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 2_000;
+    private static final int TIME_PER_MOVE = 15_000;
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
@@ -121,18 +124,31 @@ public class Tournament
 //                true
 //        );
 
-        Player b = NeuralNetworkPlayer.load(
-                new PuctSingleModel(
-//                        Paths.get("lookup/nn/res_10_20191224.zip"),
-                        Paths.get("lookup/nn/res_5a_head.zip")
-                ),
-                false
-        );
+//        Player b = NeuralNetworkPlayer.load(
+//                new PuctSingleModel(
+////                        Paths.get("lookup/nn/res_10_20191224.zip"),
+//                        Paths.get("lookup/nn/res_5a_head.zip")
+//                ),
+//                false
+//        );
 
+//        Player b = NeuralNetworkPlayer.load(
+//                new PuctMultiModel(
+//                        ImmutableRangeMap.<Integer, Path>builder()
+//                                .put(Range.closed(2, 12),
+//                                        Paths.get("lookup/nn/res_5_p_2_12_head.zip"))
+//                                .put(Range.closed(13, 22),
+//                                        Paths.get("lookup/nn/res_5_p_13_22_head.zip"))
+//                                .put(Range.closed(23, 32),
+//                                        Paths.get("lookup/nn/res_7_p_23_32_head.zip"))
+//                                .build()
+//                ),
+//                false
+//        );
+//
 //        Player a = new PuctPlayer.Builder(
 //                new PuctSingleModel(
-//                        Paths.get("lookup/nn/res_5a_head.zip"),
-//                        true
+//                        Paths.get("lookup/nn/res_5a_head.zip")
 //                )).build();
 //        Player b = new PuctPlayer.Builder(
 //                new PuctSingleModel(
@@ -141,8 +157,37 @@ public class Tournament
 //                )).build();
 
 //        Player a = new TopLeftPlayer();
-        Player a = new RandomPlayer();
+//        Player a = new RandomPlayer();
 //        Player b = new RandomPlayer();
+
+
+        Player a = new PuctPlayer.Builder(
+                new PuctSingleModel(
+                        Paths.get("lookup/nn/res_5a_head.zip")
+//                        Paths.get("lookup/nn/res_5_p_2_12_head.zip")
+//                        Paths.get("lookup/nn/res_5_p_13_22_head.zip")
+//                        Paths.get("lookup/nn/res_7_p_23_32_head.zip")
+                ))
+//                .threads(1)
+                .threads(48)
+                .stochastic(true)
+                .build();
+
+        Player b = new PuctPlayer.Builder(
+                new PuctMultiModel(
+                        ImmutableRangeMap.<Integer, Path>builder()
+                                .put(Range.closed(2, 12),
+                                        Paths.get("lookup/nn/res_5_p_2_12_head.zip"))
+                                .put(Range.closed(13, 22),
+                                        Paths.get("lookup/nn/res_5_p_13_22_head.zip"))
+                                .put(Range.closed(23, 32),
+                                        Paths.get("lookup/nn/res_7_p_23_32_head.zip"))
+                                .build()
+                ))
+                .threads(52)
+                .stochastic(true)
+                .build();
+
 
         int aWins = 0;
         int bWins = 0;
