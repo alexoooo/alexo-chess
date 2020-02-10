@@ -171,6 +171,43 @@ public class MoveTrainerEncoder
     }
 
 
+    public List<PuctEstimate> estimateAll(
+            List<MoveHistory> examples, ComputationGraph nn)
+    {
+        Preconditions.checkArgument(examples.size() == batchSize);
+
+        for (int batchIndex = 0; batchIndex < batchSize; batchIndex++)
+        {
+            NeuralCodec.INSTANCE.encodeMultiState(
+                    examples.get(batchIndex).state(),
+                    features, propAttacks, oppAttacks,
+                    batchIndex);
+        }
+
+        INDArray[] outputs = nn.output(features);
+
+        List<PuctEstimate> estimates = new ArrayList<>();
+
+        for (int batchIndex = 0; batchIndex < batchSize; batchIndex++)
+        {
+            double[] moveProbabilities = NeuralCodec.INSTANCE
+                    .decodeMoveMultiProbabilities(
+                            outputs[0],
+                            outputs[1],
+                            examples.get(batchIndex).state(),
+                            examples.get(batchIndex).legalMoves(),
+                            fromScores,
+                            toScores,
+                            batchIndex);
+
+            double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2], batchIndex);
+
+            estimates.add(new PuctEstimate(moveProbabilities, winProbability));
+        }
+
+        return estimates;
+    }
+
     //-----------------------------------------------------------------------------------------------------------------
     public MultiDataSet encodeAllInPlaceMeta(List<MoveHistory> examples, List<MetaEstimate> estimates)
     {

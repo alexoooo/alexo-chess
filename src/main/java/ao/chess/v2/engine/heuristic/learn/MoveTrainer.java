@@ -135,11 +135,11 @@ public class MoveTrainer {
         List<Path> range = new ArrayList<>();
         for (int i = fromInclusive; i <= toInclusive; i++) {
 //            Path mixFile = Paths.get("lookup/train/mix-pgnmentor-2/" + i + ".txt.gz");
-            Path mixFile = Paths.get("lookup/train/mix-big/" + i + ".txt.gz");
+//            Path mixFile = Paths.get("lookup/train/mix-big/" + i + ".txt.gz");
 //            Path mixFile = Paths.get("lookup/train/pieces/32/" + i + ".txt.gz");
 //            Path mixFile = Paths.get("lookup/train/pieces/p_2_12/" + i + ".txt.gz");
 //            Path mixFile = Paths.get("lookup/train/pieces/p_13_22/" + i + ".txt.gz");
-//            Path mixFile = Paths.get("lookup/train/pieces/p_23_32/" + i + ".txt.gz");
+            Path mixFile = Paths.get("lookup/train/pieces/p_23_32/" + i + ".txt.gz");
             range.add(mixFile);
         }
         return range;
@@ -414,10 +414,10 @@ public class MoveTrainer {
                 }
             }
             else {
-                for (var example : inputMoves) {
-                    PuctEstimate prediction = testExample(nn, example);
-
-                    double[] errors = measureError(prediction, example);
+                List<PuctEstimate> predictions = testExampleAll((ComputationGraph) nn, inputMoves);
+                for (int i = 0; i < inputMoves.size(); i++)
+                {
+                    double[] errors = measureError(predictions.get(i), inputMoves.get(i));
 
                     outcomeStats.accept(errors[0]);
                     globalOutcomeStats.accept(errors[0]);
@@ -459,6 +459,23 @@ public class MoveTrainer {
 
     private static PuctEstimate testExampleGraph(ComputationGraph nn, MoveHistory example) {
         return encoder.estimate(example, nn);
+    }
+
+
+    private static List<PuctEstimate> testExampleAll(ComputationGraph nn, List<MoveHistory> examples) {
+        List<PuctEstimate> all = new ArrayList<>();
+        for (var batch : Lists.partition(examples, miniBatchSize))
+        {
+            if (batch.size() == miniBatchSize) {
+                all.addAll(encoder.estimateAll(batch, nn));
+            }
+            else {
+                for (var example : batch) {
+                    all.add(encoder.estimate(example, nn));
+                }
+            }
+        }
+        return all;
     }
 
 
