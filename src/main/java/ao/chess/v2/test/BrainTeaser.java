@@ -104,12 +104,19 @@ public class BrainTeaser {
                                 .put(Range.closed(13, 22),
                                         Paths.get("lookup/nn/res_5_p_13_22_head.zip"))
                                 .put(Range.closed(23, 32),
-                                        Paths.get("lookup/nn/res_7_p_23_32_n697.zip"))
+                                        Paths.get("lookup/nn/res_7_p_23_32_n828.zip"))
                                 .build()
                 ))
 //                .threads(1)
 //                .threads(48)
-                .threads(52)
+//                .threads(52)
+//                .threads(64)
+//                .threads(96)
+//                .threads(128)
+//                .threads(160)
+//                .threads(192)
+//                .threads(224)
+                .threads(256)
                 .stochastic(true)
                 .build();
 
