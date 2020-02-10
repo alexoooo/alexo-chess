@@ -58,14 +58,14 @@ public class MoveTrainer {
 
     private static final int saveOnceEvery = 1_000_000;
 
-    private static final int maxTestCount = 2_000;
+    private static final int maxTestCount = 10_000;
 
-//    private static final int trainingIterations = 0;
-    private static final int trainingIterations = 1;
+    private static final int trainingIterations = 0;
+//    private static final int trainingIterations = 1;
 //    private static final int trainingIterations = 100;
 
-    private static final boolean testInitial = false;
-//    private static final boolean testInitial = true;
+//    private static final boolean testInitial = false;
+    private static final boolean testInitial = true;
 
     private static final int seed = 42;
     private static final Random seededRandom = new Random(seed);
@@ -188,7 +188,7 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/res_5_p_2_12_head.zip");
 //            Paths.get("lookup/nn/res_5_p_13_22_head.zip");
 //            Paths.get("lookup/nn/res_7_p_23_32_head.zip");
-            Paths.get("lookup/nn/res_16_head.zip");
+            Paths.get("lookup/nn/res_14_head.zip");
 //            Paths.get("lookup/nn/res_5m_head.zip");
 //            Paths.get("lookup/nn/dense_5c_48_head.zip");
 //            Paths.get("lookup/nn/dense_6_48_head.zip");
@@ -219,7 +219,7 @@ public class MoveTrainer {
 //            nn = createResidualNetwork5();
 //            nn = createResidualNetwork5();
 //            nn = createResidualNetwork7();
-            nn = createResidualNetwork16();
+            nn = createResidualNetwork14();
 //            nn = createDenseNetwork5x48();
 //            nn = createDenseNetwork5x48c();
 //            nn = createDenseNetwork6x48();
@@ -678,7 +678,7 @@ public class MoveTrainer {
     }
 
 
-    public static ComputationGraph createResidualNetwork16() {
+    public static ComputationGraph createResidualNetwork14() {
         NnResBuilder builder = new NnResBuilder(256, Activation.RELU);
 
         builder.addInitialConvolution();
