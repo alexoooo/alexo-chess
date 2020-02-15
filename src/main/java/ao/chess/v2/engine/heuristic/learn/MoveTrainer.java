@@ -58,14 +58,15 @@ public class MoveTrainer {
 
     private static final int saveOnceEvery = 1_000_000;
 
+//    private static final int maxTestCount = 1_000;
     private static final int maxTestCount = 10_000;
 
-    private static final int trainingIterations = 0;
-//    private static final int trainingIterations = 1;
+//    private static final int trainingIterations = 0;
+    private static final int trainingIterations = 1;
 //    private static final int trainingIterations = 100;
 
-//    private static final boolean testInitial = false;
-    private static final boolean testInitial = true;
+    private static final boolean testInitial = false;
+//    private static final boolean testInitial = true;
 
     private static final int seed = 42;
     private static final Random seededRandom = new Random(seed);
@@ -135,11 +136,11 @@ public class MoveTrainer {
         List<Path> range = new ArrayList<>();
         for (int i = fromInclusive; i <= toInclusive; i++) {
 //            Path mixFile = Paths.get("lookup/train/mix-pgnmentor-2/" + i + ".txt.gz");
-//            Path mixFile = Paths.get("lookup/train/mix-big/" + i + ".txt.gz");
+            Path mixFile = Paths.get("lookup/train/mix-big/" + i + ".txt.gz");
 //            Path mixFile = Paths.get("lookup/train/pieces/32/" + i + ".txt.gz");
 //            Path mixFile = Paths.get("lookup/train/pieces/p_2_12/" + i + ".txt.gz");
 //            Path mixFile = Paths.get("lookup/train/pieces/p_13_22/" + i + ".txt.gz");
-            Path mixFile = Paths.get("lookup/train/pieces/p_23_32/" + i + ".txt.gz");
+//            Path mixFile = Paths.get("lookup/train/pieces/p_23_32/" + i + ".txt.gz");
             range.add(mixFile);
         }
         return range;
@@ -188,7 +189,9 @@ public class MoveTrainer {
 //            Paths.get("lookup/nn/res_5_p_2_12_head.zip");
 //            Paths.get("lookup/nn/res_5_p_13_22_head.zip");
 //            Paths.get("lookup/nn/res_7_p_23_32_head.zip");
-            Paths.get("lookup/nn/res_14_head.zip");
+//            Paths.get("lookup/nn/res_14_head.zip");
+            Paths.get("lookup/nn/res_14b_head.zip");
+//            Paths.get("lookup/nn/res_16_head.zip");
 //            Paths.get("lookup/nn/res_5m_head.zip");
 //            Paths.get("lookup/nn/dense_5c_48_head.zip");
 //            Paths.get("lookup/nn/dense_6_48_head.zip");
@@ -201,7 +204,7 @@ public class MoveTrainer {
     //-----------------------------------------------------------------------------------------------------------------
     public static void main(String[] args) {
         boolean saved = Files.exists(saveFile);
-        System.out.println("Training " + saveFile + " - " + saved);
+        System.out.println("Training " + saveFile + " - " + saved + " - " + miniBatchSize);
 
         NeuralNetwork nn;
         if (saved) {
@@ -219,7 +222,9 @@ public class MoveTrainer {
 //            nn = createResidualNetwork5();
 //            nn = createResidualNetwork5();
 //            nn = createResidualNetwork7();
-            nn = createResidualNetwork14();
+//            nn = createResidualNetwork14();
+            nn = createResidualNetwork14b();
+//            nn = createResidualNetwork16();
 //            nn = createDenseNetwork5x48();
 //            nn = createDenseNetwork5x48c();
 //            nn = createDenseNetwork6x48();
@@ -695,6 +700,42 @@ public class MoveTrainer {
     }
 
 
+    public static ComputationGraph createResidualNetwork14b() {
+        NnResBuilder builder = new NnResBuilder(
+                256, Activation.RELU, false, false);
+
+        builder.addInitialConvolution();
+
+        String body = builder.addResidualTower(14, NnResBuilder.layerInitial);
+
+        builder.addPolicyHead(body, 64);
+        builder.addValueHead(body, 64, 256);
+
+        ComputationGraph net = new ComputationGraph(builder.build());
+        net.init();
+
+        return net;
+    }
+
+
+    public static ComputationGraph createResidualNetwork16() {
+        NnResBuilder builder = new NnResBuilder(
+                256, Activation.RELU, false, false);
+
+        builder.addInitialConvolution();
+
+        String body = builder.addResidualTower(16, NnResBuilder.layerInitial);
+
+        builder.addPolicyHead(body, 64);
+        builder.addValueHead(body, 64, 256);
+
+        ComputationGraph net = new ComputationGraph(builder.build());
+        net.init();
+
+        return net;
+    }
+
+
 //    public static ComputationGraph createDenseNetwork5x48() {
 //        NnDenseBuilder builder = new NnDenseBuilder(Activation.RELU);
 //
@@ -804,7 +845,8 @@ public class MoveTrainer {
 
 
     public static ComputationGraph createResidualNetwork5Meta() {
-        NnResBuilder builder = new NnResBuilder(256, Activation.RELU, true);
+        NnResBuilder builder = new NnResBuilder(
+                256, Activation.RELU, false, true);
 
         builder.addInitialConvolution();
 

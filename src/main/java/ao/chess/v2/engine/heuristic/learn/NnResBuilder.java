@@ -15,6 +15,8 @@ import org.deeplearning4j.nn.conf.preprocessor.CnnToFeedForwardPreProcessor;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.learning.config.IUpdater;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.util.HashMap;
@@ -47,16 +49,23 @@ public class NnResBuilder {
             int bodyFilters,
             Activation bodyActivation
     ) {
-        this(bodyFilters, bodyActivation, false);
+        this(bodyFilters, bodyActivation, true, false);
     }
+
 
     public NnResBuilder(
             int bodyFilters,
             Activation bodyActivation,
+            boolean adaptive,
             boolean meta
     ) {
         this.bodyFilters = bodyFilters;
         this.bodyActivation = bodyActivation;
+
+        IUpdater updater =
+                adaptive
+                ? new Adam()
+                : new Nesterovs();
 
         conf = new NeuralNetConfiguration.Builder()
                 .l2(0.0001)
@@ -66,7 +75,7 @@ public class NnResBuilder {
 
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
 
-                .updater(new Adam())
+                .updater(updater)
 
                 .graphBuilder()
 

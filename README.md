@@ -9,7 +9,7 @@ to use with Winboard:
 
 # links
 Neural network architecture:
-https://github.com/alexoooo/alexo-chess/blob/master/src/main/java/ao/chess/v2/engine/heuristic/learn/NnBuilder.java
+https://github.com/alexoooo/alexo-chess/blob/master/src/main/java/ao/chess/v2/engine/heuristic/learn/NnResBuilder.java
 
 Tree search:
 https://github.com/alexoooo/alexo-chess/blob/master/src/main/java/ao/chess/v2/engine/neuro/puct/PuctPlayer.java
