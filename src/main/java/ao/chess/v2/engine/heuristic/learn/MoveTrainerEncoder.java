@@ -208,6 +208,7 @@ public class MoveTrainerEncoder
         return estimates;
     }
 
+
     //-----------------------------------------------------------------------------------------------------------------
     public MultiDataSet encodeAllInPlaceMeta(List<MoveHistory> examples, List<MetaEstimate> estimates)
     {

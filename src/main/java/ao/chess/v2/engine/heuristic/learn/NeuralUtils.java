@@ -46,6 +46,9 @@ public enum NeuralUtils {
 
             if (computeGraph) {
                 ComputationGraph nn = ComputationGraph.load(loadFile.toFile(), ! readOnly);
+//                nn.setLearningRate();
+//                nn.getUpdater();
+
                 System.out.println("> Done, loading took " + (double) (System.currentTimeMillis() - start) / 1000);
                 return nn;
             }

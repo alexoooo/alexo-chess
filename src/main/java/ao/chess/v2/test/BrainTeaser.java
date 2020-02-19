@@ -1,14 +1,11 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.neuro.puct.PuctMultiModel;
 import ao.chess.v2.engine.neuro.puct.PuctPlayer;
+import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
-import com.google.common.collect.ImmutableRangeMap;
-import com.google.common.collect.Range;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 
@@ -26,9 +23,9 @@ public class BrainTeaser {
 //        int time = 7 * 24 * 60 * 60 * 1000;
 //        int time = 10 * 1000;
 //        int time = 15 * 1000;
-//        int time = 45 * 1000;
+        int time = 45 * 1000;
 //        int time = 60 * 1000;
-        int time = 10 * 60 * 1000;
+//        int time = 10 * 60 * 1000;
 //        int time = 60 * 60 * 1000;
 //        int time = 24 * 60 * 60 * 1000;
 
@@ -167,6 +164,8 @@ public class BrainTeaser {
 //                "rn1qkb1r/1b3ppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/R3K2R w KQkq - 0 1"
 //                "rn1qkb1r/1b3ppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/R4RK1 b kq - 0 1"
 //                "rn1qk2r/1b2bppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/R4RK1 w kq - 0 1"
+//                "rn1qk2r/1b2bppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/3R1RK1 b kq - 0 1"
+                "rn1q1rk1/1b2bppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/3R1RK1 w - - 0 1"
 
                 // Josh (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -209,7 +208,7 @@ public class BrainTeaser {
 //                "3r1rk1/1p2qppp/p2bbn2/3pn3/1P1N4/P1N1P3/1BQ1BPPP/R4RK1 b - - 0 1"
 //                "2r2rk1/1p2qppp/p2bbn2/3pn3/1P1N4/P1N1P3/1BQ1BPPP/R4RK1 w - - 0 1"
 //                "2r2rk1/1p2qppp/p2bbn2/3pn3/1P1N4/P1N1P3/1BQ1BPPP/2R2RK1 b - - 0 1"
-                "2r2rk1/1p2qppp/p2bbn2/3p4/1PnN4/P1N1P3/1BQ1BPPP/2R2RK1 w - - 0 1"
+//                "2r2rk1/1p2qppp/p2bbn2/3p4/1PnN4/P1N1P3/1BQ1BPPP/2R2RK1 w - - 0 1"
 
                 // Josh (black)
                 // 1. d2d4 d7d5 2. c2c4 Ng8f6 3. c4xd5 Qd8xd5 4. Nb1c3 Qd5a5 5. Ng1f3 Bc8g4 6. Nf3e5 c7c5
