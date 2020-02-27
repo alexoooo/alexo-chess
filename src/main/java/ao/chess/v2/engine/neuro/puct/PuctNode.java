@@ -29,14 +29,20 @@ class PuctNode {
 
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
+    private static final double randomizationWeight = 0.15;
+//    private static final double randomizationWeight = 0.1;
+//    private static final double randomizationWeight = 0.075;
+//    private static final double randomizationWeight = 1 / 20.0;
+//    private static final double randomizationWeight = 1 / 25.0;
 //    private static final double randomizationWeight = 1 / 150.0;
 //    private static final double randomizationWeight = 1 / 175.0;
 //    private static final double randomizationWeight = 1 / 200.0;
 //    private static final double randomizationWeight = 1 / 225.0;
-    private static final double randomizationWeight = 1 / 250.0;
+//    private static final double randomizationWeight = 1 / 250.0;
+//    private static final double randomizationWeight = 1 / 1000.0;
 
-//    private static final boolean uncertaintyEnabled = false;
-    private static final boolean uncertaintyEnabled = true;
+    private static final boolean uncertaintyEnabled = false;
+//    private static final boolean uncertaintyEnabled = true;
     private static final double uncertaintyLogBase = Math.log(16);
     private static final double uncertaintyLogOffset = 2.5;
 //    private static final double uncertaintyLogOffset = 2.75;
@@ -449,14 +455,21 @@ class PuctNode {
 
             double score = averageOutcome + unvisitedBonus;
 
-            double adjustedScore =
-                    context.randomize
-                    ? context.random.nextDouble() *
-                            context.threads *
-                            (1.0 / Math.sqrt(Math.max(1, moveVisits - 10))) *
-                            randomizationWeight +
-                            score
-                    : score;
+            double adjustedScore;
+            if (context.randomize && moveVisits < 256) {
+                double adjustment =
+                        randomizationWeight *
+                        (1.0 - 1.0 / Math.sqrt(context.threads)) *
+                        (1.0 / Math.sqrt(Math.max(1, moveVisits - 10))) *
+                        context.random.nextDouble();
+//                adjustedScore = score + adjustment;
+
+                // TODO: test
+                adjustedScore = score;
+            }
+            else {
+                adjustedScore = score;
+            }
 
             if (adjustedScore > maxScore ||
                     adjustedScore == maxScore && context.random.nextBoolean()) {

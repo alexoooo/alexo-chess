@@ -80,6 +80,7 @@ public class PuctMultiModel
     private double[] fromScores;
     private double[] toScores;
     private List<INDArray> batchFeatures;
+    private int pieceCountIndex = -1;
 
 
     public PuctMultiModel(
@@ -143,6 +144,19 @@ public class PuctMultiModel
 
 
     @Override
+    public void prepare(int pieceCount)
+    {
+        pieceCountIndex = pieceCountToIndex[pieceCount];
+    }
+
+
+    private int pieceCountIndex(/*int pieceCount*/)
+    {
+        return pieceCountIndex;
+    }
+
+
+    @Override
     public PuctEstimate estimate(State state, int[] legalMoves)
     {
         double[] moveProbabilities;
@@ -151,8 +165,8 @@ public class PuctMultiModel
         NeuralCodec.INSTANCE.encodeMultiState(
                 state, features, propAttacks, oppAttacks);
 
-        int pieceCount = state.pieceCount();
-        int index = pieceCountToIndex[pieceCount];
+//        int pieceCount = state.pieceCount();
+        int index = pieceCountIndex(/*pieceCount*/);
         hitCount[index]++;
 
         INDArray[] outputs = nn[index].output(features);
@@ -183,8 +197,8 @@ public class PuctMultiModel
     {
         for (int i = 0; i < queries.size(); i++) {
             PuctQuery query = queries.get(i);
-            int pieceCount = query.state.pieceCount();
-            int nnIndex = pieceCountToIndex[pieceCount];
+//            int pieceCount = query.state.pieceCount();
+            int nnIndex = pieceCountIndex(/*pieceCount*/);
             hitCount[nnIndex]++;
 
             Partition partition = partitions.get(nnIndex);

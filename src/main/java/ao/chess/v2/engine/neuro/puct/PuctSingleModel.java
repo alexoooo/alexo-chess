@@ -64,6 +64,12 @@ public class PuctSingleModel
 
 
     @Override
+    public void prepare(int pieceCount) {
+        // NB: NOOP
+    }
+
+
+    @Override
     public PuctEstimate estimate(State state, int[] legalMoves)
     {
         double[] moveProbabilities;

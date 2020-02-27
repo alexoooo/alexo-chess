@@ -3,9 +3,11 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
+import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
 import ao.chess.v2.engine.neuro.puct.PuctMultiModel;
 import ao.chess.v2.engine.neuro.puct.PuctPlayer;
 import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
+import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -109,11 +111,6 @@ public class Tournament
 //        ParallelMctsPlayer b = a.prototype();
 
 //        Player a = NeuralNetworkPlayer.load(
-//                Paths.get("lookup/nn/all_mid_batch_20191124.zip"),
-//                false,
-//                true);
-
-//        Player a = NeuralNetworkPlayer.load(
 //                new PuctSingleModel(
 ////                        Paths.get("lookup/nn/multi_6_20191129.zip"),
 ////                        Paths.get("lookup/nn/multi_6d_20191207.zip"),
@@ -124,13 +121,15 @@ public class Tournament
 //                true
 //        );
 
-//        Player b = NeuralNetworkPlayer.load(
-//                new PuctSingleModel(
-////                        Paths.get("lookup/nn/res_10_20191224.zip"),
+        Player b = NeuralNetworkPlayer.load(
+                new PuctSingleModel(
+//                        Paths.get("lookup/nn/res_10_20191224.zip"),
 //                        Paths.get("lookup/nn/res_5a_head.zip")
-//                ),
+                        Paths.get("lookup/nn/res_14b_head.zip")
+                ),
 //                false
-//        );
+                true
+        );
 
 //        Player b = NeuralNetworkPlayer.load(
 //                new PuctMultiModel(
@@ -148,7 +147,8 @@ public class Tournament
 //
 //        Player a = new PuctPlayer.Builder(
 //                new PuctSingleModel(
-//                        Paths.get("lookup/nn/res_5a_head.zip")
+////                        Paths.get("lookup/nn/res_5a_head.zip")
+//                        Paths.get("lookup/nn/res_14b_head.zip")
 //                )).build();
 //        Player b = new PuctPlayer.Builder(
 //                new PuctSingleModel(
@@ -157,36 +157,36 @@ public class Tournament
 //                )).build();
 
 //        Player a = new TopLeftPlayer();
-//        Player a = new RandomPlayer();
+        Player a = new RandomPlayer();
 //        Player b = new RandomPlayer();
 
 
-        Player a = new PuctPlayer.Builder(
-                new PuctSingleModel(
-                        Paths.get("lookup/nn/res_5a_head.zip")
-//                        Paths.get("lookup/nn/res_5_p_2_12_head.zip")
-//                        Paths.get("lookup/nn/res_5_p_13_22_head.zip")
-//                        Paths.get("lookup/nn/res_7_p_23_32_head.zip")
-                ))
-//                .threads(1)
-                .threads(48)
-                .stochastic(true)
-                .build();
-
-        Player b = new PuctPlayer.Builder(
-                new PuctMultiModel(
-                        ImmutableRangeMap.<Integer, Path>builder()
-                                .put(Range.closed(2, 12),
-                                        Paths.get("lookup/nn/res_5_p_2_12_head.zip"))
-                                .put(Range.closed(13, 22),
-                                        Paths.get("lookup/nn/res_5_p_13_22_head.zip"))
-                                .put(Range.closed(23, 32),
-                                        Paths.get("lookup/nn/res_7_p_23_32_head.zip"))
-                                .build()
-                ))
-                .threads(52)
-                .stochastic(true)
-                .build();
+//        Player a = new PuctPlayer.Builder(
+//                new PuctSingleModel(
+//                        Paths.get("lookup/nn/res_5a_head.zip")
+////                        Paths.get("lookup/nn/res_5_p_2_12_head.zip")
+////                        Paths.get("lookup/nn/res_5_p_13_22_head.zip")
+////                        Paths.get("lookup/nn/res_7_p_23_32_head.zip")
+//                ))
+////                .threads(1)
+//                .threads(48)
+//                .stochastic(true)
+//                .build();
+//
+//        Player b = new PuctPlayer.Builder(
+//                new PuctMultiModel(
+//                        ImmutableRangeMap.<Integer, Path>builder()
+//                                .put(Range.closed(2, 12),
+//                                        Paths.get("lookup/nn/res_5_p_2_12_head.zip"))
+//                                .put(Range.closed(13, 22),
+//                                        Paths.get("lookup/nn/res_5_p_13_22_head.zip"))
+//                                .put(Range.closed(23, 32),
+//                                        Paths.get("lookup/nn/res_7_p_23_32_head.zip"))
+//                                .build()
+//                ))
+//                .threads(52)
+//                .stochastic(true)
+//                .build();
 
 
         int aWins = 0;

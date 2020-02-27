@@ -191,7 +191,7 @@ public class PuctPlayer
             return -1;
         }
 
-        pool.restart();
+        pool.restart(position.pieceCount());
 
         long positionHash = position.staticHashCode();
         PuctNode root = getOrCreateRoot(position, positionHash);

@@ -41,6 +41,7 @@ public class NeuralNetworkPlayer implements Player {
             return -1;
         }
 
+        puctModel.prepare(position.pieceCount());
         PuctEstimate estimate = puctModel.estimate(position, legalMoves);
 
         double[] moveProbabilities = estimate.moveProbabilities;

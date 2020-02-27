@@ -31,7 +31,6 @@ class PuctModelPool
     public PuctModelPool(
             int batchSize,
             PuctModel model,
-//            double uncertainty,
             double outcomeRange,
             double minOutcome)
     {
@@ -46,18 +45,20 @@ class PuctModelPool
     }
 
 
-    public void restart()
+    public void restart(int pieceCount)
     {
         if (worker != null) {
             close();
         }
 
-        start();
+        start(pieceCount);
     }
 
 
-    public void start()
+    public void start(int pieceCount)
     {
+        model.prepare(pieceCount);
+
         worker = new Thread(this::workerLoop);
         worker.start();
     }
@@ -139,6 +140,7 @@ class PuctModelPool
             }
         }
     }
+
 
     private void processBuffer(List<PuctQuery> buffer) {
         List<PuctEstimate> estimates = model.estimateAll(

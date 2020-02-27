@@ -11,8 +11,10 @@ public interface PuctModel {
 
     void load();
 
+    void prepare(int pieceCount);
+
     PuctEstimate estimate(State state, int[] legalMoves);
 
     ImmutableList<PuctEstimate> estimateAll(
-            List<PuctQuery> queries, /*double uncertainty,*/ double outcomeRange, double minOutcome);
+            List<PuctQuery> queries, double outcomeRange, double minOutcome);
 }

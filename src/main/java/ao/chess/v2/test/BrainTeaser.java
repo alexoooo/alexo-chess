@@ -1,11 +1,14 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
+import ao.chess.v2.engine.neuro.puct.PuctMultiModel;
 import ao.chess.v2.engine.neuro.puct.PuctPlayer;
-import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
+import com.google.common.collect.ImmutableRangeMap;
+import com.google.common.collect.Range;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 
@@ -23,10 +26,11 @@ public class BrainTeaser {
 //        int time = 7 * 24 * 60 * 60 * 1000;
 //        int time = 10 * 1000;
 //        int time = 15 * 1000;
-        int time = 45 * 1000;
+//        int time = 45 * 1000;
 //        int time = 60 * 1000;
 //        int time = 10 * 60 * 1000;
 //        int time = 60 * 60 * 1000;
+        int time = 4 * 60 * 60 * 1000;
 //        int time = 24 * 60 * 60 * 1000;
 
 //        Player player = new ParallelMctsPlayer(
@@ -96,12 +100,14 @@ public class BrainTeaser {
         Player player = new PuctPlayer.Builder(
                 new PuctMultiModel(
                         ImmutableRangeMap.<Integer, Path>builder()
-                                .put(Range.closed(2, 12),
-                                        Paths.get("lookup/nn/res_5_p_2_12_head.zip"))
-                                .put(Range.closed(13, 22),
-                                        Paths.get("lookup/nn/res_5_p_13_22_head.zip"))
-                                .put(Range.closed(23, 32),
-                                        Paths.get("lookup/nn/res_7_p_23_32_n828.zip"))
+//                                .put(Range.closed(2, 12),
+//                                        Paths.get("lookup/nn/res_5_p_2_12_head.zip"))
+//                                .put(Range.closed(13, 22),
+//                                        Paths.get("lookup/nn/res_7_p_2_22_n679.zip"))
+//                                .put(Range.closed(23, 32),
+//                                        Paths.get("lookup/nn/res_14b_n231.zip"))
+                                .put(Range.closed(2, 32),
+                                        Paths.get("lookup/nn/res_14b_head.zip"))
                                 .build()
                 ))
 //                .threads(1)
@@ -127,6 +133,58 @@ public class BrainTeaser {
 //                .build();
 
         State state = State.fromFen(
+                // e3c5 http://www.talkchess.com/forum3/viewtopic.php?f=2&t=69926
+//                "6br/1KNp1n1r/2p2p2/P1ppRP2/1kP3pP/3PBB2/PN1P4/8 w - - 0 1"
+//                "6br/1KNp1n1r/2p2p2/P1BpRP2/1kP3pP/3P1B2/PN1P4/8 b - - 0 1"
+//                "6br/1KNp1n1r/2p2p2/P1kpRP2/2P3pP/3P1B2/PN1P4/8 w - - 0 2"
+//                "6br/1KNp1n1r/2p2p2/P1kpRP2/2PP2pP/5B2/PN1P4/8 b - - 0 2"
+//                "6br/1KNp1n1r/2p2p2/P2pRP2/2Pk2pP/5B2/PN1P4/8 w - - 0 3"
+//                "6br/1K1p1n1r/2p2p2/PN1pRP2/2Pk2pP/5B2/PN1P4/8 b - - 1 3"
+//                "6br/1K1p1n1r/2p2p2/PN1pkP2/2P3pP/5B2/PN1P4/8 w - - 0 4"
+//                "6br/1K1p1n1r/2p2p2/PN1pkP2/2P3pP/3N1B2/P2P4/8 b - - 1 4"
+//                "6br/1K1p1n1r/2p2p2/PN1p1k2/2P3pP/3N1B2/P2P4/8 w - - 0 5"
+//                "6br/1K1p1n1r/2p2p2/P2p1k2/2PN2pP/3N1B2/P2P4/8 b - - 1 5"
+//                "6br/1K1p1n1r/2p2pk1/P2p4/2PN2pP/3N1B2/P2P4/8 w - - 2 6"
+//                "6br/1K1p1n1r/2p2pk1/P2p4/2PN1NpP/5B2/P2P4/8 b - - 3 6"
+//                "6br/1K1p1nkr/2p2p2/P2p4/2PN1NpP/5B2/P2P4/8 w - - 4 7"
+//                "6br/1K1p1nkr/2p2p2/P2p1N2/2P2NpP/5B2/P2P4/8 b - - 5 7"
+//                "5kbr/1K1p1n1r/2p2p2/P2p1N2/2P2NpP/5B2/P2P4/8 w - - 6 8"
+//                "5kbr/1K1p1n1r/2p2pN1/P2p1N2/2P3pP/5B2/P2P4/8 b - - 7 8"
+//                "4k1br/1K1p1n1r/2p2pN1/P2p1N2/2P3pP/5B2/P2P4/8 w - - 8 9"
+//                "2K1k1br/3p1n1r/2p2pN1/P2p1N2/2P3pP/5B2/P2P4/8 b - - 9 9"
+//                "2K1k1br/3p1n1r/2p2pN1/P2p1N2/2P4P/5p2/P2P4/8 w - - 0 10"
+//                "2K1k1br/3p1n1r/P1p2pN1/3p1N2/2P4P/5p2/P2P4/8 b - - 0 10"
+//                "2K1k1br/3p1n1r/P1p2pN1/3p1N2/2P4P/8/P2P1p2/8 w - - 0 11"
+//                "2K1k1br/P2p1n1r/2p2pN1/3p1N2/2P4P/8/P2P1p2/8 b - - 0 11"
+//                "2K1k1br/P2p1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/5q2 w - - 0 12"
+//                "N1K1k1br/3p1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/5q2 b - - 0 12"
+//                "N1K1k1br/3p1n1r/2p2pN1/3p1N2/2P2q1P/8/P2P4/8 w - - 1 13"
+//                "2K1k1br/2Np1n1r/2p2pN1/3p1N2/2P2q1P/8/P2P4/8 b - - 2 13"
+//                "2K1k1br/2qp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 w - - 0 14"
+//                "4k1br/2Kp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 b - - 0 14"
+//                "4k1br/2Kp1n1r/2p2pN1/5N2/2p4P/8/P2P4/8 w - - 0 15" // or here?
+//                "2K1k1br/3p1n1r/2p2pN1/5N2/2p4P/8/P2P4/8 b - - 1 15"
+//                "2K1k1br/5n1r/2p2pN1/3p1N2/2p4P/8/P2P4/8 w - d6 0 16"
+//                "2K1k1br/5n1r/2p2pN1/3p1N2/P1p4P/8/3P4/8 b - a3 0 16" // 14b fail
+//                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2p5/3P4/8 w - - 0 17"
+//                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2P5/8/8 b - - 0 17" // chess.com sees mate here
+//                "2K1k1br/5n1r/5pN1/2pp1N2/P6P/2P5/8/8 w - - 0 18"
+//                "2K1k1br/5n1r/5pN1/P1pp1N2/7P/2P5/8/8 b - - 0 18"
+//                "2K1k1br/5n1r/5pN1/P1p2N2/3p3P/2P5/8/8 w - - 0 19"
+//                "2K1k1br/5n1r/P4pN1/2p2N2/3p3P/2P5/8/8 b - - 0 19"
+//                "2K1k1br/5n1r/P4pN1/2p2N2/7P/2Pp4/8/8 w - - 0 20"
+//                "2K1k1br/P4n1r/5pN1/2p2N2/7P/2Pp4/8/8 b - - 0 20"
+//                "2K1k1br/P4n1r/5pN1/5N2/2p4P/2Pp4/8/8 w - - 0 21"
+//                "Q1K1k1br/5n1r/5pN1/5N2/2p4P/2Pp4/8/8 b - - 0 21"
+//                "Q1K1k1br/5n1r/5pN1/5N2/2p4P/2P5/3p4/8 w - - 0 22"
+//                "2K1k1br/5n1r/5pN1/5N2/Q1p4P/2P5/3p4/8 b - - 1 22"
+
+                // http://www.talkchess.com/forum3/viewtopic.php?f=2&t=19030
+//                "3N1b1q/kBB1p1rb/6p1/rP4K1/P7/8/8/N6R w - - 0 1"
+//                "4bNNK/3pBk1P/2pP3p/2p1p1p1/2P1P1P1/5BPq/8/8 w - - 0 1"
+
+//                "8/5kpp/8/8/8/5P2/1RPK2PP/6r1 w" // c2c4
+
                 // puzzles
 //                "6rk/6pp/3N4/8/8/8/7P/7K w - - 0 1" // N from d6 to f7
 //                "5Qk1/5p2/1p5p/p4Np1/5q2/7P/PPr5/3R3K b - - 2 1"
@@ -164,8 +222,6 @@ public class BrainTeaser {
 //                "rn1qkb1r/1b3ppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/R3K2R w KQkq - 0 1"
 //                "rn1qkb1r/1b3ppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/R4RK1 b kq - 0 1"
 //                "rn1qk2r/1b2bppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/R4RK1 w kq - 0 1"
-//                "rn1qk2r/1b2bppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/3R1RK1 b kq - 0 1"
-                "rn1q1rk1/1b2bppp/p2ppn2/1pp5/4PB2/2NP1N2/PPPQBPPP/3R1RK1 w - - 0 1"
 
                 // Josh (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -209,6 +265,12 @@ public class BrainTeaser {
 //                "2r2rk1/1p2qppp/p2bbn2/3pn3/1P1N4/P1N1P3/1BQ1BPPP/R4RK1 w - - 0 1"
 //                "2r2rk1/1p2qppp/p2bbn2/3pn3/1P1N4/P1N1P3/1BQ1BPPP/2R2RK1 b - - 0 1"
 //                "2r2rk1/1p2qppp/p2bbn2/3p4/1PnN4/P1N1P3/1BQ1BPPP/2R2RK1 w - - 0 1"
+                "2r2rk1/1p2qppp/p2bbn2/3p4/1PnN4/P1N1P2P/1BQ1BPP1/2R2RK1 b - - 0 1"
+//                "2r2rk1/4qppp/p2bbn2/1p1p4/1PnN4/P1N1P2P/1BQ1BPP1/2R2RK1 w - b6 0 1"
+
+                // Travis (queen odds)
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNB1KBNR b KQkq a3 0 1"
 
                 // Josh (black)
                 // 1. d2d4 d7d5 2. c2c4 Ng8f6 3. c4xd5 Qd8xd5 4. Nb1c3 Qd5a5 5. Ng1f3 Bc8g4 6. Nf3e5 c7c5
