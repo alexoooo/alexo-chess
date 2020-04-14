@@ -10,6 +10,7 @@ import com.google.common.collect.Range;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 
 
 /**
@@ -23,6 +24,8 @@ import java.nio.file.Paths;
 public class BrainTeaser {
     //--------------------------------------------------------------------
     public static void main(String[] args) {
+        System.out.println("Start time: " + LocalDateTime.now());
+
 //        int time = 7 * 24 * 60 * 60 * 1000;
 //        int time = 10 * 1000;
 //        int time = 15 * 1000;
@@ -30,7 +33,7 @@ public class BrainTeaser {
 //        int time = 60 * 1000;
 //        int time = 10 * 60 * 1000;
 //        int time = 60 * 60 * 1000;
-        int time = 4 * 60 * 60 * 1000;
+        int time = (int) (2.5 * 60 * 60 * 1000);
 //        int time = 24 * 60 * 60 * 1000;
 
 //        Player player = new ParallelMctsPlayer(
@@ -100,14 +103,22 @@ public class BrainTeaser {
         Player player = new PuctPlayer.Builder(
                 new PuctMultiModel(
                         ImmutableRangeMap.<Integer, Path>builder()
-//                                .put(Range.closed(2, 12),
-//                                        Paths.get("lookup/nn/res_5_p_2_12_head.zip"))
+                                .put(Range.closed(2, 10),
+                                        Paths.get("lookup/nn/res_7_p_2_12_n634.zip"))
 //                                .put(Range.closed(13, 22),
-//                                        Paths.get("lookup/nn/res_7_p_2_22_n679.zip"))
+                                .put(Range.closed(11, 22),
+                                        Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
 //                                .put(Range.closed(23, 32),
+                                .put(Range.closed(23, 28),
 //                                        Paths.get("lookup/nn/res_14b_n231.zip"))
-                                .put(Range.closed(2, 32),
-                                        Paths.get("lookup/nn/res_14b_head.zip"))
+//                                        Paths.get("lookup/nn/res_14b_n811.zip"))
+                                        Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
+//                                        Paths.get("lookup/nn/res_14_p_16_28_head.zip"))
+                                .put(Range.closed(29, 32),
+                                        Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
+//                                .put(Range.closed(2, 32),
+//                                        Paths.get("lookup/nn/res_14b_n811.zip"))
+//                                        Paths.get("lookup/nn/res_14b_head.zip"))
                                 .build()
                 ))
 //                .threads(1)
@@ -165,7 +176,7 @@ public class BrainTeaser {
 //                "4k1br/2Kp1n1r/2p2pN1/5N2/2p4P/8/P2P4/8 w - - 0 15" // or here?
 //                "2K1k1br/3p1n1r/2p2pN1/5N2/2p4P/8/P2P4/8 b - - 1 15"
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/2p4P/8/P2P4/8 w - d6 0 16"
-//                "2K1k1br/5n1r/2p2pN1/3p1N2/P1p4P/8/3P4/8 b - a3 0 16" // 14b fail
+//                "2K1k1br/5n1r/2p2pN1/3p1N2/P1p4P/8/3P4/8 b - a3 0 16" // 14b fail, 14 2-22 works!
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2p5/3P4/8 w - - 0 17"
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2P5/8/8 b - - 0 17" // chess.com sees mate here
 //                "2K1k1br/5n1r/5pN1/2pp1N2/P6P/2P5/8/8 w - - 0 18"
@@ -181,7 +192,15 @@ public class BrainTeaser {
 
                 // http://www.talkchess.com/forum3/viewtopic.php?f=2&t=19030
 //                "3N1b1q/kBB1p1rb/6p1/rP4K1/P7/8/8/N6R w - - 0 1"
-//                "4bNNK/3pBk1P/2pP3p/2p1p1p1/2P1P1P1/5BPq/8/8 w - - 0 1"
+//                "4bNNK/3pBk1P/2pP3p/2p1p1p1/2P1P1P1/5BPq/8/8 w - - 0 1" // ??
+//                "rn1qk2r/pR3p1p/2pbpP1p/8/2B1N1P1/3pQ3/P1P4P/5RK1 w kq - 0 1"
+//                "8/8/8/1p2Q3/1k6/1p6/1p6/bK6 w - -" // solved
+//                "7b/2p1B2p/1pP4p/3Kp2P/3pN3/3Bk2N/1p2P2p/8 w - -" // solved
+//                "5Nb1/p4p2/2p2Pp1/B1p1K1Pp/PrrnP3/Rnk2p2/R4P2/4N2B w - -"// solved
+//                "3N1b1q/kBB1p1rb/6p1/rP4K1/P7/8/8/N6R w - - 0 " // solved
+//                "rn1qk2r/pR3p1p/2pbpP1p/8/2B1N1P1/3pQ3/P1P4P/5RK1 w kq - 0 1" // solved
+//                "1b1n1r2/1p1nkp1r/p1Ppppb1/2PR4/3N1Q2/7p/1B1N4/4K3 w - - 0 1" // solved
+                "2nB1k2/2p3pp/3p2p1/n2K4/3Qp1N1/1Np4R/1b1p4/1Rq3r1 w - - 0 " // solved
 
 //                "8/5kpp/8/8/8/5P2/1RPK2PP/6r1 w" // c2c4
 
@@ -200,7 +219,7 @@ public class BrainTeaser {
 //                "rn3rk1/pbppq1pp/1p2pb2/4N2Q/3PN3/3B4/PPP2PPP/R3K2R w KQ - 7 11" // Q from h5 to h7 (!!!)
 //                "r1bqkb1r/pp1n1pp1/2p1pn1p/6N1/3P4/3B1N2/PPP2PPP/R1BQK2R w KQkq - 0 8" // g5 e6 (deep blue)
 
-                // mate in 9 (17) - mid net finds it
+                // mate in 9 (17) - mid and big nets find it
 //                "1Nr1n3/p3p1q1/P2p1prk/4p3/1pB1n1P1/1P1R4/3b2KN/8 w"
 
                 // Paul (white)
@@ -265,12 +284,52 @@ public class BrainTeaser {
 //                "2r2rk1/1p2qppp/p2bbn2/3pn3/1P1N4/P1N1P3/1BQ1BPPP/R4RK1 w - - 0 1"
 //                "2r2rk1/1p2qppp/p2bbn2/3pn3/1P1N4/P1N1P3/1BQ1BPPP/2R2RK1 b - - 0 1"
 //                "2r2rk1/1p2qppp/p2bbn2/3p4/1PnN4/P1N1P3/1BQ1BPPP/2R2RK1 w - - 0 1"
-                "2r2rk1/1p2qppp/p2bbn2/3p4/1PnN4/P1N1P2P/1BQ1BPP1/2R2RK1 b - - 0 1"
+//                "2r2rk1/1p2qppp/p2bbn2/3p4/1PnN4/P1N1P2P/1BQ1BPP1/2R2RK1 b - - 0 1"
 //                "2r2rk1/4qppp/p2bbn2/1p1p4/1PnN4/P1N1P2P/1BQ1BPP1/2R2RK1 w - b6 0 1"
+//                "2r2rk1/4qppp/p2bbn2/1p1p4/1PnN4/P1N1P2P/1BQ1BPP1/2R1R1K1 b - - 0 1"
+//                "2r2rk1/4qpp1/p2bbn1p/1p1p4/1PnN4/P1N1P2P/1BQ1BPP1/2R1R1K1 w - - 0 1"
+//                "2r2rk1/4qpp1/p2bbn1p/1p1p4/1PnN4/P1N1PB1P/1BQ2PP1/2R1R1K1 b - - 0 1"
+//                "2r1r1k1/4qpp1/p2bbn1p/1p1p4/1PnN4/P1N1PB1P/1BQ2PP1/2R1R1K1 w - - 0 1"
+//                "2r1r1k1/4qpp1/p2bbn1p/1p1p4/1PnN4/P1N1PB1P/1B2QPP1/2R1R1K1 b - - 0 1"
+//                "1br1r1k1/4qpp1/p3bn1p/1p1p4/1PnN4/P1N1PB1P/1B2QPP1/2R1R1K1 w - - 0 1"
+//                "1br1r1k1/4qpp1/p3Nn1p/1p1p4/1Pn5/P1N1PB1P/1B2QPP1/2R1R1K1 b - - 0 1"
+//                "1br1r1k1/4q1p1/p3pn1p/1p1p4/1Pn5/P1N1PB1P/1B2QPP1/2R1R1K1 w - - 0 1"
+//                "1br1r1k1/4q1p1/p3pn1p/1p1p4/1Pn5/P1N1PB1P/1B2QPP1/2RR2K1 b - - 0 1"
+//                "1br2rk1/4q1p1/p3pn1p/1p1p4/1Pn5/P1N1PB1P/1B2QPP1/2RR2K1 w - - 0 1"
+//                "1br2rk1/4q1p1/p3pn1p/1p1p4/1Pn1P3/P1N2B1P/1B2QPP1/2RR2K1 b - - 0 1"
+//                "1br2rk1/6p1/p2qpn1p/1p1p4/1Pn1P3/P1N2B1P/1B2QPP1/2RR2K1 w - - 0 1"
+//                "1br2rk1/6p1/p2qpn1p/1p1p4/1Pn1P3/P1N2BPP/1B2QP2/2RR2K1 b - - 0 1"
+//                "2r2rk1/b5p1/p2qpn1p/1p1p4/1Pn1P3/P1N2BPP/1B2QP2/2RR2K1 w - - 0 1"
+//                "2r2rk1/b5p1/p2qpn1p/1p1p4/1Pn1P3/P1N2BPP/1B2QPK1/2RR4 b - - 0 1"
+//                "2r2rk1/b5p1/p2qpn1p/1p6/1PnpP3/P1N2BPP/1B2QPK1/2RR4 w - - 0 1"
 
                 // Travis (queen odds)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/7P/8/PPPPPPP1/RNB1KBNR b KQkq h3 0 1"
+//                "rnbqkbnr/ppp1pppp/8/3p4/7P/8/PPPPPPP1/RNB1KBNR w KQkq d6 0 1"
+//                "rnbqkbnr/ppp1pppp/8/3p4/P6P/8/1PPPPPP1/RNB1KBNR b KQkq a3 0 1"
+//                "rnbqkbnr/ppp2ppp/8/3pp3/P6P/8/1PPPPPP1/RNB1KBNR w KQkq e6 0 1"
+//                "rnbqkbnr/ppp2ppp/8/3pp3/P6P/3P4/1PP1PPP1/RNB1KBNR b KQkq - 0 1"
+//                "rnbqkb1r/ppp2ppp/5n2/3pp3/P6P/3P4/1PP1PPP1/RNB1KBNR w KQkq - 0 1"
+////                "rnbqkb1r/ppp2ppp/5n1B/3pp3/P6P/3P4/1PP1PPP1/RN2KBNR b KQkq - 0 1" // ???
+//                "rnbqkb1r/ppp2ppp/5n2/3pp3/P6P/2PP4/1P2PPP1/RNB1KBNR b KQkq - 0 1"
+//                "rnbqk2r/ppp2ppp/5n2/2bpp3/P6P/2PP4/1P2PPP1/RNB1KBNR w KQkq - 0 1"
+//                "rnbqk2r/ppp2ppp/5n2/2bpp3/P6P/2PPP3/1P3PP1/RNB1KBNR b KQkq - 0 1"
+//                "rnbqk2r/ppp2ppp/5n2/2b1p3/P2p3P/2PPP3/1P3PP1/RNB1KBNR w KQkq - 0 1"
+//                "rnbqk2r/ppp2ppp/5n2/2b1p3/PP1p3P/2PPP3/5PP1/RNB1KBNR b KQkq b3 0 1"
+//                "rnbqk2r/ppp1bppp/5n2/4p3/PP1p3P/2PPP3/5PP1/RNB1KBNR w KQkq - 0 1"
+//                "rnbqk2r/ppp1bppp/5n2/4p3/PP1P3P/2PP4/5PP1/RNB1KBNR b KQkq - 0 1"
+//                "rnbqk2r/ppp1bppp/5n2/8/PP1p3P/2PP4/5PP1/RNB1KBNR w KQkq - 0 2"
+//                "rnbqk2r/ppp1bppp/5n2/1P6/P2p3P/2PP4/5PP1/RNB1KBNR b KQkq - 0 1"
+
+
+                // Travis (queen odds) attempt 2
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR w KQkq - 0 1"
 //                "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNB1KBNR b KQkq a3 0 1"
+//                "rnbqkbnr/pppp1ppp/8/4p3/P7/8/1PPPPPPP/RNB1KBNR w KQkq e6 0 1"
+//                "rnbqkbnr/pppp1ppp/8/4p3/P6P/8/1PPPPPP1/RNB1KBNR b KQkq h3 0 1"
+//                "rnbqkbnr/ppp2ppp/8/3pp3/P6P/8/1PPPPPP1/RNB1KBNR w KQkq d6 0 1"
+//                "rnbqkbnr/ppp2ppp/8/3pp3/P6P/3P4/1PP1PPP1/RNB1KBNR b KQkq - 0 1"
 
                 // Josh (black)
                 // 1. d2d4 d7d5 2. c2c4 Ng8f6 3. c4xd5 Qd8xd5 4. Nb1c3 Qd5a5 5. Ng1f3 Bc8g4 6. Nf3e5 c7c5

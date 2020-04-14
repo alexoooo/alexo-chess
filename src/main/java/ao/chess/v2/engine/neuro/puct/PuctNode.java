@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.google.common.base.Preconditions.checkState;
+
 
 // https://arxiv.org/pdf/1911.08265.pdf
 class PuctNode {
@@ -24,8 +26,8 @@ class PuctNode {
     private static final double maximumGuess = 0.9;
     public static final double guessRange = maximumGuess - minimumGuess;
 
-//    private static final double initialPlayEstimate = 0.2;
-    private static final double initialPlayEstimate = minimumGuess;
+    private static final double initialPlayEstimate = 0.3;
+//    private static final double initialPlayEstimate = minimumGuess;
 
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
@@ -71,6 +73,7 @@ class PuctNode {
 
     private final ChildList<PuctNode> childNodes;
     private final DeepOutcome deepOutcomeOrNull;
+//    private final long staticHashCode;
 
     private volatile double knownValue;
 
@@ -81,7 +84,8 @@ class PuctNode {
         this(null,
                 null,
                 deepOutcome,
-                PuctUtils.deepOutcomeValue(state, deepOutcome));
+                PuctUtils.deepOutcomeValue(state, deepOutcome)/*,
+                state.staticHashCode()*/);
     }
 
 
@@ -90,17 +94,23 @@ class PuctNode {
         this(emptyMoves,
                 emptyPredictions,
                 new DeepOutcome(outcome, 0),
-                outcome.valueFor(state.nextToAct()));
+                outcome.valueFor(state.nextToAct())/*,
+                state.staticHashCode()*/);
     }
 
 
-    public PuctNode(int[] moves, double[] predictions)
+    public PuctNode(int[] moves, double[] predictions/*, long staticHashCode*/)
     {
-        this(moves, predictions, null, Double.NaN);
+        this(moves, predictions, null, Double.NaN/*, staticHashCode*/);
     }
 
 
-    private PuctNode(int[] moves, double[] predictions, DeepOutcome deepOutcomeOrNull, double knownValue)
+    private PuctNode(
+            int[] moves,
+            double[] predictions,
+            DeepOutcome deepOutcomeOrNull,
+            double knownValue/*,
+            long staticHashCode*/)
     {
         this.moves = moves;
         this.predictions = predictions;
@@ -117,6 +127,7 @@ class PuctNode {
         }
 
         this.knownValue = knownValue;
+//        this.staticHashCode = staticHashCode;
     }
 
 
@@ -177,9 +188,10 @@ class PuctNode {
 
         while (! path.get( path.size() - 1 ).isUnvisitedVirtual())
         {
-            PuctNode node = path.get( path.size() - 1 );
+            int pathLength = path.size();
+            PuctNode node = path.get( pathLength - 1 );
 
-            int childIndex = node.puctChild(context);
+            int childIndex = node.puctChild(pathLength == 1, context);
 
             if (node.isValueKnown()) {
 //                System.out.println(">> " + state.toFen() + " - " + node.knownValue);
@@ -205,6 +217,13 @@ class PuctNode {
             if (existingChild == null) {
                 expanded = expandChildAndSetEstimatedValue(state, node, childIndex, context);
                 child = node.childNodes.get(childIndex);
+
+                if (child == null) {
+                    // NB: cleared child of known value (race condition)
+                    checkState(node.isValueKnown());
+                    estimatedValue = node.knownValue;
+                    break;
+                }
             }
             else {
                 expanded = false;
@@ -301,7 +320,7 @@ class PuctNode {
         }
 
         PuctNode newChild = new PuctNode(
-                legalMoves, estimate.moveProbabilities);
+                legalMoves, estimate.moveProbabilities/*, positionKey*/);
 
         boolean wasSet = parent.childNodes.setIfAbsent(childIndex, newChild);
         if (! wasSet) {
@@ -310,7 +329,8 @@ class PuctNode {
         }
 
         double drawProximity =
-                (double) state.reversibleMoves() / 250;
+//                (double) state.reversibleMoves() / 250;
+                (double) state.reversibleMoves() / 350;
 
         double adjusted = drawProximity * 0.5 + (1 - drawProximity) * estimate.winProbability;
 
@@ -331,6 +351,7 @@ class PuctNode {
 
     //-----------------------------------------------------------------------------------------------------------------
     private int puctChild(
+            boolean root,
             PuctContext context)
     {
         int moveCount = moves.length;
@@ -361,6 +382,10 @@ class PuctNode {
                 if (! Double.isNaN(known)) {
                     if (known == 0.0) {
                         knownValue = 1.0;
+
+                        if (! root) {
+                            close(context);
+                        }
                         return i;
                     }
 
@@ -382,6 +407,10 @@ class PuctNode {
             int childIndex = 0;
             for (int i = 0; i < moveCount; i++) {
                 PuctNode child = childNodes.get(i);
+                if (child == null) {
+                    return -1;
+                }
+
                 double value = child.knownValue;
                 if (value < childValue) {
 //                if (value > childValue) {
@@ -390,6 +419,10 @@ class PuctNode {
                 }
             }
             knownValue = 1.0 - childValue;
+
+            if (! root) {
+                close(context);
+            }
 //            knownValue = childValue;
             return childIndex;
         }
@@ -398,6 +431,33 @@ class PuctNode {
                 ? puctChildEpsilon(moveCount, moveValueSums, moveVisitCounts, parentVisitCount, context)
                 : puctChildSmear(moveCount, moveValueSums, moveVisitCounts, parentVisitCount, context);
     }
+
+
+    private void close(PuctContext context) {
+        childNodes.close();
+//        Object[] previous = childNodes.close();
+//        removeFromCache(previous, context);
+    }
+
+
+//    private void removeFromCache(Object[] children, PuctContext context) {
+//        context.nnCache.remove(staticHashCode);
+//
+//        if (children == null) {
+//            return;
+//        }
+//
+//        for (Object o : children) {
+//            PuctNode puctNode = (PuctNode) o;
+//
+//            if (puctNode == null) {
+//                continue;
+//            }
+//
+//            Object[] previous = puctNode.childNodes.getArray();
+//            puctNode.removeFromCache(previous, context);
+//        }
+//    }
 
 
     private int puctChildSmear(
@@ -813,10 +873,11 @@ class PuctNode {
 
         String childSummary = indexes
                 .stream()
-                .map(i -> String.format("%s %d %d %.4f %.4f %.4f",
+//                .map(i -> String.format("%s %d %d %.4f %.4f %.4f",
+                .map(i -> String.format("%s %d %.4f %.4f %.4f",
                         Move.toInputNotation(moves[i]),
                         counts[i],
-                        counts[i] == 0 ? 0 : childNodes.get(i).maxDepth(),
+//                        counts[i] == 0 ? 0 : childNodes.get(i).maxDepth(),
                         counts[i] == 0 ? initialPlayEstimate : values[i] / counts[i],
                         predictions[i],
                         (predictions[i] + moveUncertainty) / predictionDenominator *

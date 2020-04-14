@@ -1,14 +1,17 @@
 package ao.chess.v2.util;
 
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.Iterator;
 
 // based on CopyOnWriteArrayList
 public class ChildList<E>
         implements Iterable<E>
 {
+    @SuppressWarnings("unchecked")
     static <E> E elementAt(Object[] a, int index) {
-        return (E) a[index];
+        return a == null ? null : (E) a[index];
     }
 
 
@@ -22,7 +25,7 @@ public class ChildList<E>
     }
 
 
-    final Object[] getArray() {
+    public Object[] getArray() {
         return array;
     }
 
@@ -37,9 +40,46 @@ public class ChildList<E>
     }
 
 
+    public Object[] close() {
+        synchronized (lock) {
+            Object[] es = getArray();
+            if (es == null) {
+                return null;
+            }
+
+            setArray(null);
+
+            return es;
+        }
+    }
+
+
+//    public boolean clear(int index) {
+//        synchronized (lock) {
+//            Object[] es = getArray();
+//            E oldValue = elementAt(es, index);
+//
+//            if (oldValue == null) {
+//                return false;
+//            }
+//
+//            es = es.clone();
+//            es[index] = null;
+//
+//            setArray(es);
+//
+//            return true;
+//        }
+//    }
+
+
     public boolean setIfAbsent(int index, E element) {
         synchronized (lock) {
             Object[] es = getArray();
+            if (es == null) {
+                return false;
+            }
+
             E oldValue = elementAt(es, index);
 
             if (oldValue != null) {
@@ -59,8 +99,11 @@ public class ChildList<E>
     @Override
     public Iterator<E> iterator() {
         Object[] es = getArray();
+        if (es == null) {
+            return ImmutableList.<E>of().iterator();
+        }
 
-        return new Iterator<E>() {
+        return new Iterator<>() {
             private int next = 0;
 
             @Override

@@ -24,33 +24,33 @@ public class MoveShuffler {
 
     public static void main(String[] args) throws IOException {
         List<Path> inputs = List.of(
-                Paths.get("lookup/train/pieces/2.txt.gz"),
-                Paths.get("lookup/train/pieces/3.txt.gz"),
-                Paths.get("lookup/train/pieces/4.txt.gz"),
-                Paths.get("lookup/train/pieces/5.txt.gz"),
-                Paths.get("lookup/train/pieces/6.txt.gz"),
-                Paths.get("lookup/train/pieces/7.txt.gz"),
-                Paths.get("lookup/train/pieces/8.txt.gz"),
-                Paths.get("lookup/train/pieces/9.txt.gz"),
-                Paths.get("lookup/train/pieces/10.txt.gz"),
-                Paths.get("lookup/train/pieces/11.txt.gz"),
-                Paths.get("lookup/train/pieces/12.txt.gz"),
-                Paths.get("lookup/train/pieces/13.txt.gz"),
-                Paths.get("lookup/train/pieces/14.txt.gz"),
-                Paths.get("lookup/train/pieces/15.txt.gz"),
+//                Paths.get("lookup/train/pieces/2.txt.gz"),
+//                Paths.get("lookup/train/pieces/3.txt.gz"),
+//                Paths.get("lookup/train/pieces/4.txt.gz"),
+//                Paths.get("lookup/train/pieces/5.txt.gz"),
+//                Paths.get("lookup/train/pieces/6.txt.gz"),
+//                Paths.get("lookup/train/pieces/7.txt.gz"),
+//                Paths.get("lookup/train/pieces/8.txt.gz"),
+//                Paths.get("lookup/train/pieces/9.txt.gz"),
+//                Paths.get("lookup/train/pieces/10.txt.gz"),
+//                Paths.get("lookup/train/pieces/11.txt.gz"),
+//                Paths.get("lookup/train/pieces/12.txt.gz"),
+//                Paths.get("lookup/train/pieces/13.txt.gz"),
+//                Paths.get("lookup/train/pieces/14.txt.gz"),
+//                Paths.get("lookup/train/pieces/15.txt.gz"),
                 Paths.get("lookup/train/pieces/16.txt.gz"),
                 Paths.get("lookup/train/pieces/17.txt.gz"),
                 Paths.get("lookup/train/pieces/18.txt.gz"),
                 Paths.get("lookup/train/pieces/19.txt.gz"),
                 Paths.get("lookup/train/pieces/20.txt.gz"),
                 Paths.get("lookup/train/pieces/21.txt.gz"),
-                Paths.get("lookup/train/pieces/22.txt.gz")
-//                Paths.get("lookup/train/pieces/23.txt.gz"),
-//                Paths.get("lookup/train/pieces/24.txt.gz"),
-//                Paths.get("lookup/train/pieces/25.txt.gz"),
-//                Paths.get("lookup/train/pieces/26.txt.gz"),
-//                Paths.get("lookup/train/pieces/27.txt.gz"),
-//                Paths.get("lookup/train/pieces/28.txt.gz"),
+                Paths.get("lookup/train/pieces/22.txt.gz"),
+                Paths.get("lookup/train/pieces/23.txt.gz"),
+                Paths.get("lookup/train/pieces/24.txt.gz"),
+                Paths.get("lookup/train/pieces/25.txt.gz"),
+                Paths.get("lookup/train/pieces/26.txt.gz"),
+                Paths.get("lookup/train/pieces/27.txt.gz"),
+                Paths.get("lookup/train/pieces/28.txt.gz")
 //                Paths.get("lookup/train/pieces/29.txt.gz"),
 //                Paths.get("lookup/train/pieces/30.txt.gz"),
 //                Paths.get("lookup/train/pieces/31.txt.gz"),
@@ -61,9 +61,11 @@ public class MoveShuffler {
 //                Paths.get("lookup/train/pieces/p_2_12");
 //                Paths.get("lookup/train/pieces/p_13_22");
 //                Paths.get("lookup/train/pieces/p_23_32");
-                Paths.get("lookup/train/pieces/p_2_22");
+//                Paths.get("lookup/train/pieces/p_2_22");
+//                Paths.get("lookup/train/pieces/p_23_32");
+                Paths.get("lookup/train/pieces/p_16_28");
 
-        partition(inputs, outputDir, 1875);
+        partition(inputs, outputDir, 2223);
 
 //        Path dir = Paths.get("lookup/train/pieces");
 //        for (int i = 12; i <= 32; i++)

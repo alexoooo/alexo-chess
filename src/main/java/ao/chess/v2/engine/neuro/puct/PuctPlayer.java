@@ -295,6 +295,7 @@ public class PuctPlayer
                     ! root.isValueKnown());
         }
         catch (Throwable t) {
+            t.printStackTrace();
             log("ERROR! " + t.getMessage());
             throw t;
         }
@@ -400,7 +401,7 @@ public class PuctPlayer
 //                    estimate.moveProbabilities, predictionUncertainty);
 //        }
 
-        PuctNode root = new PuctNode(legalMoves, estimate.moveProbabilities);
+        PuctNode root = new PuctNode(legalMoves, estimate.moveProbabilities/*, state.staticHashCode()*/);
         root.initRoot();
 
         previousRoot = root;
