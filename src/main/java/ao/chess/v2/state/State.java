@@ -1210,7 +1210,7 @@ public class State
     }
 
 
-    public Outcome knownOutcome() {
+    public Outcome knownOutcomeOrNull() {
         if (isDrawnBy50MovesRule()) {
             return Outcome.DRAW;
         }

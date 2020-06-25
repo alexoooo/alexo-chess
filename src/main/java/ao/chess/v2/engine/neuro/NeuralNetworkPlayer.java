@@ -3,10 +3,15 @@ package ao.chess.v2.engine.neuro;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.neuro.puct.PuctEstimate;
 import ao.chess.v2.engine.neuro.puct.PuctModel;
+import ao.chess.v2.state.Move;
+import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
 
 
 public class NeuralNetworkPlayer implements Player {
+    private static boolean contempt = true;
+
+
     public static NeuralNetworkPlayer load(
             PuctModel puctModel,
             boolean randomize)
@@ -54,6 +59,20 @@ public class NeuralNetworkPlayer implements Player {
                 0.0;
 
         for (int i = 0; i < legalMoves.length; i++) {
+            if (contempt) {
+                int move = Move.apply(legalMoves[i], position);
+
+                boolean unnecessaryDraw =
+                        position.isDrawnBy50MovesRule() ||
+                        estimate.winProbability > 0.5 && position.knownOutcomeOrNull() == Outcome.DRAW;
+
+                Move.unApply(move, position);
+
+                if (unnecessaryDraw) {
+                    continue;
+                }
+            }
+
             double probability = moveProbabilities[i];
 
             double score =

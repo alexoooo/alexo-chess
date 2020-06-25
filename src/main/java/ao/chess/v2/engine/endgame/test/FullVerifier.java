@@ -75,7 +75,7 @@ public class FullVerifier
 //        if (outcome == null || outcome.isDraw()) return;
         boolean isDraw = (outcome == null || outcome.isDraw());
 
-        Outcome realOutcome = from.knownOutcome();
+        Outcome realOutcome = from.knownOutcomeOrNull();
         if (realOutcome != null) {
             if (isDraw && realOutcome != Outcome.DRAW ||
                     outcome == null ||

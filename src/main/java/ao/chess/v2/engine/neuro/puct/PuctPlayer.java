@@ -185,7 +185,7 @@ public class PuctPlayer
     ) {
         initIfRequired();
 
-        if (position.knownOutcome() != null) {
+        if (position.knownOutcomeOrNull() != null) {
             prevPlay = null;
             prevState = null;
             return -1;
@@ -271,6 +271,7 @@ public class PuctPlayer
         Move.apply(bestMove, prevState);
         addHistoryMoveIfAbsent(prevState);
 
+        log(id + " - PV: " + root.principalVariation(bestMove));
         return bestMove;
     }
 
@@ -439,6 +440,7 @@ public class PuctPlayer
                 root.toString(contexts.get(0));
 
         log(generalPrefix + " | " + moveSuffix);
+        log(id + " - PV: " + root.principalVariation(bestMove));
     }
 
 

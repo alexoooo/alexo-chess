@@ -94,7 +94,7 @@ public class MctsDeepRolloutImpl
             }
 
             if (move == -1) {
-                return state.knownOutcome()
+                return state.knownOutcomeOrNull()
                         .valueFor( fromPov );
             }
             Move.apply(move, state);

@@ -50,9 +50,9 @@ public class MoveTrainer {
 //    private static final int miniBatchSize = 192;
 //    private static final int miniBatchSize = 256;
 //    private static final int miniBatchSize = 320;
-//    private static final int miniBatchSize = 384;
+    private static final int miniBatchSize = 384;
 //    private static final int miniBatchSize = 448;
-    private static final int miniBatchSize = 512;
+//    private static final int miniBatchSize = 512;
 //    public static final int miniBatchSize = 704;
 //    private static final int miniBatchSize = 768;
 //    private static final int miniBatchSize = 1024;
@@ -64,15 +64,15 @@ public class MoveTrainer {
 
     private static final int saveOnceEvery = 1_000_000;
 
-//    private static final int maxTestCount = 10_000;
-    private static final int maxTestCount = 100_000;
+    private static final int maxTestCount = 10_000;
+//    private static final int maxTestCount = 100_000;
 
-    private static final int trainingIterations = 0;
-//    private static final int trainingIterations = 1;
+//    private static final int trainingIterations = 0;
+    private static final int trainingIterations = 1;
 //    private static final int trainingIterations = 100;
 
-//    private static final boolean testInitial = false;
-    private static final boolean testInitial = true;
+    private static final boolean testInitial = false;
+//    private static final boolean testInitial = true;
 
     private static final int seed = 42;
     private static final Random seededRandom = new Random(seed);
@@ -148,8 +148,9 @@ public class MoveTrainer {
 //            Path mixFile = Paths.get("lookup/train/pieces/p_13_22/" + i + ".txt.gz");
 //            Path mixFile = Paths.get("lookup/train/pieces/p_23_32/" + i + ".txt.gz");
 //            Path mixFile = Paths.get("lookup/train/pieces/p_2_22/" + i + ".txt.gz");
-            Path mixFile = Paths.get("lookup/train/pieces/p_16_28/" + i + ".txt.gz");
+//            Path mixFile = Paths.get("lookup/train/pieces/p_16_28/" + i + ".txt.gz");
 //            Path mixFile = Paths.get("lookup/train/pieces/p_23_32/" + i + ".txt.gz");
+            Path mixFile = Paths.get("lookup/train/pieces/all/" + i + ".txt.gz");
             range.add(mixFile);
         }
         return range;
@@ -159,44 +160,43 @@ public class MoveTrainer {
 //            Paths.get("lookup/train/mix-small/champions_1000.txt")
 //            Paths.get("lookup/train/mix-small/champions_1000.txt"),
 //
-            Paths.get("lookup/train/pieces/test/2.txt.gz"),
-            Paths.get("lookup/train/pieces/test/3.txt.gz"),
-            Paths.get("lookup/train/pieces/test/4.txt.gz"),
-            Paths.get("lookup/train/pieces/test/5.txt.gz"),
-            Paths.get("lookup/train/pieces/test/6.txt.gz"),
-            Paths.get("lookup/train/pieces/test/7.txt.gz"),
-            Paths.get("lookup/train/pieces/test/8.txt.gz"),
-            Paths.get("lookup/train/pieces/test/9.txt.gz"),
-            Paths.get("lookup/train/pieces/test/10.txt.gz"),
-            Paths.get("lookup/train/pieces/test/11.txt.gz"),
-            Paths.get("lookup/train/pieces/test/12.txt.gz"),
-            Paths.get("lookup/train/pieces/test/13.txt.gz"),
-            Paths.get("lookup/train/pieces/test/14.txt.gz"),
-            Paths.get("lookup/train/pieces/test/15.txt.gz"),
-            Paths.get("lookup/train/pieces/test/16.txt.gz"),
-            Paths.get("lookup/train/pieces/test/17.txt.gz"),
-            Paths.get("lookup/train/pieces/test/18.txt.gz"),
-            Paths.get("lookup/train/pieces/test/19.txt.gz"),
-            Paths.get("lookup/train/pieces/test/20.txt.gz"),
-            Paths.get("lookup/train/pieces/test/21.txt.gz"),
-            Paths.get("lookup/train/pieces/test/22.txt.gz"),
-            Paths.get("lookup/train/pieces/test/23.txt.gz"),
-            Paths.get("lookup/train/pieces/test/24.txt.gz"),
-            Paths.get("lookup/train/pieces/test/25.txt.gz"),
-            Paths.get("lookup/train/pieces/test/26.txt.gz"),
-            Paths.get("lookup/train/pieces/test/27.txt.gz"),
-            Paths.get("lookup/train/pieces/test/28.txt.gz"),
-            Paths.get("lookup/train/pieces/test/29.txt.gz"),
-            Paths.get("lookup/train/pieces/test/30.txt.gz"),
-            Paths.get("lookup/train/pieces/test/31.txt.gz"),
-            Paths.get("lookup/train/pieces/test/32.txt.gz")
+//            Paths.get("lookup/train/pieces/test/2.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/3.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/4.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/5.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/6.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/7.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/8.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/9.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/10.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/11.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/12.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/13.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/14.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/15.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/16.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/17.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/18.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/19.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/20.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/21.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/22.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/23.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/24.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/25.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/26.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/27.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/28.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/29.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/30.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/31.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/32.txt.gz")
 //            Paths.get("lookup/train/pieces/test/12.txt.gz")
 //            Paths.get("lookup/train/pieces/test/22.txt.gz")
 //            Paths.get("lookup/train/pieces/test/28.txt.gz")
 //            Paths.get("lookup/train/pieces/test/32.txt.gz")
 
-//            Paths.get("lookup/train/mix-small/champions_10000.txt")
-//            Paths.get("lookup/pgn/small/Adams.txt")
+            Paths.get("lookup/train/mix-small/champions_10000.txt")
     );
 
 
@@ -227,8 +227,10 @@ public class MoveTrainer {
 //                    Paths.get("lookup/nn/res_7_p_2_12_n634.zip");
 //                    Paths.get("lookup/nn/res_14_p_2_22_n1220.zip");
 //                    Paths.get("lookup/nn/res_14_p_16_28_n1209.zip");
-                    Paths.get("lookup/nn/res_14_p_23_32_n956.zip");
+//                    Paths.get("lookup/nn/res_14_p_23_32_n956.zip");
 //                    Paths.get("lookup/nn/res_14b_n811.zip");
+//            Paths.get("lookup/nn/res_20.zip");
+            Paths.get("lookup/nn/res_20_b_head.zip");
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -253,7 +255,8 @@ public class MoveTrainer {
 //            nn = createResidualNetwork5();
 //            nn = createResidualNetwork7();
 //            nn = createResidualNetwork14();
-            nn = createResidualNetwork14b();
+//            nn = createResidualNetwork14b();
+            nn = createResidualNetwork20();
 //            nn = createResidualNetwork16();
 //            nn = createDenseNetwork5x48();
 //            nn = createDenseNetwork5x48c();
@@ -265,9 +268,9 @@ public class MoveTrainer {
 //            nn = createResidualNetwork32();
         }
 
-//        ((ComputationGraph) nn).setLearningRate(0.1);
+        ((ComputationGraph) nn).setLearningRate(0.1);
 //        ((ComputationGraph) nn).setLearningRate(0.01);
-        ((ComputationGraph) nn).setLearningRate(0.001);
+//        ((ComputationGraph) nn).setLearningRate(0.001);
 
         int checkpoint =
                 useCheckpoint
@@ -757,13 +760,13 @@ public class MoveTrainer {
     }
 
 
-    public static ComputationGraph createResidualNetwork16() {
+    public static ComputationGraph createResidualNetwork20() {
         NnResBuilder builder = new NnResBuilder(
                 256, Activation.RELU, false, false);
 
         builder.addInitialConvolution();
 
-        String body = builder.addResidualTower(16, NnResBuilder.layerInitial);
+        String body = builder.addResidualTower(20, NnResBuilder.layerInitial);
 
         builder.addPolicyHead(body, 64);
         builder.addValueHead(body, 64, 256);

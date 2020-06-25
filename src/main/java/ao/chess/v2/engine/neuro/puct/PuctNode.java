@@ -8,7 +8,9 @@ import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
 import ao.chess.v2.util.ChildList;
+import com.google.common.base.Joiner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.DoubleAdder;
@@ -31,11 +33,12 @@ class PuctNode {
 
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
-    private static final double randomizationWeight = 0.15;
+//    private static final double randomizationWeight = 0.15;
 //    private static final double randomizationWeight = 0.1;
 //    private static final double randomizationWeight = 0.075;
 //    private static final double randomizationWeight = 1 / 20.0;
 //    private static final double randomizationWeight = 1 / 25.0;
+    private static final double randomizationWeight = 1 / 100.0;
 //    private static final double randomizationWeight = 1 / 150.0;
 //    private static final double randomizationWeight = 1 / 175.0;
 //    private static final double randomizationWeight = 1 / 200.0;
@@ -43,8 +46,8 @@ class PuctNode {
 //    private static final double randomizationWeight = 1 / 250.0;
 //    private static final double randomizationWeight = 1 / 1000.0;
 
-    private static final boolean uncertaintyEnabled = false;
-//    private static final boolean uncertaintyEnabled = true;
+//    private static final boolean uncertaintyEnabled = false;
+    private static final boolean uncertaintyEnabled = true;
     private static final double uncertaintyLogBase = Math.log(16);
     private static final double uncertaintyLogOffset = 2.5;
 //    private static final double uncertaintyLogOffset = 2.75;
@@ -52,8 +55,8 @@ class PuctNode {
 //    private static final double uncertaintyLogShift = 16200;
 //    private static final double uncertaintyLogShift = 12288;
     private static final double uncertaintyLogShift = 8192;
-//    private static final double uncertaintyMinimum = 0.001;
-    private static final double uncertaintyMinimum = 0.0;
+    private static final double uncertaintyMinimum = 0.001;
+//    private static final double uncertaintyMinimum = 0.0;
 
     private static final double stochasticPower = 3.0;
 
@@ -272,7 +275,7 @@ class PuctNode {
     ) {
         int moveCount = state.legalMoves(context.movesA);
         if (moveCount == 0 || moveCount == -1) {
-            Outcome knownOutcome = state.knownOutcome();
+            Outcome knownOutcome = state.knownOutcomeOrNull();
             PuctNode newChild = new PuctNode(knownOutcome, state);
             context.estimatedValue = newChild.knownValue;
             context.terminalHits.increment();
@@ -293,7 +296,6 @@ class PuctNode {
 
         if (tablebase) {
             DeepOutcome deepOutcome = DeepOracle.INSTANCE.see(state);
-
             if (deepOutcome == null) {
                 throw new IllegalStateException("Missing tablebase: " + state);
             }
@@ -311,7 +313,6 @@ class PuctNode {
         if (cached == null) {
             estimate = context.pool.estimateBlocking(
                     state, legalMoves);
-
             context.nnCache.put(positionKey, estimate);
         }
         else {
@@ -516,12 +517,14 @@ class PuctNode {
             double score = averageOutcome + unvisitedBonus;
 
             double adjustedScore;
-            if (context.randomize && moveVisits < 256) {
-                double adjustment =
-                        randomizationWeight *
-                        (1.0 - 1.0 / Math.sqrt(context.threads)) *
-                        (1.0 / Math.sqrt(Math.max(1, moveVisits - 10))) *
-                        context.random.nextDouble();
+            if (context.randomize /*&& moveVisits < 256*/) {
+//                double adjustment =
+//                        randomizationWeight *
+//                        (1.0 - 1.0 / Math.sqrt(context.threads)) *
+//                        (1.0 / Math.sqrt(Math.max(1, moveVisits - 10))) *
+//                        context.random.nextDouble();
+
+//                double adjustment = randomizationWeight * context.random.nextDouble();
 //                adjustedScore = score + adjustment;
 
                 // TODO: test
@@ -748,6 +751,47 @@ class PuctNode {
     }
 
 
+    public int bestMove() {
+        if (moves.length == 0) {
+            return -1;
+        }
+
+        if (! Double.isNaN(knownValue)) {
+            double minChildValue = 1.0;
+            int minChildIndex = 0;
+            for (int i = 0; i < moves.length; i++) {
+                PuctNode child = childOrNull(i);
+                if (child == null) {
+                    continue;
+                }
+                if (minChildValue > child.knownValue) {
+                    minChildValue = child.knownValue;
+                    minChildIndex = i;
+                }
+            }
+            return moves[minChildIndex];
+        }
+
+        int bestMoveIndex = -1;
+        long bestMoveVisits = -1;
+        for (int i = 0; i < moves.length; i++) {
+            PuctNode child = childNodes.get(i);
+            if (child == null) {
+                continue;
+            }
+
+            if (bestMoveVisits < child.visitCount()) {
+                bestMoveIndex = i;
+                bestMoveVisits = child.visitCount();
+            }
+        }
+
+        return (bestMoveIndex == -1)
+                ? -1
+                : moves[bestMoveIndex];
+    }
+
+
     public int moveIndex(int move) {
         for (int i = 0; i < moves.length; i++) {
             if (moves[i] == move) {
@@ -818,8 +862,7 @@ class PuctNode {
     }
 
 
-    public int maxDepth()
-    {
+    public int maxDepth() {
         if (deepOutcomeOrNull != null) {
             return Math.abs(deepOutcomeOrNull.plyDistance());
         }
@@ -834,6 +877,41 @@ class PuctNode {
         }
 
         return childMaxDepth + 1;
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    public String principalVariation(int move/*, PuctContext context*/) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("root ").append(visitCount()).append(" - ");
+
+        int moveIndex = moveIndex(move);
+        PuctNode child = childNodes.get(moveIndex);
+
+
+        List<String> path = new ArrayList<>();
+        path.add(Move.toInputNotation(move) + " " + child.visitCount());
+        child.principalVariation(path);
+
+        builder.append("depth ").append(path.size()).append(": ");
+        builder.append(Joiner.on(" / ").join(path));
+
+        return builder.toString();
+    }
+
+
+    public void principalVariation(List<String> builder) {
+        int maxChildIndex = moveIndex(bestMove());
+
+        if (maxChildIndex == -1) {
+            return;
+        }
+        PuctNode maxChild = childNodes.get(maxChildIndex);
+
+        builder.add(Move.toInputNotation(moves[maxChildIndex]) + " " + maxChild.visitCount());
+
+        maxChild.principalVariation(builder);
     }
 
 

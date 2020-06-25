@@ -212,7 +212,7 @@ public class SimpleDeepMaterialOracle implements DeepMaterialOracle
     private DeepOutcome findImminentMate(
             State state, int materialTally, DeepOracle oracle)
     {
-        Outcome result = state.knownOutcome();
+        Outcome result = state.knownOutcomeOrNull();
         if (result != null && result != Outcome.DRAW) {
             return new DeepOutcome(result, 1);
         } else if (result == Outcome.DRAW) {

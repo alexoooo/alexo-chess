@@ -184,7 +184,7 @@ public class MetaPlayer
     ) {
         initIfRequired();
 
-        if (position.knownOutcome() != null) {
+        if (position.knownOutcomeOrNull() != null) {
             prevPlay = null;
             prevState = null;
             return -1;

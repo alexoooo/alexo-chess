@@ -167,7 +167,7 @@ public class FastBitMaterialOracle implements BitMaterialOracle
     private Outcome findImminentMate(
             State state, int materialTally, BitOracle oracle)
     {
-        Outcome result = state.knownOutcome();
+        Outcome result = state.knownOutcomeOrNull();
         if (result != null && result != Outcome.DRAW) {
             return result;
         }

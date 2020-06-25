@@ -297,7 +297,7 @@ class MetaNode {
     ) {
         int moveCount = state.legalMoves(context.movesA);
         if (moveCount == 0 || moveCount == -1) {
-            Outcome knownOutcome = state.knownOutcome();
+            Outcome knownOutcome = state.knownOutcomeOrNull();
             MetaNode newChild = new MetaNode(knownOutcome, state);
 
             context.estimatedValue = newChild.maxValueCache;

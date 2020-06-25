@@ -110,22 +110,24 @@ public class Tournament
 //        );
 //        ParallelMctsPlayer b = a.prototype();
 
-//        Player a = NeuralNetworkPlayer.load(
-//                new PuctSingleModel(
-////                        Paths.get("lookup/nn/multi_6_20191129.zip"),
-////                        Paths.get("lookup/nn/multi_6d_20191207.zip"),
-////                        Paths.get("lookup/nn/res_2_20191209b.zip"),
-//                        Paths.get("lookup/nn/res_4h_20191215.zip"),
-//                        true
-//                ),
-//                true
-//        );
+        Player a = NeuralNetworkPlayer.load(
+                new PuctSingleModel(
+//                        Paths.get("lookup/nn/res_10_20191224.zip"),
+//                        Paths.get("lookup/nn/res_5a_head.zip")
+//                        Paths.get("lookup/nn/res_14b_head.zip")
+                        Paths.get("lookup/nn/res_14b_n811.zip")
+//                        Paths.get("lookup/nn/res_20.zip")
+                ),
+//                false
+                true
+        );
 
         Player b = NeuralNetworkPlayer.load(
                 new PuctSingleModel(
 //                        Paths.get("lookup/nn/res_10_20191224.zip"),
 //                        Paths.get("lookup/nn/res_5a_head.zip")
-                        Paths.get("lookup/nn/res_14b_head.zip")
+//                        Paths.get("lookup/nn/res_14b_head.zip")
+                        Paths.get("lookup/nn/res_20_n1307.zip")
                 ),
 //                false
                 true
@@ -157,7 +159,7 @@ public class Tournament
 //                )).build();
 
 //        Player a = new TopLeftPlayer();
-        Player a = new RandomPlayer();
+//        Player a = new RandomPlayer();
 //        Player b = new RandomPlayer();
 
 

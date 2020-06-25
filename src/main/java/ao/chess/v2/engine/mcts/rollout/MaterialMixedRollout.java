@@ -46,7 +46,7 @@ public class MaterialMixedRollout implements MctsRollout {
             int move = bestMove(state);
 
             if (move == -1) {
-                return state.knownOutcome()
+                return state.knownOutcomeOrNull()
                         .valueFor( fromPov );
             }
             Move.apply(move, state);
