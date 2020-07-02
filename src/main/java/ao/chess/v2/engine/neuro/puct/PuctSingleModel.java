@@ -134,6 +134,7 @@ public class PuctSingleModel
                             outputs[1],
                             query.state,
                             query.legalMoves,
+                            query.moveCount,
                             fromScores,
                             toScores,
                             i);

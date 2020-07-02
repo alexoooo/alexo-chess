@@ -268,8 +268,8 @@ public class MoveTrainer {
 //            nn = createResidualNetwork32();
         }
 
-        ((ComputationGraph) nn).setLearningRate(0.1);
-//        ((ComputationGraph) nn).setLearningRate(0.01);
+//        ((ComputationGraph) nn).setLearningRate(0.1);
+        ((ComputationGraph) nn).setLearningRate(0.01);
 //        ((ComputationGraph) nn).setLearningRate(0.001);
 
         int checkpoint =

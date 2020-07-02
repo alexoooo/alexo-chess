@@ -13,7 +13,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import static com.google.common.base.Preconditions.checkState;
 
 
-class PuctModelPool
+public class PuctModelPool
         implements AutoCloseable
 {
     private final int batchSize;
@@ -177,9 +177,9 @@ class PuctModelPool
 
 
     public PuctEstimate estimateBlocking(
-            State state, int[] legalMoves)
+            State state, int[] legalMoves, int moveCount)
     {
-        PuctQuery query = new PuctQuery(state, legalMoves);
+        PuctQuery query = new PuctQuery(state, legalMoves, moveCount);
 
         queryQueue.add(query);
 

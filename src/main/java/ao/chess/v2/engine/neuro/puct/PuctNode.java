@@ -24,12 +24,17 @@ import static com.google.common.base.Preconditions.checkState;
 // https://arxiv.org/pdf/1911.08265.pdf
 class PuctNode {
     //-----------------------------------------------------------------------------------------------------------------
-    public static final double minimumGuess = 0.1;
-    private static final double maximumGuess = 0.9;
+//    public static final double minimumGuess = 0.1;
+    public static final double minimumGuess = 0.01;
+//    private static final double maximumGuess = 0.9;
+    private static final double maximumGuess = 0.99;
     public static final double guessRange = maximumGuess - minimumGuess;
 
-    private static final double initialPlayEstimate = 0.3;
+    // TODO: is this plugged in?
 //    private static final double initialPlayEstimate = minimumGuess;
+//    private static final double initialPlayEstimate = 0.3;
+    private static final double initialPlayEstimate = 0.5;
+//    private static final double initialPlayEstimate = maximumGuess;
 
     private static final double underpromotionEstimate = 0;
     private static final double underpromotionPrediction = 0.001;
@@ -75,7 +80,7 @@ class PuctNode {
     private final DoubleAdder valueSum;
 
     private final ChildList<PuctNode> childNodes;
-    private final DeepOutcome deepOutcomeOrNull;
+//    private final DeepOutcome deepOutcomeOrNull;
 //    private final long staticHashCode;
 
     private volatile double knownValue;
@@ -86,7 +91,7 @@ class PuctNode {
     {
         this(null,
                 null,
-                deepOutcome,
+//                deepOutcome,
                 PuctUtils.deepOutcomeValue(state, deepOutcome)/*,
                 state.staticHashCode()*/);
     }
@@ -96,7 +101,7 @@ class PuctNode {
     {
         this(emptyMoves,
                 emptyPredictions,
-                new DeepOutcome(outcome, 0),
+//                new DeepOutcome(outcome, 0),
                 outcome.valueFor(state.nextToAct())/*,
                 state.staticHashCode()*/);
     }
@@ -104,20 +109,20 @@ class PuctNode {
 
     public PuctNode(int[] moves, double[] predictions/*, long staticHashCode*/)
     {
-        this(moves, predictions, null, Double.NaN/*, staticHashCode*/);
+        this(moves, predictions, Double.NaN/*, staticHashCode*/);
     }
 
 
     private PuctNode(
             int[] moves,
             double[] predictions,
-            DeepOutcome deepOutcomeOrNull,
+//            DeepOutcome deepOutcomeOrNull,
             double knownValue/*,
             long staticHashCode*/)
     {
         this.moves = moves;
         this.predictions = predictions;
-        this.deepOutcomeOrNull = deepOutcomeOrNull;
+//        this.deepOutcomeOrNull = deepOutcomeOrNull;
 
         visitCount = new LongAdder();
         valueSum = new DoubleAdder();
@@ -312,7 +317,7 @@ class PuctNode {
         PuctEstimate estimate;
         if (cached == null) {
             estimate = context.pool.estimateBlocking(
-                    state, legalMoves);
+                    state, legalMoves, legalMoves.length);
             context.nnCache.put(positionKey, estimate);
         }
         else {
@@ -331,7 +336,8 @@ class PuctNode {
 
         double drawProximity =
 //                (double) state.reversibleMoves() / 250;
-                (double) state.reversibleMoves() / 350;
+//                (double) state.reversibleMoves() / 350;
+                (double) state.reversibleMoves() / 550;
 
         double adjusted = drawProximity * 0.5 + (1 - drawProximity) * estimate.winProbability;
 
@@ -476,6 +482,7 @@ class PuctNode {
                 uncertaintyEnabled
                 ? Math.max(uncertaintyMinimum, 1.0 - 1.0 / Math.max(1,
                         Math.log(parentVisitCount + uncertaintyLogShift) / uncertaintyLogBase - uncertaintyLogOffset))
+//                ? uncertaintyMinimum
                 : 0;
         double predictionDenominator = 1.0 + moveUncertainty * moveCount;
 
@@ -862,23 +869,23 @@ class PuctNode {
     }
 
 
-    public int maxDepth() {
-        if (deepOutcomeOrNull != null) {
-            return Math.abs(deepOutcomeOrNull.plyDistance());
-        }
-
-        int childMaxDepth = 0;
-
-        for (var child : childNodes) {
-            if (child == null) {
-                continue;
-            }
-            childMaxDepth = Math.max(childMaxDepth, child.maxDepth());
-        }
-
-        return childMaxDepth + 1;
-    }
-
+//    public int maxDepth() {
+//        if (deepOutcomeOrNull != null) {
+//            return Math.abs(deepOutcomeOrNull.plyDistance());
+//        }
+//
+//        int childMaxDepth = 0;
+//
+//        for (var child : childNodes) {
+//            if (child == null) {
+//                continue;
+//            }
+//            childMaxDepth = Math.max(childMaxDepth, child.maxDepth());
+//        }
+//
+//        return childMaxDepth + 1;
+//    }
+//
 
     //-----------------------------------------------------------------------------------------------------------------
     public String principalVariation(int move/*, PuctContext context*/) {
@@ -888,7 +895,6 @@ class PuctNode {
 
         int moveIndex = moveIndex(move);
         PuctNode child = childNodes.get(moveIndex);
-
 
         List<String> path = new ArrayList<>();
         path.add(Move.toInputNotation(move) + " " + child.visitCount());
@@ -901,13 +907,16 @@ class PuctNode {
     }
 
 
-    public void principalVariation(List<String> builder) {
+    private void principalVariation(List<String> builder) {
         int maxChildIndex = moveIndex(bestMove());
 
         if (maxChildIndex == -1) {
             return;
         }
         PuctNode maxChild = childNodes.get(maxChildIndex);
+        if (maxChild == null) {
+            return;
+        }
 
         builder.add(Move.toInputNotation(moves[maxChildIndex]) + " " + maxChild.visitCount());
 

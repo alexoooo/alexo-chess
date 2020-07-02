@@ -3,6 +3,7 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.neuro.puct.PuctMultiModel;
 import ao.chess.v2.engine.neuro.puct.PuctPlayer;
+import ao.chess.v2.engine.neuro.rollout.RolloutPlayer;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import com.google.common.collect.ImmutableRangeMap;
@@ -29,7 +30,7 @@ public class BrainTeaser {
 //        int time = 7 * 24 * 60 * 60 * 1000;
 //        int time = 5 * 1000;
 //        int time = 7_500;
-        int time = 10 * 1000;
+//        int time = 10 * 1000;
 //        int time = 15 * 1000;
 //        int time = 45 * 1000;
 //        int time = 60 * 1000;
@@ -37,8 +38,8 @@ public class BrainTeaser {
 //        int time = 15 * 60 * 1000;
 //        int time = 60 * 60 * 1000;
 //        int time = 3 * 60 * 60 * 1000;
-//        int time = (int) (1.5 * 60 * 60 * 1000);
-//        int time = 24 * 60 * 60 * 1000;
+//        int time = (int) (1.51 * 60 * 60 * 1000);
+        int time = 7 * 24 * 60 * 60 * 1000;
 
 //        Player player = new ParallelMctsPlayer(
 //                "par",
@@ -104,34 +105,60 @@ public class BrainTeaser {
 //                .stochastic(true)
 //                .build();
 
-        Player player = new PuctPlayer.Builder(
+//        Player player = new PuctPlayer.Builder(
+//                new PuctMultiModel(
+//                        ImmutableRangeMap.<Integer, Path>builder()
+////                                .put(Range.closed(2, 10),
+////                                        Paths.get("lookup/nn/res_7_p_2_12_n634.zip"))
+////                                .put(Range.closed(11, 22),
+//                                .put(Range.closed(2, 22),
+//                                        Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
+////                                .put(Range.closed(23, 28),
+////                                        Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
+////                                .put(Range.closed(29, 32),
+////                                        Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
+//                                .put(Range.closed(23, 32),
+////                                        Paths.get("lookup/nn/res_14b_n811.zip"))
+//                                        Paths.get("lookup/nn/res_20_n1307.zip"))
+////                                        Paths.get("lookup/nn/res_20_b_n578.zip"))
+//                                .build()
+//                ))
+////                .threads(1)
+////                .threads(48)
+////                .threads(52)
+////                .threads(64)
+////                .threads(96)
+//                .threads(128)
+////                .threads(160)
+////                .threads(192)
+////                .threads(224)
+////                .threads(256)
+////                .stochastic(true)
+//                .build();
+
+
+        Player player = new RolloutPlayer.Builder(
                 new PuctMultiModel(
                         ImmutableRangeMap.<Integer, Path>builder()
-//                                .put(Range.closed(2, 10),
-//                                        Paths.get("lookup/nn/res_7_p_2_12_n634.zip"))
-//                                .put(Range.closed(11, 22),
                                 .put(Range.closed(2, 22),
                                         Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
-//                                .put(Range.closed(23, 28),
-//                                        Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
-//                                .put(Range.closed(29, 32),
-//                                        Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
                                 .put(Range.closed(23, 32),
 //                                        Paths.get("lookup/nn/res_14b_n811.zip"))
                                         Paths.get("lookup/nn/res_20_n1307.zip"))
-//                                        Paths.get("lookup/nn/res_20.zip"))
+//                                        Paths.get("lookup/nn/res_20_b_n578.zip"))
                                 .build()
                 ))
 //                .threads(1)
+//                .threads(2)
 //                .threads(48)
 //                .threads(52)
 //                .threads(64)
 //                .threads(96)
-                .threads(128)
+//                .threads(128)
 //                .threads(160)
 //                .threads(192)
 //                .threads(224)
-//                .threads(256)
+                .threads(256)
 //                .stochastic(true)
                 .build();
 
@@ -182,7 +209,9 @@ public class BrainTeaser {
 //                "r2q1rk1/1b1nbppp/p2ppn2/1pp3B1/4P3/2NP1N1P/PPPQBPP1/3R1RK1 b - - 2 2"
 //                "r4rk1/1bqnbppp/p2ppn2/1pp3B1/4P3/2NP1N1P/PPPQBPP1/3R1RK1 w - - 3 3"
 //                "r4rk1/1bqnbppp/p2ppn2/1pp3B1/4P3/2NPQN1P/PPP1BPP1/3R1RK1 b - - 4 3"
-                "r3r1k1/1bqnbppp/p2ppn2/1pp3B1/4P3/2NPQN1P/PPP1BPP1/3R1RK1 w - - 4 3"
+//                "r3r1k1/1bqnbppp/p2ppn2/1pp3B1/4P3/2NPQN1P/PPP1BPP1/3R1RK1 w - - 4 3"
+
+
 
                 // Travis 2 (white)
 //                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -236,8 +265,12 @@ public class BrainTeaser {
 //                "2r2rk1/b5p1/p2qpn1p/1p1p4/1Pn1P3/P1N2BPP/1B2QPK1/2RR4 b - - 0 1"
 //                "2r2rk1/b5p1/p2qpn1p/1p6/1PnpP3/P1N2BPP/1B2QPK1/2RR4 w - - 0 1"
 
+//                "r1bqkbnr/pppppppp/8/8/2Pn2P1/8/PP1PPP1P/RNB1KBNR w KQkq - 1 3"
+//                "r1bqkbnr/pppppppp/8/8/P1Pn2P1/8/1P1PPP1P/RNB1KBNR b KQkq a3 0 3"
+//                "r1bqkbnr/pppppppp/8/8/P1P3P1/5n2/1P1PPP1P/RNB1KBNR w KQkq - 1 4"
+
                 // Travis (queen odds)
-//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR w KQkq - 0 1"
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR w KQkq - 0 1"
 //                "rnbqkbnr/pppppppp/8/8/7P/8/PPPPPPP1/RNB1KBNR b KQkq h3 0 1"
 //                "rnbqkbnr/ppp1pppp/8/3p4/7P/8/PPPPPPP1/RNB1KBNR w KQkq d6 0 1"
 //                "rnbqkbnr/ppp1pppp/8/3p4/P6P/8/1PPPPPP1/RNB1KBNR b KQkq a3 0 1"

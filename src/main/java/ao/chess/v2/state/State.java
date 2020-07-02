@@ -145,8 +145,8 @@ public class State
 
 
     //--------------------------------------------------------------------
-    private long[] wPieces;
-    private long[] bPieces;
+    private final long[] wPieces;
+    private final long[] bPieces;
 
     private long   whiteBB;
     private long   blackBB;
@@ -166,7 +166,7 @@ public class State
 
 
     //--------------------------------------------------------------------
-    private static State INITIAL = fromFen(
+    private final static State INITIAL = fromFen(
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
     public static State initial() {

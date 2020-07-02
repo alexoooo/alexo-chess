@@ -209,16 +209,32 @@ public enum NeuralCodec {
             double[] toScores,
             int batchIndex
     ) {
+        return decodeMoveMultiProbabilities(
+                outputFrom, outputTo, state, legalMoves, legalMoves.length, fromScores, toScores, batchIndex);
+    }
+
+
+    public double[] decodeMoveMultiProbabilities(
+            INDArray outputFrom,
+            INDArray outputTo,
+            State state,
+            int[] legalMoves,
+            int legalMoveCount,
+            double[] fromScores,
+            double[] toScores,
+            int batchIndex
+    ) {
         Arrays.fill(fromScores, 0.0);
         Arrays.fill(toScores, 0.0);
 
-        int legalMoveCount = legalMoves.length;
         boolean flip = state.nextToAct() == Colour.BLACK;
 
         double fromTotal = 0;
         double toTotal = 0;
 
-        for (int move : legalMoves) {
+//        for (int move : legalMoves) {
+        for (int i = 0; i < legalMoveCount; i++) {
+            int move = legalMoves[i];
             int fromIndex = Move.fromSquareIndex(move);
             int fromAdjustedIndex = flipIndexIfRequired(fromIndex, flip);
             if (fromScores[fromIndex] == 0) {
