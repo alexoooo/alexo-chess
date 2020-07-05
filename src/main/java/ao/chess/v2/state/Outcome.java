@@ -22,17 +22,21 @@ public enum Outcome
     public double valueFor(Colour nextToAct) {
         if (this == DRAW) {
             return 0.5;
-        } else {
+        }
+        else {
             if (this == WHITE_WINS) {
                 if (nextToAct == Colour.WHITE) {
                     return 1;
-                } else {
+                }
+                else {
                     return 0;
                 }
-            } else /*if (this == BLACK_WINS)*/ {
+            }
+            else /*if (this == BLACK_WINS)*/ {
                 if (nextToAct == Colour.BLACK) {
                     return 1;
-                } else {
+                }
+                else {
                     return 0;
                 }
             }

@@ -23,9 +23,8 @@ class ParallelRoot
     {
         this.state = state;
 
-        int[] legalMoves = new int[Move.MAX_PER_PLY];
-        int moveCount = state.legalMoves(legalMoves);
-        node = new ParallelNode(Arrays.copyOf(legalMoves, moveCount));
+        int[] legalMoves = state.legalMoves();
+        node = new ParallelNode(legalMoves);
         node.initTrajectory();
     }
 

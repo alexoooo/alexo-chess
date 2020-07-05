@@ -278,7 +278,7 @@ class PuctNode {
     private boolean expandChildAndSetEstimatedValue(
             State state, PuctNode parent, int childIndex, PuctContext context
     ) {
-        int moveCount = state.legalMoves(context.movesA);
+        int moveCount = state.legalMoves(context.movesA, context.movesC);
         if (moveCount == 0 || moveCount == -1) {
             Outcome knownOutcome = state.knownOutcomeOrNull();
             PuctNode newChild = new PuctNode(knownOutcome, state);

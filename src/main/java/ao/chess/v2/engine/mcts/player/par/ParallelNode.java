@@ -172,7 +172,7 @@ class ParallelNode implements BanditNode {
 
         ParallelNode child = childNodes.get(greatestValueIndex);
         if (child == null) {
-            int childMoveCount = state.legalMoves(context.movesA);
+            int childMoveCount = state.legalMoves(context.movesA, context.movesC);
             ParallelNode newChild = new ParallelNode(Arrays.copyOf(context.movesA, childMoveCount));
             ParallelNode existing = childNodes.set(greatestValueIndex, newChild);
             if (existing != null) {

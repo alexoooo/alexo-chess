@@ -40,9 +40,13 @@ public class SimPlayer implements Player
             int   timePerMove,
             int   timeIncrement)
     {
-        int[] moves  = new int[Move.MAX_PER_PLY];
-        int   nMoves = position.legalMoves(moves);
-        if (nMoves <= 0) return -1;
+        int[] moves = position.legalMoves();
+
+        if (moves == null || moves.length == 0) {
+            return -1;
+        }
+        int nMoves = moves.length;
+
 
         int      totalCount  = 0;
         long     start       = System.currentTimeMillis();

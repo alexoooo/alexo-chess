@@ -21,6 +21,7 @@ class MetaContext {
 
     public final int[] movesA = new int[Move.MAX_PER_PLY];
     public final int[] movesB = new int[Move.MAX_PER_PLY];
+    public final int[] movesC = new int[Move.MAX_PER_PLY];
     public final double[] valueSums = new double[Move.MAX_PER_PLY];
     public final long[] visitCounts = new long[Move.MAX_PER_PLY];
 //    public final double[] probabilityBuffer = new double[Move.MAX_PER_PLY];

@@ -362,9 +362,8 @@ public class AoChess {
     //--------------------------------------------------------------------
     private static int asMove(
             State state, String moveCommand) {
-        int[] legalMoves = new int[128];
-        int nMoves = state.legalMoves(legalMoves);
-        for (int n = 0; n < nMoves; n++) {
+        int[] legalMoves = state.legalMoves();
+        for (int n = 0; n < legalMoves.length; n++) {
             int move = legalMoves[ n ];
             if (Move.toInputNotation(move)
                     .equals(moveCommand)) {

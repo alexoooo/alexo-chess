@@ -268,7 +268,8 @@ public class State
     public int[] legalMoves()
     {
         int[] legalMoves = new int[ Move.MAX_PER_PLY ];
-        int   nMoves     = legalMoves(legalMoves);
+        int[] pseudoMoves = new int[ Move.MAX_PER_PLY ];
+        int   nMoves     = legalMoves(legalMoves, pseudoMoves);
 
         if (nMoves == -1) {
             return null;
@@ -277,9 +278,8 @@ public class State
     }
 
 
-    public int legalMoves(int[] moves)
+    public int legalMoves(int[] moves, int[] pseudoMoves)
     {
-        int[] pseudoMoves = new int[ Move.MAX_PER_PLY ];
         int nPseudoMoves  = moves(pseudoMoves);
         if (nPseudoMoves == -1) {
             return -1;
@@ -319,7 +319,8 @@ public class State
             opponent  = blackBB;
             oppKing   = bPieces[ KING ];
             pieces    = wPieces;
-        } else {
+        }
+        else {
             proponent = blackBB;
             opponent  = whiteBB;
             oppKing   = wPieces[ KING ];
@@ -1171,8 +1172,7 @@ public class State
         {
             Piece p  = Piece.valueOf(attackColour, f);
             long  bb = attackingPieces[ f.ordinal() ];
-            while (bb != 0)
-            {
+            while (bb != 0) {
                 long pieceBoard  = BitBoard.lowestOneBit(bb);
                 long pseudoMoves = p.moves(
                         pieceBoard, occupied, notOccupied,
@@ -1184,6 +1184,7 @@ public class State
         return false;
     }
 
+
     public Colour nextToAct()
     {
         return nextToAct;
@@ -1193,6 +1194,24 @@ public class State
     //--------------------------------------------------------------------
     public byte reversibleMoves() {
         return reversibleMoves;
+    }
+
+    public byte castles() {
+        return castles;
+    }
+
+    public long castlePath() {
+        return castlePath;
+    }
+
+
+    /**
+     * calling legalMoves destroys undo-information, use this to fix it up
+     */
+    public void restore(byte reversibleMoves, byte castles, long castlePath) {
+        this.reversibleMoves = reversibleMoves;
+        this.castles = castles;
+        this.castlePath = castlePath;
     }
 
     public CastleType.Set castlesAvailable() {
@@ -1215,8 +1234,18 @@ public class State
             return Outcome.DRAW;
         }
 
-        int[] moves = legalMoves();
-        if (moves == null) {
+        int[] legalMoves = legalMoves();
+        int legalMoveCount = legalMoves == null ? -1 : legalMoves.length;
+        return knownOutcomeOrNull(legalMoveCount);
+    }
+
+
+    public Outcome knownOutcomeOrNull(int legalMoveCount) {
+        if (isDrawnBy50MovesRule()) {
+            return Outcome.DRAW;
+        }
+
+        if (legalMoveCount == -1) {
             if (isInCheck( nextToAct() )) {
                 return Outcome.loses( nextToAct() );
             }
@@ -1224,7 +1253,7 @@ public class State
                 throw new IllegalStateException();
             }
         }
-        else if (moves.length == 0) {
+        else if (legalMoveCount == 0) {
             if (isInCheck( nextToAct() )) {
                 return Outcome.loses( nextToAct() );
             }

@@ -404,10 +404,12 @@ public class UctNode
     //--------------------------------------------------------------------
     private void populateKids(Map<State, UctNode> transposition)
     {
-        if (kids != null) return;
+        if (kids != null) {
+            return;
+        }
 
-        int[] legalMoves = new int[Move.MAX_PER_PLY];
-        int   moveCount  = state.legalMoves(legalMoves);
+        int[] legalMoves = state.legalMoves();
+        int moveCount = legalMoves == null ? -1 : legalMoves.length;
 
         kids = new UctNode[ moveCount ];
         acts = new int    [ moveCount ];

@@ -4,7 +4,6 @@ import ao.chess.v1.util.Io;
 import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
-import ao.chess.v2.engine.mcts.player.ScoredPlayer;
 import ao.chess.v2.engine.neuro.puct.*;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
@@ -12,7 +11,6 @@ import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -111,6 +109,7 @@ public class RolloutPlayer
     private final LongAdder collisions = new LongAdder();
     private final LongAdder terminalHits = new LongAdder();
     private final LongAdder tablebaseHits = new LongAdder();
+    private final LongAdder tablebaseRolloutHits = new LongAdder();
     private final LongAdder solutionHits = new LongAdder();
 
     private final CopyOnWriteArrayList<RolloutContext> contexts;
@@ -336,6 +335,7 @@ public class RolloutPlayer
                     collisions,
                     terminalHits,
                     tablebaseHits,
+                    tablebaseRolloutHits,
                     solutionHits));
         }
 
@@ -417,7 +417,7 @@ public class RolloutPlayer
         int bestMove = root.bestMove(state, isRepeat, history, historyIndex);
 
         String generalPrefix = String.format(
-                "%s - %s | %d | x%d / t%d / e%d / s%d | %s",
+                "%s - %s %d | x%d t%d e%d r%d s%d | %s",
                 id,
                 model,
                 threads,
@@ -429,6 +429,7 @@ public class RolloutPlayer
                 collisions.longValue(),
                 terminalHits.longValue(),
                 tablebaseHits.longValue(),
+                tablebaseRolloutHits.longValue(),
                 solutionHits.longValue(),
                 Move.toString(bestMove));
 
@@ -441,9 +442,9 @@ public class RolloutPlayer
 
 
 //    @Override
-    public double expectedValue() {
-        return previousRoot.inverseValue();
-    }
+//    public double expectedValue() {
+//        return previousRoot.rootValue();
+//    }
 
 
     //-----------------------------------------------------------------------------------------------------------------

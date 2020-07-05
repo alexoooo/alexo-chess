@@ -14,6 +14,7 @@ public class MaterialMixedRollout implements MctsRollout {
 
     //--------------------------------------------------------------------
     private final int[] moves = new int[Move.MAX_PER_PLY];
+    private final int[] pseudoMoves = new int[Move.MAX_PER_PLY];
 
     private final boolean opt;
 
@@ -58,7 +59,7 @@ public class MaterialMixedRollout implements MctsRollout {
     //--------------------------------------------------------------------
     private int bestMove(State position)
     {
-        int nMoves = position.legalMoves(moves);
+        int nMoves = position.legalMoves(moves, pseudoMoves);
         if (nMoves == 0) {
             return -1;
         }

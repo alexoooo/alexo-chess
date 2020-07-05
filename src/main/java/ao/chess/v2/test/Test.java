@@ -110,8 +110,8 @@ public class Test
     private static int buildTree(
             State state, int ply, GameBranch check)
     {
-        int moves[] = new int[128];
-        int nMoves  = state.legalMoves(moves);
+        int[] moves = state.legalMoves();
+        int nMoves  = moves == null ? -1 : moves.length;
         if (nMoves == 0) {
             if (ply == 0) {
                 if (state.isInCheck(state.nextToAct())) {

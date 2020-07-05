@@ -295,7 +295,7 @@ class MetaNode {
     private boolean expandChildAndSetEstimatedValue(
             State state, MetaNode parent, int childIndex, MetaContext context
     ) {
-        int moveCount = state.legalMoves(context.movesA);
+        int moveCount = state.legalMoves(context.movesA, context.movesC);
         if (moveCount == 0 || moveCount == -1) {
             Outcome knownOutcome = state.knownOutcomeOrNull();
             MetaNode newChild = new MetaNode(knownOutcome, state);

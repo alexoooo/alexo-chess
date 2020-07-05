@@ -14,14 +14,17 @@ public class RandomPlayer extends PlayerImpl
 {
     //--------------------------------------------------------------------
     private final int[] moves = new int[ Move.MAX_PER_PLY ];
+    private final int[] pseudoMoves = new int[ Move.MAX_PER_PLY ];
 
 
     //--------------------------------------------------------------------
     public int move(
             State position)
     {
-        int nMoves = position.legalMoves(moves);
-        if (nMoves <= 0) return -1;
+        int nMoves = position.legalMoves(moves, pseudoMoves);
+        if (nMoves <= 0) {
+            return -1;
+        }
 
         return moves[(int)(Math.random() * nMoves)];
     }

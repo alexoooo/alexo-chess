@@ -28,6 +28,7 @@ public class MctsDeepRolloutImpl
     private final int repetitions;
 
     private final int[] moves = new int[Move.MAX_PER_PLY];
+    private final int[] pseudoMoves = new int[Move.MAX_PER_PLY];
     private final double[] expectation = new double[Move.MAX_PER_PLY];
 
 
@@ -84,7 +85,7 @@ public class MctsDeepRolloutImpl
                 move = bestMove(state, heuristic);
             }
             else {
-                int nMoves = position.legalMoves(moves);
+                int nMoves = position.legalMoves(moves, pseudoMoves);
                 if (nMoves == 0) {
                     move = -1;
                 }
@@ -108,7 +109,7 @@ public class MctsDeepRolloutImpl
     //--------------------------------------------------------------------
     private int bestMove(State position, MctsHeuristic heuristic)
     {
-        int nMoves = position.legalMoves(moves);
+        int nMoves = position.legalMoves(moves, pseudoMoves);
         if (nMoves == 0) {
             return -1;
         }

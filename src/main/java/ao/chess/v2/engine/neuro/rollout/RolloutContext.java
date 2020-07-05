@@ -23,6 +23,7 @@ class RolloutContext {
 
     public final int[] movesA = new int[Move.MAX_PER_PLY];
     public final int[] movesB = new int[Move.MAX_PER_PLY];
+    public final int[] movesC = new int[Move.MAX_PER_PLY];
     public final double[] valueSums = new double[Move.MAX_PER_PLY];
     public final long[] visitCounts = new long[Move.MAX_PER_PLY];
 //    public final double[] probabilityBuffer = new double[Move.MAX_PER_PLY];
@@ -44,6 +45,7 @@ class RolloutContext {
     public final LongAdder collisions;
     public final LongAdder terminalHits;
     public final LongAdder tablebaseHits;
+    public final LongAdder tablebaseRolloutHits;
     public final LongAdder solutionHits;
 
 
@@ -62,6 +64,7 @@ class RolloutContext {
             LongAdder collisions,
             LongAdder terminalHits,
             LongAdder tablebaseHits,
+            LongAdder tablebaseRolloutHits,
             LongAdder solutionHits)
     {
         this.index = index;
@@ -81,6 +84,7 @@ class RolloutContext {
         this.collisions = collisions;
         this.terminalHits = terminalHits;
         this.tablebaseHits = tablebaseHits;
+        this.tablebaseRolloutHits = tablebaseRolloutHits;
         this.solutionHits = solutionHits;
     }
 }
