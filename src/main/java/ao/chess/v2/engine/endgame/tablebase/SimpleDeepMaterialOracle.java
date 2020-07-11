@@ -23,6 +23,7 @@ import java.util.List;
 public class SimpleDeepMaterialOracle implements DeepMaterialOracle
 {
     //--------------------------------------------------------------------
+    // TODO: is this necessary, or can just use Long2ByteMap?
     private final MinPerfectHash indexer;
     private final byte[]         outcomes;
 

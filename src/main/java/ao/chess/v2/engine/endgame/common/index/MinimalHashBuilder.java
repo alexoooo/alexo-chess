@@ -8,6 +8,7 @@ import it.unimi.dsi.bits.HuTuckerTransformationStrategy;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.sux4j.mph.GOVMinimalPerfectHashFunction;
 import it.unimi.dsi.sux4j.mph.MinimalPerfectHashFunction;
 
 import java.io.IOException;
@@ -53,12 +54,13 @@ public class MinimalHashBuilder
 
 
     //--------------------------------------------------------------------
-    public MinimalPerfectHashFunction<String> hash()
+    public GOVMinimalPerfectHashFunction<String> hash()
     {
         try {
-            return new MinimalPerfectHashFunction<String>(
-                            this, new HuTuckerTransformationStrategy(
-                                        this, true));
+            return new GOVMinimalPerfectHashFunction.Builder<String>()
+                    .keys(this)
+                    .transform(new HuTuckerTransformationStrategy(this, true))
+                    .build();
         } catch (IOException e) {
             throw new Error( e );
         }
@@ -68,7 +70,7 @@ public class MinimalHashBuilder
     //--------------------------------------------------------------------
     @Override public Iterator<String> iterator() {
         final LongIterator itr = states.iterator();
-        return new Iterator<String>() {
+        return new Iterator<>() {
             @Override
             public boolean hasNext() {
                 return itr.hasNext();
@@ -76,7 +78,7 @@ public class MinimalHashBuilder
 
             @Override
             public String next() {
-                return encode( itr.next() );
+                return encode( itr.nextLong() );
             }
 
             @Override public void remove() {

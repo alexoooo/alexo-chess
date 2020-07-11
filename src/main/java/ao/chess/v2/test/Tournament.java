@@ -3,6 +3,7 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
+import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
 import ao.chess.v2.engine.neuro.puct.PuctMultiModel;
 import ao.chess.v2.engine.neuro.puct.PuctPlayer;
@@ -34,7 +35,9 @@ import java.util.List;
 public class Tournament
 {
     //--------------------------------------------------------------------
-    private static final int TIME_PER_MOVE = 15_000;
+//    private static final int TIME_PER_MOVE = 1_000;
+//    private static final int TIME_PER_MOVE = 15_000;
+    private static final int TIME_PER_MOVE = 60_000;
 
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
@@ -63,7 +66,7 @@ public class Tournament
 //                new MctsSchedulerImpl.Factory()
 //        );
 
-//        Player b = new RandomPlayer();
+//        Player a = new RandomPlayer();
 //        Player b = new MctsPlayer(
 //                new MctsNodeImpl.Factory<Ucb1TunedValue>(),
 //                new Ucb1TunedValue.Factory(),
@@ -101,26 +104,26 @@ public class Tournament
 //                1,
 //                false
 //        );
-//        ParallelMctsPlayer a = new ParallelMctsPlayer(
-//                "par",
-//                9,
-//                0.3,
-//                3,
-//                false
-//        );
+        ParallelMctsPlayer a = new ParallelMctsPlayer(
+                "par",
+                24,
+                0.3,
+                3,
+                false
+        );
 //        ParallelMctsPlayer b = a.prototype();
 
-        Player a = NeuralNetworkPlayer.load(
-                new PuctSingleModel(
-//                        Paths.get("lookup/nn/res_10_20191224.zip"),
-//                        Paths.get("lookup/nn/res_5a_head.zip")
-//                        Paths.get("lookup/nn/res_14b_head.zip")
-                        Paths.get("lookup/nn/res_14b_n811.zip")
-//                        Paths.get("lookup/nn/res_20.zip")
-                ),
-//                false
-                true
-        );
+//        Player a = NeuralNetworkPlayer.load(
+//                new PuctSingleModel(
+////                        Paths.get("lookup/nn/res_10_20191224.zip"),
+////                        Paths.get("lookup/nn/res_5a_head.zip")
+////                        Paths.get("lookup/nn/res_14b_head.zip")
+//                        Paths.get("lookup/nn/res_14b_n811.zip")
+////                        Paths.get("lookup/nn/res_20.zip")
+//                ),
+////                false
+//                true
+//        );
 
         Player b = NeuralNetworkPlayer.load(
                 new PuctSingleModel(

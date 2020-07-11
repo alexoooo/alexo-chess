@@ -1005,6 +1005,7 @@ public class State
         }
         return tally;
     }
+
     public int tallyNonKings(int atMost) {
         int tally = 0, count;
         for (int figure : NON_KINGS_BY_PROB) {
@@ -1020,6 +1021,7 @@ public class State
         }
         return tally;
     }
+
     public int tallyNonKings() {
         int tally = 0, count;
         for (int figure : NON_KINGS_BY_PROB) {

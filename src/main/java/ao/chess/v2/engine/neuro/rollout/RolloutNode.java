@@ -27,6 +27,7 @@ import static com.google.common.base.Preconditions.checkState;
 class RolloutNode {
     //-----------------------------------------------------------------------------------------------------------------
     private static final double initialPlayEstimate = 1.0;
+    private static final double explorationBase = 0.25;
     private static final double estimateUncertainty = 0.01;
 
 
@@ -105,7 +106,9 @@ class RolloutNode {
 
     //-----------------------------------------------------------------------------------------------------------------
     public RolloutNode childOrNull(int moveIndex) {
-        return childNodes.get(moveIndex);
+        return childNodes == null
+                ? null
+                : childNodes.get(moveIndex);
     }
 
 
@@ -502,22 +505,13 @@ class RolloutNode {
 
             double moveScore;
             if (moveVisits == 0) {
-//                boolean isUnderpromotion = Move.isPromotion(moves[i]) &&
-//                        Figure.VALUES[Move.promotion(moves[i])] != Figure.QUEEN;
-//
-//                if (isUnderpromotion) {
-//                    moveScore = Math.sqrt(Math.log(parentVisitCount));
-//                }
-//                else {
-//                    moveScore = prior * 100_000;
-//                }
-                moveScore = (0.25 + prior) * Math.sqrt(Math.log(parentVisitCount + 1));
+                double unvisitedBonus = Math.sqrt(Math.log(parentVisitCount + 1));
+                moveScore = (explorationBase + prior) * unvisitedBonus;
             }
             else {
                 double averageOutcome = moveValueSums[i] / moveVisits;
-                double varianceEstimate = Math.sqrt(Math.log(parentVisitCount) / moveVisits);
-                double explorationBonus = (0.25 + prior) * varianceEstimate;
-//                double explorationBonus = (2 * prior) * varianceEstimate;
+                double unvisitedBonus = Math.sqrt(Math.log(parentVisitCount) / moveVisits);
+                double explorationBonus = (explorationBase + prior) * unvisitedBonus;
                 moveScore = averageOutcome + explorationBonus;
             }
 
@@ -540,7 +534,7 @@ class RolloutNode {
             int historyCount
     ) {
         int[] moves = state.legalMoves();
-        if (moves.length == 0) {
+        if (moves == null || moves.length == 0) {
             return -1;
         }
         if (! Double.isNaN(knownValue)) {
@@ -562,16 +556,13 @@ class RolloutNode {
         int contenderCount = 0;
         int[] moveContendersIndexes = new int[moves.length];
         int[] moveContendersCounts = new int[moves.length];
-//        int expectedCount = (int) Math.round((double) visitCount() / moves.length + 0.5);
-//        int contenderTotal = 0;
 
         State repeatCursorOrNull =
                 isRepeat
                 ? state.prototype()
                 : null;
 
-        for (int i = 0; i < moves.length; i++)
-        {
+        for (int i = 0; i < moves.length; i++) {
             boolean moveRepeat = false;
             int move;
             if (repeatCursorOrNull != null) {
@@ -655,6 +646,10 @@ class RolloutNode {
 
     private void principalVariation(List<String> builder, State state) {
         int[] moves = state.legalMoves();
+        if (moves == null || moves.length == 0) {
+            return;
+        }
+
         int bestMove = bestMove(state, false, new long[0], 0);
         int maxChildIndex = Ints.indexOf(moves, bestMove);
 
@@ -673,11 +668,9 @@ class RolloutNode {
     }
 
 
-
     public String toString(State state, RolloutContext context) {
         int[] moves = state.legalMoves();
         List<Integer> indexes = IntStream.range(0, moves.length).boxed().collect(Collectors.toList());
-
 
         double parentSum = 0;
         long parentCount = 0;

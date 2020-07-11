@@ -51,6 +51,7 @@ public class DeepOracle
 
 
     //--------------------------------------------------------------------
+//    public static final int instancePieceCount = 3;
     public static final int instancePieceCount = 4;
 
     public static final DeepOracle INSTANCE =
@@ -107,8 +108,8 @@ public class DeepOracle
     private void addPermutations(int n) {
         @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
         List<List<Piece[]>> byPawnCount =
-                new AutovivifiedList<List<Piece[]>>(
-                        Factories.<Piece[]>newArrayList());
+                new AutovivifiedList<>(
+                        Factories.newArrayList());
 
         for (Piece[] exhaustiveCombo :
                 new Exhauster<>(Piece.VALUES, n)) {

@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import it.unimi.dsi.sux4j.mph.GOVMinimalPerfectHashFunction;
 import it.unimi.dsi.sux4j.mph.MinimalPerfectHashFunction;
 
 import java.io.File;
@@ -26,7 +27,7 @@ public class MaterialMoveIndex
     private static final File DIR = Config.dir(
             "lookup/heuristic");
 
-    private static final MinimalPerfectHashFunction<CharSequence>
+    private static final GOVMinimalPerfectHashFunction<CharSequence>
             HASH = retrieveOrComputeIndex();
 
     private MaterialMoveIndex() {}
@@ -40,11 +41,11 @@ public class MaterialMoveIndex
 
 
     //--------------------------------------------------------------------
-    private static MinimalPerfectHashFunction<CharSequence>
+    private static GOVMinimalPerfectHashFunction<CharSequence>
             retrieveOrComputeIndex() {
         File storeFile = new File(DIR, "index");
-        MinimalPerfectHashFunction<CharSequence> hash =
-                        PersistentObjects.retrieve( storeFile );
+        GOVMinimalPerfectHashFunction<CharSequence> hash =
+                PersistentObjects.retrieve( storeFile );
         if (hash != null) return hash;
 
         Iterable<CharSequence> combos = new Iterable<CharSequence>() {
@@ -54,9 +55,11 @@ public class MaterialMoveIndex
         };
 
         try {
-            hash = new MinimalPerfectHashFunction<CharSequence>(
-                        combos, new HuTuckerTransformationStrategy(
-                                        combos, true));
+            hash = new GOVMinimalPerfectHashFunction.Builder<CharSequence>()
+                    .keys(combos)
+                    .transform(new HuTuckerTransformationStrategy(
+                            combos, true))
+                    .build();
             PersistentObjects.persist(hash, storeFile);
             return hash;
         } catch (IOException e) {

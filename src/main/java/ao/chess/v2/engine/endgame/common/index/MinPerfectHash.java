@@ -3,6 +3,7 @@ package ao.chess.v2.engine.endgame.common.index;
 import ao.chess.v2.piece.Piece;
 import ao.chess.v2.state.State;
 import ao.chess.v2.engine.endgame.common.PositionTraverser;
+import it.unimi.dsi.sux4j.mph.GOVMinimalPerfectHashFunction;
 import it.unimi.dsi.sux4j.mph.MinimalPerfectHashFunction;
 
 import java.io.Serializable;
@@ -16,7 +17,8 @@ import java.util.List;
 public class MinPerfectHash implements Serializable
 {
     //--------------------------------------------------------------------
-    private final MinimalPerfectHashFunction<String> hash;
+//    private final MinimalPerfectHashFunction<String> hash;
+    private final GOVMinimalPerfectHashFunction<String> hash;
 
 
     //--------------------------------------------------------------------
