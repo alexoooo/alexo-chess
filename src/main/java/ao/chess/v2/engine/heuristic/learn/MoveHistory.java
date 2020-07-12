@@ -207,16 +207,6 @@ public class MoveHistory {
     }
 
 
-    public double outcomeScore() {
-        if (outcome == Outcome.DRAW) {
-            return 0;
-        }
-
-        return outcome.winner() == state.nextToAct()
-                ? 1 : -1;
-    }
-
-
     public double outcomeValue() {
         if (outcome == Outcome.DRAW) {
             return 0.5;

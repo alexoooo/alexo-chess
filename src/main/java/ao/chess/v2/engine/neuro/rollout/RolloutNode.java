@@ -6,7 +6,6 @@ import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
 import ao.chess.v2.engine.neuro.puct.PuctEstimate;
 import ao.chess.v2.engine.neuro.puct.PuctUtils;
 import ao.chess.v2.piece.Colour;
-import ao.chess.v2.piece.Figure;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
@@ -27,8 +26,11 @@ import static com.google.common.base.Preconditions.checkState;
 class RolloutNode {
     //-----------------------------------------------------------------------------------------------------------------
     private static final double initialPlayEstimate = 1.0;
-    private static final double explorationBase = 0.25;
+
+    private static final double explorationBase = Math.sqrt(2);
+
     private static final double estimateUncertainty = 0.01;
+    private static final double estimateUncertaintyDenominator = 1.0 + estimateUncertainty;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -295,7 +297,6 @@ class RolloutNode {
             double bestMoveScore = Double.NEGATIVE_INFINITY;
 
             double moveUncertainty = estimateUncertainty / nMoves;
-            double denominator = 1.0 + estimateUncertainty;
 
             for (int i = 0; i < nMoves; i++) {
                 byte reversibleMoves = state.reversibleMoves();
@@ -321,7 +322,7 @@ class RolloutNode {
                     }
                 }
 
-                double probability = (estimate.moveProbabilities[i] + moveUncertainty) / denominator;
+                double probability = (estimate.moveProbabilities[i] + moveUncertainty) / estimateUncertaintyDenominator;
                 double score = probability * probability * context.random.nextDouble();
                 if (score > bestMoveScore) {
                     bestMoveScore = score;
@@ -498,20 +499,23 @@ class RolloutNode {
         double maxScore = Double.NEGATIVE_INFINITY;
         int maxScoreIndex = 0;
         double moveUncertainty = estimateUncertainty / moveCount;
+        double explorationWithoutPrior = explorationBase - 1.0 / moveCount;
 
         for (int i = 0; i < moveCount; i++) {
             long moveVisits = moveVisitCounts[i];
-            double prior = (movePredictions[i] + moveUncertainty) / (1 + estimateUncertainty);
+            double prior = (movePredictions[i] + moveUncertainty) / estimateUncertaintyDenominator;
+
+            double explorationWeight = explorationWithoutPrior + prior;
 
             double moveScore;
             if (moveVisits == 0) {
                 double unvisitedBonus = Math.sqrt(Math.log(parentVisitCount + 1));
-                moveScore = (explorationBase + prior) * unvisitedBonus;
+                moveScore = explorationWeight * unvisitedBonus;
             }
             else {
                 double averageOutcome = moveValueSums[i] / moveVisits;
                 double unvisitedBonus = Math.sqrt(Math.log(parentVisitCount) / moveVisits);
-                double explorationBonus = (explorationBase + prior) * unvisitedBonus;
+                double explorationBonus = explorationWeight * unvisitedBonus;
                 moveScore = averageOutcome + explorationBonus;
             }
 

@@ -5,6 +5,8 @@ import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.neuro.puct.*;
+import ao.chess.v2.engine.neuro.rollout.store.RolloutStore;
+import ao.chess.v2.engine.neuro.rollout.store.SyncRolloutStore;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import com.google.common.primitives.Ints;
@@ -29,17 +31,10 @@ public class RolloutPlayer
     //-----------------------------------------------------------------------------------------------------------------
     public static class Builder
     {
-        private PuctModel model;
+        private final PuctModel model;
+        private RolloutStore store = new SyncRolloutStore();
         private int threads = 1;
-//        private double exploration = 1.25;
-//        private double explorationLog = 18432;
-//        private boolean randomize = true;
-//        private boolean tablebase = true;
-        private int minumumTrajectories = 0;
-//        private double alpha = 0.3;
-//        private double signal = 0.75;
-//        private boolean stochastic = false;
-//        private boolean train = false;
+        private int minimumTrajectories = 0;
         private boolean useIo = false;
 
 
@@ -58,31 +53,24 @@ public class RolloutPlayer
             return this;
         }
 
-//        public Builder stochastic(boolean stochastic) {
-//            this.stochastic = stochastic;
-//            return this;
-//        }
+        public Builder minimumTrajectories(int minimumTrajectories) {
+            this.minimumTrajectories = minimumTrajectories;
+            return this;
+        }
 
-//        public Builder train(boolean train) {
-//            this.train = train;
-//            return this;
-//        }
+        public Builder store(RolloutStore store) {
+            this.store = store;
+            return this;
+        }
 
 
         public RolloutPlayer build()
         {
             return new RolloutPlayer(
                     model,
+                    store,
                     threads,
-//                    exploration,
-//                    explorationLog,
-//                    randomize,
-//                    tablebase,
-                    minumumTrajectories,
-//                    stochastic,
-//                    alpha,
-//                    signal,
-//                    true,
+                    minimumTrajectories,
                     useIo);
         }
     }
@@ -90,22 +78,14 @@ public class RolloutPlayer
 
     //-----------------------------------------------------------------------------------------------------------------
     private final String id;
+    private final RolloutStore store;
     private final PuctModel model;
     private final PuctModelPool pool;
     private final int threads;
-//    private final double exploration;
-//    private final double explorationLog;
-//    private final boolean randomize;
-//    private final boolean tablebase;
-//    private final double alpha;
-//    private final double signal;
     private final int minimumTrajectories;
-//    private final boolean stochastic;
     private final boolean useIo;
     private boolean train;
 
-//    private final ConcurrentHashMap<Long, PuctEstimate> nnCache = new ConcurrentHashMap<>();
-//    private final LongAdder cacheHits = new LongAdder();
     private final LongAdder collisions = new LongAdder();
     private final LongAdder terminalHits = new LongAdder();
     private final LongAdder tablebaseHits = new LongAdder();
@@ -128,33 +108,19 @@ public class RolloutPlayer
     //-----------------------------------------------------------------------------------------------------------------
     public RolloutPlayer(
             PuctModel model,
+            RolloutStore store,
             int threads,
-//            double exploration,
-//            double explorationLog,
-//            boolean randomize,
-//            boolean tablebase,
             int minumumTrajectories,
-//            boolean stochastic,
-//            double alpha,
-//            double signal,
-//            boolean train,
             boolean useIo)
     {
         this.model = model;
+        this.store = store;
         this.threads = threads;
-//        this.exploration = exploration;
-//        this.explorationLog = explorationLog;
-//        this.randomize = randomize;
-//        this.tablebase = tablebase;
         this.minimumTrajectories = minumumTrajectories;
-//        this.stochastic = stochastic;
-//        this.alpha = alpha;
-//        this.signal = signal;
-//        this.train = train;
         this.useIo = useIo;
 
         pool = new PuctModelPool(
-                threads, model, 1.0, 0);
+                threads, model);
 
         contexts = new CopyOnWriteArrayList<>();
 
@@ -322,16 +288,8 @@ public class RolloutPlayer
             contexts.add(new RolloutContext(
                     i,
                     threads,
-//                    modelProto,
                     pool,
-//                    exploration,
-//                    explorationLog,
-//                    0.2,
-//                    randomize,
-//                    tablebase,
-//                    predictionUncertainty,
-//                    nnCache,
-//                    cacheHits,
+                    store,
                     collisions,
                     terminalHits,
                     tablebaseHits,

@@ -30,6 +30,13 @@ public class PuctModelPool
 
     public PuctModelPool(
             int batchSize,
+            PuctModel model)
+    {
+        this(batchSize, model, 1.0, 0.0);
+    }
+
+    public PuctModelPool(
+            int batchSize,
             PuctModel model,
             double outcomeRange,
             double minOutcome)
