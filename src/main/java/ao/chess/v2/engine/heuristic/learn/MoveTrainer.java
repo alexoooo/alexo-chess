@@ -3,7 +3,6 @@ package ao.chess.v2.engine.heuristic.learn;
 import ao.chess.v2.engine.neuro.meta.MetaEstimate;
 import ao.chess.v2.engine.neuro.puct.PuctEstimate;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Range;
 import org.deeplearning4j.nn.api.NeuralNetwork;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.nd4j.linalg.activations.Activation;
@@ -30,6 +29,7 @@ import java.util.zip.GZIPInputStream;
 
 
 // https://towardsdatascience.com/deep-learning-which-loss-and-activation-functions-should-i-use-ac02f1c56aa8
+// http://rebel13.nl/download/data.html
 public class MoveTrainer {
     //-----------------------------------------------------------------------------------------------------------------
     private static final boolean useCheckpoint = true;
@@ -78,11 +78,9 @@ public class MoveTrainer {
     private static final Random seededRandom = new Random(seed);
     private static final MoveTrainerEncoder encoder = new MoveTrainerEncoder(miniBatchSize);
 
-
     public static final WorkspaceConfiguration wsConfig = WorkspaceConfiguration.builder()
             .policyLocation(LocationPolicy.RAM)
             .build();
-
 
     private static final Path checkpointPath = Paths.get("lookup/train/checkpoint.txt");
     private static final Path progressPath = Paths.get("lookup/train/progress.tsv");
@@ -269,8 +267,8 @@ public class MoveTrainer {
         }
 
 //        ((ComputationGraph) nn).setLearningRate(0.1);
-        ((ComputationGraph) nn).setLearningRate(0.01);
-//        ((ComputationGraph) nn).setLearningRate(0.001);
+//        ((ComputationGraph) nn).setLearningRate(0.01);
+        ((ComputationGraph) nn).setLearningRate(0.001);
 
         int checkpoint =
                 useCheckpoint

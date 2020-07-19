@@ -14,9 +14,9 @@ class RolloutContext {
     public final int index;
     public final int threads;
 
-    public final RolloutStore store;
-
     public final PuctModelPool pool;
+    public final RolloutStore store;
+    public final double exploration;
 
     public final Random random = new Random();
     public final List<RolloutNode> path = new ArrayList<>();
@@ -41,6 +41,7 @@ class RolloutContext {
             int threads,
             PuctModelPool pool,
             RolloutStore store,
+            double exploration,
             LongAdder collisions,
             LongAdder terminalHits,
             LongAdder tablebaseHits,
@@ -52,6 +53,7 @@ class RolloutContext {
 
         this.pool = pool;
         this.store = store;
+        this.exploration = exploration;
 
         this.collisions = collisions;
         this.terminalHits = terminalHits;

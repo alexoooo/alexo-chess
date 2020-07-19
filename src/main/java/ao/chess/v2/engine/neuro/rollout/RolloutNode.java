@@ -4,19 +4,17 @@ package ao.chess.v2.engine.neuro.rollout;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
 import ao.chess.v2.engine.neuro.puct.PuctEstimate;
-import ao.chess.v2.engine.neuro.puct.PuctUtils;
+import ao.chess.v2.engine.neuro.rollout.store.KnownOutcome;
+import ao.chess.v2.engine.neuro.rollout.store.RolloutStore;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
-import ao.chess.v2.util.ChildList;
 import com.google.common.base.Joiner;
 import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.DoubleAdder;
-import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -25,137 +23,195 @@ import static com.google.common.base.Preconditions.checkState;
 
 class RolloutNode {
     //-----------------------------------------------------------------------------------------------------------------
-    private static final double initialPlayEstimate = 1.0;
+    private static final double initialPlayEstimate = 0.0;
+//    private static final double initialPlayEstimate = 1.0;
+    private static final double initialPlayFactor = 0.0;
+//    private static final double initialPlayFactor = 0.1;
+//    private static final double initialPlayFactor = 0.5;
 
-    private static final double explorationBase = Math.sqrt(2);
+//    private static final double explorationBase = Math.sqrt(2);
+//    private static final double explorationBase = 0.3;
 
-    private static final double estimateUncertainty = 0.01;
+//    private static final double estimateUncertainty = 0.01;
+    private static final double estimateUncertainty = 0.025;
     private static final double estimateUncertaintyDenominator = 1.0 + estimateUncertainty;
 
+    private static final double rolloutProbabilityPower = 2.0;
+    //    private static final double rolloutProbabilityPower = 3.0;
 
-    //-----------------------------------------------------------------------------------------------------------------
-//    private final int[] moves;
-//    private final double[] predictions;
-
-    private final LongAdder visitCount;
-    private final DoubleAdder valueSum;
-
-    private final ChildList<RolloutNode> childNodes;
-//    private final DeepOutcome deepOutcomeOrNull;
-//    private final long staticHashCode;
-
-    private volatile double knownValue;
-
+//    private static final double rolloutValueWeight = 0.0;
+    private static final double rolloutValueWeight = 0.01;
+//    private static final double rolloutValueWeight = 0.05;
+//    private static final double rolloutValueWeight = 0.25;
+//    private static final double rolloutValueWeight = 0.5;
+    private static final double rolloutValueDenominator = 1.0 + rolloutValueWeight;
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public RolloutNode(DeepOutcome deepOutcome, State state)
-    {
-        this(-1,
-                PuctUtils.deepOutcomeValue(state, deepOutcome));
+    private final long index;
+
+
+//    private final LongAdder visitCount;
+//    private final DoubleAdder valueSum;
+//    private final ChildList<RolloutNode> childNodes;
+//    private volatile double knownValue;
+
+
+
+//    public static RolloutNode ofTerminal(Outcome outcome, State state, RolloutStore store) {
+//        store.expandChild()
+//    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    public RolloutNode(long index) {
+        this.index = index;
     }
 
 
-    public RolloutNode(Outcome outcome, State state)
-    {
-        this(-1,
-                outcome.valueFor(state.nextToAct()));
-    }
-
-
-    public RolloutNode(int moveCount)
-    {
-        this(moveCount, Double.NaN);
-    }
-
-
-    private RolloutNode(
-//            int[] moves,
-//            double[] predictions,
-            int moveCount,
-//            DeepOutcome deepOutcomeOrNull,
-            double knownValue)
-    {
-//        this.moves = moves;
-//        this.predictions = predictions;
-//        this.deepOutcomeOrNull = deepOutcomeOrNull;
-
-        visitCount = new LongAdder();
-        valueSum = new DoubleAdder();
-
-        if (moveCount == -1) {
-            childNodes = null;
-        }
-        else {
-            childNodes = new ChildList<>(moveCount);
-        }
-
-        this.knownValue = knownValue;
-    }
+//    public RolloutNode(DeepOutcome deepOutcome, State state)
+//    {
+//        this(-1,
+//                PuctUtils.deepOutcomeValue(state, deepOutcome));
+//    }
+//
+//
+//    public RolloutNode(Outcome outcome, State state)
+//    {
+//        this(-1,
+//                outcome.valueFor(state.nextToAct()));
+//    }
+//
+//
+//    public RolloutNode(int moveCount)
+//    {
+//        this(moveCount, Double.NaN);
+//    }
+//
+//
+//    private RolloutNode(
+//            int moveCount,
+//            double knownValue)
+//    {
+////        visitCount = new LongAdder();
+////        valueSum = new DoubleAdder();
+////
+////        if (moveCount == -1) {
+////            childNodes = null;
+////        }
+////        else {
+////            childNodes = new ChildList<>(moveCount);
+////        }
+////
+////        this.knownValue = knownValue;
+//    }
 
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public long visitCount() {
-        return visitCount.sum();
+    public long visitCount(RolloutStore store) {
+//        return visitCount.sum();
+        return store.getCount(index);
     }
 
 
-    public boolean isValueKnown() {
-        return ! Double.isNaN(knownValue);
+    public boolean isValueKnown(RolloutStore store) {
+//        return ! Double.isNaN(knownValue);
+        return store.getKnownOutcome(index) != KnownOutcome.Unknown;
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public RolloutNode childOrNull(int moveIndex) {
-        return childNodes == null
+    public RolloutNode childOrNull(int moveIndex, RolloutStore store) {
+        long childIndex = store.getChildIndex(index, moveIndex);
+        return childIndex == -1
                 ? null
-                : childNodes.get(moveIndex);
+                : new RolloutNode(childIndex);
+//        return childNodes == null
+//                ? null
+//                : childNodes.get(moveIndex);
     }
 
 
-    private long visitCount(int moveIndex) {
-        RolloutNode child = childNodes.get(moveIndex);
-        return child == null
+    private long visitCount(int moveIndex, RolloutStore store) {
+        long childIndex = store.getChildIndex(index, moveIndex);
+        return childIndex == -1
                 ? 0
-                : child.visitCount();
+                : store.getCount(childIndex);
+
+//        RolloutNode child = childNodes.get(moveIndex);
+//        return child == null
+//                ? 0
+//                : child.visitCount();
     }
 
 
-    private double expectedValue(int moveIndex) {
-        long count = visitCount(moveIndex);
-        if (count == 0) {
+    private void incrementVisitCount(RolloutStore store) {
+        store.incrementCount(index);
+    }
+
+
+    private void setKnownOutcome(KnownOutcome knownOutcome, RolloutStore store) {
+        store.setKnownOutcome(index, knownOutcome);
+    }
+
+
+    private void addValue(double value, RolloutStore store) {
+        store.addValue(index, value);
+    }
+
+
+    private double valueSum(RolloutStore store) {
+        return store.getValueSum(index);
+    }
+
+
+    private double expectedValue(int moveIndex, RolloutStore store) {
+        long childIndex = store.getChildIndex(index, moveIndex);
+        if (childIndex == -1) {
             return initialPlayEstimate;
         }
 
-        RolloutNode child = childNodes.get(moveIndex);
-        double childValueSum = child.valueSum.doubleValue();
-        return childValueSum / count;
+        return store.getAverageValue(childIndex, initialPlayEstimate);
+
+//        long count = visitCount(moveIndex, store);
+//        if (count == 0) {
+//            return initialPlayEstimate;
+//        }
+//
+//        RolloutNode child = childNodes.get(moveIndex);
+//        double childValueSum = child.valueSum.doubleValue();
+//        return childValueSum / count;
     }
 
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public void initRoot() {
-        visitCount.increment();
+    public void initRoot(RolloutStore store) {
+        store.incrementCount(RolloutStore.rootIndex);
+//        visitCount.increment();
     }
 
 
-    private boolean isUnvisitedVirtual() {
-        return visitCount.longValue() < 2;
+    private boolean isUnvisitedVirtual(RolloutStore store) {
+        return store.getCount(index) < 2;
+//        return visitCount.longValue() < 2;
     }
 
 
     public void runTrajectory(State state, RolloutContext context) {
+        RolloutStore store = context.store;
+
         List<RolloutNode> path = context.path;
         path.clear();
 
         path.add(this);
-        visitCount.increment();
+        store.incrementCount(index);
+//        visitCount.increment();
 
         double estimatedValue = Double.NaN;
 
-        while (! path.get( path.size() - 1 ).isUnvisitedVirtual())
+        while (! path.get( path.size() - 1 ).isUnvisitedVirtual(store))
         {
             int pathLength = path.size();
             RolloutNode node = path.get( pathLength - 1 );
@@ -163,58 +219,56 @@ class RolloutNode {
             int moveCount = state.legalMoves(context.movesA, context.movesC);
             PuctEstimate estimate = context.pool.estimateBlocking(state, context.movesA, moveCount);
 
-            int childIndex = node.ucbChild(
-                    context.movesA, moveCount, estimate.moveProbabilities, pathLength == 1, context);
+            int moveIndex = node.ucbChild(
+                    moveCount, estimate.winProbability, estimate.moveProbabilities, pathLength == 1, context);
 
-            if (node.isValueKnown()) {
-                estimatedValue = node.knownValue;
+            if (node.isValueKnown(store)) {
+                estimatedValue = node.knownValue(store);
                 context.solutionHits.increment();
                 break;
             }
 
-            Move.apply(context.movesA[childIndex], state);
+            Move.apply(context.movesA[moveIndex], state);
 
-            RolloutNode existingChild = node.childNodes.get(childIndex);
+//            RolloutNode existingChild = node.childNodes.get(childIndex);
+            RolloutNode existingChild = node.childOrNull(moveIndex, store);
 
             RolloutNode child;
-            boolean expanded;
+            boolean selectionEnded;
             if (existingChild == null) {
-                expanded = expandChildAndSetEstimatedValue(
-                        state, node, childIndex, context);
-                child = node.childNodes.get(childIndex);
+                node.expandChildAndSetEstimatedValue(
+                        state,  moveIndex, context);
+                selectionEnded = true;
+
+//                child = node.childNodes.get(childIndex);
+                child = node.childOrNull(moveIndex, store);
 
                 if (child == null) {
                     // NB: cleared child of known value (race condition)
-                    checkState(node.isValueKnown());
-                    estimatedValue = node.knownValue;
+                    checkState(node.isValueKnown(store));
+                    estimatedValue = node.knownValue(store);
                     break;
                 }
             }
             else {
-                expanded = false;
+                selectionEnded = false;
                 child = existingChild;
             }
 
             path.add( child );
-            child.visitCount.increment();
+            child.incrementVisitCount(store);
 
-            if (child.isValueKnown()) {
-                estimatedValue = child.knownValue;
+            if (child.isValueKnown(store)) {
+                estimatedValue = child.knownValue(store);
 
                 int childMoveCount = state.legalMoves(context.movesA, context.movesC);
-                if (childMoveCount == -1) {
-                    context.tablebaseHits.increment();
-                }
-                else if (childMoveCount == 0) {
-                    context.terminalHits.increment();
-                }
-                else {
+                if (childMoveCount > 0) {
                     context.solutionHits.increment();
                 }
 
                 break;
             }
-            else if (expanded) {
+            else if (selectionEnded) {
                 estimatedValue = context.estimatedValue;
                 break;
             }
@@ -229,22 +283,40 @@ class RolloutNode {
     }
 
 
-    private boolean expandChildAndSetEstimatedValue(
-            State state, RolloutNode parent, int childIndex, RolloutContext context
+    private double knownValue(RolloutStore store) {
+        return store.getKnownOutcome(index).toValue();
+    }
+
+
+    private KnownOutcome knownOutcome(RolloutStore store) {
+        return store.getKnownOutcome(index);
+    }
+
+
+    private void expandChildAndSetEstimatedValue(
+            State state, /*RolloutNode parent,*/ int moveIndex, RolloutContext context
     ) {
         int moveCount = state.legalMoves(context.movesA, context.movesC);
-        if (moveCount == 0 || moveCount == -1) {
-            Outcome knownOutcome = state.knownOutcomeOrNull();
-            RolloutNode newChild = new RolloutNode(knownOutcome, state);
-            context.estimatedValue = newChild.knownValue;
-            context.terminalHits.increment();
-            return addChildIfRequired(newChild, parent, childIndex);
-        }
-        else if (state.isDrawnBy50MovesRule()) {
-            RolloutNode newChild = new RolloutNode(DeepOutcome.DRAW, state);
-            context.estimatedValue = 0.5;
-            context.terminalHits.increment();
-            return addChildIfRequired(newChild, parent, childIndex);
+        if (moveCount == 0 || moveCount == -1 || state.isDrawnBy50MovesRule()) {
+            Outcome outcome = state.knownOutcomeOrNull();
+            KnownOutcome knownOutcome = KnownOutcome.ofOutcome(outcome, state.nextToAct());
+
+            context.estimatedValue = knownOutcome.toValue();
+
+            long childIndex = context.store.expandChildIfMissing(index, moveIndex, 0);
+            if (childIndex < 0) {
+                context.collisions.increment();
+            }
+            else {
+                context.store.setKnownOutcome(childIndex, knownOutcome);
+                context.terminalHits.increment();
+            }
+
+//            RolloutNode newChild = new RolloutNode(knownOutcome, state);
+//            RolloutNode newChild = new RolloutNode(childIndex);
+//            context.estimatedValue = newChild.knownValue(context.store);
+//            context.terminalHits.increment();
+            return;
         }
 
         boolean tablebase =
@@ -256,23 +328,40 @@ class RolloutNode {
                 throw new IllegalStateException("Missing tablebase: " + state);
             }
 
-            RolloutNode newChild = new RolloutNode(deepOutcome, state);
-            context.estimatedValue = newChild.knownValue;
-            return addChildIfRequired(newChild, parent, childIndex);
+            KnownOutcome knownOutcome = KnownOutcome.ofOutcome(deepOutcome.outcome(), state.nextToAct());
+            context.estimatedValue = knownOutcome.toValue();
+
+            long childIndex = context.store.expandChildIfMissing(index, moveIndex, 0);
+            if (childIndex < 0) {
+                context.collisions.increment();
+            }
+            else {
+                context.store.setKnownOutcome(childIndex, knownOutcome);
+                context.tablebaseHits.increment();
+            }
+
+//            RolloutNode newChild = new RolloutNode(deepOutcome, state);
+//            context.estimatedValue = newChild.knownValue(context.store);
+//            return addChildIfRequired(newChild, parent, moveIndex);
+            return;
         }
 
-        RolloutNode newChild = new RolloutNode(moveCount);
-
-        boolean wasSet = parent.childNodes.setIfAbsent(childIndex, newChild);
-        if (! wasSet) {
+        long childIndex = context.store.expandChildIfMissing(index, moveIndex, moveCount);
+        if (childIndex < 0) {
             context.collisions.increment();
 //            return false;
         }
 
+//        RolloutNode newChild = new RolloutNode(moveCount);
+//
+//        boolean wasSet = parent.childNodes.setIfAbsent(moveIndex, newChild);
+//        if (! wasSet) {
+//            context.collisions.increment();
+////            return false;
+//        }
+
         context.estimatedValue = rolloutValue(
                 moveCount, state, context);
-
-        return true;
     }
 
 
@@ -289,9 +378,23 @@ class RolloutNode {
             return Double.NaN;
         }
 
+        int rolloutLength = 0;
+        double rolloutValueSum = 0;
+        double rolloutValueRoot = 0;
+
         rollout:
         while (true) {
             PuctEstimate estimate = context.pool.estimateBlocking(state, moves, nMoves);
+
+            if (rolloutLength == 0) {
+                rolloutValueRoot = estimate.winProbability;
+            }
+
+            rolloutLength++;
+            rolloutValueSum +=
+                    state.nextToAct() == fromPov
+                    ? estimate.winProbability
+                    : 1.0 - estimate.winProbability;
 
             int bestMoveIndex = 0;
             double bestMoveScore = Double.NEGATIVE_INFINITY;
@@ -322,8 +425,12 @@ class RolloutNode {
                     }
                 }
 
-                double probability = (estimate.moveProbabilities[i] + moveUncertainty) / estimateUncertaintyDenominator;
-                double score = probability * probability * context.random.nextDouble();
+                double probability =
+                        (estimate.moveProbabilities[i] + moveUncertainty) /
+                        estimateUncertaintyDenominator;
+
+                double probabilityScore = Math.pow(probability, rolloutProbabilityPower);
+                double score = probabilityScore * context.random.nextDouble();
                 if (score > bestMoveScore) {
                     bestMoveScore = score;
                     bestMoveIndex = i;
@@ -336,17 +443,8 @@ class RolloutNode {
             nextCount = state.legalMoves(nextMoves, context.movesC);
             Outcome moveOutcome = state.knownOutcomeOrNull();
             if (moveOutcome != null) {
-                if (state.isDrawnBy50MovesRule()) {
-                    double povEstimate =
-                            state.nextToAct().invert() == fromPov
-                            ? estimate.winProbability
-                            : 1.0 - estimate.winProbability;
-                    return (0.5 + povEstimate) / 2;
-                }
-                else {
-                    outcome = moveOutcome;
-                    break;
-                }
+                outcome = moveOutcome;
+                break;
             }
 
             if (state.pieceCount() <= DeepOracle.instancePieceCount) {
@@ -364,17 +462,30 @@ class RolloutNode {
             }
         }
 
-        return outcome.valueFor(fromPov);
+        double outcomeValue = outcome.valueFor(fromPov);
+
+        @SuppressWarnings("ConstantConditions")
+        boolean useValue = state.isDrawnBy50MovesRule() || rolloutValueWeight > 0;
+
+        //noinspection ConstantConditions
+        if (useValue) {
+//            double rolloutValue = rolloutValueSum / rolloutLength;
+            @SuppressWarnings("UnnecessaryLocalVariable")
+            double rolloutValue = rolloutValueRoot;
+            return (outcomeValue + rolloutValueWeight * rolloutValue) / rolloutValueDenominator;
+        }
+
+        return outcomeValue;
     }
 
 
-    private boolean addChildIfRequired(
-            RolloutNode newChild,
-            RolloutNode parent,
-            int childIndex
-    ) {
-        return parent.childNodes.setIfAbsent(childIndex, newChild);
-    }
+//    private boolean addChildIfRequired(
+//            RolloutNode newChild,
+//            RolloutNode parent,
+//            int childIndex
+//    ) {
+//        return parent.childNodes.setIfAbsent(childIndex, newChild);
+//    }
 
 
     private void backupValue(
@@ -392,7 +503,9 @@ class RolloutNode {
             double negaMaxValue = reverse ? inverseValue : leafValue;
 
             RolloutNode node = path.get(i);
-            node.valueSum.add(negaMaxValue);
+
+//            node.valueSum.add(negaMaxValue);
+            node.addValue(negaMaxValue, context.store);
 
             reverse = ! reverse;
         }
@@ -401,8 +514,8 @@ class RolloutNode {
 
     //-----------------------------------------------------------------------------------------------------------------
     private int ucbChild(
-            int[] moves,
             int moveCount,
+            double valuePrediction,
             double[] movePredictions,
             boolean root,
             RolloutContext context)
@@ -410,6 +523,7 @@ class RolloutNode {
         if (moveCount == 0) {
             return -1;
         }
+        RolloutStore store = context.store;
 
         int nonWinKnownCount = 0;
 
@@ -417,7 +531,8 @@ class RolloutNode {
         long[] moveVisitCounts = context.visitCounts;
         long parentVisitCount = 1;
         for (int i = 0; i < moveCount; i++) {
-            RolloutNode child = childNodes.get(i);
+//            RolloutNode child = childNodes.get(i);
+            RolloutNode child = childOrNull(i, store);
 
             long childVisitCount;
             double childValueSum;
@@ -427,16 +542,16 @@ class RolloutNode {
                 childVisitCount = 0;
             }
             else {
-                childValueSum = child.valueSum.sum();
-                childVisitCount = child.visitCount.sum();
+                childValueSum = child.valueSum(store);
+                childVisitCount = child.visitCount(store);
 
-                double known = child.knownValue;
+                double known = child.knownValue(store);
                 if (! Double.isNaN(known)) {
                     if (known == 0.0) {
-                        knownValue = 1.0;
+                        setKnownOutcome(KnownOutcome.Win, store);
 
                         if (! root) {
-                            close(context);
+//                            close(context);
                         }
                         return i;
                     }
@@ -453,43 +568,47 @@ class RolloutNode {
         }
 
         if (nonWinKnownCount == moveCount) {
-            double childValue = 1.0;
+//            double childValue = 1.0;
+            KnownOutcome bestChildOutcome = KnownOutcome.Win;
             int childIndex = 0;
             for (int i = 0; i < moveCount; i++) {
-                RolloutNode child = childNodes.get(i);
+                RolloutNode child = childOrNull(i, store);
                 if (child == null) {
                     return -1;
                 }
 
-                double value = child.knownValue;
-                if (value < childValue) {
-                    childValue = value;
+//                double value = child.knownValue(store);
+                KnownOutcome value = child.knownOutcome(store);
+                if (value == KnownOutcome.Draw) {
+                    bestChildOutcome = value;
                     childIndex = i;
                 }
             }
-            knownValue = 1.0 - childValue;
+
+//            knownValue = 1.0 - bestChildOutcome;
+            setKnownOutcome(bestChildOutcome.reverse(), store);
 
             if (! root) {
-                close(context);
+//                close(context);
             }
             return childIndex;
         }
 
         return ucbChild(
-                moveCount, /*moves,*/ movePredictions, moveValueSums, moveVisitCounts, parentVisitCount, context);
+                moveCount, valuePrediction, movePredictions, moveValueSums, moveVisitCounts, parentVisitCount, context);
     }
 
 
-    private void close(RolloutContext context) {
-        childNodes.close();
-//        Object[] previous = childNodes.close();
-//        removeFromCache(previous, context);
-    }
+//    private void close(RolloutContext context) {
+//        childNodes.close();
+////        Object[] previous = childNodes.close();
+////        removeFromCache(previous, context);
+//    }
 
 
     private int ucbChild(
             int moveCount,
-//            int[] moves,
+            double valuePrediction,
             double[] movePredictions,
             double[] moveValueSums,
             long[] moveVisitCounts,
@@ -499,24 +618,27 @@ class RolloutNode {
         double maxScore = Double.NEGATIVE_INFINITY;
         int maxScoreIndex = 0;
         double moveUncertainty = estimateUncertainty / moveCount;
-        double explorationWithoutPrior = explorationBase - 1.0 / moveCount;
+
+//        double explorationWithoutPrior = explorationBase - 1.0 / moveCount;
+//        double explorationWithoutPrior = explorationBase;
+//        double explorationWithoutPrior = context.exploration;
 
         for (int i = 0; i < moveCount; i++) {
             long moveVisits = moveVisitCounts[i];
             double prior = (movePredictions[i] + moveUncertainty) / estimateUncertaintyDenominator;
 
-            double explorationWeight = explorationWithoutPrior + prior;
+//            double explorationWeight = explorationWithoutPrior + prior;
 
             double moveScore;
             if (moveVisits == 0) {
                 double unvisitedBonus = Math.sqrt(Math.log(parentVisitCount + 1));
-                moveScore = explorationWeight * unvisitedBonus;
+                moveScore = valuePrediction * initialPlayFactor + context.exploration * (unvisitedBonus + prior);
             }
             else {
                 double averageOutcome = moveValueSums[i] / moveVisits;
                 double unvisitedBonus = Math.sqrt(Math.log(parentVisitCount) / moveVisits);
-                double explorationBonus = explorationWeight * unvisitedBonus;
-                moveScore = averageOutcome + explorationBonus;
+                double priorBonus = prior / Math.sqrt(moveVisits);
+                moveScore = averageOutcome + context.exploration * (unvisitedBonus + priorBonus);
             }
 
             if (moveScore > maxScore ||
@@ -535,22 +657,23 @@ class RolloutNode {
             State state,
             boolean isRepeat,
             long[] history,
-            int historyCount
+            int historyCount,
+            RolloutStore store
     ) {
         int[] moves = state.legalMoves();
         if (moves == null || moves.length == 0) {
             return -1;
         }
-        if (! Double.isNaN(knownValue)) {
+        if (! Double.isNaN(knownValue(store))) {
             double minChildValue = 1.0;
             int minChildIndex = 0;
             for (int i = 0; i < moves.length; i++) {
-                RolloutNode child = childOrNull(i);
+                RolloutNode child = childOrNull(i, store);
                 if (child == null) {
                     continue;
                 }
-                if (minChildValue > child.knownValue) {
-                    minChildValue = child.knownValue;
+                if (minChildValue > child.knownValue(store)) {
+                    minChildValue = child.knownValue(store);
                     minChildIndex = i;
                 }
             }
@@ -583,11 +706,11 @@ class RolloutNode {
                 move = -1;
             }
 
-            long moveVisits = visitCount(i);
+            long moveVisits = visitCount(i, store);
 
             long moveScore;
             if (moveRepeat) {
-                double moveValue = expectedValue(i);
+                double moveValue = expectedValue(i, store);
                 if (moveValue > 0.5) {
                     moveScore = 0;
                 }
@@ -626,20 +749,33 @@ class RolloutNode {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public String principalVariation(int move, State state) {
+    public String principalVariation(int move, State state, RolloutStore store) {
         StringBuilder builder = new StringBuilder();
 
-        builder.append("root ").append(visitCount()).append(" - ");
-
         int moveIndex = Ints.indexOf(state.legalMoves(), move);
-        RolloutNode child = childNodes.get(moveIndex);
+        RolloutNode child = childOrNull(moveIndex, store);
 
         State proto = state.prototype();
         Move.apply(move, proto);
 
+        long childVisitCount = child.visitCount(store);
+        long rootVisitCount = visitCount(store);
+        builder.append("root ").append(rootVisitCount).append(" - ");
+
         List<String> path = new ArrayList<>();
-        path.add(Move.toInputNotation(move) + " " + child.visitCount());
-        child.principalVariation(path, proto);
+        path.add(Move.toInputNotation(move) + " " + childVisitCount);
+        child.principalVariation(path, proto, store);
+
+        if (isValueKnown(store)) {
+            builder.append("100% ");
+        }
+        else {
+            long confidenceBasis = 100_000 * childVisitCount / rootVisitCount;
+            builder.append(confidenceBasis / 1000)
+                    .append('.')
+                    .append(String.format("%03d", confidenceBasis % 1000))
+                    .append("% ");
+        }
 
         builder.append("depth ").append(path.size()).append(": ");
         builder.append(Joiner.on(" / ").join(path));
@@ -648,31 +784,32 @@ class RolloutNode {
     }
 
 
-    private void principalVariation(List<String> builder, State state) {
+    private void principalVariation(List<String> builder, State state, RolloutStore store) {
         int[] moves = state.legalMoves();
+//        if (moves == null || moves.length == 0 || childNodes == null) {
         if (moves == null || moves.length == 0) {
             return;
         }
 
-        int bestMove = bestMove(state, false, new long[0], 0);
+        int bestMove = bestMove(state, false, new long[0], 0, store);
         int maxChildIndex = Ints.indexOf(moves, bestMove);
 
         if (maxChildIndex == -1) {
             return;
         }
-        RolloutNode maxChild = childNodes.get(maxChildIndex);
+        RolloutNode maxChild = childOrNull(maxChildIndex, store);
         if (maxChild == null) {
             return;
         }
 
-        builder.add(Move.toInputNotation(moves[maxChildIndex]) + " " + maxChild.visitCount());
+        builder.add(Move.toInputNotation(moves[maxChildIndex]) + " " + maxChild.visitCount(store));
 
         Move.apply(bestMove, state);
-        maxChild.principalVariation(builder, state);
+        maxChild.principalVariation(builder, state, store);
     }
 
 
-    public String toString(State state, RolloutContext context) {
+    public String toString(State state, RolloutStore store) {
         int[] moves = state.legalMoves();
         List<Integer> indexes = IntStream.range(0, moves.length).boxed().collect(Collectors.toList());
 
@@ -681,13 +818,13 @@ class RolloutNode {
         long[] counts = new long[moves.length];
         double[] values = new double[moves.length];
         for (int i = 0; i < counts.length; i++) {
-            RolloutNode node = childNodes.get(i);
+            RolloutNode node = childOrNull(i, store);
             if (node == null) {
                 continue;
             }
 
-            counts[i] = node.visitCount.longValue();
-            values[i] = node.valueSum.doubleValue();
+            counts[i] = node.visitCount(store);
+            values[i] = node.valueSum(store);
 
             parentCount += counts[i];
             parentSum += values[i];

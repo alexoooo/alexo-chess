@@ -22,7 +22,7 @@ public enum FullOutcome
 
 
     //--------------------------------------------------------------------
-    private FullOutcome(boolean whiteScores,
+    FullOutcome(boolean whiteScores,
                     boolean blackScores,
                     String  display)
     {

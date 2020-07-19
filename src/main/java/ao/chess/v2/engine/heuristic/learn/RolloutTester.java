@@ -27,15 +27,30 @@ import java.util.concurrent.TimeUnit;
 
 
 public class RolloutTester {
+//    private static final double rolloutValueWeight = 0.0;
+    private static final double rolloutValueWeight = 0.25;
+//    private static final double rolloutValueWeight = 0.5;
+//    private static final double rolloutValueWeight = 1.0;
+    private static final double rolloutValueDenominator = 1.0 + rolloutValueWeight;
+
+//    private static final double rolloutProbabilityPower = 1.0;
+    private static final double rolloutProbabilityPower = 2.0;
+//    private static final double rolloutProbabilityPower = 3.0;
+
+    //    private static final double estimateUncertainty = 0.01;
+    private static final double estimateUncertainty = 0.025;
+    private static final double estimateUncertaintyDenominator = 1.0 + estimateUncertainty;
+
 //    private static final int maxTestCount = 1;
 //    private static final int maxTestCount = 32;
 //    private static final int maxTestCount = 1_000;
     private static final int maxTestCount = 10_000;
 //    private static final int maxTestCount = 100_000;
 
+    private static final int loggingFrequency = 1;
 //    private static final int loggingFrequency = 100;
 //    private static final int loggingFrequency = 250;
-    private static final int loggingFrequency = 1_000;
+//    private static final int loggingFrequency = 1_000;
 //    private static final int loggingFrequency = 10_000;
 
 //    private static final int rolloutCount = 1;
@@ -43,48 +58,52 @@ public class RolloutTester {
 //    private static final int rolloutCount = 4;
 //    private static final int rolloutCount = 8;
 //    private static final int rolloutCount = 16;
-    private static final int rolloutCount = 32;
+//    private static final int rolloutCount = 32;
 //    private static final int rolloutCount = 64;
+    private static final int rolloutCount = 256;
 
+//    private static final int modelBatchSize = 1;
+//    private static final int modelBatchSize = 8;
+//    private static final int modelBatchSize = 16;
+//    private static final int modelBatchSize = 24;
+//    private static final int modelBatchSize = 32;
 //    private static final int modelBatchSize = 64;
 //    private static final int modelBatchSize = 128;
     private static final int modelBatchSize = 256;
     private static final int threadCount = modelBatchSize;
 
-    private static final double estimateUncertainty = 0.01;
-    private static final double estimateUncertaintyDenominator = 1.0 + estimateUncertainty;
 
     private static final List<Path> test = List.of(
 //            Paths.get("lookup/train/pieces/test/2.txt.gz"),
 //            Paths.get("lookup/train/pieces/test/3.txt.gz"),
 //            Paths.get("lookup/train/pieces/test/4.txt.gz"),
-            Paths.get("lookup/train/pieces/test/5.txt.gz"),
-            Paths.get("lookup/train/pieces/test/6.txt.gz"),
-            Paths.get("lookup/train/pieces/test/7.txt.gz"),
-            Paths.get("lookup/train/pieces/test/8.txt.gz"),
-            Paths.get("lookup/train/pieces/test/9.txt.gz"),
-            Paths.get("lookup/train/pieces/test/10.txt.gz"),
-            Paths.get("lookup/train/pieces/test/11.txt.gz"),
-            Paths.get("lookup/train/pieces/test/12.txt.gz"),
-            Paths.get("lookup/train/pieces/test/13.txt.gz"),
-            Paths.get("lookup/train/pieces/test/14.txt.gz"),
-            Paths.get("lookup/train/pieces/test/15.txt.gz"),
-            Paths.get("lookup/train/pieces/test/16.txt.gz"),
-            Paths.get("lookup/train/pieces/test/17.txt.gz"),
-            Paths.get("lookup/train/pieces/test/18.txt.gz"),
-            Paths.get("lookup/train/pieces/test/19.txt.gz"),
-            Paths.get("lookup/train/pieces/test/20.txt.gz"),
-            Paths.get("lookup/train/pieces/test/21.txt.gz"),
-            Paths.get("lookup/train/pieces/test/22.txt.gz"),
-            Paths.get("lookup/train/pieces/test/23.txt.gz"),
-            Paths.get("lookup/train/pieces/test/24.txt.gz"),
-            Paths.get("lookup/train/pieces/test/25.txt.gz"),
-            Paths.get("lookup/train/pieces/test/26.txt.gz"),
-            Paths.get("lookup/train/pieces/test/27.txt.gz"),
-            Paths.get("lookup/train/pieces/test/28.txt.gz"),
-            Paths.get("lookup/train/pieces/test/29.txt.gz"),
-            Paths.get("lookup/train/pieces/test/30.txt.gz"),
-            Paths.get("lookup/train/pieces/test/31.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/5.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/6.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/7.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/8.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/9.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/10.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/11.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/12.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/13.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/14.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/15.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/16.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/17.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/18.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/19.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/20.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/21.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/22.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/23.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/24.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/25.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/26.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/27.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/28.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/29.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/30.txt.gz"),
+//            Paths.get("lookup/train/pieces/test/31.txt.gz"),
             Paths.get("lookup/train/pieces/test/32.txt.gz")
 
 //            Paths.get("lookup/train/mix-small/champions_10000.txt")
@@ -183,9 +202,10 @@ public class RolloutTester {
         double valueSum = 0;
         for (int i = 0; i < rolloutCount; i++) {
 //            System.out.println("Started " + index + "-" + i);
-//            Stopwatch timer = Stopwatch.createStarted();
+            Stopwatch timer = Stopwatch.createStarted();
 
             valueSum += rolloutOne(state.prototype(), model);
+//            valueSum += rolloutOneRandom(state.prototype());
 
 //            System.out.println("Finished " + index + "-" + i + " | took: " + timer.toString());
         }
@@ -208,9 +228,18 @@ public class RolloutTester {
             return Double.NaN;
         }
 
+        int rolloutLength = 0;
+        double rolloutValueSum = 0;
+
         rollout:
         while (true) {
             PuctEstimate estimate = model.estimateBlocking(state, moves, nMoves);
+
+            rolloutLength++;
+            rolloutValueSum +=
+                    state.nextToAct() == fromPov
+                    ? estimate.winProbability
+                    : 1.0 - estimate.winProbability;
 
             int bestMoveIndex = 0;
             double bestMoveScore = Double.NEGATIVE_INFINITY;
@@ -242,6 +271,93 @@ public class RolloutTester {
                 }
 
                 double probability = (estimate.moveProbabilities[i] + moveUncertainty) / estimateUncertaintyDenominator;
+                double probabilityValue = Math.pow(probability, rolloutProbabilityPower);
+                double score = probabilityValue * Math.random();
+                if (score > bestMoveScore) {
+                    bestMoveScore = score;
+                    bestMoveIndex = i;
+                }
+            }
+
+            Move.apply(moves[bestMoveIndex], state);
+
+            // generate opponent moves
+            nextCount = state.legalMoves(nextMoves, pseudoMoves);
+            Outcome moveOutcome = state.knownOutcomeOrNull();
+            if (moveOutcome != null) {
+                outcome = moveOutcome;
+                break;
+            }
+
+            if (state.pieceCount() <= DeepOracle.instancePieceCount) {
+                DeepOutcome deepOutcome = DeepOracle.INSTANCE.see(state);
+                outcome = deepOutcome.outcome();
+                break;
+            }
+
+            {
+                int[] tempMoves = nextMoves;
+                nextMoves = moves;
+                moves = tempMoves;
+                nMoves = nextCount;
+            }
+        }
+
+        //noinspection ConstantConditions
+        if (state.isDrawnBy50MovesRule() || rolloutValueWeight > 0) {
+            double povEstimate = rolloutValueSum / rolloutLength;
+            return (outcome.valueFor(fromPov) + rolloutValueWeight * povEstimate) / rolloutValueDenominator;
+        }
+
+        return outcome.valueFor(fromPov);
+    }
+
+
+    private static double rolloutOneRandom(State state) {
+        Colour fromPov = state.nextToAct();
+
+        int[] pseudoMoves = new int[Move.MAX_PER_PLY];
+
+        int[] moves = new int[Move.MAX_PER_PLY];
+        int nMoves = state.legalMoves(moves, pseudoMoves);
+        int nextCount;
+        int[] nextMoves = new int[Move.MAX_PER_PLY];
+        Outcome outcome;
+
+        if (nMoves < 1) {
+            return Double.NaN;
+        }
+
+        rollout:
+        while (true) {
+            int bestMoveIndex = 0;
+            double bestMoveScore = Double.NEGATIVE_INFINITY;
+
+            for (int i = 0; i < nMoves; i++) {
+                byte reversibleMoves = state.reversibleMoves();
+                byte castles = state.castles();
+                long castlePath = state.castlePath();
+
+                int move = Move.apply(moves[ i ], state);
+                int opponentMoveCount = state.legalMoves(nextMoves, pseudoMoves);
+                Outcome moveOutcome = state.knownOutcomeOrNull(opponentMoveCount);
+                Move.unApply(move, state);
+
+                state.restore(reversibleMoves, castles, castlePath);
+
+                if (moveOutcome != null) {
+                    if (moveOutcome.loser() == state.nextToAct()) {
+                        // non-viable move, leads to self-mate
+                        continue;
+                    }
+
+                    if (moveOutcome.winner() == state.nextToAct()) {
+                        outcome = moveOutcome;
+                        break rollout;
+                    }
+                }
+
+                double probability = 1.0;
                 double score = probability * probability * Math.random();
                 if (score > bestMoveScore) {
                     bestMoveScore = score;
@@ -255,17 +371,8 @@ public class RolloutTester {
             nextCount = state.legalMoves(nextMoves, pseudoMoves);
             Outcome moveOutcome = state.knownOutcomeOrNull();
             if (moveOutcome != null) {
-                if (state.isDrawnBy50MovesRule()) {
-                    double povEstimate =
-                            state.nextToAct().invert() == fromPov
-                            ? estimate.winProbability
-                            : 1.0 - estimate.winProbability;
-                    return (0.5 + povEstimate) / 2;
-                }
-                else {
-                    outcome = moveOutcome;
-                    break;
-                }
+                outcome = moveOutcome;
+                break;
             }
 
             if (state.pieceCount() <= DeepOracle.instancePieceCount) {

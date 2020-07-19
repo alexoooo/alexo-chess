@@ -24,8 +24,12 @@ public class RolloutPlayer
     //-----------------------------------------------------------------------------------------------------------------
 //    private final static int reportPeriod = 0;
 //    private final static int reportPeriod = 1_000;
-    private final static int reportPeriod = 5_000;
+//    private final static int reportPeriod = 5_000;
+    private final static int reportPeriod = 30_000;
     private final static boolean tablebase = true;
+
+    private final static double explorationMin = 0.2;
+    private final static double explorationMax = 1.5;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -171,9 +175,9 @@ public class RolloutPlayer
             if (move != -1) {
                 int index = Ints.indexOf(prevState.legalMoves(), move);
                 if (index != -1) {
-                    RolloutNode child = prevPlay.childOrNull(index);
+                    RolloutNode child = prevPlay.childOrNull(index, store);
                     if (child != null) {
-                        log(id + " - restored: " + child.visitCount());
+                        log(id + " - restored: " + child.visitCount(store));
                         root = child;
                     }
                 }
@@ -205,9 +209,9 @@ public class RolloutPlayer
                     thinkingEpisode(
                             currentRoot, context, original, isRepeat, episodeMillis, progressThread);
                 }
-                while ((currentRoot.visitCount() < minimumTrajectories ||
+                while ((currentRoot.visitCount(store) < minimumTrajectories ||
                         System.currentTimeMillis() <= deadline) &&
-                        ! currentRoot.isValueKnown());
+                        ! currentRoot.isValueKnown(store));
             });
             futures.add(future);
         }
@@ -222,15 +226,15 @@ public class RolloutPlayer
         }
 
         int bestMove = root.bestMove(
-                position, isRepeat, history, historyIndex + 1);
+                position, isRepeat, history, historyIndex + 1, store);
 
         int bestMoveIndex = Ints.indexOf(legalMoves, bestMove);
-        prevPlay = root.childOrNull(bestMoveIndex);
+        prevPlay = root.childOrNull(bestMoveIndex, store);
         prevState = position.prototype();
         Move.apply(bestMove, prevState);
         addHistoryMoveIfAbsent(prevState);
 
-        log(id + " - PV: " + root.principalVariation(bestMove, position));
+        log(id + " - PV: " + root.principalVariation(bestMove, position, store));
         return bestMove;
     }
 
@@ -252,7 +256,7 @@ public class RolloutPlayer
                         state.prototype(), context);
             }
             while (System.currentTimeMillis() < episodeDeadline &&
-                    ! root.isValueKnown());
+                    ! root.isValueKnown(store));
         }
         catch (Throwable t) {
             t.printStackTrace();
@@ -285,11 +289,14 @@ public class RolloutPlayer
 //            PuctModel modelProto = model.prototype();
 //            modelProto.load();
 
+            double exploration = explorationMin + (explorationMax - explorationMin) * Math.random();
+
             contexts.add(new RolloutContext(
                     i,
                     threads,
                     pool,
                     store,
+                    exploration,
                     collisions,
                     terminalHits,
                     tablebaseHits,
@@ -356,8 +363,12 @@ public class RolloutPlayer
 //                    estimate.moveProbabilities, predictionUncertainty);
 //        }
 
-        RolloutNode root = new RolloutNode(estimate.moveProbabilities.length);
-        root.initRoot();
+        int moveCount = estimate.moveProbabilities.length;
+        store.initRoot(moveCount);
+
+//        RolloutNode root = new RolloutNode(estimate.moveProbabilities.length);
+        RolloutNode root = new RolloutNode(RolloutStore.rootIndex);
+        root.initRoot(store);
 
         previousRoot = root;
         previousPositionHash = positionHash;
@@ -372,7 +383,7 @@ public class RolloutPlayer
             State state,
             boolean isRepeat
     ) {
-        int bestMove = root.bestMove(state, isRepeat, history, historyIndex);
+        int bestMove = root.bestMove(state, isRepeat, history, historyIndex, store);
 
         String generalPrefix = String.format(
                 "%s - %s %d | x%d t%d e%d r%d s%d | %s",
@@ -392,10 +403,10 @@ public class RolloutPlayer
                 Move.toString(bestMove));
 
         String moveSuffix =
-                root.toString(state, contexts.get(0));
+                root.toString(state, store);
 
         log(generalPrefix + " | " + moveSuffix);
-        log(id + " - PV: " + root.principalVariation(bestMove, state));
+        log(id + " - PV: " + root.principalVariation(bestMove, state, store));
     }
 
 

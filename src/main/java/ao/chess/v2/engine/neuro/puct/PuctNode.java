@@ -759,7 +759,7 @@ class PuctNode {
 
 
     public int bestMove() {
-        if (moves.length == 0) {
+        if (moves == null || moves.length == 0) {
             return -1;
         }
 
@@ -908,11 +908,13 @@ class PuctNode {
 
 
     private void principalVariation(List<String> builder) {
-        int maxChildIndex = moveIndex(bestMove());
-
-        if (maxChildIndex == -1) {
+        int bestMove = bestMove();
+        if (bestMove == -1) {
             return;
         }
+
+        int maxChildIndex = moveIndex(bestMove);
+
         PuctNode maxChild = childNodes.get(maxChildIndex);
         if (maxChild == null) {
             return;
