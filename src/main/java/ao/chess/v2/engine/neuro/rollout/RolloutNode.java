@@ -188,26 +188,30 @@ class RolloutNode {
 
     //-----------------------------------------------------------------------------------------------------------------
     public void initRoot(RolloutStore store) {
+        if (store.getKnownOutcome(RolloutStore.rootIndex) != KnownOutcome.Unknown) {
+            return;
+        }
+
         store.incrementVisitCount(RolloutStore.rootIndex);
-//        visitCount.increment();
     }
 
 
     private boolean isUnvisitedVirtual(RolloutStore store) {
         return store.getVisitCount(index) < 2;
-//        return visitCount.longValue() < 2;
     }
 
 
     public void runTrajectory(State state, RolloutContext context) {
         RolloutStore store = context.store;
+        if (store.getKnownOutcome(RolloutStore.rootIndex) != KnownOutcome.Unknown) {
+            return;
+        }
 
         List<RolloutNode> path = context.path;
         path.clear();
 
         path.add(this);
         store.incrementVisitCount(index);
-//        visitCount.increment();
 
         double estimatedValue = Double.NaN;
 
@@ -217,7 +221,8 @@ class RolloutNode {
             RolloutNode node = path.get( pathLength - 1 );
 
             int moveCount = state.legalMoves(context.movesA, context.movesC);
-            PuctEstimate estimate = context.pool.estimateBlocking(state, context.movesA, moveCount);
+//            PuctEstimate estimate = context.pool.estimateBlocking(state, context.movesA, moveCount);
+            PuctEstimate estimate = context.pool.estimateBlockingCached(state, context.movesA, moveCount);
 
             int moveIndex = node.ucbChild(
                     moveCount, estimate.winProbability, estimate.moveProbabilities, pathLength == 1, context);
@@ -230,7 +235,6 @@ class RolloutNode {
 
             Move.apply(context.movesA[moveIndex], state);
 
-//            RolloutNode existingChild = node.childNodes.get(childIndex);
             RolloutNode existingChild = node.childOrNull(moveIndex, store);
 
             RolloutNode child;
@@ -240,7 +244,6 @@ class RolloutNode {
                         state,  moveIndex, context);
                 selectionEnded = true;
 
-//                child = node.childNodes.get(childIndex);
                 child = node.childOrNull(moveIndex, store);
 
                 if (child == null) {
@@ -340,16 +343,7 @@ class RolloutNode {
         long childIndex = context.store.expandChildIfMissing(index, moveIndex, moveCount);
         if (childIndex < 0) {
             context.collisions.increment();
-//            return false;
         }
-
-//        RolloutNode newChild = new RolloutNode(moveCount);
-//
-//        boolean wasSet = parent.childNodes.setIfAbsent(moveIndex, newChild);
-//        if (! wasSet) {
-//            context.collisions.increment();
-////            return false;
-//        }
 
         context.estimatedValue = rolloutValue(
                 moveCount, state, context);
@@ -470,15 +464,6 @@ class RolloutNode {
     }
 
 
-//    private boolean addChildIfRequired(
-//            RolloutNode newChild,
-//            RolloutNode parent,
-//            int childIndex
-//    ) {
-//        return parent.childNodes.setIfAbsent(childIndex, newChild);
-//    }
-
-
     private void backupValue(
             List<RolloutNode> path,
             double leafValue,
@@ -522,7 +507,6 @@ class RolloutNode {
         long[] moveVisitCounts = context.visitCounts;
         long parentVisitCount = 1;
         for (int i = 0; i < moveCount; i++) {
-//            RolloutNode child = childNodes.get(i);
             RolloutNode child = childOrNull(i, store);
 
             long childVisitCount;
@@ -559,7 +543,6 @@ class RolloutNode {
         }
 
         if (nonWinKnownCount == moveCount) {
-//            double childValue = 1.0;
             KnownOutcome bestChildOutcome = KnownOutcome.Win;
             int childIndex = 0;
             for (int i = 0; i < moveCount; i++) {
@@ -568,7 +551,6 @@ class RolloutNode {
                     return -1;
                 }
 
-//                double value = child.knownValue(store);
                 KnownOutcome value = child.knownOutcome(store);
                 if (value == KnownOutcome.Draw) {
                     bestChildOutcome = value;
@@ -576,7 +558,6 @@ class RolloutNode {
                 }
             }
 
-//            knownValue = 1.0 - bestChildOutcome;
             setKnownOutcome(bestChildOutcome.reverse(), store);
 
             if (! root) {
@@ -588,13 +569,6 @@ class RolloutNode {
         return ucbChild(
                 moveCount, valuePrediction, movePredictions, moveValueSums, moveVisitCounts, parentVisitCount, context);
     }
-
-
-//    private void close(RolloutContext context) {
-//        childNodes.close();
-////        Object[] previous = childNodes.close();
-////        removeFromCache(previous, context);
-//    }
 
 
     private int ucbChild(
@@ -610,15 +584,9 @@ class RolloutNode {
         int maxScoreIndex = 0;
         double moveUncertainty = estimateUncertainty / moveCount;
 
-//        double explorationWithoutPrior = explorationBase - 1.0 / moveCount;
-//        double explorationWithoutPrior = explorationBase;
-//        double explorationWithoutPrior = context.exploration;
-
         for (int i = 0; i < moveCount; i++) {
             long moveVisits = moveVisitCounts[i];
             double prior = (movePredictions[i] + moveUncertainty) / estimateUncertaintyDenominator;
-
-//            double explorationWeight = explorationWithoutPrior + prior;
 
             double moveScore;
             if (moveVisits == 0) {
@@ -717,7 +685,6 @@ class RolloutNode {
                 Move.unApply(move, repeatCursorOrNull);
             }
 
-//            contenderTotal += (int) moveScore;
             moveContendersIndexes[contenderCount] = i;
             moveContendersCounts[contenderCount] = (int) moveScore;
             contenderCount++;
@@ -841,7 +808,6 @@ class RolloutNode {
                 .map(i -> String.format("%s %d %.4f",
                         Move.toInputNotation(moves[i]),
                         counts[i],
-//                        counts[i] == 0 ? 0 : childNodes.get(i).maxDepth(),
                         counts[i] == 0 ? initialPlayEstimate : values[i] / counts[i]
                 ))
                 .collect(Collectors.joining(" | "));

@@ -15,6 +15,7 @@ public class MapRolloutStore implements RolloutStore {
     private final Long2LongMap childMoveOffsets = new Long2LongOpenHashMap();
     private final LongBigList childMoves = new LongBigArrayBigList();
     private long maxIndex = -1;
+    private boolean modified = false;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -33,6 +34,7 @@ public class MapRolloutStore implements RolloutStore {
     public void incrementVisitCount(long nodeIndex) {
         long previousCount = counts.get(nodeIndex);
         counts.put(nodeIndex, previousCount + 1);
+        modified = true;
     }
 
 
@@ -40,12 +42,14 @@ public class MapRolloutStore implements RolloutStore {
     public void addValue(long nodeIndex, double value) {
         double previousSum = valueSums.get(nodeIndex);
         valueSums.put(nodeIndex, previousSum + value);
+        modified = true;
     }
 
 
     @Override
     public void setKnownOutcome(long nodeIndex, KnownOutcome knownOutcome) {
         knownOutcomes.put(nodeIndex, (byte) knownOutcome.ordinal());
+        modified = true;
     }
 
 
@@ -138,6 +142,8 @@ public class MapRolloutStore implements RolloutStore {
 
         childMoveCounts.put(node.index(), (byte) node.moveCount());
         childMoveOffsets.put(node.index(), newMoveOffset);
+
+//        modified = true;
     }
 
 
@@ -164,6 +170,7 @@ public class MapRolloutStore implements RolloutStore {
         childMoveOffsets.put(nodeIndex, newMoveOffset);
 
         maxIndex = Math.max(maxIndex, nodeIndex);
+        modified = true;
     }
 
 
@@ -199,10 +206,15 @@ public class MapRolloutStore implements RolloutStore {
         childMoveOffsets.clear();
         childMoves.clear();
         maxIndex = -1;
+        modified = false;
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
     @Override
     public void close() {}
+
+    public boolean modified() {
+        return modified;
+    }
 }

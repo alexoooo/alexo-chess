@@ -1,33 +1,36 @@
 package ao.chess.v2.engine.neuro.rollout.store;
 
 
+import com.google.common.collect.AbstractIterator;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Iterator;
 
 
 public class TieredRolloutStore implements RolloutStore {
     //-----------------------------------------------------------------------------------------------------------------
-    private final FileRolloutStore persistent;
-    private final MapRolloutStore cache;
+    private final FileRolloutStore backing;
+    private final MapRolloutStore buffer;
     private long nextIndex;
 
 
     //-----------------------------------------------------------------------------------------------------------------
     public TieredRolloutStore(Path file) {
-        persistent = new FileRolloutStore(file);
-        cache = new MapRolloutStore();
-        nextIndex = persistent.nextIndex();
+        backing = new FileRolloutStore(file);
+        buffer = new MapRolloutStore();
+        nextIndex = backing.nextIndex();
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
     @Override
     public boolean initRootIfRequired(int moveCount) {
-        boolean empty = persistent.initRootIfRequired(moveCount);
+        boolean empty = backing.initRootIfRequired(moveCount);
 
         if (empty) {
-            cache.initRootIfRequired(moveCount);
+            buffer.initRootIfRequired(moveCount);
             nextIndex = FileRolloutStore.sizeOf(moveCount);
             return true;
         }
@@ -39,21 +42,21 @@ public class TieredRolloutStore implements RolloutStore {
     @Override
     public void incrementVisitCount(long nodeIndex) {
         loadIfMissing(nodeIndex);
-        cache.incrementVisitCount(nodeIndex);
+        buffer.incrementVisitCount(nodeIndex);
     }
 
 
     @Override
     public void addValue(long nodeIndex, double value) {
         loadIfMissing(nodeIndex);
-        cache.addValue(nodeIndex, value);
+        buffer.addValue(nodeIndex, value);
     }
 
 
     @Override
     public void setKnownOutcome(long nodeIndex, KnownOutcome knownOutcome) {
         loadIfMissing(nodeIndex);
-        cache.setKnownOutcome(nodeIndex, knownOutcome);
+        buffer.setKnownOutcome(nodeIndex, knownOutcome);
     }
 
 
@@ -61,13 +64,13 @@ public class TieredRolloutStore implements RolloutStore {
     public long expandChildIfMissing(long nodeIndex, int moveIndex, int childMoveCount) {
         loadIfMissing(nodeIndex);
 
-        long existingChildIndex = cache.getChildIndex(nodeIndex, moveIndex);
+        long existingChildIndex = buffer.getChildIndex(nodeIndex, moveIndex);
         if (existingChildIndex != -1) {
             return -(existingChildIndex + 1);
         }
 
         long newIndex = nextIndex;
-        cache.addNode(nodeIndex, moveIndex, newIndex, childMoveCount);
+        buffer.addNode(nodeIndex, moveIndex, newIndex, childMoveCount);
 
         int childSize = FileRolloutStore.sizeOf(childMoveCount);
         nextIndex += childSize;
@@ -86,64 +89,81 @@ public class TieredRolloutStore implements RolloutStore {
     @Override
     public long getVisitCount(long nodeIndex) {
         loadIfMissing(nodeIndex);
-        return cache.getVisitCount(nodeIndex);
+        return buffer.getVisitCount(nodeIndex);
     }
 
 
     @Override
     public KnownOutcome getKnownOutcome(long nodeIndex) {
         loadIfMissing(nodeIndex);
-        return cache.getKnownOutcome(nodeIndex);
+        return buffer.getKnownOutcome(nodeIndex);
     }
 
 
     @Override
     public long getChildIndex(long nodeIndex, int moveIndex) {
         loadIfMissing(nodeIndex);
-        return cache.getChildIndex(nodeIndex, moveIndex);
+        return buffer.getChildIndex(nodeIndex, moveIndex);
     }
 
 
     @Override
     public double getValueSum(long nodeIndex) {
         loadIfMissing(nodeIndex);
-        return cache.getValueSum(nodeIndex);
+        return buffer.getValueSum(nodeIndex);
     }
 
 
     @Override
     public double getAverageValue(long nodeIndex, double defaultValue) {
         loadIfMissing(nodeIndex);
-        return cache.getAverageValue(nodeIndex, defaultValue);
+        return buffer.getAverageValue(nodeIndex, defaultValue);
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
     private void loadIfMissing(long nodeIndex) {
-        if (! cache.contains(nodeIndex)) {
-            RolloutStoreNode node = persistent.load(nodeIndex);
-            cache.store(node);
+        if (! buffer.contains(nodeIndex)) {
+            RolloutStoreNode node = backing.load(nodeIndex);
+            buffer.store(node);
         }
     }
 
 
     @Override
     public long flush() {
-        long size = cache.nodeIndexes().size();
-
-//        long[] nodeIndexes = cache.nodeIndexes().toLongArray();
-//        Arrays.sort(nodeIndexes);
-
-        LongIterator iterator = cache.nodeIndexes().iterator();
-        while (iterator.hasNext()) {
-            long nodeIndex = iterator.nextLong();
-            RolloutStoreNode node = cache.load(nodeIndex);
-            persistent.store(node);
+        if (! buffer.modified()) {
+            buffer.clear();
+            return 0;
         }
-        cache.clear();
-        persistent.flush();
 
-        return size;
+//        long size = buffer.nodeIndexes().size();
+
+        long[] nodeIndexes = buffer.nodeIndexes().toLongArray();
+        Arrays.parallelSort(nodeIndexes);
+
+        LongIterator nodeIndexIterator = buffer.nodeIndexes().iterator();
+        Iterator<RolloutStoreNode> nodeIterator = new AbstractIterator<>() {
+            @Override
+            protected RolloutStoreNode computeNext() {
+                if (! nodeIndexIterator.hasNext()) {
+                    return endOfData();
+                }
+                long nodeIndex = nodeIndexIterator.nextLong();
+                return buffer.load(nodeIndex);
+            }
+        };
+
+        backing.storeAll(nodeIterator);
+//        while (nodeIndexIterator.hasNext()) {
+//            long nodeIndex = nodeIndexIterator.nextLong();
+//            RolloutStoreNode node = buffer.load(nodeIndex);
+//            backing.store(node);
+//        }
+        buffer.clear();
+        backing.flush();
+
+        return nodeIndexes.length;
     }
 
 

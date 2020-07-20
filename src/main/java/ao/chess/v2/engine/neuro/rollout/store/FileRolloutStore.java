@@ -6,6 +6,7 @@ import java.io.RandomAccessFile;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Iterator;
 
 
 public class FileRolloutStore implements RolloutStore {
@@ -260,17 +261,28 @@ public class FileRolloutStore implements RolloutStore {
     }
 
 
-    public void store(RolloutStoreNode node) {
+    public void storeAll(Iterator<RolloutStoreNode> nodes) {
         try {
-            handle.seek(node.index());
+            long previousPosition = handle.getFilePointer();
 
-            handle.writeLong(node.visitCount());
-            handle.writeDouble(node.valueSum());
-            handle.writeByte(node.knownOutcome().ordinal());
-            handle.writeByte(node.moveCount());
+            while (nodes.hasNext()) {
+                RolloutStoreNode node = nodes.next();
 
-            for (int i = 0; i < node.moveCount(); i++) {
-                handle.writeLong(node.childIndex(i));
+                if (previousPosition != node.index()) {
+                    handle.seek(node.index());
+                    previousPosition = node.index();
+                }
+
+                handle.writeLong(node.visitCount());
+                handle.writeDouble(node.valueSum());
+                handle.writeByte(node.knownOutcome().ordinal());
+                handle.writeByte(node.moveCount());
+
+                for (int i = 0; i < node.moveCount(); i++) {
+                    handle.writeLong(node.childIndex(i));
+                }
+
+                previousPosition += sizeOf(node.moveCount());
             }
         }
         catch (IOException e) {

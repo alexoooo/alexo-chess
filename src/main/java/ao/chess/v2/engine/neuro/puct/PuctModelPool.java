@@ -2,10 +2,13 @@ package ao.chess.v2.engine.neuro.puct;
 
 
 import ao.chess.v2.state.State;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -16,10 +19,10 @@ import static com.google.common.base.Preconditions.checkState;
 public class PuctModelPool
         implements AutoCloseable
 {
+    //-----------------------------------------------------------------------------------------------------------------
     private final int batchSize;
     private final PuctModel model;
 
-//    private final double uncertainty;
     private final double outcomeRange;
     private final double minOutcome;
 
@@ -27,13 +30,20 @@ public class PuctModelPool
     private Thread worker;
     private volatile boolean isRoot = false;
 
+    private final Cache<CacheKey, PuctEstimate> cache = CacheBuilder.newBuilder()
+            .concurrencyLevel(1)
+            .maximumSize(32 * 1024)
+            .build();
 
+
+    //-----------------------------------------------------------------------------------------------------------------
     public PuctModelPool(
             int batchSize,
             PuctModel model)
     {
         this(batchSize, model, 1.0, 0.0);
     }
+
 
     public PuctModelPool(
             int batchSize,
@@ -44,7 +54,6 @@ public class PuctModelPool
         this.batchSize = batchSize;
         this.model = model;
 
-//        this.uncertainty = uncertainty;
         this.outcomeRange = outcomeRange;
         this.minOutcome = minOutcome;
 
@@ -52,6 +61,7 @@ public class PuctModelPool
     }
 
 
+    //-----------------------------------------------------------------------------------------------------------------
     public void restart(int pieceCount)
     {
         if (worker != null) {
@@ -155,7 +165,7 @@ public class PuctModelPool
 
     private void processBuffer(List<PuctQuery> buffer) {
         List<PuctEstimate> estimates = model.estimateAll(
-                buffer, /*uncertainty,*/ outcomeRange, minOutcome);
+                buffer, outcomeRange, minOutcome);
 
         for (int i = 0; i < buffer.size(); i++) {
             PuctQuery query = buffer.get(i);
@@ -199,6 +209,59 @@ public class PuctModelPool
         }
         catch (ExecutionException | InterruptedException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+
+    public PuctEstimate estimateBlockingCached(
+            State state, int[] legalMoves, int moveCount)
+    {
+        CacheKey cacheKey = new CacheKey(state.staticHashCode(), model.nextPartition());
+        PuctEstimate cached = cache.getIfPresent(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+
+        PuctQuery query = new PuctQuery(state, legalMoves, moveCount);
+
+        queryQueue.add(query);
+
+        PuctEstimate result;
+        try {
+            result = query.result.get();
+        }
+        catch (ExecutionException | InterruptedException e) {
+            throw new IllegalStateException(e);
+        }
+
+        cache.put(cacheKey, result);
+
+        return result;
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    private static class CacheKey {
+        private final long position;
+        private final int partition;
+
+        public CacheKey(long position, int partition) {
+            this.position = position;
+            this.partition = partition;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CacheKey cacheKey = (CacheKey) o;
+            return position == cacheKey.position &&
+                    partition == cacheKey.partition;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(position, partition);
         }
     }
 }

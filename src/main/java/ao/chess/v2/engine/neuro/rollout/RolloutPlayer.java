@@ -4,7 +4,6 @@ import ao.chess.v1.util.Io;
 import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
-import ao.chess.v2.engine.neuro.puct.PuctEstimate;
 import ao.chess.v2.engine.neuro.puct.PuctModel;
 import ao.chess.v2.engine.neuro.puct.PuctModelPool;
 import ao.chess.v2.engine.neuro.rollout.store.KnownOutcome;
@@ -360,10 +359,10 @@ public class RolloutPlayer
         }
 
         int[] legalMoves = state.legalMoves();
+//        PuctEstimate estimate = contexts.get(0).pool.estimateRoot(state, legalMoves);
+//        int moveCount = estimate.moveProbabilities.length;
+        int moveCount = legalMoves.length;
 
-        PuctEstimate estimate = contexts.get(0).pool.estimateRoot(state, legalMoves);
-
-        int moveCount = estimate.moveProbabilities.length;
         boolean empty = store.initRootIfRequired(moveCount);
 
         RolloutNode root = new RolloutNode(RolloutStore.rootIndex);

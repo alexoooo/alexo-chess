@@ -17,4 +17,9 @@ public interface PuctModel {
 
     ImmutableList<PuctEstimate> estimateAll(
             List<PuctQuery> queries, double outcomeRange, double minOutcome);
+
+
+    default int nextPartition() {
+        return 0;
+    }
 }
