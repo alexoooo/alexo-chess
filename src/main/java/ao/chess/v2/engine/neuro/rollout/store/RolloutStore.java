@@ -43,4 +43,13 @@ public interface RolloutStore extends AutoCloseable {
 
 
     double getAverageValue(long nodeIndex, double defaultValue);
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    /**
+     * @return estimated number of nodes flushed (optional value)
+     */
+    default long flush() {
+        return 0;
+    }
 }

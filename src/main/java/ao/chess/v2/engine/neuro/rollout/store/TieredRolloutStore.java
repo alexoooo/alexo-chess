@@ -127,7 +127,10 @@ public class TieredRolloutStore implements RolloutStore {
     }
 
 
-    public void flush() {
+    @Override
+    public long flush() {
+        long size = cache.nodeIndexes().size();
+
 //        long[] nodeIndexes = cache.nodeIndexes().toLongArray();
 //        Arrays.sort(nodeIndexes);
 
@@ -138,6 +141,9 @@ public class TieredRolloutStore implements RolloutStore {
             persistent.store(node);
         }
         cache.clear();
+        persistent.flush();
+
+        return size;
     }
 
 

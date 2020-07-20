@@ -7,11 +7,13 @@ import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.neuro.puct.PuctEstimate;
 import ao.chess.v2.engine.neuro.puct.PuctModel;
 import ao.chess.v2.engine.neuro.puct.PuctModelPool;
+import ao.chess.v2.engine.neuro.rollout.store.KnownOutcome;
 import ao.chess.v2.engine.neuro.rollout.store.MapRolloutStore;
 import ao.chess.v2.engine.neuro.rollout.store.RolloutStore;
 import ao.chess.v2.engine.neuro.rollout.store.SynchronizedRolloutStore;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
+import com.google.common.base.Stopwatch;
 import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
@@ -24,7 +26,6 @@ import java.util.concurrent.atomic.LongAdder;
 
 
 public class RolloutPlayer
-//        implements ScoredPlayer
         implements Player
 {
     //-----------------------------------------------------------------------------------------------------------------
@@ -242,6 +243,7 @@ public class RolloutPlayer
         addHistoryMoveIfAbsent(prevState);
 
         log(id + " - PV: " + root.principalVariation(bestMove, position, store));
+        flush();
         return bestMove;
     }
 
@@ -442,6 +444,26 @@ public class RolloutPlayer
     }
 
 
+    @Override
+    public void flush() {
+        try {
+            Stopwatch stopwatch = Stopwatch.createStarted();
+            long flushed = store.flush();
+            log(id + " - flushed " + flushed + " - took: " + stopwatch);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Override
+    public boolean isSolved(State position) {
+        return store.getKnownOutcome(RolloutStore.rootIndex) != KnownOutcome.Unknown;
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     private void log(String message)
     {
         System.out.println(message);

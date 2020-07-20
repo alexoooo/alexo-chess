@@ -83,4 +83,10 @@ public class SynchronizedRolloutStore implements RolloutStore {
     public synchronized void close() throws Exception {
         delegate.close();
     }
+
+
+    @Override
+    public synchronized long flush() {
+        return delegate.flush();
+    }
 }

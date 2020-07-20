@@ -284,4 +284,16 @@ public class FileRolloutStore implements RolloutStore {
     public void close() throws Exception {
         handle.close();
     }
+
+
+    @Override
+    public long flush() {
+        try {
+            handle.getFD().sync();
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return 0;
+    }
 }

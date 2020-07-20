@@ -2,13 +2,15 @@ package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.neuro.puct.PuctMultiModel;
-import ao.chess.v2.engine.neuro.puct.PuctPlayer;
 import ao.chess.v2.engine.neuro.rollout.RolloutPlayer;
+import ao.chess.v2.engine.neuro.rollout.store.SynchronizedRolloutStore;
+import ao.chess.v2.engine.neuro.rollout.store.TieredRolloutStore;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import com.google.common.collect.ImmutableRangeMap;
 import com.google.common.collect.Range;
 
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -24,7 +26,12 @@ import java.time.LocalDateTime;
  */
 public class BrainTeaser {
     //--------------------------------------------------------------------
-    public static void main(String[] args) {
+//    private static final int flushFrequencyMillis = 10_000;
+    private static final int flushFrequencyMillis = 60_000;
+
+
+    //--------------------------------------------------------------------
+    public static void main(String[] args) throws FileNotFoundException {
         System.out.println("Start time: " + LocalDateTime.now());
 
 //        int time = 7 * 24 * 60 * 60 * 1000;
@@ -160,6 +167,12 @@ public class BrainTeaser {
 //                .threads(224)
                 .threads(256)
 //                .stochastic(true)
+//                .store(new SynchronizedRolloutStore(new FileRolloutStore(Path.of(
+//                        new FileRolloutStore(Path.of(
+//                                "lookup/tree/test.bin"))))
+                .store(new SynchronizedRolloutStore(
+                        new TieredRolloutStore(Path.of(
+                                "lookup/tree/test.bin"))))
                 .build();
 
 //        Player player = new MetaPlayer.Builder(
@@ -210,7 +223,6 @@ public class BrainTeaser {
 //                "r4rk1/1bqnbppp/p2ppn2/1pp3B1/4P3/2NP1N1P/PPPQBPP1/3R1RK1 w - - 3 3"
 //                "r4rk1/1bqnbppp/p2ppn2/1pp3B1/4P3/2NPQN1P/PPP1BPP1/3R1RK1 b - - 4 3"
 //                "r3r1k1/1bqnbppp/p2ppn2/1pp3B1/4P3/2NPQN1P/PPP1BPP1/3R1RK1 w - - 4 3"
-
 
 
                 // Travis 2 (white)
@@ -270,7 +282,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pppppppp/8/8/P1P3P1/5n2/1P1PPP1P/RNB1KBNR w KQkq - 1 4"
 
                 // Travis (queen odds)
-                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR w KQkq - 0 1"
 //                "rnbqkbnr/pppppppp/8/8/7P/8/PPPPPPP1/RNB1KBNR b KQkq h3 0 1"
 //                "rnbqkbnr/ppp1pppp/8/3p4/7P/8/PPPPPPP1/RNB1KBNR w KQkq d6 0 1"
 //                "rnbqkbnr/ppp1pppp/8/3p4/P6P/8/1PPPPPP1/RNB1KBNR b KQkq a3 0 1"
@@ -297,15 +309,29 @@ public class BrainTeaser {
 //                "rnbqkbnr/ppp2ppp/8/3pp3/P6P/8/1PPPPPP1/RNB1KBNR w KQkq d6 0 1"
 //                "rnbqkbnr/ppp2ppp/8/3pp3/P6P/3P4/1PP1PPP1/RNB1KBNR b KQkq - 0 1"
 
+                // Travis (Queeen odds) attempts 3
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR w KQkq - 0 1"
+//                "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNB1KB1R b KQkq - 0 1"
+
+
+//                "2K1k1br/2qp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 w - - 0 14"
 //                "4k1br/2Kp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 b - - 0 14"
 //                "4k1br/2Kp1n1r/2p2pN1/5N2/2p4P/8/P2P4/8 w - - 0 15" // or here?
 //                "2K1k1br/3p1n1r/2p2pN1/5N2/2p4P/8/P2P4/8 b - - 1 15"
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/2p4P/8/P2P4/8 w - d6 0 16"
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/P1p4P/8/3P4/8 b - a3 0 16" // 14b fail, 14 2-22 works!
-//                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2p5/3P4/8 w - - 0 17"
+                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2p5/3P4/8 w - - 0 17"
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2P5/8/8 b - - 0 17" // chess.com sees mate here
-
-//                "r1bqk1nr/pp1pnppp/1bp5/1B6/3PP3/5N2/PP3PPP/RNBQ1RK1 w kq - 0 1"
+//                "2K1k1br/5n1r/5pN1/2pp1N2/P6P/2P5/8/8 w - - 0 18"
+//                "2K1k1br/5n1r/5pN1/P1pp1N2/7P/2P5/8/8 b - - 0 18"
+//                "2K1k1br/5n1r/5pN1/P1p2N2/3p3P/2P5/8/8 w - - 0 19"
+//                "2K1k1br/5n1r/P4pN1/2p2N2/3p3P/2P5/8/8 b - - 0 19"
+//                "2K1k1br/5n1r/P4pN1/2p2N2/7P/2Pp4/8/8 w - - 0 20"
+//                "2K1k1br/P4n1r/5pN1/2p2N2/7P/2Pp4/8/8 b - - 0 20"
+//                "2K1k1br/P4n1r/5pN1/5N2/2p4P/2Pp4/8/8 w - - 0 21"
+//                "Q1K1k1br/5n1r/5pN1/5N2/2p4P/2Pp4/8/8 b - - 0 21"
+//                "Q1K1k1br/5n1r/5pN1/5N2/2p4P/2P5/3p4/8 w - - 0 22"
+//                "2K1k1br/5n1r/5pN1/5N2/Q1p4P/2P5/3p4/8 b - - 1 22"
         );
 
 //        int move = player.move(state, time, time, 0);
@@ -314,9 +340,25 @@ public class BrainTeaser {
 
         System.out.println(state);
 
-        int move = player.move(state, time, time, 0);
-        System.out.println(Move.toString(move));
+        boolean solved = false;
+        int episodeCount = time / flushFrequencyMillis;
+        for (int i = 0; i < episodeCount; i++) {
+            int move = player.move(state, flushFrequencyMillis, flushFrequencyMillis, 0);
+            System.out.println("Episode " + i + ") " + Move.toString(move));
 
+            if (player.isSolved(state)) {
+                solved = true;
+                break;
+            }
+        }
+
+        if (! solved) {
+            int remainingTime = time % flushFrequencyMillis;
+            int move = player.move(state, remainingTime, remainingTime, 0);
+            System.out.println(Move.toString(move));
+        }
+
+        player.close();
         System.exit(0);
     }
 }

@@ -18,4 +18,10 @@ public interface Player extends AutoCloseable
 
     @Override
     default void close() {}
+
+    default void flush() {}
+
+    default boolean isSolved(State position) {
+        return false;
+    }
 }
