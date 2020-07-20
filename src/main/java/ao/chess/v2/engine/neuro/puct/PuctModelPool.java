@@ -73,6 +73,10 @@ public class PuctModelPool
 
     @Override
     public void close() {
+        if (worker == null) {
+            return;
+        }
+
         worker.interrupt();
         try {
             worker.join();

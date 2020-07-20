@@ -111,7 +111,7 @@ class RolloutNode {
     //-----------------------------------------------------------------------------------------------------------------
     public long visitCount(RolloutStore store) {
 //        return visitCount.sum();
-        return store.getCount(index);
+        return store.getVisitCount(index);
     }
 
 
@@ -137,7 +137,7 @@ class RolloutNode {
         long childIndex = store.getChildIndex(index, moveIndex);
         return childIndex == -1
                 ? 0
-                : store.getCount(childIndex);
+                : store.getVisitCount(childIndex);
 
 //        RolloutNode child = childNodes.get(moveIndex);
 //        return child == null
@@ -147,7 +147,7 @@ class RolloutNode {
 
 
     private void incrementVisitCount(RolloutStore store) {
-        store.incrementCount(index);
+        store.incrementVisitCount(index);
     }
 
 
@@ -188,13 +188,13 @@ class RolloutNode {
 
     //-----------------------------------------------------------------------------------------------------------------
     public void initRoot(RolloutStore store) {
-        store.incrementCount(RolloutStore.rootIndex);
+        store.incrementVisitCount(RolloutStore.rootIndex);
 //        visitCount.increment();
     }
 
 
     private boolean isUnvisitedVirtual(RolloutStore store) {
-        return store.getCount(index) < 2;
+        return store.getVisitCount(index) < 2;
 //        return visitCount.longValue() < 2;
     }
 
@@ -206,7 +206,7 @@ class RolloutNode {
         path.clear();
 
         path.add(this);
-        store.incrementCount(index);
+        store.incrementVisitCount(index);
 //        visitCount.increment();
 
         double estimatedValue = Double.NaN;
@@ -294,7 +294,7 @@ class RolloutNode {
 
 
     private void expandChildAndSetEstimatedValue(
-            State state, /*RolloutNode parent,*/ int moveIndex, RolloutContext context
+            State state, int moveIndex, RolloutContext context
     ) {
         int moveCount = state.legalMoves(context.movesA, context.movesC);
         if (moveCount == 0 || moveCount == -1 || state.isDrawnBy50MovesRule()) {
@@ -311,11 +311,6 @@ class RolloutNode {
                 context.store.setKnownOutcome(childIndex, knownOutcome);
                 context.terminalHits.increment();
             }
-
-//            RolloutNode newChild = new RolloutNode(knownOutcome, state);
-//            RolloutNode newChild = new RolloutNode(childIndex);
-//            context.estimatedValue = newChild.knownValue(context.store);
-//            context.terminalHits.increment();
             return;
         }
 
@@ -339,10 +334,6 @@ class RolloutNode {
                 context.store.setKnownOutcome(childIndex, knownOutcome);
                 context.tablebaseHits.increment();
             }
-
-//            RolloutNode newChild = new RolloutNode(deepOutcome, state);
-//            context.estimatedValue = newChild.knownValue(context.store);
-//            return addChildIfRequired(newChild, parent, moveIndex);
             return;
         }
 
@@ -754,6 +745,9 @@ class RolloutNode {
 
         int moveIndex = Ints.indexOf(state.legalMoves(), move);
         RolloutNode child = childOrNull(moveIndex, store);
+        if (child == null) {
+            return "<empty node>";
+        }
 
         State proto = state.prototype();
         Move.apply(move, proto);
@@ -835,7 +829,11 @@ class RolloutNode {
                 ? -Long.compare(counts[a], counts[b])
                 : -Double.compare(values[a], values[b]));
 
-        double parentValue = parentSum / parentCount;
+        double parentValue =
+                isValueKnown(store)
+                ? knownValue(store)
+                : parentSum / parentCount;
+
         long parentVisitCount = parentCount;
 
         String childSummary = indexes

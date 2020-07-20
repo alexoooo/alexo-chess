@@ -4,16 +4,22 @@ import ao.chess.v1.util.Io;
 import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
-import ao.chess.v2.engine.neuro.puct.*;
+import ao.chess.v2.engine.neuro.puct.PuctEstimate;
+import ao.chess.v2.engine.neuro.puct.PuctModel;
+import ao.chess.v2.engine.neuro.puct.PuctModelPool;
+import ao.chess.v2.engine.neuro.rollout.store.MapRolloutStore;
 import ao.chess.v2.engine.neuro.rollout.store.RolloutStore;
-import ao.chess.v2.engine.neuro.rollout.store.SyncRolloutStore;
+import ao.chess.v2.engine.neuro.rollout.store.SynchronizedRolloutStore;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.LongAdder;
 
 
@@ -36,7 +42,8 @@ public class RolloutPlayer
     public static class Builder
     {
         private final PuctModel model;
-        private RolloutStore store = new SyncRolloutStore();
+//        private RolloutStore store = new SynchronizedRolloutStore(new BigArrayRolloutStore());
+        private RolloutStore store = new SynchronizedRolloutStore(new MapRolloutStore());
         private int threads = 1;
         private int minimumTrajectories = 0;
         private boolean useIo = false;
@@ -354,24 +361,19 @@ public class RolloutPlayer
 
         PuctEstimate estimate = contexts.get(0).pool.estimateRoot(state, legalMoves);
 
-//        if (train) {
-//            double[] buffer = new double[estimate.moveProbabilities.length];
-//            PuctUtils.smearProbabilities(estimate.moveProbabilities, alpha, signal, new Random(), buffer);
-//        }
-//        else {
-//            PuctUtils.smearProbabilities(
-//                    estimate.moveProbabilities, predictionUncertainty);
-//        }
-
         int moveCount = estimate.moveProbabilities.length;
-        store.initRoot(moveCount);
+        boolean empty = store.initRootIfRequired(moveCount);
 
-//        RolloutNode root = new RolloutNode(estimate.moveProbabilities.length);
         RolloutNode root = new RolloutNode(RolloutStore.rootIndex);
         root.initRoot(store);
 
         previousRoot = root;
         previousPositionHash = positionHash;
+
+        if (! empty) {
+            log(id + " > restored root: " + store.nextIndex());
+            reportProgress(root, state, false);
+        }
 
 //        display("Created root: " + root);
         return root;
@@ -429,6 +431,13 @@ public class RolloutPlayer
         if (executorService != null) {
             executorService.shutdown();
             pool.close();
+        }
+
+        try {
+            store.close();
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

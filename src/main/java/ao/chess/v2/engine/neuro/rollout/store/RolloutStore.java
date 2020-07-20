@@ -1,16 +1,20 @@
 package ao.chess.v2.engine.neuro.rollout.store;
 
 
-public interface RolloutStore {
+public interface RolloutStore extends AutoCloseable {
     //-----------------------------------------------------------------------------------------------------------------
     long rootIndex = 0;
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    void initRoot(int moveCount);
+    /**
+     * @param moveCount number of legal moves at root state
+     * @return true if the root state was initialized, otherwise false if it already existed
+     */
+    boolean initRootIfRequired(int moveCount);
 
 
-    void incrementCount(long nodeIndex);
+    void incrementVisitCount(long nodeIndex);
 
 
     void addValue(long nodeIndex, double value);
@@ -19,11 +23,14 @@ public interface RolloutStore {
     void setKnownOutcome(long nodeIndex, KnownOutcome knownOutcome);
 
 
-    long expandChildIfMissing(long nodeIndex, int moveIndex, int moveCount);
+    long expandChildIfMissing(long nodeIndex, int moveIndex, int childMoveCount);
+
+
+    long nextIndex();
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    long getCount(long nodeIndex);
+    long getVisitCount(long nodeIndex);
 
 
     KnownOutcome getKnownOutcome(long nodeIndex);
