@@ -812,7 +812,7 @@ class RolloutNode {
                 ))
                 .collect(Collectors.joining(" | "));
 
-        return String.format("%d %.4f - %s",
+        return String.format("%,d %.4f - %s",
                 parentVisitCount,
                 parentValue,
                 childSummary);

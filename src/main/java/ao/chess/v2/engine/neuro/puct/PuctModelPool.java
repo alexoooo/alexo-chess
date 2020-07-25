@@ -32,7 +32,7 @@ public class PuctModelPool
 
     private final Cache<CacheKey, PuctEstimate> cache = CacheBuilder.newBuilder()
             .concurrencyLevel(1)
-            .maximumSize(32 * 1024)
+            .maximumSize(64 * 1024)
             .build();
 
 

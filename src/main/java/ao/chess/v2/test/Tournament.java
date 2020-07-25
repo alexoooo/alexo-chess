@@ -3,24 +3,19 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
-import ao.chess.v2.engine.mcts.player.par.ParallelMctsPlayer;
 import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
-import ao.chess.v2.engine.neuro.puct.PuctMultiModel;
-import ao.chess.v2.engine.neuro.puct.PuctPlayer;
+import ao.chess.v2.engine.neuro.puct.PuctEnsembleModel;
 import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
-import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
-import com.google.common.collect.ImmutableRangeMap;
-import com.google.common.collect.Range;
+import com.google.common.collect.ImmutableList;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -42,6 +37,10 @@ public class Tournament
     private static final boolean recordThinking = true;
     private static PrintWriter thinkingOut = null;
     private static MoveHistory.Buffer moveExampleBuffer = new MoveHistory.Buffer();
+
+
+    private static int totalLength;
+    private static int gameCount;
 
 
     //--------------------------------------------------------------------
@@ -104,13 +103,13 @@ public class Tournament
 //                1,
 //                false
 //        );
-        ParallelMctsPlayer a = new ParallelMctsPlayer(
-                "par",
-                24,
-                0.3,
-                3,
-                false
-        );
+//        ParallelMctsPlayer a = new ParallelMctsPlayer(
+//                "par",
+//                24,
+//                0.3,
+//                3,
+//                false
+//        );
 //        ParallelMctsPlayer b = a.prototype();
 
 //        Player a = NeuralNetworkPlayer.load(
@@ -121,9 +120,16 @@ public class Tournament
 //                        Paths.get("lookup/nn/res_14b_n811.zip")
 ////                        Paths.get("lookup/nn/res_20.zip")
 //                ),
-////                false
 //                true
 //        );
+
+        Player a = NeuralNetworkPlayer.load(
+                new PuctEnsembleModel(ImmutableList.of(
+                        Paths.get("lookup/nn/res_14b_n811.zip"),
+                        Paths.get("lookup/nn/res_20_n1307.zip")
+                )),
+                true
+        );
 
         Player b = NeuralNetworkPlayer.load(
                 new PuctSingleModel(
@@ -194,34 +200,41 @@ public class Tournament
 //                .build();
 
 
-        int aWins = 0;
-        int bWins = 0;
+        int aWinsWhite = 0;
+        int aWinsBlack = 0;
+        int bWinsWhite = 0;
+        int bWinsBlack = 0;
         int draws = 0;
 
         for (int i = 0; i < 1000; i++) {
             if (i % 2 == 0) {
                 Outcome outcome = round(a, b);
                 if (outcome == Outcome.WHITE_WINS) {
-                    aWins++;
-                } else if (outcome == Outcome.BLACK_WINS) {
-                    bWins++;
-                } else {
+                    aWinsWhite++;
+                }
+                else if (outcome == Outcome.BLACK_WINS) {
+                    bWinsBlack++;
+                }
+                else {
                     draws++;
                 }
-            } else {
+            }
+            else {
                 Outcome outcome = round(b, a);
                 if (outcome == Outcome.WHITE_WINS) {
-                    bWins++;
-                } else if (outcome == Outcome.BLACK_WINS) {
-                    aWins++;
-                } else {
+                    bWinsWhite++;
+                }
+                else if (outcome == Outcome.BLACK_WINS) {
+                    aWinsBlack++;
+                }
+                else {
                     draws++;
                 }
             }
 
             System.out.println("====================================================================================");
-            System.out.println("aWins\t" + aWins);
-            System.out.println("bWins\t" + bWins);
+            System.out.println("aWins\t" + aWinsWhite + "\t" + aWinsBlack);
+            System.out.println("bWins\t" + bWinsWhite + "\t" + bWinsBlack);
             System.out.println("draws\t" + draws);
         }
 
@@ -249,11 +262,13 @@ public class Tournament
 //                );
 
         Outcome outcome = Outcome.DRAW;
+        int length = 0;
 
         while (! state.isDrawnBy50MovesRule())
         {
 //            System.out.println("---------------------------------------");
 //            System.out.println(state);
+            length++;
 
             Player nextToAct =
                     (state.nextToAct() == Colour.WHITE)
@@ -284,6 +299,10 @@ public class Tournament
                 break;
             }
         }
+
+        totalLength += length;
+        gameCount++;
+        System.out.println("Game length: " + length + ", average: " + ((double) totalLength / gameCount));
 
         flushThinkingIfRequired(outcome);
         return outcome;

@@ -1,9 +1,14 @@
 package ao.chess.v2.engine.neuro.rollout.store;
 
 
+import com.google.common.base.Stopwatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UncheckedIOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
@@ -11,6 +16,8 @@ import java.util.Iterator;
 
 public class FileRolloutStore implements RolloutStore {
     //-----------------------------------------------------------------------------------------------------------------
+    private static final Logger logger = LoggerFactory.getLogger(FileRolloutStore.class);
+
     private static final int countOffset = 0;
     private static final int sumOffset = countOffset + Long.BYTES;
     private static final int outcomeOffset = sumOffset + Double.BYTES;
@@ -262,6 +269,9 @@ public class FileRolloutStore implements RolloutStore {
 
 
     public void storeAll(Iterator<RolloutStoreNode> nodes) {
+        byte[] bufferArray = new byte[1024];
+        ByteBuffer buffer = ByteBuffer.wrap(bufferArray);
+
         try {
             long previousPosition = handle.getFilePointer();
 
@@ -273,16 +283,30 @@ public class FileRolloutStore implements RolloutStore {
                     previousPosition = node.index();
                 }
 
-                handle.writeLong(node.visitCount());
-                handle.writeDouble(node.valueSum());
-                handle.writeByte(node.knownOutcome().ordinal());
-                handle.writeByte(node.moveCount());
+                buffer.putLong(node.visitCount());
+                buffer.putDouble(node.valueSum());
+                buffer.put((byte) node.knownOutcome().ordinal());
+                buffer.put((byte) node.moveCount());
 
                 for (int i = 0; i < node.moveCount(); i++) {
-                    handle.writeLong(node.childIndex(i));
+                    buffer.putLong(node.childIndex(i));
                 }
 
-                previousPosition += sizeOf(node.moveCount());
+                int size = sizeOf(node.moveCount());
+                handle.write(bufferArray, 0, size);
+                buffer.clear();
+
+//                handle.writeLong(node.visitCount());
+//                handle.writeDouble(node.valueSum());
+//                handle.writeByte(node.knownOutcome().ordinal());
+//                handle.writeByte(node.moveCount());
+//
+//                for (int i = 0; i < node.moveCount(); i++) {
+//                    handle.writeLong(node.childIndex(i));
+//                }
+//
+//                previousPosition += sizeOf(node.moveCount());
+                previousPosition += size;
             }
         }
         catch (IOException e) {
@@ -300,12 +324,14 @@ public class FileRolloutStore implements RolloutStore {
 
     @Override
     public long flush() {
+        Stopwatch stopwatch = Stopwatch.createStarted();
         try {
             handle.getFD().sync();
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        logger.info("Sync to disk took: {}", stopwatch);
         return 0;
     }
 }

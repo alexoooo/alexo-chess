@@ -15,6 +15,7 @@ import ao.chess.v2.state.State;
 import com.google.common.base.Stopwatch;
 import com.google.common.primitives.Ints;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -446,6 +447,7 @@ public class RolloutPlayer
     @Override
     public void flush() {
         try {
+            log(id + " - flushing store: " + LocalTime.now());
             Stopwatch stopwatch = Stopwatch.createStarted();
             long flushed = store.flush();
             log(id + " - flushed " + flushed + " - took: " + stopwatch);

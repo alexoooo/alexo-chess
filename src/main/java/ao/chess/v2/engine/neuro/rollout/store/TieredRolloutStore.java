@@ -2,7 +2,6 @@ package ao.chess.v2.engine.neuro.rollout.store;
 
 
 import com.google.common.collect.AbstractIterator;
-import it.unimi.dsi.fastutil.longs.LongIterator;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -140,16 +139,18 @@ public class TieredRolloutStore implements RolloutStore {
 //        long size = buffer.nodeIndexes().size();
 
         long[] nodeIndexes = buffer.nodeIndexes().toLongArray();
+
         Arrays.parallelSort(nodeIndexes);
 
-        LongIterator nodeIndexIterator = buffer.nodeIndexes().iterator();
         Iterator<RolloutStoreNode> nodeIterator = new AbstractIterator<>() {
+            private int next = 0;
+
             @Override
             protected RolloutStoreNode computeNext() {
-                if (! nodeIndexIterator.hasNext()) {
+                if (next >= nodeIndexes.length) {
                     return endOfData();
                 }
-                long nodeIndex = nodeIndexIterator.nextLong();
+                long nodeIndex = nodeIndexes[next++];
                 return buffer.load(nodeIndex);
             }
         };
