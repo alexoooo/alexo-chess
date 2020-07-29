@@ -39,8 +39,8 @@ class RolloutNode {
     private static final double rolloutProbabilityPower = 2.0;
     //    private static final double rolloutProbabilityPower = 3.0;
 
-//    private static final double rolloutValueWeight = 0.0;
-    private static final double rolloutValueWeight = 0.01;
+    private static final double rolloutValueWeight = 0.0;
+//    private static final double rolloutValueWeight = 0.01;
 //    private static final double rolloutValueWeight = 0.05;
 //    private static final double rolloutValueWeight = 0.25;
 //    private static final double rolloutValueWeight = 0.5;
@@ -201,10 +201,10 @@ class RolloutNode {
     }
 
 
-    public void runTrajectory(State state, RolloutContext context) {
+    public int runTrajectory(State state, RolloutContext context) {
         RolloutStore store = context.store;
         if (store.getKnownOutcome(RolloutStore.rootIndex) != KnownOutcome.Unknown) {
-            return;
+            return 0;
         }
 
         List<RolloutNode> path = context.path;
@@ -279,10 +279,11 @@ class RolloutNode {
 
         if (Double.isNaN(estimatedValue)) {
             // NB: race condition with new node creation
-            return;
+            return 0;
         }
 
         backupValue(path, estimatedValue, context);
+        return path.size();
     }
 
 
@@ -641,7 +642,7 @@ class RolloutNode {
 
         int contenderCount = 0;
         int[] moveContendersIndexes = new int[moves.length];
-        int[] moveContendersCounts = new int[moves.length];
+        long[] moveContendersCounts = new long[moves.length];
 
         State repeatCursorOrNull =
                 isRepeat
@@ -686,15 +687,15 @@ class RolloutNode {
             }
 
             moveContendersIndexes[contenderCount] = i;
-            moveContendersCounts[contenderCount] = (int) moveScore;
+            moveContendersCounts[contenderCount] = moveScore;
             contenderCount++;
         }
 
         int bestMoveIndex = 0;
-        double bestMoveScore = 0;
+        long bestMoveScore = -1;
 
         for (int i = 0; i < contenderCount; i++) {
-            double moveScore = moveContendersCounts[i];
+            long moveScore = moveContendersCounts[i];
 
             if (bestMoveScore < moveScore) {
                 bestMoveScore = moveScore;
@@ -767,6 +768,56 @@ class RolloutNode {
 
         Move.apply(bestMove, state);
         maxChild.principalVariation(builder, state, store);
+    }
+
+
+    public String ucbVariation(State state, RolloutContext context) {
+        StringBuilder builder = new StringBuilder();
+
+        List<String> path = new ArrayList<>();
+        ucbVariation(path, state.prototype(), context);
+
+        builder.append("depth ").append(path.size()).append(": ");
+        builder.append(Joiner.on(" / ").join(path));
+
+        return builder.toString();
+    }
+
+
+    private void ucbVariation(List<String> builder, State state, RolloutContext context) {
+        int moveCount = state.legalMoves(context.movesA, context.movesC);
+        if (moveCount <= 0) {
+            return;
+        }
+
+        PuctEstimate estimate = context.pool.estimateBlockingCached(state, context.movesA, moveCount);
+
+        int moveIndex = ucbChild(
+                moveCount, estimate.winProbability, estimate.moveProbabilities, builder.isEmpty(), context);
+        if (moveIndex == -1) {
+            return;
+        }
+
+        int move = context.movesA[moveIndex];
+        Move.apply(move, state);
+
+        RolloutNode existingChild = childOrNull(moveIndex, context.store);
+        if (existingChild == null) {
+            return;
+        }
+
+        long childVisits = existingChild.visitCount(context.store);
+        if (childVisits == 0) {
+            return;
+        }
+
+        builder.add(String.format("%s %d %.4f %.3f",
+                Move.toInputNotation(move),
+                childVisits,
+                expectedValue(moveIndex, context.store),
+                estimate.moveProbabilities[moveIndex]));
+
+        existingChild.ucbVariation(builder, state, context);
     }
 
 

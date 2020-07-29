@@ -38,6 +38,8 @@ public class RolloutPlayer
     private final static double explorationMin = 0.2;
     private final static double explorationMax = 1.5;
 
+    private final static int progressThreadIndex = 0;
+
 
     //-----------------------------------------------------------------------------------------------------------------
     public static class Builder
@@ -103,6 +105,8 @@ public class RolloutPlayer
     private final LongAdder tablebaseHits = new LongAdder();
     private final LongAdder tablebaseRolloutHits = new LongAdder();
     private final LongAdder solutionHits = new LongAdder();
+    private final LongAdder trajectoryCount = new LongAdder();
+    private final LongAdder trajectoryLengthSum = new LongAdder();
 
     private final CopyOnWriteArrayList<RolloutContext> contexts;
     private ExecutorService executorService;
@@ -207,7 +211,7 @@ public class RolloutPlayer
 
         List<Future<?>> futures = new ArrayList<>();
         for (int thread = 0; thread < threads; thread++) {
-            boolean progressThread = thread == 0;
+            boolean progressThread = thread == progressThreadIndex;
             RolloutContext context = contexts.get(thread);
             RolloutNode currentRoot = root;
             Future<?> future = executorService.submit(() -> {
@@ -261,8 +265,11 @@ public class RolloutPlayer
         try {
             long episodeDeadline = System.currentTimeMillis() + episodeMillis;
             do {
-                root.runTrajectory(
+                int length = root.runTrajectory(
                         state.prototype(), context);
+
+                trajectoryCount.increment();
+                trajectoryLengthSum.add(length);
             }
             while (System.currentTimeMillis() < episodeDeadline &&
                     ! root.isValueKnown(store));
@@ -389,21 +396,24 @@ public class RolloutPlayer
     ) {
         int bestMove = root.bestMove(state, isRepeat, history, historyIndex, store);
 
+        long trajectoryCountValue = trajectoryCount.longValue();
+        double averageSearchDepth =
+                trajectoryCountValue == 0
+                ? 0
+                : (double) trajectoryLengthSum.longValue() / trajectoryCountValue;
+
         String generalPrefix = String.format(
-                "%s - %s %d | x%d t%d e%d r%d s%d | %s",
+                "%s - %s %d | x%d t%d e%d r%d s%d d%.2f | %s",
                 id,
                 model,
                 threads,
-//                exploration,
-//                randomize,
-//                tablebase,
-//                nnCache.size(),
 //                cacheHits.longValue(),
                 collisions.longValue(),
                 terminalHits.longValue(),
                 tablebaseHits.longValue(),
                 tablebaseRolloutHits.longValue(),
                 solutionHits.longValue(),
+                averageSearchDepth,
                 Move.toString(bestMove));
 
         String moveSuffix =
@@ -411,6 +421,7 @@ public class RolloutPlayer
 
         log(generalPrefix + " | " + moveSuffix);
         log(id + " - PV: " + root.principalVariation(bestMove, state, store));
+        log(id + " - UCB: " + root.ucbVariation(state, contexts.get(progressThreadIndex)));
     }
 
 

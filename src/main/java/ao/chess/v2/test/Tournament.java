@@ -5,17 +5,20 @@ import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
 import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
 import ao.chess.v2.engine.neuro.puct.PuctEnsembleModel;
-import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
+import ao.chess.v2.engine.neuro.puct.PuctMixedModel;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableRangeMap;
+import com.google.common.collect.Range;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -124,23 +127,37 @@ public class Tournament
 //        );
 
         Player a = NeuralNetworkPlayer.load(
+                new PuctMixedModel(ImmutableRangeMap.<Integer, Path>builder()
+                        .put(Range.closed(2, 8),
+                                Paths.get("lookup/nn/res_7_p_2_12_n634.zip"))
+                        .put(Range.closed(9, 20),
+                                Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
+                        .put(Range.closed(21, 28),
+                                Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
+                        .put(Range.closed(29, 32),
+                                Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
+                        .build()),
+                true
+        );
+
+        Player b = NeuralNetworkPlayer.load(
                 new PuctEnsembleModel(ImmutableList.of(
-                        Paths.get("lookup/nn/res_14b_n811.zip"),
+//                        Paths.get("lookup/nn/res_14b_n811.zip"),
                         Paths.get("lookup/nn/res_20_n1307.zip")
                 )),
                 true
         );
 
-        Player b = NeuralNetworkPlayer.load(
-                new PuctSingleModel(
-//                        Paths.get("lookup/nn/res_10_20191224.zip"),
-//                        Paths.get("lookup/nn/res_5a_head.zip")
-//                        Paths.get("lookup/nn/res_14b_head.zip")
-                        Paths.get("lookup/nn/res_20_n1307.zip")
-                ),
-//                false
-                true
-        );
+//        Player b = NeuralNetworkPlayer.load(
+//                new PuctSingleModel(
+////                        Paths.get("lookup/nn/res_10_20191224.zip"),
+////                        Paths.get("lookup/nn/res_5a_head.zip")
+////                        Paths.get("lookup/nn/res_14b_head.zip")
+//                        Paths.get("lookup/nn/res_20_n1307.zip")
+//                ),
+////                false
+//                true
+//        );
 
 //        Player b = NeuralNetworkPlayer.load(
 //                new PuctMultiModel(

@@ -19,7 +19,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkArgument;
 
 
-public class PuctMultiModel
+public class PuctMixedModel
         implements PuctModel
 {
     //-----------------------------------------------------------------------------------------------------------------
@@ -82,11 +82,11 @@ public class PuctMultiModel
     private double[] fromScores;
     private double[] toScores;
     private List<INDArray> batchFeatures;
-    private int pieceCountIndex = -1;
+//    private int pieceCountIndex = -1;
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public PuctMultiModel(
+    public PuctMixedModel(
             RangeMap<Integer, Path> savedNeuralNetworks)
     {
         this.savedNeuralNetworks = ImmutableRangeMap.copyOf(savedNeuralNetworks);
@@ -120,7 +120,7 @@ public class PuctMultiModel
     @Override
     public PuctModel prototype()
     {
-        return new PuctMultiModel(savedNeuralNetworks);
+        return new PuctMixedModel(savedNeuralNetworks);
     }
 
 
@@ -151,13 +151,14 @@ public class PuctMultiModel
     @Override
     public void prepare(int pieceCount)
     {
-        pieceCountIndex = pieceCountToIndex[pieceCount];
+//        pieceCountIndex = pieceCountToIndex[pieceCount];
     }
 
 
-    private int pieceCountIndex(/*int pieceCount*/)
+    private int pieceCountIndex(int pieceCount)
     {
-        return pieceCountIndex;
+//        return pieceCountIndex;
+        return pieceCountToIndex[pieceCount];
     }
 
 
@@ -170,8 +171,8 @@ public class PuctMultiModel
         NeuralCodec.INSTANCE.encodeMultiState(
                 state, features, propAttacks, oppAttacks);
 
-//        int pieceCount = state.pieceCount();
-        int index = pieceCountIndex(/*pieceCount*/);
+        int pieceCount = state.pieceCount();
+        int index = pieceCountIndex(pieceCount);
         hitCount[index]++;
 
         INDArray[] outputs = nn[index].output(features);
@@ -202,8 +203,8 @@ public class PuctMultiModel
     {
         for (int i = 0; i < queries.size(); i++) {
             PuctQuery query = queries.get(i);
-//            int pieceCount = query.state.pieceCount();
-            int nnIndex = pieceCountIndex(/*pieceCount*/);
+            int pieceCount = query.state.pieceCount();
+            int nnIndex = pieceCountIndex(pieceCount);
             hitCount[nnIndex]++;
 
             Partition partition = partitions.get(nnIndex);
