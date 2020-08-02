@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.LongAdder;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -32,8 +33,10 @@ public class PuctModelPool
 
     private final Cache<CacheKey, PuctEstimate> cache = CacheBuilder.newBuilder()
             .concurrencyLevel(1)
-            .maximumSize(64 * 1024)
+            .maximumSize(1024 * 1024)
             .build();
+
+    private final LongAdder cacheHits = new LongAdder();
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -219,6 +222,7 @@ public class PuctModelPool
         CacheKey cacheKey = new CacheKey(state.staticHashCode(), model.nextPartition());
         PuctEstimate cached = cache.getIfPresent(cacheKey);
         if (cached != null) {
+            cacheHits.increment();
             return cached;
         }
 
@@ -237,6 +241,12 @@ public class PuctModelPool
         cache.put(cacheKey, result);
 
         return result;
+    }
+
+
+    public long cacheHits() {
+//        return cache.stats().hitCount();
+        return cacheHits.longValue();
     }
 
 

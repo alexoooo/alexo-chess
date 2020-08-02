@@ -27,7 +27,7 @@ class RolloutContext {
     public final double[] valueSums = new double[Move.MAX_PER_PLY];
     public final long[] visitCounts = new long[Move.MAX_PER_PLY];
 
-    public double estimatedValue;
+//    public double estimatedValue;
 
     public final LongAdder collisions;
     public final LongAdder terminalHits;

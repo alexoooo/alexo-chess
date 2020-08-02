@@ -45,7 +45,7 @@ public class PgnGenerator {
     }
 
 
-    private static int findMove(State from, State to)
+    public static int findMove(State from, State to)
     {
         State cursor = from.prototype();
 

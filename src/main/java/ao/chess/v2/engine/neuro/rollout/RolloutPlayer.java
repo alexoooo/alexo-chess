@@ -29,6 +29,10 @@ public class RolloutPlayer
         implements Player
 {
     //-----------------------------------------------------------------------------------------------------------------
+    private final static int initDelayMillis = 1;
+//    private final static int initDelayMillis = 11;
+//    private final static int initDelayMillis = 110;
+
 //    private final static int reportPeriod = 0;
 //    private final static int reportPeriod = 1_000;
 //    private final static int reportPeriod = 5_000;
@@ -225,7 +229,16 @@ public class RolloutPlayer
                         System.currentTimeMillis() <= deadline) &&
                         ! currentRoot.isValueKnown(store));
             });
+
             futures.add(future);
+
+            try {
+                // NB: avoid pile-up of collissions
+                Thread.sleep(initDelayMillis);
+            }
+            catch (InterruptedException e) {
+                break;
+            }
         }
 
         for (Future<?> future : futures) {
@@ -270,6 +283,10 @@ public class RolloutPlayer
 
                 trajectoryCount.increment();
                 trajectoryLengthSum.add(length);
+
+                if (length == 0) {
+                    break;
+                }
             }
             while (System.currentTimeMillis() < episodeDeadline &&
                     ! root.isValueKnown(store));
@@ -334,10 +351,15 @@ public class RolloutPlayer
             return false;
         }
 
-        for (int i = 0; i <= historyIndex; i++) {
+        for (int i = 0; i < historyIndex; i++) {
             if (history[i] == positionHash) {
                 return true;
             }
+        }
+
+        if (history[historyIndex] == positionHash) {
+            // NB: repeated call to play the same move
+            return false;
         }
 
         historyIndex++;
@@ -403,11 +425,11 @@ public class RolloutPlayer
                 : (double) trajectoryLengthSum.longValue() / trajectoryCountValue;
 
         String generalPrefix = String.format(
-                "%s - %s %d | x%d t%d e%d r%d s%d d%.2f | %s",
+                "%s - %s %d | c%d x%d t%d e%d r%d s%d d%.2f | %s",
                 id,
                 model,
                 threads,
-//                cacheHits.longValue(),
+                pool.cacheHits(),
                 collisions.longValue(),
                 terminalHits.longValue(),
                 tablebaseHits.longValue(),

@@ -8,13 +8,16 @@ import ao.chess.v2.state.CastleType;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 public class PgnParser {
+    //-----------------------------------------------------------------------------------------------------------------
     public static void main(String[] args) {
         String game =
                 "[...]\n" +
@@ -38,14 +41,33 @@ public class PgnParser {
     }
 
 
+    //-----------------------------------------------------------------------------------------------------------------
+    public static List<State> parse(String pgn) {
+        PgnParser parser = new PgnParser();
+        for (var line : pgn.split("\n")) {
+            Optional<List<MoveHistory>> parsed = parser.process(line);
+            if (parsed.isPresent()) {
+                return parsed.get().stream().map(MoveHistory::state).collect(Collectors.toList());
+            }
+        }
+
+        List<State> incomplete = parser.buffer.build(Outcome.DRAW)
+                .stream().map(MoveHistory::state).collect(Collectors.toList());
+
+        return ImmutableList.<State>builder().addAll(incomplete).add(parser.state).build();
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    private final MoveHistory.Buffer buffer = new MoveHistory.Buffer();
     private State state = State.initial();
-    private MoveHistory.Buffer buffer = new MoveHistory.Buffer();
     private List<MoveHistory> pending = new ArrayList<>();
     private boolean skipUntilNext = false;
 
 
+    //-----------------------------------------------------------------------------------------------------------------
     public Optional<List<MoveHistory>> process(String line) {
-        System.out.println("> " + line);
+//        System.out.println("> " + line);
 
         if (skipUntilNext) {
             if (line.startsWith("1.")) {

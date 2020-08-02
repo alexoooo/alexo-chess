@@ -12,28 +12,30 @@ import ao.chess.v2.state.State;
 
 
 public class NeuralNetworkPlayer implements Player {
-    private static final double estimateUncertainty = 0.01;
+//    private static final double estimateUncertainty = 0.01;
+//    private static final double estimateUncertainty = 0.05;
+//    private static final double estimateUncertainty = 0.1;
 
 
     public static NeuralNetworkPlayer load(
             PuctModel puctModel,
-            boolean randomize)
+            double estimateUncertainty)
     {
         puctModel.load();
-        return new NeuralNetworkPlayer(puctModel, randomize);
+        return new NeuralNetworkPlayer(puctModel, estimateUncertainty);
     }
 
 
     private final PuctModel puctModel;
-    private final boolean randomize;
+    private final double estimateUncertainty;
 
 
     public NeuralNetworkPlayer(
             PuctModel puctModel,
-            boolean randomize
+            double estimateUncertainty
     ) {
         this.puctModel = puctModel;
-        this.randomize = randomize;
+        this.estimateUncertainty = estimateUncertainty;
     }
 
 

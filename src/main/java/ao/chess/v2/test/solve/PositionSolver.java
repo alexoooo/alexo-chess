@@ -1,4 +1,4 @@
-package ao.chess.v2.test;
+package ao.chess.v2.test.solve;
 
 
 import ao.chess.v2.engine.Player;
@@ -68,7 +68,7 @@ public class PositionSolver {
                 .store(new SynchronizedRolloutStore(
                         new TieredRolloutStore(Path.of(
                                 "lookup/tree/root.bin"
-//                                "lookup/tree/test.bin"
+//                                "lookup/tree/root-1.bin"
                         ))))
                 .build();
 
@@ -76,7 +76,6 @@ public class PositionSolver {
         State state = State.fromFen(
                 // initial
                 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-
 
         System.out.println(state);
 
