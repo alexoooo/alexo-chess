@@ -19,9 +19,16 @@ public class PositionSolverBrowser {
         State nextState = State.initial();
 
         String history = "" +
+//                "1. c4";
 //                "1. d4";
+//                "1. e4";
+//                "1.c4 e5 2.g3 Nf6 3.Bg2 Nc6";
+                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3";
+//                "1.c4 e5 2.Nc3 Nf6";
 //                "1. e3";
-                "1.Nf3 Nc6 2.e4 e5";
+//                "1. g4";
+//                "1.Nf3 Nc6 2.e4 e5";
+//                "1.Nf3 Nc6 2.e4 e5 3.d4 exd4 4.Nxd4 Nxd4";
 
         List<State> moveHistories = PgnParser.parse(history);
 

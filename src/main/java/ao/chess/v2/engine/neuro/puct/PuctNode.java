@@ -268,6 +268,9 @@ class PuctNode {
 
         if (Double.isNaN(estimatedValue)) {
             // NB: race condition with new node creation
+            for (PuctNode node : path) {
+                node.visitCount.decrement();
+            }
             return;
         }
 

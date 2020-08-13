@@ -40,9 +40,10 @@ public class PositionSolver {
 //        ));
         PuctModel model = new PuctMixedModel(
                 ImmutableRangeMap.<Integer, Path>builder()
-                        .put(Range.closed(2, 8),
-                                Paths.get("lookup/nn/res_7_p_2_12_n634.zip"))
-                        .put(Range.closed(9, 20),
+//                        .put(Range.closed(2, 8),
+//                                Paths.get("lookup/nn/res_7_p_2_12_n634.zip"))
+//                        .put(Range.closed(9, 20),
+                        .put(Range.closed(2, 20),
                                 Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
                         .put(Range.closed(21, 28),
                                 Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
@@ -62,7 +63,11 @@ public class PositionSolver {
 //                .threads(160)
 //                .threads(192)
 //                .threads(224)
-                .threads(256)
+//                .threads(256)
+//                .threads(320)
+//                .threads(384)
+//                .threads(448)
+                .threads(512)
 //                .stochastic(true)
 //                .store(new SynchronizedRolloutStore(new MapRolloutStore()))
                 .store(new SynchronizedRolloutStore(

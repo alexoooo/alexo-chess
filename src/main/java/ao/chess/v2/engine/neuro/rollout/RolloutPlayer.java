@@ -281,12 +281,12 @@ public class RolloutPlayer
                 int length = root.runTrajectory(
                         state.prototype(), context);
 
-                trajectoryCount.increment();
-                trajectoryLengthSum.add(length);
-
                 if (length == 0) {
                     break;
                 }
+
+                trajectoryCount.increment();
+                trajectoryLengthSum.add(length - 1);
             }
             while (System.currentTimeMillis() < episodeDeadline &&
                     ! root.isValueKnown(store));
@@ -357,7 +357,7 @@ public class RolloutPlayer
             }
         }
 
-        if (history[historyIndex] == positionHash) {
+        if (historyIndex != -1 && history[historyIndex] == positionHash) {
             // NB: repeated call to play the same move
             return false;
         }

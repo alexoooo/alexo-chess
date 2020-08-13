@@ -77,7 +77,7 @@ public class AlexoChess
             if (thinkMillis == 0) {
                 player = NeuralNetworkPlayer.load(
                         puctModel,
-                        0.01);
+                        0.025);
             }
             else {
                 player = new PuctPlayer.Builder(puctModel)

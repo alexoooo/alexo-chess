@@ -21,6 +21,11 @@ public class PuctModelPool
         implements AutoCloseable
 {
     //-----------------------------------------------------------------------------------------------------------------
+    private static final long accumulateDurationNanos = 50_000_000;
+//    private static final long accumulateDurationNanos = 100_000_000;
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     private final int batchSize;
     private final PuctModel model;
 
@@ -120,7 +125,7 @@ public class PuctModelPool
                 }
                 else {
                     long now = System.nanoTime();
-                    if (now - spinStart > 100_000_000) {
+                    if (now - spinStart > accumulateDurationNanos) {
                         if (! buffer.isEmpty()) {
                             spinStart = -1;
                             commit = true;

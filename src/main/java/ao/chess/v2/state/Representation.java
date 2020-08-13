@@ -1,12 +1,10 @@
 package ao.chess.v2.state;
 
 import ao.chess.v2.data.Location;
-import ao.chess.v2.data.BitLoc;
-import ao.chess.v2.piece.Piece;
 import ao.chess.v2.piece.Colour;
-import ao.chess.v2.piece.Figure;
-import it.unimi.dsi.fastutil.bytes.ByteList;
+import ao.chess.v2.piece.Piece;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
+import it.unimi.dsi.fastutil.bytes.ByteList;
 
 /**
  * User: alex
@@ -37,28 +35,35 @@ public class Representation
     //--------------------------------------------------------------------
     public static State unpackStream(byte[] stream)
     {
-        Colour nextToAct =
-                ((stream[0] >>> 7) > 0 ? Colour.WHITE : Colour.BLACK);
+        return unpackStream(stream, 0, stream.length);
+    }
 
-        byte reversibleMoves = (byte) (stream[0] & 0x7F);
+
+    public static State unpackStream(byte[] stream, int offset, int length)
+    {
+        Colour nextToAct =
+                ((stream[offset] >>> 7) > 0 ? Colour.WHITE : Colour.BLACK);
+
+        byte reversibleMoves = (byte) (stream[offset] & 0x7F);
 
         CastleType.Set castles =
-                new CastleType.Set((byte)(stream[1] >>> 4));
+                new CastleType.Set((byte)(stream[offset + 1] >>> 4));
 
-        byte enPassantFile = (byte)(stream[1] & 0xF);
+        byte enPassantFile = (byte)(stream[offset + 1] & 0xF);
         if (enPassantFile > 7) {
             enPassantFile = -1;
         }
 
-        int       nextLocation = 0;
-        Piece[][] board        = new Piece[8][8];
-        for (int i = 2; i < stream.length; i++) {
-            if (stream[i] < 0) {
-                nextLocation -= stream[i];
-            } else {
+        int nextLocation = 0;
+        Piece[][] board = new Piece[8][8];
+        for (int i = 2; i < length; i++) {
+            if (stream[offset + i] < 0) {
+                nextLocation -= stream[offset + i];
+            }
+            else {
                 board[ Location.rankIndex(nextLocation) ]
                      [ Location.fileIndex(nextLocation) ] =
-                         Piece.VALUES[ stream[i] ];
+                         Piece.VALUES[ stream[offset + i] ];
 
                 nextLocation++;
             }
@@ -74,7 +79,13 @@ public class Representation
     public static byte[] packStream(State state)
     {
         ByteList packed = new ByteArrayList();
+        packStream(state, packed);
+        return packed.toByteArray();
+    }
 
+
+    public static void packStream(State state, ByteList packed)
+    {
         // next to act (1)
         // reversible moves (7)
         int nextToAct = (state.nextToAct() == Colour.WHITE ? 1 : 0);
@@ -86,14 +97,14 @@ public class Representation
         packed.add((byte)(state.castlesAvailable().toBits() << 4 |
                           state.enPassantFile() & 0xF));
 
-//        ByteList board = new ByteArrayList();
         byte empties = 0;
         for (int rank = 0; rank < Location.RANKS; rank++) {
             for (int file = 0; file < Location.FILES; file++) {
                 Piece p = state.pieceAt(rank, file);
                 if (p == null) {
                     empties++;
-                } else {
+                }
+                else {
                     if (empties > 0) {
                         packed.add( (byte) -empties );
                     }
@@ -102,34 +113,6 @@ public class Representation
                 }
             }
         }
-
-
-//        long     emp
-//        ByteList nibbleBoard = new ByteArrayList();
-//        for (byte squareInfo : board) {
-//            if (squareInfo > 0) {
-//                nibbleBoard.add( squareInfo );
-//            } else {
-//                int empty = -squareInfo;
-//                while (empty > 0) {
-//                    byte emptySpan = (byte) Math.min(empty, 16);
-//                    nibbleBoard.add( emptySpan );
-//                    empty -= emptySpan;
-//                }
-//            }
-//        }
-
-//        for (byte pieceInfo : board) {
-//            if (emptiesNext) {
-//
-//                emptiesNext = false;
-//            } else {
-//                int piece = pieceInfo
-//            }
-//        }
-
-
-        return packed.toByteArray();
     }
 
 
@@ -155,8 +138,9 @@ public class Representation
             Colour         nextToAct,
             int            reversibleMoves,
             CastleType.Set castles,
-            int            enPassant) {
-        StringBuffer str = new StringBuffer();
+            int            enPassant
+    ) {
+        StringBuilder str = new StringBuilder();
 
         str.append("Next to Act: ").append(nextToAct);
         str.append("\nReversible Moves: ").append(reversibleMoves);
@@ -168,9 +152,11 @@ public class Representation
                 str.append("[white: ");
                 if (castles.allWhiteAvailable()) {
                     str.append("O-O, O-O-O");
-                } else if (castles.whiteQueenSide()) {
+                }
+                else if (castles.whiteQueenSide()) {
                     str.append("O-O-O");
-                } else {
+                }
+                else {
                     str.append("O-O");
                 }
                 str.append("] ");
@@ -179,9 +165,11 @@ public class Representation
                 str.append("[black: ");
                 if (castles.allBlackAvailable()) {
                     str.append("O-O, O-O-O");
-                } else if (castles.blackQueenSide()) {
+                }
+                else if (castles.blackQueenSide()) {
                     str.append("O-O-O");
-                } else {
+                }
+                else {
                     str.append("O-O");
                 }
                 str.append("]");
@@ -193,11 +181,9 @@ public class Representation
             str.append(enPassant);
         }
 
-        for (int rank = 7; rank >= 0; rank--)
-        {
+        for (int rank = 7; rank >= 0; rank--) {
             str.append("\n");
-            for (int file = 0; file < 8; file++)
-            {
+            for (int file = 0; file < 8; file++) {
                 Piece p = board[rank][file];
                 str.append((p == null) ? "." : p);
             }

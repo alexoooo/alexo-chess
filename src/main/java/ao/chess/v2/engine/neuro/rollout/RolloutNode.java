@@ -211,11 +211,9 @@ public class RolloutNode {
         path.clear();
 
         path.add(this);
-//        incrementVisitCount(store);
 
         double estimatedValue = Double.NaN;
 
-//        while (! path.get( path.size() - 1 ).isUnvisitedVirtual(store))
         while (true)
         {
             int pathLength = path.size();
@@ -223,7 +221,6 @@ public class RolloutNode {
             node.incrementVisitCount(store);
 
             int moveCount = state.legalMoves(context.movesA, context.movesC);
-//            PuctEstimate estimate = context.pool.estimateBlocking(state, context.movesA, moveCount);
             PuctEstimate estimate = context.pool.estimateBlockingCached(state, context.movesA, moveCount);
 
             int moveIndex = node.ucbChild(
@@ -257,13 +254,6 @@ public class RolloutNode {
                 else {
                     estimatedValue = knownValue;
                 }
-
-//                if (child == null) {
-//                    // NB: cleared child of known value (race condition)
-//                    checkState(node.isValueKnown(store));
-//                    estimatedValue = node.knownValue(store);
-//                    break;
-//                }
             }
             else {
                 selectionEnded = false;
@@ -271,7 +261,6 @@ public class RolloutNode {
             }
 
             path.add( child );
-//            child.incrementVisitCount(store);
 
             if (child.isValueKnown(store)) {
                 estimatedValue = child.knownValue(store);
@@ -286,16 +275,11 @@ public class RolloutNode {
                 break;
             }
             else if (selectionEnded) {
-//                estimatedValue = context.estimatedValue;
                 break;
             }
         }
 
         checkState(! Double.isNaN(estimatedValue));
-//        if (Double.isNaN(estimatedValue)) {
-//            // NB: race condition with new node creation
-//            return 0;
-//        }
 
         backupValue(path, estimatedValue, context);
         return path.size();

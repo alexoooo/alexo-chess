@@ -22,7 +22,7 @@ public class PositionTraverser
     public static void main(String[] args) {
         long before = System.currentTimeMillis();
 
-        final long count[] = {0};
+        final long[] count = {0};
 
         new PositionTraverser().traverse(
                 Arrays.asList(
@@ -75,17 +75,22 @@ public class PositionTraverser
     {
         for (int rank = 0; rank < Location.RANKS; rank++) {
             if (first.figure() == Figure.PAWN &&
-                    (rank == 0 || rank == 7)) continue;
+                    (rank == 0 || rank == 7)) {
+                continue;
+            }
 
             for (int file = 0; file < Location.FILES; file++) {
-                if (BOARD[rank][file] != null) continue;
+                if (BOARD[rank][file] != null) {
+                    continue;
+                }
 
                 BOARD[rank][file] = first;
 
                 if (rest.isEmpty()) {
                     check(Colour.WHITE, visitor);
                     check(Colour.BLACK, visitor);
-                } else {
+                }
+                else {
                     place(rest.get(0),
                           rest.subList(1, rest.size()),
                           visitor);
@@ -140,7 +145,8 @@ public class PositionTraverser
                     return file;
                 }
             }
-        } else {
+        }
+        else {
             for (byte file = 0; file < Location.FILES; file++) {
                 if (BOARD[4][file] == Piece.BLACK_PAWN &&
                         BOARD[5][file] == null &&

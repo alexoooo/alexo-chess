@@ -39,7 +39,7 @@ public class SimpleDeepMaterialOracle implements DeepMaterialOracle
         int materialTally = MaterialTally.tally(material);
         indexer           = new MinPerfectHash(material);
 
-        System.out.println("computed perfect hash, took " + timer);
+        System.out.println("computed perfect hash (" + indexer.size() + "), took " + timer);
         timer = new Stopwatch();
 
         StateMap states = new StateMap(indexer);
@@ -220,8 +220,10 @@ public class SimpleDeepMaterialOracle implements DeepMaterialOracle
             return null;
         }
 
-        int legalMoves[] = state.legalMoves();
-        if (legalMoves == null) return null;
+        int[] legalMoves = state.legalMoves();
+        if (legalMoves == null) {
+            return null;
+        }
 
         int ties       = 0;
         int minWinPly  = Integer.MAX_VALUE;

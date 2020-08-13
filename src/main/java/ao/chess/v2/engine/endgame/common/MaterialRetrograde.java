@@ -34,10 +34,13 @@ public class MaterialRetrograde
 
 
     //--------------------------------------------------------------------
-    @Override public void traverse(State state)
+    @Override
+    public void traverse(State state)
     {
         int[] moves = state.legalMoves();
-        if (moves == null || moves.length == 0) return;
+        if (moves == null || moves.length == 0) {
+            return;
+        }
 
         long parentHash = state.staticHashCode();
         for (int legalMove : moves) {
@@ -59,12 +62,10 @@ public class MaterialRetrograde
     private void add(int index, int parentIndex)
     {
         int[] parents = precedents[ index ];
-        if (parents == null)
-        {
+        if (parents == null) {
             precedents[index] = new int[]{ parentIndex };
         }
-        else if (Arrs.indexOf(parents, parentIndex) == -1)
-        {
+        else if (Arrs.indexOf(parents, parentIndex) == -1) {
             int[] newParents = Arrays.copyOf(
                     parents, parents.length + 1);
             newParents[ parents.length ] = parentIndex;

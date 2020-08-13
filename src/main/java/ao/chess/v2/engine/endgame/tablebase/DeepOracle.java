@@ -1,15 +1,11 @@
 package ao.chess.v2.engine.endgame.tablebase;
 
+import ao.chess.v2.engine.endgame.common.TablebaseUtils;
 import ao.chess.v2.engine.run.Config;
-import ao.chess.v2.piece.Figure;
 import ao.chess.v2.piece.MaterialTally;
 import ao.chess.v2.piece.Piece;
 import ao.chess.v2.state.State;
-import ao.util.data.Arrs;
-import ao.util.data.AutovivifiedList;
 import ao.util.io.Dirs;
-import ao.util.math.stats.Exhauster;
-import ao.util.misc.Factories;
 import ao.util.persist.PersistentObjects;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -36,8 +32,9 @@ public class DeepOracle
         DeepOracle oracle = INSTANCE;
 
         State state = State.fromFen(
-                "K7/8/1p3k2/8/7p/8/8/8 b - - 0 1"
 //                "4k3/8/8/8/8/8/4P3/4K3 w - - 0 1"
+
+                "K7/8/1p3k2/8/7p/8/8/8 b - - 0 1"
 //                "8/8/8/6K1/8/8/k7/3R4 w"
 //                "8/8/8/8/8/3k3K/7P/8 w - - 0 1"
 //                "8/8/8/8/2q5/8/1B5K/1k6 b - - 0 1"
@@ -53,6 +50,7 @@ public class DeepOracle
     //--------------------------------------------------------------------
 //    public static final int instancePieceCount = 3;
     public static final int instancePieceCount = 4;
+//    public static final int instancePieceCount = 5;
 
     public static final DeepOracle INSTANCE =
             create(instancePieceCount);
@@ -95,52 +93,17 @@ public class DeepOracle
 
 
     private void addDeadEnds() {
-        for (Piece[] allDraws : new Piece[][]{
-                {}, {Piece.WHITE_KNIGHT}, {Piece.WHITE_BISHOP},
-                    {Piece.BLACK_KNIGHT}, {Piece.BLACK_BISHOP}}) {
-            oracles.put(MaterialTally.tally(allDraws),
-                        new NilDeepMaterialOracle());
+        for (int deadEndTally : TablebaseUtils.deadEndMaterialTallies()) {
+            oracles.put(deadEndTally, new NilDeepMaterialOracle());
         }
     }
 
 
     //--------------------------------------------------------------------
     private void addPermutations(int n) {
-        @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
-        List<List<Piece[]>> byPawnCount =
-                new AutovivifiedList<>(
-                        Factories.newArrayList());
-
-        for (Piece[] exhaustiveCombo :
-                new Exhauster<>(Piece.VALUES, n)) {
-            if (hasKing(exhaustiveCombo)) continue;
-            byPawnCount.get(
-                    pawnCount(exhaustiveCombo)
-            ).add( exhaustiveCombo );
+        for (Piece[] pieces : TablebaseUtils.materialPermutationsWithoutKingsByPawnsDescending(n)) {
+            add( pieces );
         }
-
-        for (List<Piece[]> pieceLists : byPawnCount) {
-            for (Piece[] pieces : pieceLists) {
-                add( pieces );
-            }
-        }
-    }
-
-
-    //--------------------------------------------------------------------
-    private boolean hasKing(Piece[] pieces) {
-        return Arrs.indexOf(pieces, Piece.WHITE_KING) != -1 ||
-                Arrs.indexOf(pieces, Piece.BLACK_KING) != -1;
-    }
-
-    private int pawnCount(Piece[] pieces) {
-        int count = 0;
-        for (Piece p : pieces) {
-            if (p.figure() == Figure.PAWN) {
-                count++;
-            }
-        }
-        return count;
     }
 
 
@@ -196,7 +159,8 @@ public class DeepOracle
 
         DeepOutcome outcome =
                 (oracle == null)
-                ? null : oracle.see( position );
+                ? null
+                : oracle.see( position );
 
         return (outcome == null)
                 ? DeepOutcome.DRAW

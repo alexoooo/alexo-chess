@@ -19,23 +19,27 @@ public class NeuralNetworkPlayer implements Player {
 
     public static NeuralNetworkPlayer load(
             PuctModel puctModel,
-            double estimateUncertainty)
+            double estimateUncertainty/*,
+            double underpromotionWeight*/)
     {
         puctModel.load();
-        return new NeuralNetworkPlayer(puctModel, estimateUncertainty);
+        return new NeuralNetworkPlayer(puctModel, estimateUncertainty/*, underpromotionWeight*/);
     }
 
 
     private final PuctModel puctModel;
     private final double estimateUncertainty;
+//    private final double underpromotionWeight;
 
 
     public NeuralNetworkPlayer(
             PuctModel puctModel,
-            double estimateUncertainty
+            double estimateUncertainty/*,
+            double underpromotionWeight*/
     ) {
         this.puctModel = puctModel;
         this.estimateUncertainty = estimateUncertainty;
+//        this.underpromotionWeight = underpromotionWeight;
     }
 
 
@@ -59,7 +63,7 @@ public class NeuralNetworkPlayer implements Player {
         double[] moveProbabilities = estimate.moveProbabilities;
 
         int maxMoveIndex = 0;
-        double maxMoveProbability = 0;
+        double maxMoveScore = 0;
 
         double moveUncertainty = estimateUncertainty / moveProbabilities.length;
         double denominator = 1.0 + estimateUncertainty;
@@ -109,9 +113,24 @@ public class NeuralNetworkPlayer implements Player {
             }
 
             double probability = (estimate.moveProbabilities[i] + moveUncertainty) / denominator;
-            double score = probability * probability * Math.random() + scoreBonus;
-            if (score > maxMoveProbability) {
-                maxMoveProbability = score;
+            double baseScore = probability * probability * Math.random();
+
+//            boolean isUnderpromotion = Move.isPromotion(move) &&
+//                    Figure.VALUES[Move.promotion(move)] != Figure.QUEEN;
+
+            double score;
+            if (scoreBonus != 0) {
+                score = baseScore + scoreBonus;
+            }
+//            else if (isUnderpromotion) {
+//                score = baseScore * underpromotionWeight;
+//            }
+            else {
+                score = baseScore;
+            }
+
+            if (score > maxMoveScore) {
+                maxMoveScore = score;
                 maxMoveIndex = i;
             }
         }

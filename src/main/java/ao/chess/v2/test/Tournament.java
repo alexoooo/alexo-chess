@@ -125,33 +125,42 @@ public class Tournament
 //        );
 
         Player a = NeuralNetworkPlayer.load(
+//                new PuctMixedModel(ImmutableRangeMap.<Integer, Path>builder()
+//                        .put(Range.closed(2, 8),
+//                                Paths.get("lookup/nn/res_7_p_2_12_n634.zip"))
+//                        .put(Range.closed(9, 20),
+//                                Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
+//                        .put(Range.closed(21, 28),
+//                                Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
+//                        .put(Range.closed(29, 32),
+//                                Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
+//                        .build()),
                 new PuctMixedModel(ImmutableRangeMap.<Integer, Path>builder()
-                        .put(Range.closed(2, 8),
-                                Paths.get("lookup/nn/res_7_p_2_12_n634.zip"))
-                        .put(Range.closed(9, 20),
+                        .put(Range.closed(2, 20),
                                 Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
-                        .put(Range.closed(21, 28),
-                                Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
-                        .put(Range.closed(29, 32),
-                                Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
+                        .put(Range.closed(21, 32),
+                                Paths.get("lookup/nn/res_20_n1307.zip"))
                         .build()),
 //                0.01
                 0.025
+//                1.0
         );
 
         Player b = NeuralNetworkPlayer.load(
                 new PuctMixedModel(ImmutableRangeMap.<Integer, Path>builder()
-                        .put(Range.closed(2, 8),
-                                Paths.get("lookup/nn/res_7_p_2_12_n634.zip"))
-                        .put(Range.closed(9, 20),
+//                        .put(Range.closed(2, 8),
+//                                Paths.get("lookup/nn/res_7_p_2_12_n634.zip"))
+//                        .put(Range.closed(9, 20),
+                        .put(Range.closed(2, 20),
                                 Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
                         .put(Range.closed(21, 28),
                                 Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
                         .put(Range.closed(29, 32),
                                 Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
                         .build()),
-//                0.025
-                0.05
+                0.025
+//                0.05,
+//                0.1
         );
 
 //        Player b = NeuralNetworkPlayer.load(
