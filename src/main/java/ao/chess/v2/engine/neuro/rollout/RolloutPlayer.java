@@ -39,8 +39,16 @@ public class RolloutPlayer
     private final static int reportPeriod = 30_000;
     private final static boolean tablebase = true;
 
-    private final static double explorationMin = 0.2;
+//    private final static double explorationMin = 0.2;
+    private final static double explorationMin = 0.5;
     private final static double explorationMax = 1.5;
+//    private final static double explorationMax = 2.0;
+
+    private final static double probabilityPowerMin = 0.75;
+//    private final static double probabilityPowerMin = 1.0;
+//    private final static double probabilityPowerMax = 2.0;
+    private final static double probabilityPowerMax = 2.5;
+
 
     private final static int progressThreadIndex = 0;
 
@@ -53,6 +61,7 @@ public class RolloutPlayer
         private RolloutStore store = new SynchronizedRolloutStore(new MapRolloutStore());
         private int threads = 1;
         private int minimumTrajectories = 0;
+        private boolean optimize = false;
         private boolean useIo = false;
 
 
@@ -81,6 +90,11 @@ public class RolloutPlayer
             return this;
         }
 
+        public Builder optimize(boolean optimize) {
+            this.optimize = optimize;
+            return this;
+        }
+
 
         public RolloutPlayer build()
         {
@@ -89,6 +103,7 @@ public class RolloutPlayer
                     store,
                     threads,
                     minimumTrajectories,
+                    optimize,
                     useIo);
         }
     }
@@ -102,6 +117,7 @@ public class RolloutPlayer
     private final int threads;
     private final int minimumTrajectories;
     private final boolean useIo;
+    private final boolean optimize;
     private boolean train;
 
     private final LongAdder collisions = new LongAdder();
@@ -131,12 +147,14 @@ public class RolloutPlayer
             RolloutStore store,
             int threads,
             int minumumTrajectories,
+            boolean optimize,
             boolean useIo)
     {
         this.model = model;
         this.store = store;
         this.threads = threads;
         this.minimumTrajectories = minumumTrajectories;
+        this.optimize = optimize;
         this.useIo = useIo;
 
         pool = new PuctModelPool(
@@ -323,13 +341,16 @@ public class RolloutPlayer
 //            modelProto.load();
 
             double exploration = explorationMin + (explorationMax - explorationMin) * Math.random();
+            double probabilityPower = probabilityPowerMin + (probabilityPowerMax - probabilityPowerMin) * Math.random();
 
             contexts.add(new RolloutContext(
                     i,
                     threads,
+                    optimize,
                     pool,
                     store,
                     exploration,
+                    probabilityPower,
                     collisions,
                     terminalHits,
                     tablebaseHits,
@@ -507,8 +528,7 @@ public class RolloutPlayer
 
     private void display(String message)
     {
-        if (useIo)
-        {
+        if (useIo) {
             Io.display(message);
         }
     }

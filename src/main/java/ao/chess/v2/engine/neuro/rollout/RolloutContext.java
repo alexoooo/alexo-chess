@@ -13,10 +13,12 @@ import java.util.concurrent.atomic.LongAdder;
 class RolloutContext {
     public final int index;
     public final int threads;
+    public final boolean optimize;
 
     public final PuctModelPool pool;
     public final RolloutStore store;
     public final double exploration;
+    public final double probabilityPower;
 
     public final Random random = new Random();
     public final List<RolloutNode> path = new ArrayList<>();
@@ -39,9 +41,11 @@ class RolloutContext {
     public RolloutContext(
             int index,
             int threads,
+            boolean optimize,
             PuctModelPool pool,
             RolloutStore store,
             double exploration,
+            double probabilityPower,
             LongAdder collisions,
             LongAdder terminalHits,
             LongAdder tablebaseHits,
@@ -50,10 +54,12 @@ class RolloutContext {
     {
         this.index = index;
         this.threads = threads;
+        this.optimize = optimize;
 
         this.pool = pool;
         this.store = store;
         this.exploration = exploration;
+        this.probabilityPower = probabilityPower;
 
         this.collisions = collisions;
         this.terminalHits = terminalHits;

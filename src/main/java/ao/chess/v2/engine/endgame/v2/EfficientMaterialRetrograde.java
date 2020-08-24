@@ -284,7 +284,7 @@ public class EfficientMaterialRetrograde
         public void traverse(State state)
         {
             count++;
-            if (count % 1_000_000 == 0) {
+            if (count % 5_000_000 == 0) {
                 logger.info("Building progress {}, {} total relations - {} average relations, took: {}",
                         count, relationCount, (double) relationCount / count, buildStopwatch);
                 buildStopwatch = Stopwatch.createStarted();

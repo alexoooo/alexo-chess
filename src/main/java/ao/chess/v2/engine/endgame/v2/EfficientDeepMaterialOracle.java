@@ -50,7 +50,7 @@ public class EfficientDeepMaterialOracle implements DeepMaterialOracle
         private final int[] legalMoves = new int[Move.MAX_PER_PLY];
         private final int[] movesBuffer = new int[Move.MAX_PER_PLY];
 
-        private int stateCount = 0;
+        private long stateCount = 0;
         private int mateCount = 0;
         private Stopwatch mateProgressStopwatch;
 

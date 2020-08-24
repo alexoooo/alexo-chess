@@ -114,6 +114,7 @@ public class NeuralNetworkPlayer implements Player {
 
             double probability = (estimate.moveProbabilities[i] + moveUncertainty) / denominator;
             double baseScore = probability * probability * Math.random();
+//            double baseScore = probability * Math.random();
 
 //            boolean isUnderpromotion = Move.isPromotion(move) &&
 //                    Figure.VALUES[Move.promotion(move)] != Figure.QUEEN;

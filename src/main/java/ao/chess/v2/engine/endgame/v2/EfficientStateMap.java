@@ -160,7 +160,7 @@ public class EfficientStateMap
             }
             count++;
 
-            if (count % 25_000_000 == 0) {
+            if (count % 100_000_000 == 0) {
                 logger.info("Indexing progress {}, {} unique / {} duplicates - took: {}",
                         count, count - duplicates, duplicates, partialStopwatch);
                 partialStopwatch = Stopwatch.createStarted();

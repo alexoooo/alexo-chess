@@ -23,7 +23,9 @@ public class PositionSolverBrowser {
 //                "1. d4";
 //                "1. e4";
 //                "1.c4 e5 2.g3 Nf6 3.Bg2 Nc6";
-                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3";
+//                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3 Bb4";
+//                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3 Be7 5.Bg2 O-O 6.O-O Re8";
+                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3 Be7 5.Bg2 h6 6.e4 O-O";
 //                "1.c4 e5 2.Nc3 Nf6";
 //                "1. e3";
 //                "1. g4";
