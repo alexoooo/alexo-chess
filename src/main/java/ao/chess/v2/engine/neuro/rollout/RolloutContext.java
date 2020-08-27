@@ -17,6 +17,7 @@ class RolloutContext {
 
     public final PuctModelPool pool;
     public final RolloutStore store;
+    public final int rolloutLength;
     public final double exploration;
     public final double probabilityPower;
 
@@ -27,6 +28,7 @@ class RolloutContext {
     public final int[] movesB = new int[Move.MAX_PER_PLY];
     public final int[] movesC = new int[Move.MAX_PER_PLY];
     public final double[] valueSums = new double[Move.MAX_PER_PLY];
+    public final double[] valueSquareSums = new double[Move.MAX_PER_PLY];
     public final long[] visitCounts = new long[Move.MAX_PER_PLY];
 
 //    public double estimatedValue;
@@ -41,6 +43,7 @@ class RolloutContext {
     public RolloutContext(
             int index,
             int threads,
+            int rolloutLength,
             boolean optimize,
             PuctModelPool pool,
             RolloutStore store,
@@ -58,6 +61,7 @@ class RolloutContext {
 
         this.pool = pool;
         this.store = store;
+        this.rolloutLength = rolloutLength;
         this.exploration = exploration;
         this.probabilityPower = probabilityPower;
 

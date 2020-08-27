@@ -20,7 +20,8 @@ public class FileRolloutStore implements RolloutStore {
 
     private static final int countOffset = 0;
     private static final int sumOffset = countOffset + Long.BYTES;
-    private static final int outcomeOffset = sumOffset + Double.BYTES;
+    private static final int sumSquareOffset = sumOffset + Long.BYTES;
+    private static final int outcomeOffset = sumSquareOffset + Double.BYTES;
     private static final int moveCountOffset = outcomeOffset + Byte.BYTES;
     private static final int childrenOffset = moveCountOffset + Byte.BYTES;
     private static final int childSize = Long.BYTES;
@@ -90,9 +91,11 @@ public class FileRolloutStore implements RolloutStore {
         try {
             handle.seek(nodeIndex + sumOffset);
             double previousSum = handle.readDouble();
+            double previousSquareSum = handle.readDouble();
 
             handle.seek(nodeIndex + sumOffset);
             handle.writeDouble(previousSum + value);
+            handle.writeDouble(previousSquareSum + value * value);
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -146,6 +149,9 @@ public class FileRolloutStore implements RolloutStore {
         // sum
         handle.writeDouble(0.0);
 
+        // square sum
+        handle.writeDouble(0.0);
+
         // outcome
         handle.writeByte(0);
 
@@ -188,6 +194,18 @@ public class FileRolloutStore implements RolloutStore {
     public double getValueSum(long nodeIndex) {
         try {
             handle.seek(nodeIndex + sumOffset);
+            return handle.readDouble();
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+
+    @Override
+    public double getValueSquareSum(long nodeIndex) {
+        try {
+            handle.seek(nodeIndex + sumSquareOffset);
             return handle.readDouble();
         }
         catch (IOException e) {
@@ -251,6 +269,7 @@ public class FileRolloutStore implements RolloutStore {
 
             long visitCount = handle.readLong();
             double valueSum = handle.readDouble();
+            double valueSquareSum = handle.readDouble();
             KnownOutcome knownOutcome = KnownOutcome.values.get(handle.readByte());
             int moveCount = Byte.toUnsignedInt(handle.readByte());
 
@@ -260,7 +279,7 @@ public class FileRolloutStore implements RolloutStore {
             }
 
             return new RolloutStoreNode(
-                    nodeIndex, visitCount, valueSum, knownOutcome, childIndexes);
+                    nodeIndex, visitCount, valueSum, valueSquareSum, knownOutcome, childIndexes);
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -285,6 +304,7 @@ public class FileRolloutStore implements RolloutStore {
 
                 buffer.putLong(node.visitCount());
                 buffer.putDouble(node.valueSum());
+                buffer.putDouble(node.valueSquareSum());
                 buffer.put((byte) node.knownOutcome().ordinal());
                 buffer.put((byte) node.moveCount());
 
@@ -296,16 +316,6 @@ public class FileRolloutStore implements RolloutStore {
                 handle.write(bufferArray, 0, size);
                 buffer.clear();
 
-//                handle.writeLong(node.visitCount());
-//                handle.writeDouble(node.valueSum());
-//                handle.writeByte(node.knownOutcome().ordinal());
-//                handle.writeByte(node.moveCount());
-//
-//                for (int i = 0; i < node.moveCount(); i++) {
-//                    handle.writeLong(node.childIndex(i));
-//                }
-//
-//                previousPosition += sizeOf(node.moveCount());
                 previousPosition += size;
             }
         }

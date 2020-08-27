@@ -42,6 +42,9 @@ public interface RolloutStore extends AutoCloseable {
     double getValueSum(long nodeIndex);
 
 
+    double getValueSquareSum(long nodeIndex);
+
+
     double getAverageValue(long nodeIndex, double defaultValue);
 
 

@@ -41,11 +41,12 @@ public class RolloutPlayer
 
 //    private final static double explorationMin = 0.2;
     private final static double explorationMin = 0.5;
-    private final static double explorationMax = 1.5;
+//    private final static double explorationMax = 1.5;
 //    private final static double explorationMax = 2.0;
+    private final static double explorationMax = 2.5;
 
-    private final static double probabilityPowerMin = 0.75;
-//    private final static double probabilityPowerMin = 1.0;
+//    private final static double probabilityPowerMin = 0.75;
+    private final static double probabilityPowerMin = 1.0;
 //    private final static double probabilityPowerMax = 2.0;
     private final static double probabilityPowerMax = 2.5;
 
@@ -60,6 +61,7 @@ public class RolloutPlayer
 //        private RolloutStore store = new SynchronizedRolloutStore(new BigArrayRolloutStore());
         private RolloutStore store = new SynchronizedRolloutStore(new MapRolloutStore());
         private int threads = 1;
+        private int rolloutLength = 1;
         private int minimumTrajectories = 0;
         private boolean optimize = false;
         private boolean useIo = false;
@@ -72,6 +74,11 @@ public class RolloutPlayer
 
         public Builder threads(int threads) {
             this.threads = threads;
+            return this;
+        }
+
+        public Builder rolloutLength(int rolloutLength) {
+            this.rolloutLength = rolloutLength;
             return this;
         }
 
@@ -102,6 +109,7 @@ public class RolloutPlayer
                     model,
                     store,
                     threads,
+                    rolloutLength,
                     minimumTrajectories,
                     optimize,
                     useIo);
@@ -115,6 +123,7 @@ public class RolloutPlayer
     private final PuctModel model;
     private final PuctModelPool pool;
     private final int threads;
+    private final int rolloutLength;
     private final int minimumTrajectories;
     private final boolean useIo;
     private final boolean optimize;
@@ -146,6 +155,7 @@ public class RolloutPlayer
             PuctModel model,
             RolloutStore store,
             int threads,
+            int rolloutLength,
             int minumumTrajectories,
             boolean optimize,
             boolean useIo)
@@ -153,6 +163,7 @@ public class RolloutPlayer
         this.model = model;
         this.store = store;
         this.threads = threads;
+        this.rolloutLength = rolloutLength;
         this.minimumTrajectories = minumumTrajectories;
         this.optimize = optimize;
         this.useIo = useIo;
@@ -346,6 +357,7 @@ public class RolloutPlayer
             contexts.add(new RolloutContext(
                     i,
                     threads,
+                    rolloutLength,
                     optimize,
                     pool,
                     store,

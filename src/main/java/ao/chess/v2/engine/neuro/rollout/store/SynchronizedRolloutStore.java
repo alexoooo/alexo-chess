@@ -74,6 +74,12 @@ public class SynchronizedRolloutStore implements RolloutStore {
 
 
     @Override
+    public synchronized double getValueSquareSum(long nodeIndex) {
+        return delegate.getValueSquareSum(nodeIndex);
+    }
+
+
+    @Override
     public synchronized double getAverageValue(long nodeIndex, double defaultValue) {
         return delegate.getAverageValue(nodeIndex, defaultValue);
     }

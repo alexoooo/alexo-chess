@@ -6,6 +6,7 @@ public class RolloutStoreNode {
     private final long index;
     private final long visitCount;
     private final double valueSum;
+    private final double valueSquareSum;
     private final KnownOutcome knownOutcome;
     private final long[] childIndexes;
 
@@ -15,12 +16,14 @@ public class RolloutStoreNode {
             long index,
             long visitCount,
             double valueSum,
+            double valueSquareSum,
             KnownOutcome knownOutcome,
             long[] childIndexes
     ) {
         this.index = index;
         this.visitCount = visitCount;
         this.valueSum = valueSum;
+        this.valueSquareSum = valueSquareSum;
         this.knownOutcome = knownOutcome;
         this.childIndexes = childIndexes;
     }
@@ -39,6 +42,11 @@ public class RolloutStoreNode {
 
     public double valueSum() {
         return valueSum;
+    }
+
+
+    public double valueSquareSum() {
+        return valueSquareSum;
     }
 
 

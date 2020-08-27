@@ -10,6 +10,7 @@ public class MapRolloutStore implements RolloutStore {
     //-----------------------------------------------------------------------------------------------------------------
     private final Long2LongMap counts = new Long2LongOpenHashMap();
     private final Long2DoubleMap valueSums = new Long2DoubleOpenHashMap();
+    private final Long2DoubleMap valueSquareSums = new Long2DoubleOpenHashMap();
     private final Long2ByteMap knownOutcomes = new Long2ByteOpenHashMap();
     private final Long2ByteMap childMoveCounts = new Long2ByteOpenHashMap();
     private final Long2LongMap childMoveOffsets = new Long2LongOpenHashMap();
@@ -40,8 +41,8 @@ public class MapRolloutStore implements RolloutStore {
 
     @Override
     public void addValue(long nodeIndex, double value) {
-        double previousSum = valueSums.get(nodeIndex);
-        valueSums.put(nodeIndex, previousSum + value);
+        valueSums.put(nodeIndex, valueSums.get(nodeIndex) + value);
+        valueSquareSums.put(nodeIndex, valueSquareSums.get(nodeIndex) + value * value);
         modified = true;
     }
 
@@ -84,6 +85,9 @@ public class MapRolloutStore implements RolloutStore {
     @Override
     public long getChildIndex(long nodeIndex, int moveIndex) {
         long offset = childMoveOffsets.get(nodeIndex);
+        if (childMoves.size64() == (offset + moveIndex)) {
+            return  -1;
+        }
         return childMoves.getLong(offset + moveIndex);
     }
 
@@ -91,6 +95,12 @@ public class MapRolloutStore implements RolloutStore {
     @Override
     public double getValueSum(long nodeIndex) {
         return valueSums.get(nodeIndex);
+    }
+
+
+    @Override
+    public double getValueSquareSum(long nodeIndex) {
+        return valueSquareSums.get(nodeIndex);
     }
 
 
@@ -134,6 +144,7 @@ public class MapRolloutStore implements RolloutStore {
 
         counts.put(node.index(), node.visitCount());
         valueSums.put(node.index(), node.valueSum());
+        valueSquareSums.put(node.index(), node.valueSquareSum());
         knownOutcomes.put(node.index(), (byte) node.knownOutcome().ordinal());
 
         for (int i = 0; i < node.moveCount(); i++) {
@@ -193,6 +204,7 @@ public class MapRolloutStore implements RolloutStore {
                 nodeIndex,
                 getVisitCount(nodeIndex),
                 getValueSum(nodeIndex),
+                getValueSquareSum(nodeIndex),
                 getKnownOutcome(nodeIndex),
                 childIndexes);
     }
@@ -201,6 +213,7 @@ public class MapRolloutStore implements RolloutStore {
     public void clear() {
         counts.clear();
         valueSums.clear();
+        valueSquareSums.clear();
         knownOutcomes.clear();
         childMoveCounts.clear();
         childMoveOffsets.clear();

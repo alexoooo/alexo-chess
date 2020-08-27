@@ -13,6 +13,7 @@ public class BigArrayRolloutStore implements RolloutStore {
     //-----------------------------------------------------------------------------------------------------------------
     private final LongBigList counts = new LongBigArrayBigList();
     private final DoubleBigList valueSums = new DoubleBigArrayBigList();
+    private final DoubleBigList valueSquareSums = new DoubleBigArrayBigList();
     private final ByteBigList knownOutcomes = new ByteBigArrayBigList();
     private final LongBigList childMoveOffsets = new LongBigArrayBigList();
     private final LongBigList childMoves = new LongBigArrayBigList();
@@ -39,6 +40,7 @@ public class BigArrayRolloutStore implements RolloutStore {
     @Override
     public void addValue(long nodeIndex, double value) {
         valueSums.set(nodeIndex, valueSums.getDouble(nodeIndex) + value);
+        valueSquareSums.set(nodeIndex, valueSquareSums.getDouble(nodeIndex) + value * value);
     }
 
 
@@ -93,6 +95,12 @@ public class BigArrayRolloutStore implements RolloutStore {
     @Override
     public double getValueSum(long nodeIndex) {
         return valueSums.getDouble(nodeIndex);
+    }
+
+
+    @Override
+    public double getValueSquareSum(long nodeIndex) {
+        return valueSquareSums.getDouble(nodeIndex);
     }
 
 

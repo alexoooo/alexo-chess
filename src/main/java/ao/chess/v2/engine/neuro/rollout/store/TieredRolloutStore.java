@@ -112,6 +112,12 @@ public class TieredRolloutStore implements RolloutStore {
         return buffer.getValueSum(nodeIndex);
     }
 
+    @Override
+    public double getValueSquareSum(long nodeIndex) {
+        loadIfMissing(nodeIndex);
+        return buffer.getValueSquareSum(nodeIndex);
+    }
+
 
     @Override
     public double getAverageValue(long nodeIndex, double defaultValue) {

@@ -2,15 +2,14 @@ package ao.chess.v2.test.solve;
 
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.neuro.puct.PuctMixedModel;
+import ao.chess.v2.engine.neuro.puct.PuctEnsembleModel;
 import ao.chess.v2.engine.neuro.puct.PuctModel;
 import ao.chess.v2.engine.neuro.rollout.RolloutPlayer;
 import ao.chess.v2.engine.neuro.rollout.store.SynchronizedRolloutStore;
 import ao.chess.v2.engine.neuro.rollout.store.TieredRolloutStore;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
-import com.google.common.collect.ImmutableRangeMap;
-import com.google.common.collect.Range;
+import com.google.common.collect.ImmutableList;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,25 +33,23 @@ public class PositionSolver {
 //                                Paths.get("lookup/nn/res_20_n1307.zip"))
 //                        .build()
 //        );
-//        PuctModel model = new PuctEnsembleModel(ImmutableList.of(
-//                Paths.get("lookup/nn/res_14b_n811.zip"),
-//                Paths.get("lookup/nn/res_20_n1307.zip")
-//        ));
-        PuctModel model = new PuctMixedModel(
-                ImmutableRangeMap.<Integer, Path>builder()
-//                        .put(Range.closed(2, 8),
-//                                Paths.get("lookup/nn/res_7_p_2_12_n634.zip"))
-//                        .put(Range.closed(9, 20),
-                        .put(Range.closed(2, 20),
-                                Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
-                        .put(Range.closed(21, 28),
-                                Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
-                        .put(Range.closed(29, 32),
-                                Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
-                        .build()
-        );
+        PuctModel model = new PuctEnsembleModel(ImmutableList.of(
+                Paths.get("lookup/nn/res_20_n1307.zip"),
+                Paths.get("lookup/nn/res_20_b_n1008.zip")
+        ));
+//        PuctModel model = new PuctMixedModel(
+//                ImmutableRangeMap.<Integer, Path>builder()
+//                        .put(Range.closed(2, 20),
+//                                Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
+//                        .put(Range.closed(21, 28),
+//                                Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
+//                        .put(Range.closed(29, 32),
+//                                Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
+//                        .build()
+//        );
 
         Player player = new RolloutPlayer.Builder(model)
+                .rolloutLength(3)
 //                .threads(1)
 //                .threads(2)
 //                .threads(48)

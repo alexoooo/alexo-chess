@@ -48,7 +48,7 @@ public class RolloutNode {
 //    private static final double rolloutValueDenominator = 1.0 + rolloutValueWeight;
 
 //    private static final int rolloutLengthLimit = 1;
-    private static final int rolloutLengthLimit = 3;
+//    private static final int rolloutLengthLimit = 3;
 //    private static final int rolloutLengthLimit = 5;
 //    private static final int rolloutLengthLimit = 10;
 
@@ -177,6 +177,11 @@ public class RolloutNode {
 
     private double valueSum(RolloutStore store) {
         return store.getValueSum(index);
+    }
+
+
+    private double valueSquareSum(RolloutStore store) {
+        return store.getValueSquareSum(index);
     }
 
 
@@ -383,7 +388,7 @@ public class RolloutNode {
         double discountSum = 0;
 
         rollout:
-        for (int rolloutLength = 0; rolloutLength <= rolloutLengthLimit; rolloutLength++) {
+        for (int rolloutLength = 0; rolloutLength <= context.rolloutLength; rolloutLength++) {
             PuctEstimate estimate = context.pool.estimateBlocking(state, moves, nMoves);
 
             double stateValue =
@@ -506,9 +511,11 @@ public class RolloutNode {
         }
 
         double[] moveValueSums = context.valueSums;
+        double[] moveValueSquareSums = context.valueSquareSums;
         long[] moveVisitCounts = context.visitCounts;
 
-        int solutionMoveIndex = populateChildInfoAndSelectSolution(moveCount, moveValueSums, moveVisitCounts, context);
+        int solutionMoveIndex = populateChildInfoAndSelectSolution(
+                moveCount, moveValueSums, moveValueSquareSums, moveVisitCounts, context);
         if (solutionMoveIndex != -1) {
             return solutionMoveIndex;
         }
@@ -527,13 +534,21 @@ public class RolloutNode {
 //        }
 
         return banditChild(
-                moveCount, valuePrediction, movePredictions, moveValueSums, moveVisitCounts, parentVisitCount, context);
+                moveCount,
+                valuePrediction,
+                movePredictions,
+                moveValueSums,
+                moveValueSquareSums,
+                moveVisitCounts,
+                parentVisitCount,
+                context);
     }
 
 
     private int populateChildInfoAndSelectSolution(
             int moveCount,
             double[] moveValueSums,
+            double[] moveValueSquareSums,
             long[] moveVisitCounts,
             RolloutContext context)
     {
@@ -545,13 +560,16 @@ public class RolloutNode {
 
             long childVisitCount;
             double childValueSum;
+            double childValueSquareSum;
 
             if (child == null) {
                 childValueSum = 0;
+                childValueSquareSum = 0;
                 childVisitCount = 0;
             }
             else {
                 childValueSum = child.valueSum(store);
+                childValueSquareSum = child.valueSquareSum(store);
                 childVisitCount = child.visitCount(store);
 
                 double known = child.knownValue(store);
@@ -567,6 +585,7 @@ public class RolloutNode {
             }
 
             moveValueSums[i] = childValueSum;
+            moveValueSquareSums[i] = childValueSquareSum;
             moveVisitCounts[i] = childVisitCount;
         }
 
@@ -594,6 +613,7 @@ public class RolloutNode {
             double valuePrediction,
             double[] movePredictions,
             double[] moveValueSums,
+            double[] moveValueSquareSums,
             long[] moveVisitCounts,
             long parentVisitCount,
             RolloutContext context)
@@ -611,10 +631,24 @@ public class RolloutNode {
                     ? Math.max(0, valuePrediction - fpuDiscount * Math.sqrt(parentVisitCount))
                     : moveValueSums[i] / moveVisits;
 
-            double ucbExploration =
-                    context.exploration *
-                    (Math.sqrt(Math.log(parentVisitCount) / moveVisits) +
-                            prior / Math.sqrt(moveVisits));
+            double ucbExploration;
+            if (moveVisits == 0) {
+                ucbExploration =
+                        context.exploration *
+                        (Math.sqrt(Math.log(parentVisitCount)) +
+                                prior);
+            }
+            else {
+                double averageSquareOutcome = moveValueSquareSums[i] / moveVisits;
+                double variance = Math.max(0.01, Math.min(0.25,
+                        averageSquareOutcome
+                        - averageOutcome * averageOutcome
+                        + Math.sqrt(2 * Math.log(parentVisitCount) / moveVisits)));
+                ucbExploration =
+                        context.exploration *
+                        (Math.sqrt(Math.log(parentVisitCount) / moveVisits * variance) +
+                                prior / Math.sqrt(moveVisits));
+            }
 
             double unvisitedBonus;
             if (parentVisitCount >= puctThreshold) {
@@ -656,6 +690,11 @@ public class RolloutNode {
             return -1;
         }
         if (! Double.isNaN(knownValue(store))) {
+            if (state.pieceCount() <= DeepOracle.instancePieceCount) {
+                // TODO principal variation tablebase support
+                return -1;
+            }
+
             double minChildValue = 1.0;
             int minChildIndex = 0;
             for (int i = 0; i < moves.length; i++) {
@@ -677,8 +716,8 @@ public class RolloutNode {
 
         State repeatCursorOrNull =
                 isRepeat
-                        ? state.prototype()
-                        : null;
+                ? state.prototype()
+                : null;
 
         for (int i = 0; i < moves.length; i++) {
             boolean moveRepeat = false;

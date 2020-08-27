@@ -22,10 +22,13 @@ public class PositionSolverBrowser {
 //                "1. c4";
 //                "1. d4";
 //                "1. e4";
-//                "1.c4 e5 2.g3 Nf6 3.Bg2 Nc6";
-//                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3 Bb4";
+//                "1.c4 e5 2.g3 Nc6";
+//                "1.c4 c5 2.Nf3 Nf6 3.Nc3 e5";
+                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3 Bb4 5.Nd5 e4 6.Nh4 O-O 7.Bg2 Re8 8.O-O d6 9.b3 g5 10.Bb2 Nd5 " +
+                    "11.cd5 Ne5 12.f4 gh4 13.fe5 de5 14.e3 Qg5 15.gh4 Qh4 16.Qe1";
 //                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3 Be7 5.Bg2 O-O 6.O-O Re8";
-                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3 Be7 5.Bg2 h6 6.e4 O-O";
+//                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3 Be7 5.Bg2 h6 6.e4 O-O";
+//                "1.d4 Nf6 2.c4";
 //                "1.c4 e5 2.Nc3 Nf6";
 //                "1. e3";
 //                "1. g4";
@@ -37,6 +40,9 @@ public class PositionSolverBrowser {
         RolloutStore store = new FileRolloutStore(
                 Paths.get("lookup/tree/root.bin"));
 //                Paths.get("lookup/tree/root-1.bin"));
+
+        System.out.println("history: " + history);
+
 
         long nextIndex = RolloutStore.rootIndex;
         printDetails(nextIndex, nextState, store);
