@@ -18,7 +18,7 @@ class RolloutContext {
     public final PuctModelPool pool;
     public final RolloutStore store;
     public final int rolloutLength;
-    public final double exploration;
+//    public final double exploration;
     public final double probabilityPower;
 
     public final Random random = new Random();
@@ -47,7 +47,7 @@ class RolloutContext {
             boolean optimize,
             PuctModelPool pool,
             RolloutStore store,
-            double exploration,
+//            double exploration,
             double probabilityPower,
             LongAdder collisions,
             LongAdder terminalHits,
@@ -62,7 +62,7 @@ class RolloutContext {
         this.pool = pool;
         this.store = store;
         this.rolloutLength = rolloutLength;
-        this.exploration = exploration;
+//        this.exploration = exploration;
         this.probabilityPower = probabilityPower;
 
         this.collisions = collisions;

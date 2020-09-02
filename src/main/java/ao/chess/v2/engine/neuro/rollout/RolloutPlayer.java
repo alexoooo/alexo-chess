@@ -18,6 +18,7 @@ import com.google.common.primitives.Ints;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,11 +40,14 @@ public class RolloutPlayer
     private final static int reportPeriod = 30_000;
     private final static boolean tablebase = true;
 
-//    private final static double explorationMin = 0.2;
-    private final static double explorationMin = 0.5;
-//    private final static double explorationMax = 1.5;
-//    private final static double explorationMax = 2.0;
-    private final static double explorationMax = 2.5;
+////    private final static double explorationMin = 0.2;
+////    private final static double explorationMin = 0.5;
+////    private final static double explorationMin = 0.75;
+//    private final static double explorationMin = 1.0;
+////    private final static double explorationVariance = 1.0;
+////    private final static double explorationVariance = 1.5;
+//    private final static double explorationVariance = 1.75;
+////    private final static double explorationVariance = 2.0;
 
 //    private final static double probabilityPowerMin = 0.75;
     private final static double probabilityPowerMin = 1.0;
@@ -136,6 +140,7 @@ public class RolloutPlayer
     private final LongAdder solutionHits = new LongAdder();
     private final LongAdder trajectoryCount = new LongAdder();
     private final LongAdder trajectoryLengthSum = new LongAdder();
+    private final Random random = new Random();
 
     private final CopyOnWriteArrayList<RolloutContext> contexts;
     private ExecutorService executorService;
@@ -173,7 +178,7 @@ public class RolloutPlayer
 
         contexts = new CopyOnWriteArrayList<>();
 
-        id = Integer.toHexString((int) (Math.random() * 1024));
+        id = Integer.toHexString((int) (random.nextDouble() * 1024));
 
         history = new long[4096];
         historyIndex = -1;
@@ -339,7 +344,7 @@ public class RolloutPlayer
     private void initIfRequired() {
 //        nnCache.clear();
 //        cacheHits.reset();
-        collisions.reset();
+//        collisions.reset();
 
         if (! contexts.isEmpty()) {
             return;
@@ -351,8 +356,9 @@ public class RolloutPlayer
 //            PuctModel modelProto = model.prototype();
 //            modelProto.load();
 
-            double exploration = explorationMin + (explorationMax - explorationMin) * Math.random();
-            double probabilityPower = probabilityPowerMin + (probabilityPowerMax - probabilityPowerMin) * Math.random();
+//            double exploration = explorationMin + Math.abs(random.nextGaussian() * explorationVariance);
+            double probabilityPower =
+                    probabilityPowerMin + (probabilityPowerMax - probabilityPowerMin) * random.nextDouble();
 
             contexts.add(new RolloutContext(
                     i,
@@ -361,7 +367,7 @@ public class RolloutPlayer
                     optimize,
                     pool,
                     store,
-                    exploration,
+//                    exploration,
                     probabilityPower,
                     collisions,
                     terminalHits,

@@ -60,6 +60,21 @@ public class RolloutNode {
     private static final int puctThreshold = 4 * 1024;
     private static final double puctExplorationLog = 18432;
 
+////    private static final long stochasticThreshold = 0;
+////    private static final long stochasticThreshold = 1_000_000;
+//    private static final long stochasticThreshold = Long.MAX_VALUE;
+////    private static final double stochasticBeta = 3.0;
+//    private static final double stochasticBeta = 5.0;
+////    private static final double stochasticBeta = 7.5;
+
+    // see: http://game.c.u-tokyo.ac.jp/ja/wp-content/uploads/2015/08/ieeecig2015.pdf
+//    private static final boolean binerize = false;
+    private static final boolean binerize = true;
+
+
+    private final static double explorationMin = 1.0;
+    private final static double explorationVariance = 1.75;
+
 
     //-----------------------------------------------------------------------------------------------------------------
     private final long index;
@@ -240,6 +255,12 @@ public class RolloutNode {
             node.incrementVisitCount(store);
 
             int moveCount = state.legalMoves(context.movesA, context.movesC);
+            if (moveCount <= 0) {
+                Outcome outcome = state.knownOutcomeOrNull(moveCount);
+                estimatedValue = outcome.valueFor(state.nextToAct());
+                context.terminalHits.increment();
+                break;
+            }
             PuctEstimate estimate = context.pool.estimateBlockingCached(state, context.movesA, moveCount);
 
             int moveIndex = node.selectChild(
@@ -471,7 +492,12 @@ public class RolloutNode {
             return outcome.valueFor(fromPov);
         }
 
-        return discountedValueSum / discountSum;
+        // binerize
+        double expectedValue = discountedValueSum / discountSum;
+
+        return binerize
+                ? (expectedValue > context.random.nextDouble() ? 1.0 : 0.0)
+                : expectedValue;
     }
 
 
@@ -622,6 +648,8 @@ public class RolloutNode {
         int maxScoreIndex = 0;
         double moveUncertainty = estimateUncertainty / moveCount;
 
+        double exploration = explorationMin + Math.abs(context.random.nextGaussian() * explorationVariance);
+
         for (int i = 0; i < moveCount; i++) {
             long moveVisits = moveVisitCounts[i];
             double prior = (movePredictions[i] + moveUncertainty) / estimateUncertaintyDenominator;
@@ -634,7 +662,7 @@ public class RolloutNode {
             double ucbExploration;
             if (moveVisits == 0) {
                 ucbExploration =
-                        context.exploration *
+                        exploration *
                         (Math.sqrt(Math.log(parentVisitCount)) +
                                 prior);
             }
@@ -645,7 +673,7 @@ public class RolloutNode {
                         - averageOutcome * averageOutcome
                         + Math.sqrt(2 * Math.log(parentVisitCount) / moveVisits)));
                 ucbExploration =
-                        context.exploration *
+                        exploration *
                         (Math.sqrt(Math.log(parentVisitCount) / moveVisits * variance) +
                                 prior / Math.sqrt(moveVisits));
             }
@@ -658,7 +686,7 @@ public class RolloutNode {
                 double puctExploration =
                         prior *
                         (Math.sqrt(parentVisitCount) / (moveVisits + 1)) *
-                        (context.exploration + Math.log((parentVisitCount / puctExplorationLog) + 1));
+                        (exploration + Math.log((parentVisitCount / puctExplorationLog) + 1));
 
                 double ucbWeight = (double) parentVisitCount / puctThreshold;
                 unvisitedBonus = ucbExploration * ucbWeight + puctExploration * (1.0 - ucbWeight);
@@ -666,8 +694,7 @@ public class RolloutNode {
 
             double moveScore = averageOutcome + unvisitedBonus;
 
-            if (moveScore > maxScore ||
-                    moveScore == maxScore && context.random.nextBoolean()) {
+            if (moveScore > maxScore) {
                 maxScore = moveScore;
                 maxScoreIndex = i;
             }

@@ -39,7 +39,8 @@ public class PuctModelPool
     private final Cache<CacheKey, PuctEstimate> cache = CacheBuilder.newBuilder()
             .concurrencyLevel(1)
 //            .maximumSize(1024 * 1024)
-            .maximumSize(4 * 1024 * 1024)
+//            .maximumSize(4 * 1024 * 1024)
+            .maximumSize(8 * 1024 * 1024)
             .build();
 
     private final LongAdder cacheHits = new LongAdder();

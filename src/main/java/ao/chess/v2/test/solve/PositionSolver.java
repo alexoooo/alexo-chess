@@ -49,7 +49,7 @@ public class PositionSolver {
 //        );
 
         Player player = new RolloutPlayer.Builder(model)
-                .rolloutLength(3)
+//                .rolloutLength(3)
 //                .threads(1)
 //                .threads(2)
 //                .threads(48)
