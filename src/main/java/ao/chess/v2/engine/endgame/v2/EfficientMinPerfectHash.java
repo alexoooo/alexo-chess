@@ -30,7 +30,7 @@ public class EfficientMinPerfectHash
 
 
     //-----------------------------------------------------------------------------------------------------------------
-//    private final List<Piece> material;
+    private final List<Piece> material;
     private final Path store;
 
     private final byte[] buffer = new byte[8];
@@ -40,10 +40,10 @@ public class EfficientMinPerfectHash
 
     //-----------------------------------------------------------------------------------------------------------------
     public EfficientMinPerfectHash(
-//            List<Piece> material,
+            List<Piece> material,
             Path store)
     {
-//        this.material = material;
+        this.material = material;
         this.store = store;
     }
 
@@ -131,7 +131,7 @@ public class EfficientMinPerfectHash
 
         hash = SerializationUtils.deserialize(serialized);
 
-        logger.info("Loaded {}, took {}", hash.size64(), stopwatch);
+        logger.info("Loaded {}, count = {}, took {}", material, hash.size64(), stopwatch);
     }
 
 

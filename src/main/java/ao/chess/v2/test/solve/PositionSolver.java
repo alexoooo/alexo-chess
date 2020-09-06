@@ -49,6 +49,7 @@ public class PositionSolver {
 //        );
 
         Player player = new RolloutPlayer.Builder(model)
+                .binerize(true)
 //                .rolloutLength(3)
 //                .threads(1)
 //                .threads(2)

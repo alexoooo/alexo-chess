@@ -25,7 +25,10 @@ public class PositionSolverBrowser {
 //                    "11.O-O O-O";
 //                "1.d4 Nf6 2.c4 e6 3.Nf3";
 //                "1.d4 g6 2.c4 Bg7 3.Nc3 d6 4.Nf3 Nf6";
-                "1.d4 d5 2.c4 dxc4 3.Nf3 a6 4.e3";
+//                "1.d4 d5 2.Nf3 Nf6 3.c4 dxc4 4.e3 a6 5.Bxc4 e6 6.O-O";
+//                "1.d4 Nf6 2.c4 c6 3.Nf3 d5";
+                "1.d4 c6 2.c4 d5 3.Nf3 Nf6 4.Nc3 e6 5.e3 Nbd7 6.Qc2";
+//                "1.d4 d5 2.Nf3 c5 3.c4 dxc4 4.e3 e6 5.Bxc4";
 //                "1.d4 c6 2.Nf3 Nf6 3.c4 d5 4.e3 Bf5 5.Nc3 a6";
 //                "1.d4 c6 2.c4 Nf6 3.Nf3 d5 4.e3 Bf5 5.Nc3 a6 6.Be2 e6 7.O-O h6 8.Bd3 Bxd3 9.Qxd3 Bb4 10.a3 Bxc3 " +
 //                    "11.Qxc3 O-O 12.b3 Nbd7";

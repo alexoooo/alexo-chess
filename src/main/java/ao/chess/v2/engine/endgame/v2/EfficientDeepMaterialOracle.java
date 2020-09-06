@@ -10,6 +10,7 @@ import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public class EfficientDeepMaterialOracle implements DeepMaterialOracle
         {
             withKings = TablebaseUtils.addKings(nonKings);
             tally = MaterialTally.tally(withKings);
-            minHash = new EfficientMinPerfectHash(hashPath());
+            minHash = new EfficientMinPerfectHash(ImmutableList.copyOf(nonKings), hashPath());
             outcomeStore = new EfficientOutcomeStore(outcomePath());
         }
 

@@ -1,8 +1,8 @@
 package ao.chess.v2.engine.neuro.rollout;
 
 
-import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
+import ao.chess.v2.engine.endgame.v2.EfficientDeepOracle;
 import ao.chess.v2.engine.neuro.puct.PuctEstimate;
 import ao.chess.v2.engine.neuro.rollout.store.KnownOutcome;
 import ao.chess.v2.engine.neuro.rollout.store.RolloutStore;
@@ -57,22 +57,14 @@ public class RolloutNode {
 //    private static final double rolloutValueDiscount = 0.99;
 
     private static final double fpuDiscount = 0.25;
-    private static final int puctThreshold = 4 * 1024;
+//    private static final int puctThreshold = 4 * 1024;
+//    private static final int puctThreshold = 16 * 1024;
+    private static final int puctThreshold = 128 * 1024;
     private static final double puctExplorationLog = 18432;
 
-////    private static final long stochasticThreshold = 0;
-////    private static final long stochasticThreshold = 1_000_000;
-//    private static final long stochasticThreshold = Long.MAX_VALUE;
-////    private static final double stochasticBeta = 3.0;
-//    private static final double stochasticBeta = 5.0;
-////    private static final double stochasticBeta = 7.5;
-
-    // see: http://game.c.u-tokyo.ac.jp/ja/wp-content/uploads/2015/08/ieeecig2015.pdf
-//    private static final boolean binerize = false;
-    private static final boolean binerize = true;
-
-
     private final static double explorationMin = 1.0;
+//    private final static double explorationMin = 1.25;
+//    private final static double explorationVariance = 0.0;
     private final static double explorationVariance = 1.75;
 
 
@@ -80,61 +72,10 @@ public class RolloutNode {
     private final long index;
 
 
-//    private final LongAdder visitCount;
-//    private final DoubleAdder valueSum;
-//    private final ChildList<RolloutNode> childNodes;
-//    private volatile double knownValue;
-
-
-
-//    public static RolloutNode ofTerminal(Outcome outcome, State state, RolloutStore store) {
-//        store.expandChild()
-//    }
-
-
     //-----------------------------------------------------------------------------------------------------------------
     public RolloutNode(long index) {
         this.index = index;
     }
-
-
-//    public RolloutNode(DeepOutcome deepOutcome, State state)
-//    {
-//        this(-1,
-//                PuctUtils.deepOutcomeValue(state, deepOutcome));
-//    }
-//
-//
-//    public RolloutNode(Outcome outcome, State state)
-//    {
-//        this(-1,
-//                outcome.valueFor(state.nextToAct()));
-//    }
-//
-//
-//    public RolloutNode(int moveCount)
-//    {
-//        this(moveCount, Double.NaN);
-//    }
-//
-//
-//    private RolloutNode(
-//            int moveCount,
-//            double knownValue)
-//    {
-////        visitCount = new LongAdder();
-////        valueSum = new DoubleAdder();
-////
-////        if (moveCount == -1) {
-////            childNodes = null;
-////        }
-////        else {
-////            childNodes = new ChildList<>(moveCount);
-////        }
-////
-////        this.knownValue = knownValue;
-//    }
-
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -356,10 +297,12 @@ public class RolloutNode {
         }
 
         boolean tablebase =
-                state.pieceCount() <= DeepOracle.instancePieceCount;
+//                state.pieceCount() <= DeepOracle.instancePieceCount;
+                state.pieceCount() <= EfficientDeepOracle.pieceCount;
 
         if (tablebase) {
-            DeepOutcome deepOutcome = DeepOracle.INSTANCE.see(state);
+//            DeepOutcome deepOutcome = DeepOracle.INSTANCE.see(state);
+            DeepOutcome deepOutcome = EfficientDeepOracle.getOrNull(state);
             if (deepOutcome == null) {
                 throw new IllegalStateException("Missing tablebase: " + state);
             }
@@ -473,8 +416,10 @@ public class RolloutNode {
                 break;
             }
 
-            if (state.pieceCount() <= DeepOracle.instancePieceCount) {
-                DeepOutcome deepOutcome = DeepOracle.INSTANCE.see(state);
+//            if (state.pieceCount() <= DeepOracle.instancePieceCount) {
+            if (state.pieceCount() <= EfficientDeepOracle.pieceCount) {
+//                DeepOutcome deepOutcome = DeepOracle.INSTANCE.see(state);
+                DeepOutcome deepOutcome = EfficientDeepOracle.getOrNull(state);
                 outcome = deepOutcome.outcome();
                 context.tablebaseRolloutHits.increment();
                 break;
@@ -492,10 +437,9 @@ public class RolloutNode {
             return outcome.valueFor(fromPov);
         }
 
-        // binerize
         double expectedValue = discountedValueSum / discountSum;
 
-        return binerize
+        return context.binerize
                 ? (expectedValue > context.random.nextDouble() ? 1.0 : 0.0)
                 : expectedValue;
     }
@@ -553,11 +497,6 @@ public class RolloutNode {
         for (int i = 0; i < moveCount; i++) {
             parentVisitCount += moveVisitCounts[i];
         }
-
-//        if (context.optimize && parentVisitCount < 3 * moveCount) {
-//            return mucbtChild(
-//                    moveCount, movePredictions, moveValueSums, moveVisitCounts, parentVisitCount, context);
-//        }
 
         return banditChild(
                 moveCount,
@@ -717,7 +656,8 @@ public class RolloutNode {
             return -1;
         }
         if (! Double.isNaN(knownValue(store))) {
-            if (state.pieceCount() <= DeepOracle.instancePieceCount) {
+//            if (state.pieceCount() <= DeepOracle.instancePieceCount) {
+            if (state.pieceCount() <= EfficientDeepOracle.pieceCount) {
                 // TODO principal variation tablebase support
                 return -1;
             }

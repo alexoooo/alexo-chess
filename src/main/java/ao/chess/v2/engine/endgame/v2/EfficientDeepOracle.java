@@ -30,8 +30,8 @@ public class EfficientDeepOracle {
             Config.workingDirectory() + "table/tablebase-v2").toPath();
 
 //    public static final int pieceCount = 3;
-//    public static final int pieceCount = 4;
-    public static final int pieceCount = 5;
+    public static final int pieceCount = 4;
+//    public static final int pieceCount = 5;
 
 
     private static final EfficientDeepOracle instance = new EfficientDeepOracle();
@@ -48,7 +48,10 @@ public class EfficientDeepOracle {
 //                "8/8/8/8/2q5/8/1B5K/1k6 b - - 0 1"
 //                "6K1/8/8/B7/8/8/4k3/1r6 b"
 
-                "6K1/8/8/B7/8/1p6/4k3/1r6 w - - 0 1"
+//                "6K1/8/8/B7/8/1p6/4k3/1r6 w - - 0 1"
+
+                "8/4k3/8/5K1P/7P/8/8/8 b - h3 0 1"
+//                "8/5k2/8/5K1P/7P/8/8/8 w - - 0 1"
         );
 
         System.out.println(state);

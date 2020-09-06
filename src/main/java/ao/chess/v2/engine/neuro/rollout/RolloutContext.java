@@ -18,7 +18,7 @@ class RolloutContext {
     public final PuctModelPool pool;
     public final RolloutStore store;
     public final int rolloutLength;
-//    public final double exploration;
+    public final boolean binerize;
     public final double probabilityPower;
 
     public final Random random = new Random();
@@ -30,6 +30,7 @@ class RolloutContext {
     public final double[] valueSums = new double[Move.MAX_PER_PLY];
     public final double[] valueSquareSums = new double[Move.MAX_PER_PLY];
     public final long[] visitCounts = new long[Move.MAX_PER_PLY];
+    public final long[] history = new long[4096];
 
 //    public double estimatedValue;
 
@@ -47,7 +48,8 @@ class RolloutContext {
             boolean optimize,
             PuctModelPool pool,
             RolloutStore store,
-//            double exploration,
+
+            boolean binerize,
             double probabilityPower,
             LongAdder collisions,
             LongAdder terminalHits,
@@ -62,7 +64,7 @@ class RolloutContext {
         this.pool = pool;
         this.store = store;
         this.rolloutLength = rolloutLength;
-//        this.exploration = exploration;
+        this.binerize = binerize;
         this.probabilityPower = probabilityPower;
 
         this.collisions = collisions;

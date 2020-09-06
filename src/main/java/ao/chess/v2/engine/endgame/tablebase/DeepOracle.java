@@ -2,8 +2,10 @@ package ao.chess.v2.engine.endgame.tablebase;
 
 import ao.chess.v2.engine.endgame.common.TablebaseUtils;
 import ao.chess.v2.engine.run.Config;
+import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.MaterialTally;
 import ao.chess.v2.piece.Piece;
+import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import ao.util.io.Dirs;
 import ao.util.persist.PersistentObjects;
@@ -32,16 +34,65 @@ public class DeepOracle
         DeepOracle oracle = INSTANCE;
 
         State state = State.fromFen(
+                // **WRONG** sees it as white win, thinks e7f7 is a win
+                "8/4k3/8/5K1P/7P/8/8/8 b - h3 0 1"
+
+                // correctly sees position after e7f7 as draw
+//                "8/5k2/8/5K1P/7P/8/8/8 w - - 0 1"
+
 //                "4k3/8/8/8/8/8/4P3/4K3 w - - 0 1"
 
-                "K7/8/1p3k2/8/7p/8/8/8 b - - 0 1"
+//                "8/4k3/7P/5K2/7P/8/8/8 b - - 0 1"
+//                "4k3/8/8/5K2/7P/8/7P/8 w - - 0 1"
+//                "8/4k3/8/5K2/7P/8/7P/8 b - - 0 40"
+
+//                "K7/8/1p3k2/8/7p/8/8/8 b - - 0 1"
 //                "8/8/8/6K1/8/8/k7/3R4 w"
 //                "8/8/8/8/8/3k3K/7P/8 w - - 0 1"
 //                "8/8/8/8/2q5/8/1B5K/1k6 b - - 0 1"
 //                "6K1/8/8/B7/8/8/4k3/1r6 b"
         );
         System.out.println(state);
-        System.out.println(oracle.see(state));
+
+        DeepOutcome outcome = oracle.see(state);
+        System.out.println(outcome);
+
+        Colour pov = state.nextToAct();
+        boolean isWin = outcome.winner() == pov;
+        int[] legalMoves = state.legalMoves();
+        int bestMoveIndex = -1;
+        int bestMoveScore = Integer.MIN_VALUE;
+        for (int i = 0; i < legalMoves.length; i++) {
+            int move = Move.apply(legalMoves[i], state);
+            DeepOutcome moveOutcome = oracle.see(state);
+            Move.unApply(move, state);
+
+            int moveScore;
+            if (isWin) {
+                if (moveOutcome.winner() == pov) {
+                    moveScore = -moveOutcome.plyDistance();
+                }
+                else {
+                    moveScore = Integer.MIN_VALUE;
+                }
+            }
+            else {
+                if (moveOutcome.isDraw()) {
+                    moveScore = -moveOutcome.plyDistance();
+                }
+                else {
+                    moveScore = Integer.MIN_VALUE + moveOutcome.plyDistance();
+                }
+            }
+
+            if (moveScore > bestMoveScore) {
+                bestMoveScore = moveScore;
+                bestMoveIndex = i;
+            }
+        }
+
+        int bestMove = legalMoves[bestMoveIndex];
+        System.out.println("Move: " + Move.toString(bestMove));
 
         System.exit(0);
     }

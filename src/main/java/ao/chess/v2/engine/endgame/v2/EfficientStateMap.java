@@ -232,7 +232,7 @@ public class EfficientStateMap
             }
             count++;
 
-            if (count % 10_000_000 == 0) {
+            if (count % 25_000_000 == 0) {
                 logger.info("Building progress {}, {} unique / {} duplicates - took: {}",
                         count, count - duplicates, duplicates, partialStopwatch);
                 partialStopwatch = Stopwatch.createStarted();

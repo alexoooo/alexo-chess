@@ -3,7 +3,7 @@ package ao.chess.v2.engine.neuro.rollout;
 import ao.chess.v1.util.Io;
 import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
+import ao.chess.v2.engine.endgame.v2.EfficientDeepOracle;
 import ao.chess.v2.engine.neuro.puct.PuctModel;
 import ao.chess.v2.engine.neuro.puct.PuctModelPool;
 import ao.chess.v2.engine.neuro.rollout.store.KnownOutcome;
@@ -68,6 +68,7 @@ public class RolloutPlayer
         private int rolloutLength = 1;
         private int minimumTrajectories = 0;
         private boolean optimize = false;
+        private boolean binerize = false;
         private boolean useIo = false;
 
 
@@ -107,6 +108,13 @@ public class RolloutPlayer
         }
 
 
+        // see: http://game.c.u-tokyo.ac.jp/ja/wp-content/uploads/2015/08/ieeecig2015.pdf
+        public Builder binerize(boolean binerize) {
+            this.binerize = binerize;
+            return this;
+        }
+
+
         public RolloutPlayer build()
         {
             return new RolloutPlayer(
@@ -116,6 +124,7 @@ public class RolloutPlayer
                     rolloutLength,
                     minimumTrajectories,
                     optimize,
+                    binerize,
                     useIo);
         }
     }
@@ -130,6 +139,7 @@ public class RolloutPlayer
     private final int rolloutLength;
     private final int minimumTrajectories;
     private final boolean useIo;
+    private final boolean binerize;
     private final boolean optimize;
     private boolean train;
 
@@ -162,6 +172,7 @@ public class RolloutPlayer
             int threads,
             int rolloutLength,
             int minumumTrajectories,
+            boolean binerize,
             boolean optimize,
             boolean useIo)
     {
@@ -170,6 +181,7 @@ public class RolloutPlayer
         this.threads = threads;
         this.rolloutLength = rolloutLength;
         this.minimumTrajectories = minumumTrajectories;
+        this.binerize = binerize;
         this.optimize = optimize;
         this.useIo = useIo;
 
@@ -367,7 +379,7 @@ public class RolloutPlayer
                     optimize,
                     pool,
                     store,
-//                    exploration,
+                    binerize,
                     probabilityPower,
                     collisions,
                     terminalHits,
@@ -378,7 +390,8 @@ public class RolloutPlayer
 
         MovePicker.init();
         if (tablebase) {
-            DeepOracle.init();
+//            DeepOracle.init();
+            EfficientDeepOracle.init();
         }
     }
 
