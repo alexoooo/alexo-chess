@@ -334,7 +334,7 @@ public class RolloutNode {
     }
 
 
-    private double rolloutValue(int topLevelMoveCount, State state, RolloutContext context) {
+    private double  rolloutValue(int topLevelMoveCount, State state, RolloutContext context) {
         Colour fromPov = state.nextToAct();
 
         int[] moves = context.movesA;

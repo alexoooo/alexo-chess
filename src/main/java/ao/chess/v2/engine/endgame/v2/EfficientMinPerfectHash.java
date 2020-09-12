@@ -1,6 +1,7 @@
 package ao.chess.v2.engine.endgame.v2;
 
 import ao.chess.v2.engine.endgame.common.PositionTraverser;
+import ao.chess.v2.engine.endgame.v2.index.LongBigSet;
 import ao.chess.v2.piece.Piece;
 import ao.chess.v2.state.State;
 import com.google.common.base.Stopwatch;
@@ -9,8 +10,6 @@ import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import it.unimi.dsi.bits.TransformationStrategies;
 import it.unimi.dsi.fastutil.longs.LongIterator;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.sux4j.mph.GOVMinimalPerfectHashFunction;
 import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
@@ -55,7 +54,7 @@ public class EfficientMinPerfectHash
 
 
     public void computeAndStore(List<Piece> material) {
-        LongSet states = new LongOpenHashSet();
+        LongBigSet states = new LongBigSet();
 
         logger.info("Traversing states");
         Stopwatch traverseStopwatch = Stopwatch.createStarted();

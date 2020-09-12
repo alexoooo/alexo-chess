@@ -186,7 +186,7 @@ public class EfficientDeepMaterialOracle implements DeepMaterialOracle
             for (State state : states) {
                 stateCount++;
 
-                if (stateCount % 25_000_000 == 0) {
+                if (stateCount % 100_000_000 == 0) {
                     logger.info("Mate finding progress: {} - {}, took: {}",
                             stateCount, mateCount, mateProgressStopwatch);
                     mateProgressStopwatch = Stopwatch.createStarted();
