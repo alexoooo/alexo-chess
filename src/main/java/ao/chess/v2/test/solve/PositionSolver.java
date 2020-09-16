@@ -21,13 +21,16 @@ import java.time.LocalDateTime;
 
 public class PositionSolver {
     //-----------------------------------------------------------------------------------------------------------------
+//    private static final int flushFrequencyMillis = 60 * 1_000;
+//    private static final int flushFrequencyMillis = 5 * 60 * 1_000;
+//    private static final int flushFrequencyMillis = 10 * 60 * 1_000;
 //    private static final int flushFrequencyMillis = 15 * 60 * 1_000;
     private static final int flushFrequencyMillis = 20 * 60 * 1_000;
+//    private static final int flushFrequencyMillis = 30 * 60 * 1_000;
     private static final int time = 7 * 24 * 60 * 60 * 1000;
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    @SuppressWarnings("ConstantConditions")
     public static void main(String[] args) {
 //        PuctModel model = new PuctMultiModel(
 //                ImmutableRangeMap.<Integer, Path>builder()

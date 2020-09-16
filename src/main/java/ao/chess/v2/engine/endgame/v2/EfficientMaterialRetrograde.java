@@ -69,25 +69,10 @@ public class EfficientMaterialRetrograde
 
         EfficientMaterialRetrograde retrograde;
         if (Files.exists(bodyStore)) {
-//            precedents = new int[size][];
-
             Stopwatch stopwatch = Stopwatch.createStarted();
 
             RandomAccessFile file = new RandomAccessFile(bodyStore.toFile(), "r");
             retrograde = new EfficientMaterialRetrograde(file, offsetIndex);
-
-//            try (DataInputStream in = new DataInputStream(new BufferedInputStream(
-//                    Files.newInputStream(store)))
-//            ) {
-//                for (int i = 0; i < size; i++) {
-//                    byte length = in.readByte();
-//                    int[] buffer = new int[length];
-//                    for (int j = 0; j < length; j++) {
-//                        buffer[i] = in.readInt();
-//                    }
-//                    precedents[i] = buffer;
-//                }
-//            }
             logger.info("Loaded, took: {}", stopwatch);
         }
         else {
@@ -95,24 +80,8 @@ public class EfficientMaterialRetrograde
 
             Builder builder = new Builder(allMaterialTally, minHash, rwFile, offsetIndex);
             builder.compute(stateMap);
-//            precedents = builder.precedents;
-//
+
             Stopwatch stopwatch = Stopwatch.createStarted();
-//            try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(
-//                    Files.newOutputStream(store)))
-//            ) {
-//                for (int i = 0; i < size; i++) {
-//                    if (precedents[i] == null) {
-//                        out.writeByte(0);
-//                    }
-//                    else {
-//                        out.writeByte(precedents[i].length);
-//                        for (int index : precedents[i]) {
-//                            out.writeInt(index);
-//                        }
-//                    }
-//                }
-//            }
 
             rwFile.getFD().sync();
             rwFile.close();

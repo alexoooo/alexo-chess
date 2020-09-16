@@ -142,8 +142,6 @@ public class TieredRolloutStore implements RolloutStore {
             return 0;
         }
 
-//        long size = buffer.nodeIndexes().size();
-
         long[] nodeIndexes = buffer.nodeIndexes().toLongArray();
 
         Arrays.parallelSort(nodeIndexes);
@@ -162,11 +160,7 @@ public class TieredRolloutStore implements RolloutStore {
         };
 
         backing.storeAll(nodeIterator);
-//        while (nodeIndexIterator.hasNext()) {
-//            long nodeIndex = nodeIndexIterator.nextLong();
-//            RolloutStoreNode node = buffer.load(nodeIndex);
-//            backing.store(node);
-//        }
+
         buffer.clear();
         backing.flush();
 
@@ -175,7 +169,7 @@ public class TieredRolloutStore implements RolloutStore {
 
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         flush();
     }
 }
