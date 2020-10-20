@@ -1,8 +1,13 @@
 package ao.chess.v2.engine.neuro.rollout.store;
 
 
+import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionInfo;
+import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionKey;
 import com.google.common.base.Stopwatch;
+import com.google.common.primitives.Longs;
 import com.google.common.util.concurrent.Uninterruptibles;
+import org.h2.mvstore.MVMap;
+import org.h2.mvstore.MVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
@@ -45,12 +51,27 @@ public class FileRolloutStore implements RolloutStore {
     private final RandomAccessFile handle;
     private final byte[] bufferArray = new byte[bufferSize];
 
+    private final MVStore transpositionStore;
+    private final MVMap<byte[], byte[]> transpositionMap;
+
 
     //-----------------------------------------------------------------------------------------------------------------
-    public FileRolloutStore(Path file) {
+    public FileRolloutStore(Path file, Path transpositionFileOrNull) {
         try {
             Files.createDirectories(file.getParent());
             handle = new RandomAccessFile(file.toFile(), "rw");
+
+            if (transpositionFileOrNull != null) {
+                transpositionStore = new MVStore.Builder()
+                        .fileName(transpositionFileOrNull.toString())
+                        .open();
+                transpositionMap = transpositionStore
+                        .openMap("transposition");
+            }
+            else {
+                transpositionStore = null;
+                transpositionMap = null;
+            }
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -272,6 +293,101 @@ public class FileRolloutStore implements RolloutStore {
 
 
     //-----------------------------------------------------------------------------------------------------------------
+    @Override
+    public TranspositionInfo getTranspositionOrNull(long hashHigh, long hashLow) {
+        byte[] key = toKey(hashHigh, hashLow);
+        byte[] value = transpositionMap.get(key);
+        if (value == null) {
+            return null;
+        }
+        return fromValue(value);
+    }
+
+
+    @Override
+    public void setTransposition(long hashHigh, long hashLow, double valueSum, long visitCount) {
+        byte[] key = toKey(hashHigh, hashLow);
+        byte[] value = toValue(valueSum, visitCount);
+        transpositionMap.put(key, value);
+    }
+
+
+    public void storeAllTranspositions(Iterator<Map.Entry<TranspositionKey, TranspositionInfo>> transpositions) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+
+        int count = 0;
+        while (transpositions.hasNext()) {
+            Map.Entry<TranspositionKey, TranspositionInfo> entry = transpositions.next();
+
+            setTransposition(
+                    entry.getKey().hashHigh(),
+                    entry.getKey().hashLow(),
+                    entry.getValue().valueSum(),
+                    entry.getValue().visitCount());
+
+            count++;
+        }
+
+        logger.info("Stored transpositions: {} - {}", count, stopwatch);
+    }
+
+
+    private byte[] toKey(long hashHigh, long hashLow) {
+        return new byte[] {
+                (byte) hashHigh,
+                (byte) (hashHigh >> 8),
+                (byte) (hashHigh >> 16),
+                (byte) (hashHigh >> 24),
+                (byte) (hashHigh >> 32),
+                (byte) (hashHigh >> 40),
+                (byte) (hashHigh >> 48),
+                (byte) (hashHigh >> 56),
+                (byte) hashLow,
+                (byte) (hashLow >> 8),
+                (byte) (hashLow >> 16),
+                (byte) (hashLow >> 24),
+                (byte) (hashLow >> 32),
+                (byte) (hashLow >> 40),
+                (byte) (hashLow >> 48),
+                (byte) (hashLow >> 56)};
+    }
+
+
+    private TranspositionInfo fromValue(byte[] value) {
+        long valueSumLong = Longs.fromBytes(
+                value[7], value[6], value[5], value[4], value[3], value[2], value[1], value[0]);
+        double valueSum = Double.longBitsToDouble(valueSumLong);
+
+        long visitCount = Longs.fromBytes(
+                value[15], value[14], value[13], value[12], value[11], value[10], value[9], value[8]);
+
+        return new TranspositionInfo(valueSum, visitCount);
+    }
+
+
+    private byte[] toValue(double valueSum, long visitCount) {
+        long valueSumLong = Double.doubleToRawLongBits(valueSum);
+        return new byte[] {
+                (byte) valueSumLong,
+                (byte) (valueSumLong >> 8),
+                (byte) (valueSumLong >> 16),
+                (byte) (valueSumLong >> 24),
+                (byte) (valueSumLong >> 32),
+                (byte) (valueSumLong >> 40),
+                (byte) (valueSumLong >> 48),
+                (byte) (valueSumLong >> 56),
+                (byte) visitCount,
+                (byte) (visitCount >> 8),
+                (byte) (visitCount >> 16),
+                (byte) (visitCount >> 24),
+                (byte) (visitCount >> 32),
+                (byte) (visitCount >> 40),
+                (byte) (visitCount >> 48),
+                (byte) (visitCount >> 56)};
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     public RolloutStoreNode load(long nodeIndex) {
         try {
             handle.seek(nodeIndex);
@@ -345,6 +461,7 @@ public class FileRolloutStore implements RolloutStore {
             bufferSize += size;
 
             if (bufferSize >= bufferLimit) {
+                // https://serverfault.com/questions/306751/ntfs-the-requested-operation-could-not-be-completed-due-to-a-file-system-limit
                 handle.write(bufferArray, 0, bufferSize);
                 buffer.clear();
                 bufferSize = 0;
@@ -367,6 +484,9 @@ public class FileRolloutStore implements RolloutStore {
     @Override
     public void close() throws Exception {
         handle.close();
+        if (transpositionStore != null) {
+            transpositionStore.close();
+        }
     }
 
 
@@ -386,6 +506,10 @@ public class FileRolloutStore implements RolloutStore {
             }
         }
         logger.info("Sync to disk took: {}", stopwatch);
+
+        transpositionStore.commit();
+        logger.info("Transposition commit");
+
         return 0;
     }
 }

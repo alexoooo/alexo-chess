@@ -148,6 +148,7 @@ public class RolloutPlayer
     private final LongAdder tablebaseHits = new LongAdder();
     private final LongAdder tablebaseRolloutHits = new LongAdder();
     private final LongAdder solutionHits = new LongAdder();
+    private final LongAdder transpositionHits = new LongAdder();
     private final LongAdder trajectoryCount = new LongAdder();
     private final LongAdder trajectoryLengthSum = new LongAdder();
     private final Random random = new Random();
@@ -385,7 +386,8 @@ public class RolloutPlayer
                     terminalHits,
                     tablebaseHits,
                     tablebaseRolloutHits,
-                    solutionHits));
+                    solutionHits,
+                    transpositionHits));
         }
 
         MovePicker.init();
@@ -477,7 +479,7 @@ public class RolloutPlayer
                 : (double) trajectoryLengthSum.longValue() / trajectoryCountValue;
 
         String generalPrefix = String.format(
-                "%s - %s %d | c%d x%d t%d e%d r%d s%d d%.2f | %s",
+                "%s - %s %d | c%d x%d t%d e%d r%d s%d T%d d%.2f | %s",
                 id,
                 model,
                 threads,
@@ -487,6 +489,7 @@ public class RolloutPlayer
                 tablebaseHits.longValue(),
                 tablebaseRolloutHits.longValue(),
                 solutionHits.longValue(),
+                transpositionHits.longValue(),
                 averageSearchDepth,
                 Move.toString(bestMove));
 
@@ -495,7 +498,7 @@ public class RolloutPlayer
 
         log(generalPrefix + " | " + moveSuffix);
         log(id + " - PV: " + root.principalVariation(bestMove, state, store));
-        log(id + " - UCB: " + root.ucbVariation(state, contexts.get(progressThreadIndex)));
+        log(id + " - UCB: " + root.ucbVariation(state, store, contexts.get(progressThreadIndex)));
     }
 
 

@@ -1,6 +1,9 @@
 package ao.chess.v2.engine.neuro.rollout.store;
 
 
+import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionInfo;
+
+
 public interface RolloutStore extends AutoCloseable {
     //-----------------------------------------------------------------------------------------------------------------
     long rootIndex = 0;
@@ -46,6 +49,13 @@ public interface RolloutStore extends AutoCloseable {
 
 
     double getAverageValue(long nodeIndex, double defaultValue);
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    TranspositionInfo getTranspositionOrNull(long hashHigh, long hashLow);
+
+
+    void setTransposition(long hashHigh, long hashLow, double valueSum, long visitCount);
 
 
     //-----------------------------------------------------------------------------------------------------------------

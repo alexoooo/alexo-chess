@@ -6,6 +6,7 @@ import ao.chess.v2.engine.endgame.v2.EfficientDeepOracle;
 import ao.chess.v2.engine.neuro.puct.PuctEstimate;
 import ao.chess.v2.engine.neuro.rollout.store.KnownOutcome;
 import ao.chess.v2.engine.neuro.rollout.store.RolloutStore;
+import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionInfo;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -21,6 +22,15 @@ import java.util.stream.IntStream;
 import static com.google.common.base.Preconditions.checkState;
 
 
+/**
+ * TODO: add transposition support, can add just nodes with # visits > threshold (e.g. 128k or 1M) to control size,
+ *   used as part of evaluation function to estimate action value.
+ *
+ *   can be MVMap from H2, 128 bit hash key (two different hashings of the state) to long array of node offsets
+ *   term = constant * score of most visited action
+ *
+ *  there's a stackoverflow article
+ */
 public class RolloutNode {
     //-----------------------------------------------------------------------------------------------------------------
     private static final double unknownMoveEstimate = 0.0;
@@ -66,6 +76,18 @@ public class RolloutNode {
 //    private final static double explorationMin = 1.25;
 //    private final static double explorationVariance = 0.0;
     private final static double explorationVariance = 1.75;
+
+    private final static int transpositionMinimum = 16;
+//    private final static int transpositionMinimum = 32;
+//    private final static int transpositionMinimum = 128;
+//    private final static int transpositionMinimum = 100_000_000;
+//    private final static double transpositionPower = 0.0;
+    private final static double transpositionPower = 1.0 / 4;
+//    private final static double transpositionPower = 1.0 / 3;
+//    private final static double transpositionUseOver = 0;
+    private final static double transpositionUseOver = 1;
+//    private final static double transpositionUseOver = 8;
+//    private final static double transpositionUseOver = 64;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -163,9 +185,9 @@ public class RolloutNode {
 
     //-----------------------------------------------------------------------------------------------------------------
     public void initRoot(RolloutStore store) {
-        if (store.getKnownOutcome(RolloutStore.rootIndex) != KnownOutcome.Unknown) {
-            return;
-        }
+//        if (store.getKnownOutcome(RolloutStore.rootIndex) != KnownOutcome.Unknown) {
+//            return;
+//        }
 
 //        incrementVisitCount(store);
     }
@@ -181,6 +203,9 @@ public class RolloutNode {
         if (store.getKnownOutcome(RolloutStore.rootIndex) != KnownOutcome.Unknown) {
             return 0;
         }
+
+        long rootCount = store.getVisitCount(RolloutStore.rootIndex);
+        long transpositionThreshold = Math.max(transpositionMinimum, (long) Math.pow(rootCount, transpositionPower));
 
         List<RolloutNode> path = context.path;
         path.clear();
@@ -205,7 +230,7 @@ public class RolloutNode {
             PuctEstimate estimate = context.pool.estimateBlockingCached(state, context.movesA, moveCount);
 
             int moveIndex = node.selectChild(
-                    moveCount, estimate.winProbability, estimate.moveProbabilities, context);
+                    moveCount, estimate.winProbability, estimate.moveProbabilities, transpositionThreshold, state, context);
 
             if (node.isValueKnown(store)) {
                 estimatedValue = node.knownValue(store);
@@ -474,6 +499,8 @@ public class RolloutNode {
             int moveCount,
             double valuePrediction,
             double[] movePredictions,
+            long transpositionThreshold,
+            State state,
             RolloutContext context)
     {
         if (moveCount == 0) {
@@ -506,6 +533,8 @@ public class RolloutNode {
                 moveValueSquareSums,
                 moveVisitCounts,
                 parentVisitCount,
+                transpositionThreshold,
+                state,
                 context);
     }
 
@@ -581,6 +610,8 @@ public class RolloutNode {
             double[] moveValueSquareSums,
             long[] moveVisitCounts,
             long parentVisitCount,
+            long transpositionThreshold,
+            State state,
             RolloutContext context)
     {
         double maxScore = Double.NEGATIVE_INFINITY;
@@ -593,10 +624,15 @@ public class RolloutNode {
             long moveVisits = moveVisitCounts[i];
             double prior = (movePredictions[i] + moveUncertainty) / estimateUncertaintyDenominator;
 
-            double averageOutcome =
-                    moveVisits == 0
-                    ? Math.max(0, valuePrediction - fpuDiscount * Math.sqrt(parentVisitCount))
-                    : moveValueSums[i] / moveVisits;
+            double averageOutcome = averageOutcome(
+                    moveVisits,
+                    moveValueSums[i],
+                    parentVisitCount,
+                    valuePrediction,
+                    i,
+                    transpositionThreshold,
+                    state,
+                    context);
 
             double ucbExploration;
             if (moveVisits == 0) {
@@ -640,6 +676,43 @@ public class RolloutNode {
         }
 
         return maxScoreIndex;
+    }
+
+
+    private double averageOutcome(
+            long moveVisits,
+            double moveValueSum,
+            long parentVisitCount,
+            double valuePrediction,
+            int moveIndex,
+            long transpositionThreshold,
+            State state,
+            RolloutContext context)
+    {
+        if (moveVisits == 0) {
+            return Math.max(0, valuePrediction - fpuDiscount * Math.sqrt(parentVisitCount));
+        }
+
+        double transpositionValueSum = 0;
+        long transpositionVisitCont = 0;
+        if (moveVisits >= transpositionThreshold) {
+            int move = Move.apply(context.movesA[moveIndex], state);
+            long hashHigh = state.longHashCode();
+            long hashLow = state.longHashCodeAlt();
+            Move.unApply(move, state);
+
+            TranspositionInfo moveTransposition = context.store.getTranspositionOrNull(hashHigh, hashLow);
+            if (moveTransposition == null || moveVisits > moveTransposition.visitCount()) {
+                context.store.setTransposition(hashHigh, hashLow, moveValueSum, moveVisits);
+            }
+            else if (moveVisits + transpositionUseOver < moveTransposition.visitCount()) {
+                transpositionValueSum = moveTransposition.valueSum();
+                transpositionVisitCont = moveTransposition.visitCount();
+                context.transpositionHits.increment();
+            }
+        }
+
+        return (moveValueSum + transpositionValueSum) / (moveVisits + transpositionVisitCont);
     }
 
 
@@ -808,11 +881,14 @@ public class RolloutNode {
     }
 
 
-    public String ucbVariation(State state, RolloutContext context) {
+    public String ucbVariation(State state, RolloutStore store, RolloutContext context) {
         StringBuilder builder = new StringBuilder();
 
+        long rootCount = store.getVisitCount(RolloutStore.rootIndex);
+        long transpositionThreshold = Math.max(transpositionMinimum, (long) Math.pow(rootCount, transpositionPower));
+
         List<String> path = new ArrayList<>();
-        ucbVariation(path, state.prototype(), context);
+        ucbVariation(path, state.prototype(), transpositionThreshold, store, context);
 
         builder.append("depth ").append(path.size()).append(": ");
         builder.append(Joiner.on(" / ").join(path));
@@ -821,7 +897,13 @@ public class RolloutNode {
     }
 
 
-    private void ucbVariation(List<String> builder, State state, RolloutContext context) {
+    private void ucbVariation(
+            List<String> builder,
+            State state,
+            long transpositionThreshold,
+            RolloutStore store,
+            RolloutContext context
+    ) {
         int moveCount = state.legalMoves(context.movesA, context.movesC);
         if (moveCount <= 0) {
             return;
@@ -830,7 +912,12 @@ public class RolloutNode {
         PuctEstimate estimate = context.pool.estimateBlockingCached(state, context.movesA, moveCount);
 
         int moveIndex = selectChild(
-                moveCount, estimate.winProbability, estimate.moveProbabilities, context);
+                moveCount,
+                estimate.winProbability,
+                estimate.moveProbabilities,
+                transpositionThreshold,
+                state,
+                context);
         if (moveIndex == -1) {
             return;
         }
@@ -854,7 +941,7 @@ public class RolloutNode {
                 expectedValue(moveIndex, context.store),
                 estimate.moveProbabilities[moveIndex]));
 
-        existingChild.ucbVariation(builder, state, context);
+        existingChild.ucbVariation(builder, state, transpositionThreshold, store, context);
     }
 
 

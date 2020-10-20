@@ -1,7 +1,13 @@
 package ao.chess.v2.engine.neuro.rollout.store;
 
 
+import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionInfo;
+import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionKey;
 import it.unimi.dsi.fastutil.longs.*;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -17,6 +23,8 @@ public class MapRolloutStore implements RolloutStore {
     private final LongBigList childMoves = new LongBigArrayBigList();
     private long maxIndex = -1;
     private boolean modified = false;
+
+    private final Map<TranspositionKey, TranspositionInfo> transposition = new HashMap<>();
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -86,7 +94,7 @@ public class MapRolloutStore implements RolloutStore {
     public long getChildIndex(long nodeIndex, int moveIndex) {
         long offset = childMoveOffsets.get(nodeIndex);
         if (childMoves.size64() == (offset + moveIndex)) {
-            return  -1;
+            return -1;
         }
         return childMoves.getLong(offset + moveIndex);
     }
@@ -116,7 +124,6 @@ public class MapRolloutStore implements RolloutStore {
         return valueSum / count;
     }
 
-
     @Override
     public long getVisitCount(long nodeIndex) {
         return counts.get(nodeIndex);
@@ -126,6 +133,35 @@ public class MapRolloutStore implements RolloutStore {
     @Override
     public KnownOutcome getKnownOutcome(long nodeIndex) {
         return KnownOutcome.values.get(knownOutcomes.get(nodeIndex));
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+//    public boolean containsTransposition(long hashHigh, long hashLow) {
+//        return transposition.containsKey(new TranspositionKey(hashHigh, hashLow));
+//    }
+
+
+    @Override
+    public TranspositionInfo getTranspositionOrNull(long hashHigh, long hashLow) {
+        return transposition.get(new TranspositionKey(hashHigh, hashLow));
+    }
+
+
+    @Override
+    public void setTransposition(long hashHigh, long hashLow, double valueSum, long visitCount) {
+        storeTransposition(hashHigh, hashLow, valueSum, visitCount);
+        modified = true;
+    }
+
+
+    public void storeTransposition(long hashHigh, long hashLow, double valueSum, long visitCount) {
+        transposition.put(new TranspositionKey(hashHigh, hashLow), new TranspositionInfo(valueSum, visitCount));
+    }
+
+
+    public Iterator<Map.Entry<TranspositionKey, TranspositionInfo>> transpositionIterator() {
+        return transposition.entrySet().iterator();
     }
 
 
@@ -220,6 +256,7 @@ public class MapRolloutStore implements RolloutStore {
         childMoves.clear();
         maxIndex = -1;
         modified = false;
+        transposition.clear();
     }
 
 

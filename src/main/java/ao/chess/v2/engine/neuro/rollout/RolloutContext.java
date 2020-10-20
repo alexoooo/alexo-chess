@@ -39,6 +39,7 @@ class RolloutContext {
     public final LongAdder tablebaseHits;
     public final LongAdder tablebaseRolloutHits;
     public final LongAdder solutionHits;
+    public final LongAdder transpositionHits;
 
 
     public RolloutContext(
@@ -55,7 +56,8 @@ class RolloutContext {
             LongAdder terminalHits,
             LongAdder tablebaseHits,
             LongAdder tablebaseRolloutHits,
-            LongAdder solutionHits)
+            LongAdder solutionHits,
+            LongAdder transpositionHits)
     {
         this.index = index;
         this.threads = threads;
@@ -72,5 +74,6 @@ class RolloutContext {
         this.tablebaseHits = tablebaseHits;
         this.tablebaseRolloutHits = tablebaseRolloutHits;
         this.solutionHits = solutionHits;
+        this.transpositionHits = transpositionHits;
     }
 }

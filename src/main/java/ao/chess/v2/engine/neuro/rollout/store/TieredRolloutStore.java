@@ -1,11 +1,14 @@
 package ao.chess.v2.engine.neuro.rollout.store;
 
 
+import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionInfo;
+import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionKey;
 import com.google.common.collect.AbstractIterator;
 
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
 
 
 public class TieredRolloutStore implements RolloutStore {
@@ -16,8 +19,8 @@ public class TieredRolloutStore implements RolloutStore {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public TieredRolloutStore(Path file) {
-        backing = new FileRolloutStore(file);
+    public TieredRolloutStore(Path file, Path transpositionFile) {
+        backing = new FileRolloutStore(file, transpositionFile);
         buffer = new MapRolloutStore();
         nextIndex = backing.nextIndex();
     }
@@ -112,6 +115,7 @@ public class TieredRolloutStore implements RolloutStore {
         return buffer.getValueSum(nodeIndex);
     }
 
+
     @Override
     public double getValueSquareSum(long nodeIndex) {
         loadIfMissing(nodeIndex);
@@ -123,6 +127,27 @@ public class TieredRolloutStore implements RolloutStore {
     public double getAverageValue(long nodeIndex, double defaultValue) {
         loadIfMissing(nodeIndex);
         return buffer.getAverageValue(nodeIndex, defaultValue);
+    }
+
+
+    @Override
+    public TranspositionInfo getTranspositionOrNull(long hashHigh, long hashLow) {
+        TranspositionInfo info = buffer.getTranspositionOrNull(hashHigh, hashLow);
+        if (info != null) {
+            return info;
+        }
+
+        TranspositionInfo backingInfo = backing.getTranspositionOrNull(hashHigh, hashLow);
+        if (backingInfo != null) {
+            buffer.storeTransposition(hashHigh, hashHigh, backingInfo.valueSum(), backingInfo.visitCount());
+        }
+        return backingInfo;
+    }
+
+
+    @Override
+    public void setTransposition(long hashHigh, long hashLow, double valueSum, long visitCount) {
+        buffer.setTransposition(hashHigh, hashLow, valueSum, visitCount);
     }
 
 
@@ -160,6 +185,9 @@ public class TieredRolloutStore implements RolloutStore {
         };
 
         backing.storeAll(nodeIterator);
+
+        Iterator<Map.Entry<TranspositionKey, TranspositionInfo>> transpositionIterator = buffer.transpositionIterator();
+        backing.storeAllTranspositions(transpositionIterator);
 
         buffer.clear();
         backing.flush();

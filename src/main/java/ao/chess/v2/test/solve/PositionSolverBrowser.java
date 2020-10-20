@@ -19,6 +19,7 @@ public class PositionSolverBrowser {
         State nextState = State.initial();
 
         String history = "" +
+//                "1.Nf3";
 //                "1.c4 e5 2.Nc3 Nf6";
 //                "1.c4 c5 2.Nf3 Nc6 3.Nc3 e5 4.g3 g6 5.a3 Bg7 6.Bg2 Nge7 7.O-O d6 8.Rb1 O-O 9.d3 f5 10.Bg5";
 //                "1.c4 c5 2.Nf3 g6 3.e4 Bg7 4.d4 cxd4 5.Nxd4 Nc6 6.Nc2 Qb6 7.Nc3 Bxc3 8.bxc3 Qa5 9.f3 b6 10.Be2 Nf6 " +
@@ -33,7 +34,22 @@ public class PositionSolverBrowser {
 //                    "11.Nxe4";
 //                "1.d4 Nf6 2.c4 c6 3.Nf3 d5 4.e3 Bf5 5.Nc3 a6 6.Bd3 Bg6 7.Bxg6 hxg6 8.O-O";
 //                "1.d4 Nf6 2.c4 c6 3.Nf3 d5 4.e3 a6 5.Nbd2 Bf5 6.b4 Nbd7 7.c5 e6 8.a4 Rg8";
-                "1.d4 d5 2.c4 dxc4 3.e3 a6 4.Bxc4 e6 5.Nf3";
+//                "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.g3 Be7 5.Bg2 O-O"; // x
+//                "1.d4 d5 2.c4 dxc4 3.e3 a6 4.Bxc4 Nf6 5.Nf3 e6 6.O-O c5";
+//                "1.d4 d5 2.c4 dxc4 3.e3 e6 4.Nf3 Nf6 5.Bxc4 c5 6.O-O a6 7.a4 cxd4 8.exd4 Be7 9.Nc3 O-O 10.d5";
+//                "1.d4 d5 2.c4 dxc4 3.e3 e6 4.Nf3 Nf6 5.Bxc4 c5 6.O-O a6 7.a4 cxd4 8.exd4 Be7 9.Nc3 O-O 10.Qe2 Nc6";
+//                "1.d4 d5 2.c4 dxc4 3.e3 e6 4.Bxc4 Nf6 5.Nf3 c5 6.O-O a6 7.a4 cxd4 8.exd4 Be7 9.Nc3 O-O 10.d5 Nxd5 " +
+//                    "11.Nxd5 exd5 12.Bxd5 Nd7 13.Be3 Nf6";
+//                "1.d4 d5 2.c4 dxc4 3.e3 e6 4.Bxc4 c5 5.Nf3 Nf6 6.O-O a6 7.a4 cxd4";
+//                "1.d4 d5 2.c4 dxc4 3.e3 a6 4.Bxc4 c5 5.Nf3 e6 6.O-O Nf6 7.a4";
+//                "1.d4 d5 2.c4 dxc4 3.e3 a6 4.Bxc4 e6 5.Nf3 c5 6.O-O Nf6 7.a4 cxd4 8.exd4 Be7 9.Nc3 O-O 10.d5 Nxd5 " +
+//                    "11.Nxd5 exd5 12.Bxd5 Nd7 13.Be3 Nf6 14.Ba2 Bf5 15.Qb3 b5 16.Rfd1 Qe8 17.axb5 Be6 18.Qd3 Bxa2 " +
+//                    "19.Rxa2 Qxb5 20.Qxb5 axb5 21.Rxa8 Rxa8 22.g3 h5 23.h3 g6";
+                "1.d4 d5 2.c4 dxc4 3.e3 e6 4.Bxc4 a6 5.Nf3 c5 6.O-O Nf6 7.a4 cxd4 8.exd4 Be7 9.Nc3 O-O 10.d5 Nxd5 " +
+                    "11.Nxd5 exd5 12.Bxd5 Nd7 13.Be3 Nf6 14.Ba2 Bf5 15.Qb3 b5 16.Rfd1 Qe8 17.axb5 Be6 18.Qd3 Bxa2 " +
+                    "19.Rxa2 Qxb5 20.Qxb5 axb5 21.Rxa8 Rxa8 22.g3 h5 23.h3";
+//                "1.d4 d5 2.c4 dxc4 3.e3 Nf6 4.Bxc4 a6 5.Nf3 e6 6.O-O c5 7.a4 cxd4 8.exd4 Be7 9.Nc3 O-O 10.d5 Nxd5 " +
+//                    "11.Nxd5 exd5 12.Bxd5";
 //                "1.d4 d5 2.Nf3 c5 3.c4 dxc4 4.e3 e6 5.Bxc4";
 //                "1.d4 c6 2.Nf3 Nf6 3.c4 d5 4.e3 Bf5 5.Nc3 a6";
 //                "1.d4 c6 2.c4 Nf6 3.Nf3 d5 4.e3 Bf5 5.Nc3 a6 6.Be2 e6 7.O-O h6 8.Bd3 Bxd3 9.Qxd3 Bb4 10.a3 Bxc3 " +
@@ -59,7 +75,8 @@ public class PositionSolverBrowser {
         List<State> moveHistories = PgnParser.parse(history);
 
         RolloutStore store = new FileRolloutStore(
-                Paths.get("lookup/tree/root.bin"));
+                Paths.get("lookup/tree/root.bin"),
+                null);
 //                Paths.get("lookup/tree/root-1.bin"));
 
         System.out.println("history: " + history);

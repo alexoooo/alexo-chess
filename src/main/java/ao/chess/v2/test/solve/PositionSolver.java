@@ -43,8 +43,8 @@ public class PositionSolver {
 //        );
 
 //        boolean ensemble = true;
-//        boolean ensemble = false;
-        boolean ensemble = Math.random() >= 0.5;
+        boolean ensemble = false;
+//        boolean ensemble = Math.random() >= 0.5;
         System.out.println("Ensemble: " + ensemble + " " + LocalDateTime.now());
 
         PuctModel model;
@@ -85,10 +85,10 @@ public class PositionSolver {
 //                .stochastic(true)
 //                .store(new SynchronizedRolloutStore(new MapRolloutStore()))
                 .store(new SynchronizedRolloutStore(
-                        new TieredRolloutStore(Path.of(
-                                "lookup/tree/root.bin"
-//                                "lookup/tree/root-1.bin"
-                        ))))
+                        new TieredRolloutStore(
+                                Path.of("lookup/tree/root.bin"),
+                                Path.of("lookup/tree/root-transposition.h2")
+                        )))
                 .build();
 
 

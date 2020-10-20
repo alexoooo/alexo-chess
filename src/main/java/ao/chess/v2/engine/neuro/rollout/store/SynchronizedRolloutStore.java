@@ -1,6 +1,9 @@
 package ao.chess.v2.engine.neuro.rollout.store;
 
 
+import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionInfo;
+
+
 public class SynchronizedRolloutStore implements RolloutStore {
     //-----------------------------------------------------------------------------------------------------------------
     private final RolloutStore delegate;
@@ -82,6 +85,17 @@ public class SynchronizedRolloutStore implements RolloutStore {
     @Override
     public synchronized double getAverageValue(long nodeIndex, double defaultValue) {
         return delegate.getAverageValue(nodeIndex, defaultValue);
+    }
+
+    @Override
+    public synchronized TranspositionInfo getTranspositionOrNull(long hashHigh, long hashLow) {
+        return delegate.getTranspositionOrNull(hashHigh, hashLow);
+    }
+
+
+    @Override
+    public synchronized void setTransposition(long hashHigh, long hashLow, double valueSum, long visitCount) {
+        delegate.setTransposition(hashHigh, hashLow, valueSum, visitCount);
     }
 
 

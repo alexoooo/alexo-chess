@@ -1523,8 +1523,7 @@ public class State
                ? -zobrist : zobrist;
     }
 
-    private long addZobristPieces(
-            long zobrist, Colour side) {
+    private long addZobristPieces(long zobrist, Colour side) {
         long[] pieces =
                 (side == Colour.WHITE)
                 ? wPieces : bPieces;
@@ -1566,7 +1565,72 @@ public class State
         return zobrist;
     }
 
-    public static boolean hashOfWhiteToAct(long longOrStaticHash) {
-        return longOrStaticHash >= 0;
+
+    public long longHashCodeAlt() {
+        return nextToActPostprocess(
+                Zobrist.toggleReversibleMovesAlt(
+                        staticHashCodeAlt(), reversibleMoves));
+    }
+
+    public long staticHashCodeAlt() {
+        return nextToActPostprocess(
+                zobristPiecesEnPassantCastlesAlt());
+    }
+
+    private long zobristPiecesEnPassantCastlesAlt() {
+        long zobrist = 0;
+
+        zobrist = addZobristPiecesAlt(zobrist, Colour.WHITE);
+        zobrist = addZobristPiecesAlt(zobrist, Colour.BLACK);
+
+        if (enPassant != EP_NONE) {
+            zobrist = Zobrist.toggleEnPassantAlt(zobrist, enPassant);
+        }
+
+        return addZobristCastlesAlt(zobrist);
+    }
+
+
+    private long addZobristPiecesAlt(long zobrist, Colour side) {
+        long[] pieces =
+                (side == Colour.WHITE)
+                ? wPieces : bPieces;
+
+        for (Figure f : Figure.VALUES) {
+            Piece piece = Piece.valueOf(side, f);
+
+            long bb = pieces[ f.ordinal() ];
+            while (bb != 0) {
+                long pieceBoard = BitBoard.lowestOneBit(bb);
+                int  location   = BitLoc.bitBoardToLocation(pieceBoard);
+
+                zobrist = Zobrist.togglePieceAlt(zobrist, piece, location);
+
+                // reset LS1B
+                bb &= bb - 1;
+            }
+        }
+        return zobrist;
+    }
+
+
+    private long addZobristCastlesAlt(long zobrist) {
+        if ((castles & WHITE_K_CASTLE) != 0) {
+            zobrist = Zobrist.toggleCastleAlt(
+                    zobrist, Colour.WHITE, CastleType.KING_SIDE);
+        }
+        if ((castles & WHITE_Q_CASTLE) != 0) {
+            zobrist = Zobrist.toggleCastleAlt(
+                    zobrist, Colour.WHITE, CastleType.QUEEN_SIDE);
+        }
+        if ((castles & BLACK_K_CASTLE) != 0) {
+            zobrist = Zobrist.toggleCastleAlt(
+                    zobrist, Colour.BLACK, CastleType.KING_SIDE);
+        }
+        if ((castles & BLACK_Q_CASTLE) != 0) {
+            zobrist = Zobrist.toggleCastleAlt(
+                    zobrist, Colour.BLACK, CastleType.QUEEN_SIDE);
+        }
+        return zobrist;
     }
 }
