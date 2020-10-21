@@ -45,7 +45,7 @@ public class Zobrist
 
         // legacy
 //        WHITE_NEXT = rand.nextLong();
-        rand.nextLong();
+//        rand.nextLong();
 
         for (Piece piece : Piece.VALUES) {
             populateRandomly(

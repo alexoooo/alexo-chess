@@ -94,8 +94,9 @@ public class SynchronizedRolloutStore implements RolloutStore {
 
 
     @Override
-    public synchronized void setTransposition(long hashHigh, long hashLow, double valueSum, long visitCount) {
-        delegate.setTransposition(hashHigh, hashLow, valueSum, visitCount);
+    public synchronized void setTransposition(
+            long hashHigh, long hashLow, long nodeIndex, double valueSum, long visitCount) {
+        delegate.setTransposition(hashHigh, hashLow, nodeIndex, valueSum, visitCount);
     }
 
 

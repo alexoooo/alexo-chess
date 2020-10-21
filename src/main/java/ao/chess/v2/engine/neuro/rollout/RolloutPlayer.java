@@ -3,6 +3,7 @@ package ao.chess.v2.engine.neuro.rollout;
 import ao.chess.v1.util.Io;
 import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.Player;
+import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
 import ao.chess.v2.engine.endgame.v2.EfficientDeepOracle;
 import ao.chess.v2.engine.neuro.puct.PuctModel;
 import ao.chess.v2.engine.neuro.puct.PuctModelPool;
@@ -12,6 +13,8 @@ import ao.chess.v2.engine.neuro.rollout.store.RolloutStore;
 import ao.chess.v2.engine.neuro.rollout.store.SynchronizedRolloutStore;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
+import ao.util.math.rand.Rand;
+import ao.util.time.Sched;
 import com.google.common.base.Stopwatch;
 import com.google.common.primitives.Ints;
 
@@ -225,6 +228,17 @@ public class RolloutPlayer
             prevPlay = null;
             prevState = null;
             return -1;
+        }
+
+        int oracleAction = oracleAction(position);
+        if (oracleAction != -1) {
+            prevState = null;
+            prevPlay = null;
+
+            // NB: some kind of UI race condition?
+            Sched.sleep(100);
+
+            return oracleAction;
         }
 
         pool.restart(position.pieceCount());
@@ -497,8 +511,11 @@ public class RolloutPlayer
                 root.toString(state, store);
 
         log(generalPrefix + " | " + moveSuffix);
-        log(id + " - PV: " + root.principalVariation(bestMove, state, store));
-        log(id + " - UCB: " + root.ucbVariation(state, store, contexts.get(progressThreadIndex)));
+
+        if (bestMove != -1) {
+            log(id + " - PV: " + root.principalVariation(bestMove, state, store));
+            log(id + " - UCB: " + root.ucbVariation(state, store, contexts.get(progressThreadIndex)));
+        }
     }
 
 
@@ -549,6 +566,48 @@ public class RolloutPlayer
     @Override
     public boolean isSolved(State position) {
         return store.getKnownOutcome(RolloutStore.rootIndex) != KnownOutcome.Unknown;
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    private int oracleAction(State from) {
+        if (from.pieceCount() > EfficientDeepOracle.pieceCount) {
+            return -1;
+        }
+
+        boolean canDraw     = false;
+        int     bestOutcome = 0;
+        int     bestMove    = -1;
+        for (int legalMove : from.legalMoves()) {
+            Move.apply(legalMove, from);
+            DeepOutcome outcome = EfficientDeepOracle.getOrNull(from);
+            Move.unApply(legalMove, from);
+            if (outcome == null || outcome.isDraw()) {
+                canDraw = true;
+                continue;
+            }
+
+            if (outcome.outcome().winner() == from.nextToAct()) {
+                if (bestOutcome <= 0 ||
+                        bestOutcome > outcome.plyDistance() ||
+                        (bestOutcome == outcome.plyDistance() &&
+                                Rand.nextBoolean())) {
+                    bestOutcome = outcome.plyDistance();
+                    bestMove    = legalMove;
+                }
+            }
+            else if (! canDraw && bestOutcome <= 0
+                    && bestOutcome > -outcome.plyDistance()) {
+                bestOutcome = -outcome.plyDistance();
+                bestMove    = legalMove;
+            }
+        }
+
+        if (bestOutcome <= 0 && canDraw) {
+            return -1;
+        }
+
+        return bestMove;
     }
 
 

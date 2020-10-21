@@ -305,9 +305,9 @@ public class FileRolloutStore implements RolloutStore {
 
 
     @Override
-    public void setTransposition(long hashHigh, long hashLow, double valueSum, long visitCount) {
+    public void setTransposition(long hashHigh, long hashLow, long nodeIndex, double valueSum, long visitCount) {
         byte[] key = toKey(hashHigh, hashLow);
-        byte[] value = toValue(valueSum, visitCount);
+        byte[] value = toValue(nodeIndex, valueSum, visitCount);
         transpositionMap.put(key, value);
     }
 
@@ -322,6 +322,7 @@ public class FileRolloutStore implements RolloutStore {
             setTransposition(
                     entry.getKey().hashHigh(),
                     entry.getKey().hashLow(),
+                    entry.getValue().nodeIndex(),
                     entry.getValue().valueSum(),
                     entry.getValue().visitCount());
 
@@ -354,20 +355,31 @@ public class FileRolloutStore implements RolloutStore {
 
 
     private TranspositionInfo fromValue(byte[] value) {
-        long valueSumLong = Longs.fromBytes(
+        long nodeIndex = Longs.fromBytes(
                 value[7], value[6], value[5], value[4], value[3], value[2], value[1], value[0]);
+
+        long valueSumLong = Longs.fromBytes(
+                value[15], value[14], value[13], value[12], value[11], value[10], value[9], value[8]);
         double valueSum = Double.longBitsToDouble(valueSumLong);
 
         long visitCount = Longs.fromBytes(
-                value[15], value[14], value[13], value[12], value[11], value[10], value[9], value[8]);
+                value[23], value[22], value[21], value[20], value[19], value[18], value[17], value[16]);
 
-        return new TranspositionInfo(valueSum, visitCount);
+        return new TranspositionInfo(nodeIndex, valueSum, visitCount);
     }
 
 
-    private byte[] toValue(double valueSum, long visitCount) {
+    private byte[] toValue(long nodeIndex, double valueSum, long visitCount) {
         long valueSumLong = Double.doubleToRawLongBits(valueSum);
         return new byte[] {
+                (byte) nodeIndex,
+                (byte) (nodeIndex >> 8),
+                (byte) (nodeIndex >> 16),
+                (byte) (nodeIndex >> 24),
+                (byte) (nodeIndex >> 32),
+                (byte) (nodeIndex >> 40),
+                (byte) (nodeIndex >> 48),
+                (byte) (nodeIndex >> 56),
                 (byte) valueSumLong,
                 (byte) (valueSumLong >> 8),
                 (byte) (valueSumLong >> 16),

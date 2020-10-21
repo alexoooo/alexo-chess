@@ -55,7 +55,7 @@ public interface RolloutStore extends AutoCloseable {
     TranspositionInfo getTranspositionOrNull(long hashHigh, long hashLow);
 
 
-    void setTransposition(long hashHigh, long hashLow, double valueSum, long visitCount);
+    void setTransposition(long hashHigh, long hashLow, long nodeIndex, double valueSum, long visitCount);
 
 
     //-----------------------------------------------------------------------------------------------------------------

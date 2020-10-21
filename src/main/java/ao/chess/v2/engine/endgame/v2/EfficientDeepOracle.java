@@ -27,10 +27,12 @@ public class EfficientDeepOracle {
 
     //-----------------------------------------------------------------------------------------------------------------
     static final Path outDir = Dirs.get(
-            Config.workingDirectory() + "table/tablebase-v2").toPath();
+//            Config.workingDirectory() + "table/tablebase-v2").toPath();
+            Config.workingDirectory() + "table/tablebase-v3").toPath();
 
-//    public static final int pieceCount = 3;
-    public static final int pieceCount = 4;
+//    public static final int pieceCount = 2;
+    public static final int pieceCount = 3;
+//    public static final int pieceCount = 4;
 //    public static final int pieceCount = 5;
 
 
@@ -50,7 +52,10 @@ public class EfficientDeepOracle {
 
 //                "6K1/8/8/B7/8/1p6/4k3/1r6 w - - 0 1"
 
-                "8/4k3/8/5K1P/7P/8/8/8 b - h3 0 1"
+                // https://syzygy-tables.info/?fen=8/8/8/1k6/8/8/8/RK6_w_-_-_0_1
+                "8/8/8/1k6/8/8/8/RK6 w - - 0 1"
+
+//                "8/4k3/8/5K1P/7P/8/8/8 b - h3 0 1"
 //                "8/5k2/8/5K1P/7P/8/8/8 w - - 0 1"
         );
 

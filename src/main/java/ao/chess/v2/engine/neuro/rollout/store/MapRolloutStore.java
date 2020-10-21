@@ -149,14 +149,16 @@ public class MapRolloutStore implements RolloutStore {
 
 
     @Override
-    public void setTransposition(long hashHigh, long hashLow, double valueSum, long visitCount) {
-        storeTransposition(hashHigh, hashLow, valueSum, visitCount);
+    public void setTransposition(long hashHigh, long hashLow, long nodeIndex, double valueSum, long visitCount) {
+        storeTransposition(hashHigh, hashLow, nodeIndex, valueSum, visitCount);
         modified = true;
     }
 
 
-    public void storeTransposition(long hashHigh, long hashLow, double valueSum, long visitCount) {
-        transposition.put(new TranspositionKey(hashHigh, hashLow), new TranspositionInfo(valueSum, visitCount));
+    public void storeTransposition(long hashHigh, long hashLow, long nodeIndex, double valueSum, long visitCount) {
+        transposition.put(
+                new TranspositionKey(hashHigh, hashLow),
+                new TranspositionInfo(nodeIndex, valueSum, visitCount));
     }
 
 

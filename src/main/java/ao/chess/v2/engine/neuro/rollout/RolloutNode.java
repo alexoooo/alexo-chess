@@ -77,6 +77,7 @@ public class RolloutNode {
 //    private final static double explorationVariance = 0.0;
     private final static double explorationVariance = 1.75;
 
+//    private final static int transpositionMinimum = 1;
     private final static int transpositionMinimum = 16;
 //    private final static int transpositionMinimum = 32;
 //    private final static int transpositionMinimum = 128;
@@ -84,8 +85,8 @@ public class RolloutNode {
 //    private final static double transpositionPower = 0.0;
     private final static double transpositionPower = 1.0 / 4;
 //    private final static double transpositionPower = 1.0 / 3;
-//    private final static double transpositionUseOver = 0;
-    private final static double transpositionUseOver = 1;
+    private final static double transpositionUseOver = 0;
+//    private final static double transpositionUseOver = 1;
 //    private final static double transpositionUseOver = 8;
 //    private final static double transpositionUseOver = 64;
 
@@ -701,11 +702,15 @@ public class RolloutNode {
             long hashLow = state.longHashCodeAlt();
             Move.unApply(move, state);
 
+            long moveNodeIndex = context.store.getChildIndex(index, moveIndex);
+
             TranspositionInfo moveTransposition = context.store.getTranspositionOrNull(hashHigh, hashLow);
             if (moveTransposition == null || moveVisits > moveTransposition.visitCount()) {
-                context.store.setTransposition(hashHigh, hashLow, moveValueSum, moveVisits);
+                context.store.setTransposition(hashHigh, hashLow, moveNodeIndex, moveValueSum, moveVisits);
             }
-            else if (moveVisits + transpositionUseOver < moveTransposition.visitCount()) {
+            else if (moveNodeIndex != moveTransposition.nodeIndex() &&
+                    moveVisits + transpositionUseOver < moveTransposition.visitCount())
+            {
                 transpositionValueSum = moveTransposition.valueSum();
                 transpositionVisitCont = moveTransposition.visitCount();
                 context.transpositionHits.increment();

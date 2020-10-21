@@ -139,15 +139,15 @@ public class TieredRolloutStore implements RolloutStore {
 
         TranspositionInfo backingInfo = backing.getTranspositionOrNull(hashHigh, hashLow);
         if (backingInfo != null) {
-            buffer.storeTransposition(hashHigh, hashHigh, backingInfo.valueSum(), backingInfo.visitCount());
+            buffer.storeTransposition(hashHigh, hashHigh, backingInfo.nodeIndex(), backingInfo.valueSum(), backingInfo.visitCount());
         }
         return backingInfo;
     }
 
 
     @Override
-    public void setTransposition(long hashHigh, long hashLow, double valueSum, long visitCount) {
-        buffer.setTransposition(hashHigh, hashLow, valueSum, visitCount);
+    public void setTransposition(long hashHigh, long hashLow, long nodeIndex, double valueSum, long visitCount) {
+        buffer.setTransposition(hashHigh, hashLow, nodeIndex, valueSum, visitCount);
     }
 
 
