@@ -20,6 +20,9 @@ import java.nio.file.Path;
 import java.util.List;
 
 
+// see:
+//   - https://github.com/AndyGrant/Pyrrhic/
+//   - https://github.com/ljgw/syzygy-bridge
 public class EfficientDeepOracle {
     //-----------------------------------------------------------------------------------------------------------------
     private static final Logger logger = LoggerFactory.getLogger(EfficientDeepOracle.class);
@@ -28,7 +31,8 @@ public class EfficientDeepOracle {
     //-----------------------------------------------------------------------------------------------------------------
     static final Path outDir = Dirs.get(
 //            Config.workingDirectory() + "table/tablebase-v2").toPath();
-            Config.workingDirectory() + "table/tablebase-v3").toPath();
+//            Config.workingDirectory() + "table/tablebase-v3").toPath();
+            Config.workingDirectory() + "table/tablebase-v4").toPath();
 
 //    public static final int pieceCount = 2;
     public static final int pieceCount = 3;
@@ -44,19 +48,19 @@ public class EfficientDeepOracle {
         State state = State.fromFen(
 //                "8/8/8/6K1/8/8/k7/3R4 w"
 //                "4k3/8/8/8/8/8/4P3/4K3 w - - 0 1"
+                "8/8/8/8/8/3k3K/7P/8 w - - 0 1"
 
 //                "K7/8/1p3k2/8/7p/8/8/8 b - - 0 1"
-//                "8/8/8/8/8/3k3K/7P/8 w - - 0 1"
 //                "8/8/8/8/2q5/8/1B5K/1k6 b - - 0 1"
 //                "6K1/8/8/B7/8/8/4k3/1r6 b"
 
-//                "6K1/8/8/B7/8/1p6/4k3/1r6 w - - 0 1"
-
                 // https://syzygy-tables.info/?fen=8/8/8/1k6/8/8/8/RK6_w_-_-_0_1
-                "8/8/8/1k6/8/8/8/RK6 w - - 0 1"
-
+//                "8/8/8/1k6/8/8/8/RK6 w - - 0 1"
+                // TODO: should be draw, but shows up as win?
 //                "8/4k3/8/5K1P/7P/8/8/8 b - h3 0 1"
 //                "8/5k2/8/5K1P/7P/8/8/8 w - - 0 1"
+
+//                "6K1/8/8/B7/8/1p6/4k3/1r6 w - - 0 1"
         );
 
         System.out.println(state);
@@ -97,20 +101,22 @@ public class EfficientDeepOracle {
             oracles.put(deadEndTally, new NilDeepMaterialOracle());
         }
 
-        int nNonKings = pieceCount - 2;
-        List<Piece[]> materialPermutationsWithoutKingsByPawnsDescending =
-                TablebaseUtils.materialPermutationsWithoutKingsByPawnsDescending(nNonKings);
+        for (int count = 2; count <= pieceCount; count++) {
+            int nNonKings = count - 2;
+            List<Piece[]> materialPermutationsWithoutKingsByPawnsDescending =
+                    TablebaseUtils.materialPermutationsWithoutKingsByPawnsDescending(nNonKings);
 
-        logger.info("Providing {} pieces, total of {} material combinations",
-                pieceCount, materialPermutationsWithoutKingsByPawnsDescending.size());
+            logger.info("Providing {} pieces, total of {} material combinations",
+                    pieceCount, materialPermutationsWithoutKingsByPawnsDescending.size());
 
-        Stopwatch stopwatch = Stopwatch.createStarted();
+            Stopwatch stopwatch = Stopwatch.createStarted();
 
-        for (Piece[] nonKings : materialPermutationsWithoutKingsByPawnsDescending) {
-            add( nonKings );
+            for (Piece[] nonKings : materialPermutationsWithoutKingsByPawnsDescending) {
+                add( nonKings );
+            }
+
+            logger.info("Done loading, took: {}", stopwatch);
         }
-
-        logger.info("Done loading, took: {}", stopwatch);
     }
 
 

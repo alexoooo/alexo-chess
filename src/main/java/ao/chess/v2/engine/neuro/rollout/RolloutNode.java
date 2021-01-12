@@ -92,7 +92,7 @@ public class RolloutNode {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    private final long index;
+    public final long index;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -288,7 +288,9 @@ public class RolloutNode {
 
         checkState(! Double.isNaN(estimatedValue));
 
-        backupValue(path, estimatedValue, context);
+        context.store.backupValue(path, estimatedValue);
+//        backupValue(path, estimatedValue, context);
+
         return path.size();
     }
 
@@ -487,7 +489,7 @@ public class RolloutNode {
 
             RolloutNode node = path.get(i);
 
-//            node.valueSum.add(negaMaxValue);
+//            context.store.addValue(node.index, negaMaxValue);
             node.addValue(negaMaxValue, context.store);
 
             reverse = ! reverse;
@@ -511,9 +513,12 @@ public class RolloutNode {
         double[] moveValueSums = context.valueSums;
         double[] moveValueSquareSums = context.valueSquareSums;
         long[] moveVisitCounts = context.visitCounts;
+        long[] moveChildIndexes = context.childIndexes;
 
-        int solutionMoveIndex = populateChildInfoAndSelectSolution(
-                moveCount, moveValueSums, moveValueSquareSums, moveVisitCounts, context);
+        int solutionMoveIndex = context.store.populateChildInfoAndSelectSolution(
+                index, moveCount, moveValueSums, moveValueSquareSums, moveVisitCounts, moveChildIndexes);
+//        int solutionMoveIndex = populateChildInfoAndSelectSolution(
+//                moveCount, moveValueSums, moveValueSquareSums, moveVisitCounts, moveChildIndexes, context);
         if (solutionMoveIndex != -1) {
             return solutionMoveIndex;
         }
@@ -533,6 +538,7 @@ public class RolloutNode {
                 moveValueSums,
                 moveValueSquareSums,
                 moveVisitCounts,
+                moveChildIndexes,
                 parentVisitCount,
                 transpositionThreshold,
                 state,
@@ -545,6 +551,7 @@ public class RolloutNode {
             double[] moveValueSums,
             double[] moveValueSquareSums,
             long[] moveVisitCounts,
+            long[] moveChildIndexes,
             RolloutContext context)
     {
         RolloutStore store = context.store;
@@ -556,16 +563,19 @@ public class RolloutNode {
             long childVisitCount;
             double childValueSum;
             double childValueSquareSum;
+            long childMoveIndex;
 
             if (child == null) {
                 childValueSum = 0;
                 childValueSquareSum = 0;
                 childVisitCount = 0;
+                childMoveIndex = -1;
             }
             else {
                 childValueSum = child.valueSum(store);
                 childValueSquareSum = child.valueSquareSum(store);
                 childVisitCount = child.visitCount(store);
+                childMoveIndex = child.index;
 
                 double known = child.knownValue(store);
                 if (! Double.isNaN(known)) {
@@ -582,6 +592,7 @@ public class RolloutNode {
             moveValueSums[i] = childValueSum;
             moveValueSquareSums[i] = childValueSquareSum;
             moveVisitCounts[i] = childVisitCount;
+            moveChildIndexes[i] = childMoveIndex;
         }
 
         if (nonWinKnownCount == moveCount) {
@@ -610,6 +621,7 @@ public class RolloutNode {
             double[] moveValueSums,
             double[] moveValueSquareSums,
             long[] moveVisitCounts,
+            long[] moveChildIndexes,
             long parentVisitCount,
             long transpositionThreshold,
             State state,
@@ -631,6 +643,7 @@ public class RolloutNode {
                     parentVisitCount,
                     valuePrediction,
                     i,
+                    moveChildIndexes[i],
                     transpositionThreshold,
                     state,
                     context);
@@ -686,6 +699,7 @@ public class RolloutNode {
             long parentVisitCount,
             double valuePrediction,
             int moveIndex,
+            long moveNodeIndex,
             long transpositionThreshold,
             State state,
             RolloutContext context)
@@ -702,7 +716,7 @@ public class RolloutNode {
             long hashLow = state.longHashCodeAlt();
             Move.unApply(move, state);
 
-            long moveNodeIndex = context.store.getChildIndex(index, moveIndex);
+//            long moveNodeIndex = context.store.getChildIndex(index, moveIndex);
 
             TranspositionInfo moveTransposition = context.store.getTranspositionOrNull(hashHigh, hashLow);
             if (moveTransposition == null || moveVisits > moveTransposition.visitCount()) {

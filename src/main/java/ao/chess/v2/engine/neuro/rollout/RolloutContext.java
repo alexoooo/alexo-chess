@@ -30,6 +30,7 @@ class RolloutContext {
     public final double[] valueSums = new double[Move.MAX_PER_PLY];
     public final double[] valueSquareSums = new double[Move.MAX_PER_PLY];
     public final long[] visitCounts = new long[Move.MAX_PER_PLY];
+    public final long[] childIndexes = new long[Move.MAX_PER_PLY];
     public final long[] history = new long[4096];
 
 //    public double estimatedValue;

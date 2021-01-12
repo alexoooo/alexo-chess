@@ -1,7 +1,10 @@
 package ao.chess.v2.engine.neuro.rollout.store;
 
 
+import ao.chess.v2.engine.neuro.rollout.RolloutNode;
 import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionInfo;
+
+import java.util.List;
 
 
 public class SynchronizedRolloutStore implements RolloutStore {
@@ -109,5 +112,28 @@ public class SynchronizedRolloutStore implements RolloutStore {
     @Override
     public synchronized long flush() {
         return delegate.flush();
+    }
+
+
+    @Override
+    public synchronized void backupValue(
+            List<RolloutNode> path,
+            double leafValue)
+    {
+        delegate.backupValue(path, leafValue);
+    }
+
+
+    @Override
+    public synchronized int populateChildInfoAndSelectSolution(
+            long index,
+            int moveCount,
+            double[] moveValueSums,
+            double[] moveValueSquareSums,
+            long[] moveVisitCounts,
+            long[] moveChildIndexes)
+    {
+        return delegate.populateChildInfoAndSelectSolution(
+                index, moveCount, moveValueSums, moveValueSquareSums, moveVisitCounts, moveChildIndexes);
     }
 }

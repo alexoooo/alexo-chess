@@ -64,6 +64,9 @@ public class FileRolloutStore implements RolloutStore {
             if (transpositionFileOrNull != null) {
                 transpositionStore = new MVStore.Builder()
                         .fileName(transpositionFileOrNull.toString())
+//                        .cacheSize(128)
+                        .cacheSize(1024)
+                        .autoCommitBufferSize(32 * 1024)
                         .open();
                 transpositionMap = transpositionStore
                         .openMap("transposition");

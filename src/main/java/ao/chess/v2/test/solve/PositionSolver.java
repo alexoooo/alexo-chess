@@ -19,14 +19,16 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 
+// https://chess.stackexchange.com/questions/23480/have-engines-refuted-any-established-openings
+// https://chess.stackexchange.com/questions/5032/what-are-the-first-moves-chosen-white-by-brute-force-chess-engines
 public class PositionSolver {
     //-----------------------------------------------------------------------------------------------------------------
 //    private static final int flushFrequencyMillis = 60 * 1_000;
 //    private static final int flushFrequencyMillis = 5 * 60 * 1_000;
 //    private static final int flushFrequencyMillis = 10 * 60 * 1_000;
 //    private static final int flushFrequencyMillis = 15 * 60 * 1_000;
-    private static final int flushFrequencyMillis = 20 * 60 * 1_000;
-//    private static final int flushFrequencyMillis = 30 * 60 * 1_000;
+//    private static final int flushFrequencyMillis = 20 * 60 * 1_000;
+    private static final int flushFrequencyMillis = 30 * 60 * 1_000;
     private static final int time = 7 * 24 * 60 * 60 * 1000;
 
 
@@ -73,7 +75,7 @@ public class PositionSolver {
 //                .threads(52)
 //                .threads(64)
 //                .threads(96)
-//                .threads(128)
+                .threads(128)
 //                .threads(160)
 //                .threads(192)
 //                .threads(224)
@@ -81,7 +83,7 @@ public class PositionSolver {
 //                .threads(320)
 //                .threads(384)
 //                .threads(448)
-                .threads(512)
+//                .threads(512)
 //                .stochastic(true)
 //                .store(new SynchronizedRolloutStore(new MapRolloutStore()))
                 .store(new SynchronizedRolloutStore(

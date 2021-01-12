@@ -68,7 +68,8 @@ public class RolloutPlayer
 //        private RolloutStore store = new SynchronizedRolloutStore(new BigArrayRolloutStore());
         private RolloutStore store = new SynchronizedRolloutStore(new MapRolloutStore());
         private int threads = 1;
-        private int rolloutLength = 1;
+        private int rolloutLength = 0;
+//        private int rolloutLength = 1;
         private int minimumTrajectories = 0;
         private boolean optimize = false;
         private boolean binerize = false;
@@ -126,8 +127,8 @@ public class RolloutPlayer
                     threads,
                     rolloutLength,
                     minimumTrajectories,
-                    optimize,
                     binerize,
+                    optimize,
                     useIo);
         }
     }
