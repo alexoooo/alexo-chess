@@ -416,7 +416,7 @@ public class RolloutNode {
                     }
 
                     if (moveOutcome.winner() == state.nextToAct()) {
-                        // instant win
+                        // mate in one
                         outcome = moveOutcome;
                         break rollout;
                     }
@@ -1006,9 +1006,13 @@ public class RolloutNode {
                 ))
                 .collect(Collectors.joining(" | "));
 
-        return String.format("%,d %.4f - %s",
+        long bestChildVisitCount = counts[indexes.get(0)];
+        double bestChildConfidence = ((double) bestChildVisitCount) / parentVisitCount;
+
+        return String.format("%,d %.4f %d - %s",
                 parentVisitCount,
                 parentValue,
+                Math.round(bestChildConfidence * 1000),
                 childSummary);
     }
 }

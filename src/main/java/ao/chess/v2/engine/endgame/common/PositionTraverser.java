@@ -27,14 +27,18 @@ public class PositionTraverser
         new PositionTraverser().traverse(
                 Arrays.asList(
                         Piece.WHITE_KING,
-                        Piece.BLACK_KING),
-                new Traverser<State>() {
-                    @Override public void traverse(State state) {
+                        Piece.BLACK_KING,
+                        Piece.WHITE_PAWN,
+                        Piece.WHITE_PAWN),
+                state -> {
+                    String fen = state.toFen();
+                    if (fen.startsWith("8/4k3/8/5K1P/7P/8/8/8 b ")) {
                         System.out.println();
+                        System.out.println(fen);
                         System.out.println(state);
-
-                        count[0]++;
                     }
+
+                    count[0]++;
                 }
         );
 
@@ -51,14 +55,13 @@ public class PositionTraverser
     //--------------------------------------------------------------------
     public PositionTraverser()
     {
-        BOARD = new Piece[ Location.RANKS ]
-                         [ Location.FILES ];
+        BOARD = new Piece[ Location.RANKS ][ Location.FILES ];
     }
 
 
     //--------------------------------------------------------------------
     public synchronized void traverse(
-            List     <Piece> pieces,
+            List<Piece> pieces,
             Traverser<State> visitor)
     {
         place(pieces.get(0),
@@ -111,11 +114,14 @@ public class PositionTraverser
                 (byte) 0, CastleType.Set.NONE, State.EP_NONE), visitor);
 
         byte enPassant = enPassant( nextToAct.invert() );
-        if (enPassant == -1) return;
+        if (enPassant == -1) {
+            return;
+        }
 
         checkValid(new State(BOARD, nextToAct,
                 (byte) 0, CastleType.Set.NONE, enPassant), visitor);
     }
+
 
     private void checkValid(
             State            state,

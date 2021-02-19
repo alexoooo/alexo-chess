@@ -269,7 +269,7 @@ public class State
     {
         int[] legalMoves = new int[ Move.MAX_PER_PLY ];
         int[] pseudoMoves = new int[ Move.MAX_PER_PLY ];
-        int   nMoves     = legalMoves(legalMoves, pseudoMoves);
+        int nMoves = legalMoves(legalMoves, pseudoMoves);
 
         if (nMoves == -1) {
             return null;
@@ -280,7 +280,7 @@ public class State
 
     public int legalMoves(int[] moves, int[] pseudoMoves)
     {
-        int nPseudoMoves  = moves(pseudoMoves);
+        int nPseudoMoves = moves(pseudoMoves);
         if (nPseudoMoves == -1) {
             return -1;
         }
@@ -1342,15 +1342,15 @@ public class State
 
         if (enPassant != EP_NONE) {
             if (nextToAct == Colour.WHITE) {
-                if (pieceAt(3, enPassant) == Piece.WHITE_PAWN &&
+                if (! (pieceAt(3, enPassant) == Piece.WHITE_PAWN &&
                         pieceAt(2, enPassant) == null &&
-                        pieceAt(1, enPassant) == null) {
+                        pieceAt(1, enPassant) == null)) {
                     return false;
                 }
             } else {
-                if (pieceAt(4, enPassant) == Piece.WHITE_PAWN &&
+                if (! (pieceAt(4, enPassant) == Piece.WHITE_PAWN &&
                         pieceAt(5, enPassant) == null &&
-                        pieceAt(6, enPassant) == null) {
+                        pieceAt(6, enPassant) == null)) {
                     return false;
                 }
             }

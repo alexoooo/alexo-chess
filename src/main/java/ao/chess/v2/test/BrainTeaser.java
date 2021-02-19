@@ -205,6 +205,38 @@ public class BrainTeaser {
 //                "8/8/8/8/4k1K1/8/7P/8 w - - 0 1"
 //                "8/8/8/4k3/6KP/8/8/8 w - - 0 1"
 
+                // https://www.youtube.com/watch?v=U4ogK0MIzqk
+//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//                "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
+//                "rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3"
+//                "rnbqkbnr/pp2pppp/3p4/8/3pP3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 4"
+//                "rnbqkb1r/pp2pppp/3p1n2/8/3NP3/8/PPP2PPP/RNBQKB1R w KQkq - 1 5"
+//                "rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"
+//                "rnbqkb1r/pp3p1p/3p1np1/4p3/3NP3/2N1B3/PPP2PPP/R2QKB1R w KQkq e6 0 7"
+//                "r1bqkb1r/pp3p1p/2np1np1/4p3/4P3/2N1BN2/PPP2PPP/R2QKB1R w KQkq - 2 8"
+//                "r1bqk2r/pp3pbp/2np1np1/4p3/2B1P3/2N1BN2/PPP2PPP/R2QK2R w KQkq - 4 9"
+//                "r1bqk2r/pp3pbp/3p1np1/4p3/1nB1P3/2NQBN2/PPP2PPP/R3K2R w KQkq - 6 10"
+//                "r1b1k2r/ppq2pbp/3p1np1/4p3/1nB1P3/2N1BN2/PPPQ1PPP/R3K2R w KQkq - 8 11"
+//                "r1b1k2r/pp3pbp/3p1np1/qN2p3/1nB1P3/4BN2/PPPQ1PPP/R3K2R w KQkq - 10 12"
+//                "r1b4r/pp2kpbp/3N1np1/q3p3/1nB1P3/4BN2/PPPQ1PPP/R3K2R w KQ - 1 13"
+//                "r1b4r/pp2kpbp/3N1np1/q3p3/2B1P3/2P1BN2/PPnQ1PPP/R3K2R w KQ - 1 14"
+//                "r1b4r/pp3pbp/3k1np1/q3p3/2B1P3/2P1BN2/PPQ2PPP/R3K2R w KQ - 0 15"
+//                "r1b4r/pp2kpbp/5np1/q3p1N1/2B1P3/2P1B3/PPQ2PPP/R3K2R w KQ - 2 16"
+//                "r1b4r/pp2kpbp/6p1/q3p1N1/2B1P1n1/1QP1B3/PP3PPP/R3K2R w KQ - 4 17"
+//                "r1b4r/pp2kNbp/6p1/q3p3/2B1P3/1QP1n3/PP3PPP/R3K2R w KQ - 0 18"
+//                "r1b1r3/pp2kNbp/6p1/q3p3/2B1P3/1QP1P3/PP4PP/R3K2R w KQ - 1 19"
+//                "r1b1r3/pp2kNbp/6p1/2q1p3/2B1P3/1QP1P3/PP4PP/R4RK1 w - - 3 20"
+//                "r1b1r3/pp2kNbp/6p1/4p3/2B1P3/1QP1q3/PP4PP/3R1RK1 w - - 0 21"
+//                "r1b1r3/pp2kNbp/6p1/2q1p3/2B1P3/1QP5/PP4PP/3R1R1K w - - 2 22"
+//                "r1b1r3/pp2kNbp/6p1/3qp3/2B1P3/1QP5/PP4PP/5R1K w - - 0 23"
+//                "r3r3/pp2kNbp/6p1/3Ppb2/2B5/1QP5/PP4PP/5R1K w - - 1 24"
+//                "r3rk2/pQ3Nbp/6p1/3Ppb2/2B5/2P5/PP4PP/5R1K w - - 1 25"
+//                "r3r1k1/pQ4bp/3N2p1/3Ppb2/2B5/2P5/PP4PP/5R1K w - - 3 26"
+//                "r3r2k/p4Qbp/3N2p1/3Ppb2/2B5/2P5/PP4PP/5R1K w - - 5 27"
+//                "r3N2k/p4Q1p/6pb/3Ppb2/2B5/2P5/PP4PP/5R1K w - - 1 28"
+//                "r3N1k1/p6p/5Qpb/3Ppb2/2B5/2P5/PP4PP/5R1K w - - 3 29"
+                "r3N1k1/p6p/3PbQpb/4p3/2B5/2P5/PP4PP/5R1K w - - 1 30"
+
                 // https://www.youtube.com/watch?v=yyHmAx3d7GI
 //                "r5k1/p1p3pp/2p3n1/3pp3/4P2q/1B3r1P/P2PNP2/RNB1QRK1 w - - 0 1"
 //                "rnbqkbnr/pp2pppp/3p4/2p5/4P3/3P1N2/PPP2PPP/RNBQKB1R b KQkq - 0 3"
@@ -224,7 +256,7 @@ public class BrainTeaser {
 //                "4k1br/2Kp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 b - - 0 14"
 //                "4k1br/2Kp1n1r/2p2pN1/5N2/2p4P/8/P2P4/8 w - - 0 15" // or here?
 //                "2K1k1br/3p1n1r/2p2pN1/5N2/2p4P/8/P2P4/8 b - - 1 15"
-                "2K1k1br/5n1r/2p2pN1/3p1N2/2p4P/8/P2P4/8 w - d6 0 16"
+//                "2K1k1br/5n1r/2p2pN1/3p1N2/2p4P/8/P2P4/8 w - d6 0 16"
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/P1p4P/8/3P4/8 b - a3 0 16" // 14b fail, 14 2-22 works!
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2p5/3P4/8 w - - 0 17"
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2P5/8/8 b - - 0 17" // chess.com sees mate here

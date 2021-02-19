@@ -4,6 +4,7 @@ package ao.chess.v2.engine.endgame.v2;
 import ao.chess.v2.engine.endgame.common.TablebaseUtils;
 import ao.chess.v2.engine.endgame.tablebase.DeepMaterialOracle;
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
+import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.MaterialTally;
 import ao.chess.v2.piece.Piece;
 import ao.chess.v2.state.Move;
@@ -21,6 +22,8 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkState;
 
 
 public class EfficientDeepMaterialOracle implements DeepMaterialOracle
@@ -100,6 +103,8 @@ public class EfficientDeepMaterialOracle implements DeepMaterialOracle
             findOutcomes(oracle, states, retro);
 
             outcomeStore.save();
+
+            validateOutcomes(states, oracle);
 
             try {
                 retro.close();
@@ -252,11 +257,7 @@ public class EfficientDeepMaterialOracle implements DeepMaterialOracle
                 int legalMove = legalMoves[i];
 
                 int undo = Move.apply(legalMove, state);
-                long staticHash = state.staticHashCode();
-                DeepOutcome imminentResult =
-                        tally == state.tallyAllMaterial()
-                        ? seeInProgress( staticHash )
-                        : oracle.see(state);
+                DeepOutcome imminentResult = seeInProgress(state, oracle);
                 Move.unApply(undo, state);
 
                 if (imminentResult != null && ! imminentResult.isDraw()) {
@@ -290,14 +291,94 @@ public class EfficientDeepMaterialOracle implements DeepMaterialOracle
         }
 
 
-        private DeepOutcome seeInProgress(long staticHash) {
-            int index = minHash.index( staticHash );
+        private DeepOutcome seeInProgress(State state, EfficientDeepOracle oracle) {
+            if (tally != state.tallyAllMaterial()) {
+                return oracle.see(state);
+            }
+
+            int index = minHash.index( state.staticHashCode() );
             byte outcome = outcomeStore.get(index);
             return outcome > 0
                     ? new DeepOutcome(Outcome.WHITE_WINS, outcome)
                     : outcome < 0
                     ? new DeepOutcome(Outcome.BLACK_WINS, -outcome)
                     : null;
+        }
+
+
+        //-------------------------------------------------------------------------------------------------------------
+        private void validateOutcomes(
+                EfficientStateMap states,
+                EfficientDeepOracle oracle
+        ) {
+            logger.info("Validating");
+
+            long count = 0;
+            for (State state : states.states()) {
+//                if (state.toFen().equals("8/8/1R6/k4K2/8/8/8/8 b  - 0 n")) {
+//                    System.out.println("foo");
+//                }
+
+                if (++count % 10_000_000 == 0) {
+                    logger.info("Validated {}", count);
+                }
+
+                Colour pov = state.nextToAct();
+
+                int legalMoveCount = state.legalMoves(legalMoves, movesBuffer);
+                Outcome knownOutcomeOrNull = state.knownOutcomeOrNull(legalMoveCount);
+
+                DeepOutcome deepOutcomeOrNull = seeInProgress(state, oracle);
+
+                int nextWinCount = 0;
+                int nextDrawCount = 0;
+                int nextLossCount = 0;
+
+                if (legalMoveCount != -1) {
+                    for (int i = 0; i < legalMoveCount; i++) {
+                        int undo = Move.apply(legalMoves[i], state);
+                        DeepOutcome nextDeepOutcomeOrNull = seeInProgress(state, oracle);
+                        Move.unApply(undo, state);
+
+                        if (nextDeepOutcomeOrNull == null || nextDeepOutcomeOrNull.isDraw()) {
+                            nextDrawCount++;
+                        }
+                        else if (nextDeepOutcomeOrNull.outcome().winner() == pov) {
+                            nextWinCount++;
+                        }
+                        else {
+                            nextLossCount++;
+                        }
+                    }
+                }
+
+                if (deepOutcomeOrNull == null || deepOutcomeOrNull.isDraw()) {
+                    checkState(knownOutcomeOrNull == null || knownOutcomeOrNull == Outcome.DRAW);
+                    if (legalMoveCount != -1) {
+                        checkState(nextWinCount == 0);
+                        if (! (nextLossCount != legalMoveCount || legalMoveCount == 0)) {
+                            throw new IllegalStateException("False draw (should be loss?): " + state.toFen());
+                        }
+                    }
+                }
+                else if (knownOutcomeOrNull != null) {
+                    checkState(knownOutcomeOrNull == deepOutcomeOrNull.outcome());
+                    checkState(legalMoveCount == 0);
+                }
+                else if (deepOutcomeOrNull.outcome().winner() == pov) {
+                    checkState(nextWinCount > 0);
+                }
+                else {
+                    checkState(nextWinCount == 0);
+                    checkState(nextDrawCount == 0);
+
+                    if (! (nextLossCount > 0)) {
+                        throw new IllegalStateException("False loss: " + state.toFen());
+                    }
+                }
+            }
+
+            logger.info("Validation done");
         }
 
 
