@@ -37,6 +37,7 @@ class RolloutContext {
 
     public final LongAdder collisions;
     public final LongAdder terminalHits;
+    public final LongAdder terminalRolloutHits;
     public final LongAdder tablebaseHits;
     public final LongAdder tablebaseRolloutHits;
     public final LongAdder solutionHits;
@@ -55,6 +56,7 @@ class RolloutContext {
             double probabilityPower,
             LongAdder collisions,
             LongAdder terminalHits,
+            LongAdder terminalRolloutHits,
             LongAdder tablebaseHits,
             LongAdder tablebaseRolloutHits,
             LongAdder solutionHits,
@@ -72,6 +74,7 @@ class RolloutContext {
 
         this.collisions = collisions;
         this.terminalHits = terminalHits;
+        this.terminalRolloutHits = terminalRolloutHits;
         this.tablebaseHits = tablebaseHits;
         this.tablebaseRolloutHits = tablebaseRolloutHits;
         this.solutionHits = solutionHits;

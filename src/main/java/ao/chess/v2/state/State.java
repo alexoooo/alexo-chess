@@ -300,6 +300,7 @@ public class State
         return nextMoveIndex;
     }
 
+
     /**
      * generate all pseudo-legal moves from this position
      *  i.e. moves at the end of which you might have your king in check

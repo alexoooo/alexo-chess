@@ -54,8 +54,7 @@ public class PositionSolverBrowser {
 //                    "11.Nxd5 exd5 12.Bxd5";
 //                "1.d4 c6 2.Nf3 Nf6 3.c4 d5 4.e3 Bf5 5.Nc3 a6";
 //                "1.d4 c6 2.c4 Nf6 3.Nf3 d5 4.e3 Bf5 5.Nc3 a6 6.Be2 e6 7.O-O h6 8.Bd3 Bxd3 9.Qxd3 Bb4 10.a3 Bxc3 " +
-//                    "11.Qxc3 O-O 12.b3 Nbd7";
- //                "1. e4";
+//                    "11.Qxc3 O-O 12.b3 Nbd7";//                "1. e4";
 //                "1.c4 e5 2.g3 Nc6";
 //                "1.c4 c5 2.Nf3 Nf6 3.Nc3 e5";
 //                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3 Bb4 5.Nd5 e4 6.Nh4 O-O 7.Bg2 Re8 8.O-O d6 9.b3 g5 10.Bb2 Nd5 " +
@@ -101,12 +100,18 @@ public class PositionSolverBrowser {
 //                    "19.Rxa2 Qxb5 20.Qxb5 axb5 21.Rxa8 Rxa8 22.Kf1 h5 23.Ke2";
 //                "1.d4 d5 2.Nf3 e6 3.c4 dxc4 4.e3 c5 5.Bxc4 a6 6.O-O Nf6 7.a4 cxd4 8.exd4 Be7 9.Nc3 O-O 10.d5 Nxd5 " +
 //                    "11.Nxd5 exd5 12.Bxd5 Nd7 13.a5 Nf6 14.Ba2 Qxd1 15.Rxd1 h6 16.Bd2 Rd8 17.Re1 Kf8 18.Bc3";
-                "1.d4 d5 2.Nf3 e6 3.c4 dxc4 4.e3 c5 5.Bxc4 a6 6.O-O Nf6 7.a4 cxd4 8.exd4 Be7 9.Nc3 O-O 10.d5 Nxd5 " +
-                    "11.Nxd5 exd5 12.Bxd5 Nd7 13.Be3 Nf6 14.Ba2 Qxd1 15.Rfxd1 Bd7 16.a5 Rac8 17.Bd4 Rfd8 18.Bb6 Re8 " +
-                    "19.Ng5 Rf8 20.h3 Bb5 21.Rd4 Rc2 22.Re1 Rxb2 23.Rxe7 Rxa2 24.Rxb7 h6 25.Nf3 Nh5";
+//                "1.d4 d5 2.Nf3 e6 3.c4 dxc4 4.e3 c5 5.Bxc4 a6 6.O-O Nf6 7.a4 cxd4 8.exd4 Be7 9.Nc3 O-O 10.d5 Nxd5 " +
+//                    "11.Nxd5 exd5 12.Bxd5 Nd7 13.Be3 Nf6 14.Ba2 Qxd1 15.Rfxd1 Bd7 16.a5 Rac8 17.Bd4 Rfd8 18.Bb6 Re8 " +
+//                    "19.Ng5 Rf8 20.h3 Bb5 21.Rd4 Rc2 22.Re1 Rxb2 23.Rxe7 Rxa2 24.Rxb7 h6 25.Nf3 Nh5";
 //                "1.d4 d5 2.Nf3 e6 3.c4 dxc4 4.e3 c5 5.Bxc4 Nf6 6.O-O a6 7.Be2 Nbd7";
 //                "1.d4 d5 2.Nf3 e6 3.c4 dxc4 4.e3 c5 5.Bxc4 Nf6 6.O-O a6 7.a4 cxd4 8.exd4 Be7 9.Nc3 O-O 10.d5 Nxd5 " +
 //                    "11.Nxd5 exd5 12.Bxd5 Nd7 13.Be3 Nf6 14.Ba2 Bf5 15.Qb3 Be4 16.Rfd1";
+
+//                "1.d4 d5 2.c4 e6 3.Nc3 Nf6";
+//                "1.d4 e6 2.c4 d5 3.Nc3 Nf6";
+//                "1.d4 Nf6 2.c4 e6 3.Nf3";
+//                "1.d4 g6 2.c4 Bg7 3.Nc3 d6";
+                "1.d4 c5 2.d5 g6 3.e4";
 
         List<State> moveHistories = PgnParser.parse(history);
 

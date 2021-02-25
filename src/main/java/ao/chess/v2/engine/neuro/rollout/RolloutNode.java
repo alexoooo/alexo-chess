@@ -418,6 +418,7 @@ public class RolloutNode {
                     if (moveOutcome.winner() == state.nextToAct()) {
                         // mate in one
                         outcome = moveOutcome;
+                        context.terminalRolloutHits.increment();
                         break rollout;
                     }
                 }
@@ -441,6 +442,7 @@ public class RolloutNode {
             Outcome moveOutcome = state.knownOutcomeOrNull();
             if (moveOutcome != null) {
                 outcome = moveOutcome;
+                context.terminalRolloutHits.increment();
                 break;
             }
 
@@ -473,30 +475,6 @@ public class RolloutNode {
     }
 
 
-    private void backupValue(
-            List<RolloutNode> path,
-            double leafValue,
-            RolloutContext context)
-    {
-        double inverseValue = 1.0 - leafValue;
-        // NB: negating all rewards so that we're always maximizing
-        boolean reverse = true;
-//        boolean reverse = false;
-
-        for (int i = path.size() - 1; i >= 0; i--)
-        {
-            double negaMaxValue = reverse ? inverseValue : leafValue;
-
-            RolloutNode node = path.get(i);
-
-//            context.store.addValue(node.index, negaMaxValue);
-            node.addValue(negaMaxValue, context.store);
-
-            reverse = ! reverse;
-        }
-    }
-
-
     //-----------------------------------------------------------------------------------------------------------------
     private int selectChild(
             int moveCount,
@@ -517,13 +495,8 @@ public class RolloutNode {
 
         int solutionMoveIndex = context.store.populateChildInfoAndSelectSolution(
                 index, moveCount, moveValueSums, moveValueSquareSums, moveVisitCounts, moveChildIndexes);
-//        int solutionMoveIndex = populateChildInfoAndSelectSolution(
-//                moveCount, moveValueSums, moveValueSquareSums, moveVisitCounts, moveChildIndexes, context);
         if (solutionMoveIndex != -1) {
             return solutionMoveIndex;
-        }
-        else if (moveCount == 1) {
-            return 0;
         }
 
         long parentVisitCount = 1;
@@ -545,74 +518,6 @@ public class RolloutNode {
                 context);
     }
 
-
-    private int populateChildInfoAndSelectSolution(
-            int moveCount,
-            double[] moveValueSums,
-            double[] moveValueSquareSums,
-            long[] moveVisitCounts,
-            long[] moveChildIndexes,
-            RolloutContext context)
-    {
-        RolloutStore store = context.store;
-
-        int nonWinKnownCount = 0;
-        for (int i = 0; i < moveCount; i++) {
-            RolloutNode child = childOrNull(i, store);
-
-            long childVisitCount;
-            double childValueSum;
-            double childValueSquareSum;
-            long childMoveIndex;
-
-            if (child == null) {
-                childValueSum = 0;
-                childValueSquareSum = 0;
-                childVisitCount = 0;
-                childMoveIndex = -1;
-            }
-            else {
-                childValueSum = child.valueSum(store);
-                childValueSquareSum = child.valueSquareSum(store);
-                childVisitCount = child.visitCount(store);
-                childMoveIndex = child.index;
-
-                double known = child.knownValue(store);
-                if (! Double.isNaN(known)) {
-                    if (known == 0.0) {
-                        setKnownOutcome(KnownOutcome.Win, store);
-                        return i;
-                    }
-
-                    nonWinKnownCount++;
-                    childValueSum = (1.0 - known) * childVisitCount;
-                }
-            }
-
-            moveValueSums[i] = childValueSum;
-            moveValueSquareSums[i] = childValueSquareSum;
-            moveVisitCounts[i] = childVisitCount;
-            moveChildIndexes[i] = childMoveIndex;
-        }
-
-        if (nonWinKnownCount == moveCount) {
-            KnownOutcome bestChildOutcome = KnownOutcome.Win;
-            int childIndex = 0;
-            for (int i = 0; i < moveCount; i++) {
-                RolloutNode child = childOrNull(i, store);
-                KnownOutcome value = child.knownOutcome(store);
-                if (value == KnownOutcome.Draw) {
-                    bestChildOutcome = value;
-                    childIndex = i;
-                }
-            }
-            setKnownOutcome(bestChildOutcome.reverse(), store);
-            return childIndex;
-        }
-
-        return -1;
-    }
-    
 
     private int banditChild(
             int moveCount,
@@ -715,8 +620,6 @@ public class RolloutNode {
             long hashHigh = state.longHashCode();
             long hashLow = state.longHashCodeAlt();
             Move.unApply(move, state);
-
-//            long moveNodeIndex = context.store.getChildIndex(index, moveIndex);
 
             TranspositionInfo moveTransposition = context.store.getTranspositionOrNull(hashHigh, hashLow);
             if (moveTransposition == null || moveVisits > moveTransposition.visitCount()) {

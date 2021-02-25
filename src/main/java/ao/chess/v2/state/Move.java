@@ -401,7 +401,6 @@ public class Move
     //--------------------------------------------------------------------
     public static void unApply(int move, State toState)
     {
-//        Colour colour = colour(move);
         switch (moveType(move))
         {
             case MOBILITY: {

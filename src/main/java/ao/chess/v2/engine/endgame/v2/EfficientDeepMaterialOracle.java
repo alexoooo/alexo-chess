@@ -319,7 +319,7 @@ public class EfficientDeepMaterialOracle implements DeepMaterialOracle
 //                    System.out.println("foo");
 //                }
 
-                if (++count % 10_000_000 == 0) {
+                if (++count % 2_500_000 == 0) {
                     logger.info("Validated {}", count);
                 }
 

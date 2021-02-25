@@ -54,8 +54,9 @@ public class RolloutPlayer
 
 //    private final static double probabilityPowerMin = 0.75;
     private final static double probabilityPowerMin = 1.0;
+    private final static double probabilityPowerMax = 1.0;
 //    private final static double probabilityPowerMax = 2.0;
-    private final static double probabilityPowerMax = 2.5;
+//    private final static double probabilityPowerMax = 2.5;
 
 
     private final static int progressThreadIndex = 0;
@@ -149,6 +150,7 @@ public class RolloutPlayer
 
     private final LongAdder collisions = new LongAdder();
     private final LongAdder terminalHits = new LongAdder();
+    private final LongAdder terminalRolloutHits = new LongAdder();
     private final LongAdder tablebaseHits = new LongAdder();
     private final LongAdder tablebaseRolloutHits = new LongAdder();
     private final LongAdder solutionHits = new LongAdder();
@@ -399,6 +401,7 @@ public class RolloutPlayer
                     probabilityPower,
                     collisions,
                     terminalHits,
+                    terminalRolloutHits,
                     tablebaseHits,
                     tablebaseRolloutHits,
                     solutionHits,
@@ -494,17 +497,19 @@ public class RolloutPlayer
                 : (double) trajectoryLengthSum.longValue() / trajectoryCountValue;
 
         String generalPrefix = String.format(
-                "%s - %s %d | c%d x%d t%d e%d r%d s%d T%d d%.2f | %s",
+                "%s - %s %d | c%d x%d t%d tR%d e%d eR%d s%d T%d n%d l%.2f | %s",
                 id,
                 model,
                 threads,
                 pool.cacheHits(),
                 collisions.longValue(),
                 terminalHits.longValue(),
+                terminalRolloutHits.longValue(),
                 tablebaseHits.longValue(),
                 tablebaseRolloutHits.longValue(),
                 solutionHits.longValue(),
                 transpositionHits.longValue(),
+                trajectoryCountValue,
                 averageSearchDepth,
                 Move.toString(bestMove));
 

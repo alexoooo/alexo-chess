@@ -109,8 +109,10 @@ public class EfficientDeepOracle {
                 // https://syzygy-tables.info/?fen=8/8/8/1k6/8/8/8/RK6_w_-_-_0_1
 //                "8/8/8/1k6/8/8/8/RK6 w - - 0 1"
 
-                // TODO: should be draw, but shows up as win?
-                "8/4k3/8/5K1P/7P/8/8/8 b - h3 0 1"
+//                "K1k1B3/8/8/8/8/8/7N/8 w - - 0 1"
+                "8/3N4/8/8/8/p7/k2K4/8 w - - 0 1"
+
+//                "8/4k3/8/5K1P/7P/8/8/8 b - h3 0 1"
 
                 // 4k3/8/8/5K1P/7P/8/8/8 w - - 0 1
 //                "8/5k2/8/5K1P/7P/8/8/8 w - - 0 1"

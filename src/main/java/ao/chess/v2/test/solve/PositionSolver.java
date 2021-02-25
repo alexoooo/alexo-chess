@@ -45,8 +45,8 @@ public class PositionSolver {
 //        );
 
 //        boolean ensemble = true;
-        boolean ensemble = false;
-//        boolean ensemble = Math.random() >= 0.5;
+//        boolean ensemble = false;
+        boolean ensemble = Math.random() >= 0.66;
         System.out.println("Ensemble: " + ensemble + " " + LocalDateTime.now());
 
         PuctModel model;
@@ -67,8 +67,9 @@ public class PositionSolver {
         }
 
         Player player = new RolloutPlayer.Builder(model)
-//                .binerize(true)
-                .rolloutLength(4096)
+                .binerize(true)
+//                .rolloutLength(1024)
+                .rolloutLength(4196)
 //                .threads(1)
 //                .threads(2)
 //                .threads(48)
@@ -79,11 +80,11 @@ public class PositionSolver {
 //                .threads(160)
 //                .threads(192)
 //                .threads(224)
-                .threads(256)
+//                .threads(256)
 //                .threads(320)
 //                .threads(384)
 //                .threads(448)
-//                .threads(512)
+                .threads(512)
 //                .stochastic(true)
 //                .store(new SynchronizedRolloutStore(new MapRolloutStore()))
                 .store(new SynchronizedRolloutStore(
