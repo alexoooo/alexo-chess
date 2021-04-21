@@ -107,7 +107,7 @@ public class NeuralNetworkPlayer implements Player {
                     return legalMoves[i];
                 }
 
-                if (moveOutcome == Outcome.DRAW && estimate.winProbability > 0.5) {
+                if (moveOutcome == Outcome.DRAW && estimate.expectedValue() > 0.5) {
                     continue;
                 }
             }

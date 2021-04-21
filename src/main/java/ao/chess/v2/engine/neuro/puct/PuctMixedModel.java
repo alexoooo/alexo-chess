@@ -165,9 +165,6 @@ public class PuctMixedModel
     @Override
     public PuctEstimate estimate(State state, int[] legalMoves)
     {
-        double[] moveProbabilities;
-        double winProbability;
-
         NeuralCodec.INSTANCE.encodeMultiState(
                 state, features, propAttacks, oppAttacks);
 
@@ -177,29 +174,28 @@ public class PuctMixedModel
 
         INDArray[] outputs = nn[index].output(features);
 
-        moveProbabilities = NeuralCodec.INSTANCE
-                .decodeMoveMultiProbabilities(
-                        outputs[0],
-                        outputs[1],
-                        state,
-                        legalMoves,
-                        fromScores,
-                        toScores);
+        double[] moveProbabilities = NeuralCodec.INSTANCE.decodeMoveMultiProbabilities(
+                outputs[0],
+                outputs[1],
+                state,
+                legalMoves,
+                fromScores,
+                toScores);
 
-        winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2]);
+        double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeWin(outputs[2]);
+        double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeDraw(outputs[2]);
 
         return new PuctEstimate(
                 moveProbabilities,
-                winProbability
+                winProbability,
+                drawProbability
         );
     }
 
 
     @Override
     public ImmutableList<PuctEstimate> estimateAll(
-            List<PuctQuery> queries,
-            double outcomeRange,
-            double minOutcome)
+            List<PuctQuery> queries)
     {
         for (int i = 0; i < queries.size(); i++) {
             PuctQuery query = queries.get(i);
@@ -251,11 +247,11 @@ public class PuctMixedModel
                                 toScores,
                                 i);
 
-                double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2], i);
+                double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeWin(outputs[2], i);
+                double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeDraw(outputs[2], i);
 
                 PuctEstimate estimate = new PuctEstimate(
-                        moveProbabilities, winProbability,
-                        outcomeRange, minOutcome);
+                        moveProbabilities, winProbability, drawProbability);
 
                 outputBuffer.set(pointer.index, estimate);
             }

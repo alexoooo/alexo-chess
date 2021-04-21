@@ -342,7 +342,7 @@ class PuctNode {
 //                (double) state.reversibleMoves() / 350;
                 (double) state.reversibleMoves() / 550;
 
-        double adjusted = drawProximity * 0.5 + (1 - drawProximity) * estimate.winProbability;
+        double adjusted = drawProximity * 0.5 + (1 - drawProximity) * estimate.expectedValue();
 
         context.estimatedValue = adjusted;
 

@@ -149,9 +149,7 @@ public class PuctPlayer
         this.train = train;
         this.useIo = useIo;
 
-        pool = new PuctModelPool(
-                threads, model,
-                PuctNode.guessRange, PuctNode.minimumGuess);
+        pool = new PuctModelPool(threads, model);
 
         contexts = new CopyOnWriteArrayList<>();
 

@@ -22,6 +22,13 @@ import java.time.LocalDateTime;
  * 
  * See
  *   http://en.wikibooks.org/wiki/Chess/Puzzles/Directmates
+ *   https://lichess.org/forum/team-lichess-bots/how-to-become-a-bot
+ *   https://github.com/ShailChoksi/lichess-bot
+ *   https://lichess.org/api#operation/apiStreamEvent
+ *   https://lichess.org/blog/WvDNticAAMu_mHKP/welcome-lichess-bots
+ *   https://lichess.org/forum/team-robotpatzer-and-patzer-players/making-a-lichess-bot#7
+ *   https://lichess.org/forum/general-chess-discussion/playing-as-a-lichess-bot-the-easy-way?page=1
+ *   https://lichess.org/forum/general-chess-discussion/how-do-i-register-a-bot-account
  */
 public class BrainTeaser {
     //--------------------------------------------------------------------
@@ -132,7 +139,7 @@ public class BrainTeaser {
         Player player = new RolloutPlayer.Builder(model)
 //                .binerize(false)
                 .binerize(true)
-//                .rolloutLength(4 * 1024)
+                .rolloutLength(4 * 1024)
 //                .threads(1)
 //                .threads(2)
 //                .threads(48)
@@ -235,7 +242,7 @@ public class BrainTeaser {
 //                "r3r2k/p4Qbp/3N2p1/3Ppb2/2B5/2P5/PP4PP/5R1K w - - 5 27"
 //                "r3N2k/p4Q1p/6pb/3Ppb2/2B5/2P5/PP4PP/5R1K w - - 1 28"
 //                "r3N1k1/p6p/5Qpb/3Ppb2/2B5/2P5/PP4PP/5R1K w - - 3 29"
-                "r3N1k1/p6p/3PbQpb/4p3/2B5/2P5/PP4PP/5R1K w - - 1 30"
+//                "r3N1k1/p6p/3PbQpb/4p3/2B5/2P5/PP4PP/5R1K w - - 1 30"
 
                 // https://www.youtube.com/watch?v=yyHmAx3d7GI
 //                "r5k1/p1p3pp/2p3n1/3pp3/4P2q/1B3r1P/P2PNP2/RNB1QRK1 w - - 0 1"
@@ -243,7 +250,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pp2pppp/2np4/2p5/4P3/3P1N2/PPP2PPP/RNBQKB1R w KQkq - 1 4"
 
                 // "simple draw"?
-//                "8/1p1b4/8/P7/3BPk2/7p/6pK/8 b - - 0 1"
+                "8/1p1b4/8/P7/3BPk2/7p/6pK/8 b - - 0 1"
 
                 // http://www.talkchess.com/forum3/viewtopic.php?t=57603
 //                "8/8/8/1k6/8/8/8/RK6 w - -"

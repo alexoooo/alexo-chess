@@ -15,8 +15,7 @@ public interface PuctModel {
 
     PuctEstimate estimate(State state, int[] legalMoves);
 
-    ImmutableList<PuctEstimate> estimateAll(
-            List<PuctQuery> queries, double outcomeRange, double minOutcome);
+    ImmutableList<PuctEstimate> estimateAll(List<PuctQuery> queries);
 
 
     default int nextPartition() {

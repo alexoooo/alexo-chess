@@ -53,10 +53,13 @@ public class RolloutPlayer
 ////    private final static double explorationVariance = 2.0;
 
 //    private final static double probabilityPowerMin = 0.75;
-    private final static double probabilityPowerMin = 1.0;
-    private final static double probabilityPowerMax = 1.0;
+//    private final static double probabilityPowerMin = 1.0;
+//    private final static double probabilityPowerMin = 1.25;
+    private final static double probabilityPowerMin = 2.0;
+//    private final static double probabilityPowerMax = 1.0;
 //    private final static double probabilityPowerMax = 2.0;
 //    private final static double probabilityPowerMax = 2.5;
+    private final static double probabilityPowerMax = 3.0;
 
 
     private final static int progressThreadIndex = 0;
@@ -497,11 +500,12 @@ public class RolloutPlayer
                 : (double) trajectoryLengthSum.longValue() / trajectoryCountValue;
 
         String generalPrefix = String.format(
-                "%s - %s %d | c%d x%d t%d tR%d e%d eR%d s%d T%d n%d l%.2f | %s",
+                "%s - %s %d | c%d cL%d x%d t%d tR%d e%d eR%d s%d T%d n%d l%.2f | %s",
                 id,
                 model,
                 threads,
                 pool.cacheHits(),
+                pool.localCacheHits(),
                 collisions.longValue(),
                 terminalHits.longValue(),
                 terminalRolloutHits.longValue(),
@@ -520,7 +524,7 @@ public class RolloutPlayer
 
         if (bestMove != -1) {
             log(id + " - PV: " + root.principalVariation(bestMove, state, store));
-            log(id + " - UCB: " + root.ucbVariation(state, store, contexts.get(progressThreadIndex)));
+            log(id + " - UCB: " + root.ucbVariation(state, /*store,*/ contexts.get(progressThreadIndex)));
         }
     }
 

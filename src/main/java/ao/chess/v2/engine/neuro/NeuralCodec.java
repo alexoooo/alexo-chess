@@ -164,10 +164,27 @@ public enum NeuralCodec {
     }
 
 
-    public double decodeMultiOutcome(
-            INDArray output
-    ) {
+    public double decodeMultiOutcome(INDArray output) {
         return decodeMultiOutcome(output, 0);
+    }
+
+
+
+    public double decodeMultiOutcomeWin(INDArray output) {
+        return decodeMultiOutcomeWin(output, 0);
+    }
+
+    public double decodeMultiOutcomeDraw(INDArray output) {
+        return decodeMultiOutcomeDraw(output, 0);
+    }
+
+    public double decodeMultiOutcomeWin(INDArray output, int batch) {
+        return output.getDouble(batch, 0);
+    }
+
+
+    public double decodeMultiOutcomeDraw(INDArray output, int batch) {
+        return output.getDouble(batch, 2);
     }
 
 

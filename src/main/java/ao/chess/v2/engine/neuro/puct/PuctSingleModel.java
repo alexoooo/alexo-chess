@@ -72,15 +72,12 @@ public class PuctSingleModel
     @Override
     public PuctEstimate estimate(State state, int[] legalMoves)
     {
-        double[] moveProbabilities;
-        double winProbability;
-
         NeuralCodec.INSTANCE.encodeMultiState(
                 state, features, propAttacks, oppAttacks);
 
         INDArray[] outputs = ((ComputationGraph) nn).output(features);
 
-        moveProbabilities = NeuralCodec.INSTANCE
+        double[] moveProbabilities = NeuralCodec.INSTANCE
                 .decodeMoveMultiProbabilities(
                         outputs[0],
                         outputs[1],
@@ -89,20 +86,16 @@ public class PuctSingleModel
                         fromScores,
                         toScores);
 
-        winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2]);
+        double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeWin(outputs[2]);
+        double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeDraw(outputs[2]);
 
-        return new PuctEstimate(
-                moveProbabilities,
-                winProbability
-        );
+        return new PuctEstimate(moveProbabilities, winProbability, drawProbability);
     }
 
 
     @Override
     public ImmutableList<PuctEstimate> estimateAll(
-            List<PuctQuery> queries,
-            double outcomeRange,
-            double minOutcome)
+            List<PuctQuery> queries)
     {
         int size = queries.size();
         while (batchFeatures.size() < size)
@@ -128,22 +121,21 @@ public class PuctSingleModel
         for (int i = 0; i < size; i++) {
             PuctQuery query = queries.get(i);
 
-            double[] moveProbabilities = NeuralCodec.INSTANCE
-                    .decodeMoveMultiProbabilities(
-                            outputs[0],
-                            outputs[1],
-                            query.state,
-                            query.legalMoves,
-                            query.moveCount,
-                            fromScores,
-                            toScores,
-                            i);
+            double[] moveProbabilities = NeuralCodec.INSTANCE.decodeMoveMultiProbabilities(
+                    outputs[0],
+                    outputs[1],
+                    query.state,
+                    query.legalMoves,
+                    query.moveCount,
+                    fromScores,
+                    toScores,
+                    i);
 
             double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2], i);
+            double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2], i);
 
             PuctEstimate estimate = new PuctEstimate(
-                    moveProbabilities, winProbability,
-                    outcomeRange, minOutcome);
+                    moveProbabilities, winProbability, drawProbability);
             all.add(estimate);
         }
 

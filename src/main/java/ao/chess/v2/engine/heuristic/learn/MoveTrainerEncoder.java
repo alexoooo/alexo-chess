@@ -156,18 +156,18 @@ public class MoveTrainerEncoder
 
         INDArray[] outputs = nn.output(featuresSingle);
 
-        double[] moveProbabilities = NeuralCodec.INSTANCE
-                .decodeMoveMultiProbabilities(
-                        outputs[0],
-                        outputs[1],
-                        example.state(),
-                        example.legalMoves(),
-                        fromScores,
-                        toScores);
+        double[] moveProbabilities = NeuralCodec.INSTANCE.decodeMoveMultiProbabilities(
+                outputs[0],
+                outputs[1],
+                example.state(),
+                example.legalMoves(),
+                fromScores,
+                toScores);
 
-        double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2]);
+        double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeWin(outputs[2]);
+        double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeDraw(outputs[2]);
 
-        return new PuctEstimate(moveProbabilities, winProbability);
+        return new PuctEstimate(moveProbabilities, winProbability, drawProbability);
     }
 
 
@@ -190,19 +190,19 @@ public class MoveTrainerEncoder
 
         for (int batchIndex = 0; batchIndex < batchSize; batchIndex++)
         {
-            double[] moveProbabilities = NeuralCodec.INSTANCE
-                    .decodeMoveMultiProbabilities(
-                            outputs[0],
-                            outputs[1],
-                            examples.get(batchIndex).state(),
-                            examples.get(batchIndex).legalMoves(),
-                            fromScores,
-                            toScores,
-                            batchIndex);
+            double[] moveProbabilities = NeuralCodec.INSTANCE.decodeMoveMultiProbabilities(
+                    outputs[0],
+                    outputs[1],
+                    examples.get(batchIndex).state(),
+                    examples.get(batchIndex).legalMoves(),
+                    fromScores,
+                    toScores,
+                    batchIndex);
 
-            double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2], batchIndex);
+            double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeWin(outputs[2], batchIndex);
+            double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeDraw(outputs[2], batchIndex);
 
-            estimates.add(new PuctEstimate(moveProbabilities, winProbability));
+            estimates.add(new PuctEstimate(moveProbabilities, winProbability, drawProbability));
         }
 
         return estimates;

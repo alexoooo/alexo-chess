@@ -5,10 +5,7 @@ import ao.chess.v2.state.State;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -29,9 +26,6 @@ public class PuctModelPool
     private final int batchSize;
     private final PuctModel model;
 
-    private final double outcomeRange;
-    private final double minOutcome;
-
     private final BlockingDeque<PuctQuery> queryQueue;
     private Thread worker;
     private volatile boolean isRoot = false;
@@ -45,6 +39,7 @@ public class PuctModelPool
             .build();
 
     private final LongAdder cacheHits = new LongAdder();
+    private final LongAdder localCacheHits = new LongAdder();
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -52,21 +47,8 @@ public class PuctModelPool
             int batchSize,
             PuctModel model)
     {
-        this(batchSize, model, 1.0, 0.0);
-    }
-
-
-    public PuctModelPool(
-            int batchSize,
-            PuctModel model,
-            double outcomeRange,
-            double minOutcome)
-    {
         this.batchSize = batchSize;
         this.model = model;
-
-        this.outcomeRange = outcomeRange;
-        this.minOutcome = minOutcome;
 
         queryQueue = new LinkedBlockingDeque<>();
     }
@@ -145,8 +127,7 @@ public class PuctModelPool
             if (isRoot) {
                 buffer.addAll(newQueries);
                 checkState(buffer.size() == 1);
-                List<PuctEstimate> estimates = model.estimateAll(
-                        buffer, /*0.0,*/ 1.0, 0.0);
+                List<PuctEstimate> estimates = model.estimateAll(buffer);
                 buffer.get(0).result.complete(estimates.get(0));
                 buffer.clear();
             }
@@ -175,8 +156,7 @@ public class PuctModelPool
 
 
     private void processBuffer(List<PuctQuery> buffer) {
-        List<PuctEstimate> estimates = model.estimateAll(
-                buffer, outcomeRange, minOutcome);
+        List<PuctEstimate> estimates = model.estimateAll(buffer);
 
         for (int i = 0; i < buffer.size(); i++) {
             PuctQuery query = buffer.get(i);
@@ -252,14 +232,47 @@ public class PuctModelPool
     }
 
 
+    public PuctEstimate estimateBlockingLocalCached(
+            State state, int[] legalMoves, int moveCount, Map<CacheKey, PuctEstimate> localCache)
+    {
+        CacheKey cacheKey = new CacheKey(state.staticHashCode(), model.nextPartition());
+        PuctEstimate cached = localCache.get(cacheKey);
+        if (cached != null) {
+            localCacheHits.increment();
+            return cached;
+        }
+
+        PuctQuery query = new PuctQuery(state, legalMoves, moveCount);
+
+        queryQueue.add(query);
+
+        PuctEstimate result;
+        try {
+            result = query.result.get();
+        }
+        catch (ExecutionException | InterruptedException e) {
+            throw new IllegalStateException(e);
+        }
+
+        localCache.put(cacheKey, result);
+
+        return result;
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     public long cacheHits() {
 //        return cache.stats().hitCount();
         return cacheHits.longValue();
     }
 
+    public long localCacheHits() {
+        return localCacheHits.longValue();
+    }
+
 
     //-----------------------------------------------------------------------------------------------------------------
-    private static class CacheKey {
+    public static class CacheKey {
         private final long position;
         private final int partition;
 
@@ -279,7 +292,8 @@ public class PuctModelPool
 
         @Override
         public int hashCode() {
-            return Objects.hash(position, partition);
+//            return Objects.hash(position, partition);
+            return (int) (31 * position + partition);
         }
     }
 }

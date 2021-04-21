@@ -238,8 +238,8 @@ public class RolloutTester {
             rolloutLength++;
             rolloutValueSum +=
                     state.nextToAct() == fromPov
-                    ? estimate.winProbability
-                    : 1.0 - estimate.winProbability;
+                    ? estimate.expectedValue()
+                    : 1.0 - estimate.expectedValue();
 
             int bestMoveIndex = 0;
             double bestMoveScore = Double.NEGATIVE_INFINITY;

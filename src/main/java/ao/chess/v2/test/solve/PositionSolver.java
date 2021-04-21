@@ -46,7 +46,7 @@ public class PositionSolver {
 
 //        boolean ensemble = true;
 //        boolean ensemble = false;
-        boolean ensemble = Math.random() >= 0.66;
+        boolean ensemble = Math.random() <= 0.66;
         System.out.println("Ensemble: " + ensemble + " " + LocalDateTime.now());
 
         PuctModel model;

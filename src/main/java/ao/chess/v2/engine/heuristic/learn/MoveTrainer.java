@@ -545,7 +545,7 @@ public class MoveTrainer {
             PuctEstimate prediction,
             MoveHistory example)
     {
-        double predictedOutcome = prediction.winProbability;
+        double predictedOutcome = prediction.expectedValue();
         double actualOutcome = example.outcome().valueFor(example.state().nextToAct());
         double outcomeError = Math.abs(predictedOutcome - actualOutcome);
 
