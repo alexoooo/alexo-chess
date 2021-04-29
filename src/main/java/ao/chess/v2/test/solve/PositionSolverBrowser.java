@@ -117,7 +117,6 @@ public class PositionSolverBrowser {
 //                "1.d4 c5 2.d5 g6 3.e4";
 //                "1.d4 c5 2.d5 f5 3.h4";
 //                "1.d4 c5 2.d5 Nf6 3.c4 b5";
-//                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6";
 //                "1.c4 c5 2.Nf3 Nf6 3.Nc3 d5";
 //                "1.c4 c5 2.Nf3 Nf6 3.Nc3 d5";
 //                "1.c4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3";
@@ -131,10 +130,15 @@ public class PositionSolverBrowser {
 //                "1.d4 Nf6 2.c4 e5 3.dxe5 Ng4 4.Bf4 g5 5.Bg3 Bg7 6.Nf3 Nc6 7.Nc3 Ngxe5 8.Nxe5 Nxe5 9.e3 d6 10.Be2 Be6";
 //                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.Nd2 bxc4 5.e4 c3 6.bxc3 g6 7.Ngf3 Bg7 8.Bd3 O-O 9.O-O d6 10.Rb1 Nbd7";
 //                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.b6 Qxb6 6.Nc3 d6 7.e4 g6 8.Nf3 Bg7 9.Be2 O-O 10.O-O Bg4";
-            "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.b6 a5 6.Nc3 Qxb6"; // x
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.b6 a5 6.Nc3"; // x
 //                "1.c4 c5 2.Nf3 g6 3.d4 cxd4 4.Nxd4"; // x
 //                "1.Nf3 d5 2.d4 c5 3.c4 e6"; // x
 //                "1.e4 c5 2.Nf3 d6 3.d4"; // x
+
+//                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6";
+//                "1.c4 c5 2.Nf3 Nf6 3.Nc3 d5";
+//                "1.c4 c5 2.Nf3 Nf6 3.Nc3 Nc6 4.e3";
+                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.b6 a5 6.Nc3";
 
         List<State> moveHistories = PgnParser.parse(history);
 

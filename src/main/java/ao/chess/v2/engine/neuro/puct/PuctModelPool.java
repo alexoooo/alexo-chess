@@ -29,6 +29,7 @@ public class PuctModelPool
     private final BlockingDeque<PuctQuery> queryQueue;
     private Thread worker;
     private volatile boolean isRoot = false;
+    private int previousPieceCount = -1;
 
     private final Cache<CacheKey, PuctEstimate> cache = CacheBuilder.newBuilder()
             .concurrencyLevel(1)
@@ -57,6 +58,11 @@ public class PuctModelPool
     //-----------------------------------------------------------------------------------------------------------------
     public void restart(int pieceCount)
     {
+        if (previousPieceCount == pieceCount && worker != null) {
+            return;
+        }
+        previousPieceCount = pieceCount;
+
         if (worker != null) {
             close();
         }

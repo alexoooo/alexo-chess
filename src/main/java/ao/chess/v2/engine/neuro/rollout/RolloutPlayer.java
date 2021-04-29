@@ -300,7 +300,7 @@ public class RolloutPlayer
             futures.add(future);
 
             try {
-                // NB: avoid pile-up of collissions
+                // NB: avoid pile-up of collisions
                 Thread.sleep(initDelayMillis);
             }
             catch (InterruptedException e) {

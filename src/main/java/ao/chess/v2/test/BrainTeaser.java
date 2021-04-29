@@ -250,7 +250,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pp2pppp/2np4/2p5/4P3/3P1N2/PPP2PPP/RNBQKB1R w KQkq - 1 4"
 
                 // "simple draw"?
-                "8/1p1b4/8/P7/3BPk2/7p/6pK/8 b - - 0 1"
+//                "8/1p1b4/8/P7/3BPk2/7p/6pK/8 b - - 0 1"
 
                 // http://www.talkchess.com/forum3/viewtopic.php?t=57603
 //                "8/8/8/1k6/8/8/8/RK6 w - -"
@@ -258,6 +258,7 @@ public class BrainTeaser {
 //                "4k3/8/8/PpPpPpPp/PpPpPpPp/8/8/4K3 b - a3"
 
 //                "rnbqkb1r/pppp1ppp/8/4P3/4n3/2P2P2/P5PP/RNBQKBNR b KQkq - 0 1"
+                "4R3/8/8/2Pkp3/N7/4rnKB/1nb5/b1r5 w - - 0 1"
 
 //                "2K1k1br/2qp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 w - - 0 14"
 //                "4k1br/2Kp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 b - - 0 14"
