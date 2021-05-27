@@ -1,16 +1,14 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
-import ao.chess.v2.engine.neuro.puct.PuctMixedModel;
+import ao.chess.v2.engine.neuro.puct.PuctEnsembleModel;
 import ao.chess.v2.engine.neuro.puct.PuctModel;
 import ao.chess.v2.engine.neuro.rollout.RolloutPlayer;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableRangeMap;
-import com.google.common.collect.Range;
+import com.google.common.collect.ImmutableList;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
@@ -118,28 +116,29 @@ public class BrainTeaser {
 ////                .stochastic(true)
 //                .build();
 
-        PuctModel model = new PuctMixedModel(ImmutableRangeMap.<Integer, Path>builder()
-                .put(Range.closed(2, 20),
-                        Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
-                .put(Range.closed(21, 28),
-                        Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
-                .put(Range.closed(29, 32),
-                        Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
-                .build());
+//        PuctModel model = new PuctMixedModel(ImmutableRangeMap.<Integer, Path>builder()
+//                .put(Range.closed(2, 20),
+//                        Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
+//                .put(Range.closed(21, 28),
+//                        Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
+//                .put(Range.closed(29, 32),
+//                        Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
+//                .build());
 //        PuctModel model = new PuctMultiModel(ImmutableRangeMap.<Integer, Path>builder()
 //                .put(Range.closed(2, 22),
 //                        Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
 //                .put(Range.closed(23, 32),
 //                        Paths.get("lookup/nn/res_20_n1307.zip"))
 //                .build());
-//        PuctModel model = new PuctEnsembleModel(ImmutableList.of(
-//                Paths.get("lookup/nn/res_20_n1307.zip"),
-//                Paths.get("lookup/nn/res_20_b_n1008.zip")
-//        ));
+        PuctModel model = new PuctEnsembleModel(ImmutableList.of(
+                Paths.get("lookup/nn/res_20_n1307.zip"),
+                Paths.get("lookup/nn/res_20_b_n1008.zip")
+        ));
         Player player = new RolloutPlayer.Builder(model)
 //                .binerize(false)
                 .binerize(true)
                 .rolloutLength(4 * 1024)
+                .certaintyLimit(1.0)
 //                .threads(1)
 //                .threads(2)
 //                .threads(48)
@@ -258,7 +257,25 @@ public class BrainTeaser {
 //                "4k3/8/8/PpPpPpPp/PpPpPpPp/8/8/4K3 b - a3"
 
 //                "rnbqkb1r/pppp1ppp/8/4P3/4n3/2P2P2/P5PP/RNBQKBNR b KQkq - 0 1"
-                "4R3/8/8/2Pkp3/N7/4rnKB/1nb5/b1r5 w - - 0 1"
+//                "4R3/8/8/2Pkp3/N7/4rnKB/1nb5/b1r5 w - - 0 1"
+
+                // https://www.chess.com/article/view/10-positions-chess-engines-just-dont-understand
+//                "8/p7/kpP5/qrp1b3/rpP2b2/pP4b1/P3K3/8 w - - 0 1" // fail
+//                "1b1r2k1/1q2rpn1/p1p3p1/Pp1p1pPp/1P1P1P1P/2PNP1Q1/2BR4/1K1R4 b - - 46 59" // ok?
+
+//                "2k5/2p5/1q1p4/pPpPp1pp/N1P1Pp2/P4PbP/KQ4P1/8 w - - 7 46" // h4
+
+//                "8/1p1q1k2/1Pp5/p1Pp4/P2Pp1p1/4PpPp/1N3P1P/3B2K1 w - - 0 1" // Bb3
+//                "2q5/1p3k2/1Pp5/p1Pp4/P2Pp1p1/1B2PpPp/1N3P1P/6K1 w - - 2 2" // doesn't see Nd1?
+
+//                "3B4/1r2p3/r2p1p2/bkp1P1p1/1p1P1PPp/p1P4P/PPB1K3/8 w - - 0 1" // can't see Ba4
+//                "r7/7k/5R2/p3p3/Pp1pPp2/1PpP1Pp1/K1P3P1/8 w - - 0 1" // can't see draw
+//                "q7/8/2p5/B2p2pp/5pp1/2N3k1/6P1/7K w - - 0 1" // Ne5 as 0.4+
+                "8/8/4kpp1/3p1b2/p6P/2B5/6P1/6K1 b - - 2 47"
+
+                // https://www.chessprogramming.org/Bratko-Kopec_Test
+//                "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - -"
+//                "3r1k2/4npp1/1ppr3p/p6P/P2PPPP1/1NR5/5K2/2R5 w - -"
 
 //                "2K1k1br/2qp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 w - - 0 14"
 //                "4k1br/2Kp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 b - - 0 14"

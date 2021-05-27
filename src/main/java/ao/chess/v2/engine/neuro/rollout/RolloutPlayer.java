@@ -77,6 +77,7 @@ public class RolloutPlayer
         private int minimumTrajectories = 0;
         private boolean optimize = false;
         private boolean binerize = false;
+        private double certaintyLimit = 0.97;
         private boolean useIo = false;
 
 
@@ -92,6 +93,11 @@ public class RolloutPlayer
 
         public Builder rolloutLength(int rolloutLength) {
             this.rolloutLength = rolloutLength;
+            return this;
+        }
+
+        public Builder certaintyLimit(double certaintyLimit) {
+            this.certaintyLimit = certaintyLimit;
             return this;
         }
 
@@ -132,6 +138,7 @@ public class RolloutPlayer
                     rolloutLength,
                     minimumTrajectories,
                     binerize,
+                    certaintyLimit,
                     optimize,
                     useIo);
         }
@@ -148,6 +155,7 @@ public class RolloutPlayer
     private final int minimumTrajectories;
     private final boolean useIo;
     private final boolean binerize;
+    private final double certaintyLimit;
     private final boolean optimize;
     private boolean train;
 
@@ -183,6 +191,7 @@ public class RolloutPlayer
             int rolloutLength,
             int minumumTrajectories,
             boolean binerize,
+            double certaintyLimit,
             boolean optimize,
             boolean useIo)
     {
@@ -192,6 +201,7 @@ public class RolloutPlayer
         this.rolloutLength = rolloutLength;
         this.minimumTrajectories = minumumTrajectories;
         this.binerize = binerize;
+        this.certaintyLimit = certaintyLimit;
         this.optimize = optimize;
         this.useIo = useIo;
 
@@ -401,6 +411,7 @@ public class RolloutPlayer
                     pool,
                     store,
                     binerize,
+                    certaintyLimit,
                     probabilityPower,
                     collisions,
                     terminalHits,

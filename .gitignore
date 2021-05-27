@@ -4,3 +4,5 @@ table
 *.iml
 target
 lookup
+dependency-reduced-pom.xml
+games.txt

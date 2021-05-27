@@ -30,7 +30,9 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class RolloutNode {
     //-----------------------------------------------------------------------------------------------------------------
-    private static final double certaintyLimit = 0.95;
+//    private static final double certaintyLimit = 0.95;
+//    private static final double certaintyLimit = 0.97;
+//    private static final double certaintyLimit = 0.975;
 //    private static final double certaintyLimit = 0.98;
 //    private static final double certaintyLimit = 0.99;
 
@@ -464,7 +466,7 @@ public class RolloutNode {
                 break;
             }
 
-            if (estimate.certainty() >= certaintyLimit) {
+            if (estimate.certainty() >= context.certaintyLimit) {
                 return stateValue;
             }
 
@@ -915,7 +917,7 @@ public class RolloutNode {
 
         String childSummary = indexes
                 .stream()
-                .map(i -> String.format("%s %d %.4f",
+                .map(i -> String.format("%s %d %.5f",
                         Move.toInputNotation(moves[i]),
                         counts[i],
                         counts[i] == 0 ? unknownMoveEstimate : values[i] / counts[i]

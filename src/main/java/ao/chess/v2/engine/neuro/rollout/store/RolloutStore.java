@@ -70,7 +70,6 @@ public interface RolloutStore extends AutoCloseable {
     }
 
 
-
     //-----------------------------------------------------------------------------------------------------------------
     // NB: used to avoid repeated synchronization
 

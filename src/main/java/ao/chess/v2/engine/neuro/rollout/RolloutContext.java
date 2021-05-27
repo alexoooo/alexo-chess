@@ -19,6 +19,7 @@ class RolloutContext {
     public final RolloutStore store;
     public final int rolloutLength;
     public final boolean binerize;
+    public final double certaintyLimit;
     public final double probabilityPower;
 
     public final Random random = new Random();
@@ -53,6 +54,7 @@ class RolloutContext {
             RolloutStore store,
 
             boolean binerize,
+            double certaintyLimit,
             double probabilityPower,
             LongAdder collisions,
             LongAdder terminalHits,
@@ -70,6 +72,7 @@ class RolloutContext {
         this.store = store;
         this.rolloutLength = rolloutLength;
         this.binerize = binerize;
+        this.certaintyLimit = certaintyLimit;
         this.probabilityPower = probabilityPower;
 
         this.collisions = collisions;
