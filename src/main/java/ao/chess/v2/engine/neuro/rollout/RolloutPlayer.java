@@ -5,6 +5,8 @@ import ao.chess.v2.data.MovePicker;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
 import ao.chess.v2.engine.endgame.v2.EfficientDeepOracle;
+import ao.chess.v2.engine.eval.PositionEvaluator;
+import ao.chess.v2.engine.eval.PuctRolloutEval;
 import ao.chess.v2.engine.neuro.puct.PuctModel;
 import ao.chess.v2.engine.neuro.puct.PuctModelPool;
 import ao.chess.v2.engine.neuro.rollout.store.KnownOutcome;
@@ -79,12 +81,18 @@ public class RolloutPlayer
         private boolean binerize = false;
         private double certaintyLimit = 0.97;
         private boolean useIo = false;
+        private PositionEvaluator evaluator = new PuctRolloutEval();
 
 
         public Builder(PuctModel model) {
             this.model = model;
         }
 
+
+        public Builder evaluator(PositionEvaluator evaluator) {
+            this.evaluator = evaluator;
+            return this;
+        }
 
         public Builder threads(int threads) {
             this.threads = threads;
@@ -134,6 +142,7 @@ public class RolloutPlayer
             return new RolloutPlayer(
                     model,
                     store,
+                    evaluator,
                     threads,
                     rolloutLength,
                     minimumTrajectories,
@@ -148,6 +157,7 @@ public class RolloutPlayer
     //-----------------------------------------------------------------------------------------------------------------
     private final String id;
     private final RolloutStore store;
+    private final PositionEvaluator evaluator;
     private final PuctModel model;
     private final PuctModelPool pool;
     private final int threads;
@@ -187,6 +197,7 @@ public class RolloutPlayer
     public RolloutPlayer(
             PuctModel model,
             RolloutStore store,
+            PositionEvaluator evaluator,
             int threads,
             int rolloutLength,
             int minumumTrajectories,
@@ -197,6 +208,7 @@ public class RolloutPlayer
     {
         this.model = model;
         this.store = store;
+        this.evaluator = evaluator;
         this.threads = threads;
         this.rolloutLength = rolloutLength;
         this.minimumTrajectories = minumumTrajectories;
@@ -356,7 +368,7 @@ public class RolloutPlayer
             long episodeDeadline = System.currentTimeMillis() + episodeMillis;
             do {
                 int length = root.runTrajectory(
-                        state.prototype(), context);
+                        state.prototype(), context, evaluator);
 
                 if (length == 0) {
                     break;
@@ -567,6 +579,8 @@ public class RolloutPlayer
         catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+        evaluator.close();
     }
 
 

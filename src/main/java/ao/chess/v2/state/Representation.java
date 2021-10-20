@@ -209,12 +209,13 @@ public class Representation
                 Piece p = board[rank][file];
                 if (p == null) {
                     emptySquares++;
-                } else {
+                }
+                else {
                     if (emptySquares > 0) {
                         str.append(emptySquares);
                         emptySquares = 0;
                     }
-                    str.append(p.toString());
+                    str.append(p);
                 }
             }
             if (emptySquares > 0) {
@@ -234,7 +235,8 @@ public class Representation
         // castles
         if (castles == null) {
             str.append("-");
-        } else {
+        }
+        else {
             str.append(castles.toFen());
         }
 

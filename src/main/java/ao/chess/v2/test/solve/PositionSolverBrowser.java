@@ -27,7 +27,6 @@ public class PositionSolverBrowser {
 //                "1.c4 c5 2.Nf3 g6 3.e4 Bg7 4.d4 cxd4 5.Nxd4 Nc6 6.Nc2 Qb6 7.Nc3 Bxc3 8.bxc3 Qa5 9.f3 b6 10.Be2 Nf6 " +
 //                    "11.O-O O-O";
 //                "1.d4 Nf6 2.c4 c6 3.Nf3 d5 4.e3 Bf5 5.Nc3";
-//                "1.d4 g6 2.c4 Bg7 3.Nc3 d6 4.Nf3 Nf6";
 //                "1.d4 d5 2.Nf3 Nf6 3.c4 dxc4 4.e3 e6 5.Bxc4 c5 6.O-O a6 7.a4 cxd4 8.exd4 Nc6 9.Nc3 Bb4";
 //                "1.d4 d5 2.Nf3 e6 3.c4 dxc4 4.e3 a6 5.Bxc4 Nf6 6.O-O Nbd7";
 //                "1.d4 c6 2.e4 d5 3.e5 Bf5 4.c4 e6 5.Nc3 Ne7";
@@ -111,9 +110,7 @@ public class PositionSolverBrowser {
 
 //                "1.d4 d5 2.c4 e6 3.Nc3 Nf6";
 //                "1.d4 e6 2.c4 d5 3.Nc3 Nf6";
-//                "1.d4 Nf6 2.c4 e6 3.Nf3";
 //                "1.d4 d5 2.c4 e6 3.Nc3 c5"; //
-//                "1.d4 g6 2.c4 Bg7 3.Nc3 d6";
 //                "1.d4 c5 2.d5 g6 3.e4";
 //                "1.d4 c5 2.d5 f5 3.h4";
 //                "1.d4 c5 2.d5 Nf6 3.c4 b5";
@@ -136,6 +133,8 @@ public class PositionSolverBrowser {
 //                "1.e4 c5 2.Nf3 d6 3.d4"; // x
 
 //                "1.e4 e5 2.Nf3 Nc6 3.Bb5";
+//                "1.e4 c5 2.Nf3 Nc6 3.c3 Nf6";
+//                "1.e4 Nc6 2.d4 d5 3.exd5";
 //                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6";
 //                "1.c4 c5 2.Nf3 Nf6 3.Nc3 d5";
 //                "1.c4 c5 2.Nf3 Nf6 3.Nc3 Nc6 4.e3";
@@ -143,15 +142,54 @@ public class PositionSolverBrowser {
 //                "1.c4 c5 2.Nf3 g6 3.e3 Nf6 4.Nc3";
 //                "1.c4 Nf6 2.Nc3 c5 3.Nf3 Nc6";
 //                "1.c4 Nf6 2.Nf3 c5 3.Nc3 Nc6";
-//                "1.c4 c5 2.Nc3 Nc6 3.e3 Nf6 4.Nf3 e6 5.d4 d5 6.a3 a6 7.dxc5";
 //                "1.c4 c5 2.Nf3 Nc6 3.e3 Nf6 4.h3";
 //                "1.c4 c5 2.Nf3 g6 3.Nc3 Bg7 4.e3 Nf6";
-                "1.c4 c5 2.Nf3 g6 3.Nc3 Bg7 4.g3 Nc6"; // x
-//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.bxa6 g6 6.Nc3";
-//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.bxa6 d6 6.Nc3";
 //                "1.Nf3 d5 2.d4 c5 3.c4 cxd4 4.cxd5 Nf6";
-//                "1.Nf3 Nf6 2.c4 c5 3.Nc3 Nc6 4.g3"; // x
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.bxa6 d6 6.Nc3";
+//                "1.Nf3 Nf6 2.c4 c5 3.g3 Nc6 4.Bg2 d5";
 //                "1.Nf3 c5 2.c4 g6 3.Nc3 Bg7";
+//                "1.c4 c5 2.Nc3 g6 3.g3 Bg7 4.Bg2 Nc6";
+//                "1.c4 c5 2.Nc3 Nf6 3.Nf3 g6 4.g3 Nc6";
+//                "1.c4 c5 2.Nf3 g6 3.Nc3 Bg7 4.h3 Nf6"; // x
+//                "1.Nf3 Nf6 2.c4 c5 3.e3 g6 4.Nc3 Bg7";
+//                "1.Nf3 Nf6 2.c4 c5 3.Nc3 Nc6 4.e3 e6 5.d4 d5";
+//                "1.Nf3 Nf6 2.c4 c5 3.Nc3 g6 4.e3 Bg7 5.d4";
+//                "1.Nf3 Nf6 2.c4 c5 3.Nc3 g6 4.g3 Nc6 5.Bg2 Bg7";
+//                "1.Nf3 Nf6 2.c4 c5 3.Nc3 g6 4.d4 cxd4 5.Nxd4 Nc6 6.Nc2"; // x
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.bxa6 g6 6.a7 Ra7 7.Nc3";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.Nf3 b4 5.Nbd2 a5";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.Nf3 g6 5.cxb5 a6 6.b6";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.h3 b4 5.Nbd2 d6 6.e4";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.h3 bxc4 5.Nc3 Ba6 6.Qa4";
+//                "1.d4 Nf6 2.c4 c5 3.dxc5 e6 4.g3 Bxc5";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.b6 Qxb6 6.Nc3 d6 7.h3";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.b6 g6 6.Nc3 Qxb6";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.bxa6 Bxa6 6.Nc3 d6 7.Qc2";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.b6 a5 6.Nc3 g6 7.e4 d6";
+//                "1.d4 Nf6 2.Nf3 c5 3.d5 b5 4.c4 g6 5.cxb5";
+//                "1.d4 Nf6 2.Nf3 c5 3.d5 b5 4.e4 Nxe4 5.Bd3";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.Nf3 g6 5.Nbd2 bxc4 6.e4 c3 7.bxc3 Bg7 8.Qc2";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.Nf3 g6 5.Nbd2 bxc4 6.e4 Bg7 7.Bxc4 O-O 8.O-O d6 9.Re1";
+//                "1.d4 g6 2.c4 c5 3.d5 b5";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.b6 e6 6.e4 Nxe4 7.Nc3 Nxc3 8.bxc3 Qxb6";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.Nf3 bxc4 5.Nc3 d6 6.e4 Nbd7 7.Bxc4 g6";
+//                "1.d4 d6 2.Nc3 Nf6 3.e4";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.Nf3 d6 5.cxb5 a6 6.b6 Nbd7 7.Nc3";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.Nf3 d6 5.Nbd2 bxc4 6.e4 Nbd7 7.Bxc4 g6 8.b3";
+//                "1.d4 Nf6 2.c4 e6 3.Nc3 c5 4.d5";
+//                "1.d4 Nf6 2.c4 a6 3.Nc3 c5";
+//                "1.d4 Nf6 2.c4 a6 3.Nf3 c5 4.dxc5 e6";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.Nf3 g6 5.Nbd2 Bg7 6.e4 bxc4 7.Bxc4 O-O 8.O-O d6 9.Rb1 Ba6 10.b3 Bxc4 11.bxc4 Nbd7 12.h3 Qc7 13.Qc2 Rfb8 13.Rb3 Nh5 14.Ra3 a5 15.Ne1"; // x
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.Nf3 g6 5.Nbd2 Bg7 6.e4 bxc4 7.Bxc4 O-O 8.O-O d6 9.Rb1 Ba6 10.b3 Bxc4 11.bxc4 Nbd7 12.h3 Rb8 13.Rb3 Rxb3 14.axb3";
+//                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.Nf3 g6 5.Nbd2 Bg7 6.e4 O-O 7.cxb5 a6 8.a4 axb5 9.Bxb5 Ba6 10.Ra3 d6 11.Qb3 Nbd7 12.Bxa6 Rxa6";
+//                "1.e4 c5 2.Nf3 d6 3.c3 Nf6 4.Qc2 Qc7"; // x
+//                "1.g3 c5 2.c4 g6"; // x
+
+                "1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.Bg5";
+//                "1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3 d6 8.c3 O-O 9.h3"; // x
+//                "1.d4 Nf6 2.c4 e6 3.Nf3 b6 4.g3 Ba6 5.b3 Bb4 6.Bd2 Be7 7.Bg2";
+//                "1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3 Bb4 5.Bg2 O-O 6.O-O e4";
+//                "1.c4 e5 2.g3 Nf6 3.Bg2 d5 4.cxd5 Nxd5 5.Nc3"; // x
 
         List<State> moveHistories = PgnParser.parse(history);
 

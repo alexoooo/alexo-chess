@@ -10,7 +10,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.LongAdder;
 
 
-class RolloutContext {
+public class RolloutContext {
     public final int index;
     public final int threads;
     public final boolean optimize;
@@ -33,8 +33,6 @@ class RolloutContext {
     public final long[] visitCounts = new long[Move.MAX_PER_PLY];
     public final long[] childIndexes = new long[Move.MAX_PER_PLY];
     public final long[] history = new long[4096];
-
-//    public double estimatedValue;
 
     public final LongAdder collisions;
     public final LongAdder terminalHits;

@@ -1,14 +1,17 @@
 package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
+import ao.chess.v2.engine.eval.StockfishEval;
 import ao.chess.v2.engine.neuro.puct.PuctEnsembleModel;
 import ao.chess.v2.engine.neuro.puct.PuctModel;
 import ao.chess.v2.engine.neuro.rollout.RolloutPlayer;
+import ao.chess.v2.engine.stockfish.StockfishController;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
@@ -134,11 +137,36 @@ public class BrainTeaser {
                 Paths.get("lookup/nn/res_20_n1307.zip"),
                 Paths.get("lookup/nn/res_20_b_n1008.zip")
         ));
+//        Player player = new RolloutPlayer.Builder(model)
+////                .binerize(false)
+//                .binerize(true)
+//                .rolloutLength(4 * 1024)
+//                .certaintyLimit(1.0)
+////                .threads(1)
+////                .threads(2)
+////                .threads(48)
+////                .threads(52)
+////                .threads(64)
+////                .threads(96)
+////                .threads(128)
+////                .threads(160)
+////                .threads(192)
+////                .threads(224)
+////                .threads(256)
+////                .threads(256)
+////                .threads(384)
+//                .threads(512)
+////                .stochastic(true)
+////                .store(new SynchronizedRolloutStore(new MapRolloutStore()))
+//                .build();
+
+        Path stockfishExe = Path.of("C:/~/prog/stockfish/stockfish_14_win_x64_avx2/stockfish_14_x64_avx2.exe");
+        StockfishController controller = StockfishController.builder(stockfishExe).build();
+        StockfishEval eval = StockfishEval.create(
+//                controller, 24, 1024, 1_000_000);
+                controller, 24, 1024, 1_000_000);
         Player player = new RolloutPlayer.Builder(model)
-//                .binerize(false)
-                .binerize(true)
-                .rolloutLength(4 * 1024)
-                .certaintyLimit(1.0)
+                .evaluator(eval)
 //                .threads(1)
 //                .threads(2)
 //                .threads(48)
@@ -149,14 +177,10 @@ public class BrainTeaser {
 //                .threads(160)
 //                .threads(192)
 //                .threads(224)
-//                .threads(256)
-//                .threads(256)
+                .threads(256)
 //                .threads(384)
-                .threads(512)
-//                .stochastic(true)
-//                .store(new SynchronizedRolloutStore(new MapRolloutStore()))
+//                .threads(512)
                 .build();
-
 
         State state = State.fromFen(
                 // https://www.youtube.com/watch?v=TdcPgTzSTnM
@@ -271,7 +295,7 @@ public class BrainTeaser {
 //                "3B4/1r2p3/r2p1p2/bkp1P1p1/1p1P1PPp/p1P4P/PPB1K3/8 w - - 0 1" // can't see Ba4
 //                "r7/7k/5R2/p3p3/Pp1pPp2/1PpP1Pp1/K1P3P1/8 w - - 0 1" // can't see draw
 //                "q7/8/2p5/B2p2pp/5pp1/2N3k1/6P1/7K w - - 0 1" // Ne5 as 0.4+
-                "8/8/4kpp1/3p1b2/p6P/2B5/6P1/6K1 b - - 2 47"
+//                "8/8/4kpp1/3p1b2/p6P/2B5/6P1/6K1 b - - 2 47"
 
                 // https://www.chessprogramming.org/Bratko-Kopec_Test
 //                "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - -"
@@ -283,7 +307,7 @@ public class BrainTeaser {
 //                "2K1k1br/3p1n1r/2p2pN1/5N2/2p4P/8/P2P4/8 b - - 1 15"
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/2p4P/8/P2P4/8 w - d6 0 16"
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/P1p4P/8/3P4/8 b - a3 0 16" // 14b fail, 14 2-22 works!
-//                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2p5/3P4/8 w - - 0 17"
+                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2p5/3P4/8 w - - 0 17"
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2P5/8/8 b - - 0 17" // chess.com sees mate here
 //                "2K1k1br/5n1r/5pN1/2pp1N2/P6P/2P5/8/8 w - - 0 18"
 //                "2K1k1br/5n1r/5pN1/P1pp1N2/7P/2P5/8/8 b - - 0 18"

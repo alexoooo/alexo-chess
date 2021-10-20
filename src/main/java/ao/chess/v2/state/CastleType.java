@@ -102,17 +102,24 @@ public enum CastleType
 
         //----------------------------------------------------------------
         public String toFen() {
+            if (noneAvailable()) {
+                return "-";
+            }
+
             StringBuilder str = new StringBuilder();
 
             if (whiteKing) {
                 str.append("K");
             }
+
             if (whiteQueen) {
                 str.append("Q");
             }
+
             if (blackKing) {
                 str.append("k");
             }
+
             if (blackQueen) {
                 str.append("q");
             }
