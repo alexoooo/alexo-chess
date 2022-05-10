@@ -3,6 +3,8 @@ package ao.chess.v2.engine.neuro.rollout;
 import ao.chess.v2.engine.neuro.puct.PuctModelPool;
 import ao.chess.v2.engine.neuro.rollout.store.RolloutStore;
 import ao.chess.v2.state.Move;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,8 @@ public class RolloutContext {
 
     public final Random random = new Random();
     public final List<RolloutNode> path = new ArrayList<>();
+    public final LongSet pathHashes = new LongOpenHashSet();
+    public final LongSet pathHashesAlt = new LongOpenHashSet();
 
     public final int[] movesA = new int[Move.MAX_PER_PLY];
     public final int[] movesB = new int[Move.MAX_PER_PLY];
@@ -40,6 +44,7 @@ public class RolloutContext {
     public final LongAdder tablebaseHits;
     public final LongAdder tablebaseRolloutHits;
     public final LongAdder solutionHits;
+    public final LongAdder repetitionHits;
     public final LongAdder transpositionHits;
 
 
@@ -60,6 +65,7 @@ public class RolloutContext {
             LongAdder tablebaseHits,
             LongAdder tablebaseRolloutHits,
             LongAdder solutionHits,
+            LongAdder repetitionHits,
             LongAdder transpositionHits)
     {
         this.index = index;
@@ -79,6 +85,7 @@ public class RolloutContext {
         this.tablebaseHits = tablebaseHits;
         this.tablebaseRolloutHits = tablebaseRolloutHits;
         this.solutionHits = solutionHits;
+        this.repetitionHits = repetitionHits;
         this.transpositionHits = transpositionHits;
     }
 }

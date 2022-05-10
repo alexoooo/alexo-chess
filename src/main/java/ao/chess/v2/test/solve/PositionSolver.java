@@ -3,6 +3,7 @@ package ao.chess.v2.test.solve;
 
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.eval.StockfishEval;
+import ao.chess.v2.engine.eval.StockfishMain;
 import ao.chess.v2.engine.neuro.puct.PuctEnsembleModel;
 import ao.chess.v2.engine.neuro.puct.PuctMixedModel;
 import ao.chess.v2.engine.neuro.puct.PuctModel;
@@ -59,12 +60,12 @@ public class PositionSolver {
                     .build());
         }
 
-        Path stockfishExe = Path.of("C:/~/prog/stockfish/stockfish_14_win_x64_avx2/stockfish_14_x64_avx2.exe");
         StockfishController controller = StockfishController
-                .builder(stockfishExe)
+                .builder(StockfishMain.stockfishExe)
                 .build();
         StockfishEval eval = StockfishEval.create(
-                controller, 24, 1024, 1_000_000);
+//                controller, 24, 1024, 1_000_000);
+                controller, 24, 1024, 250_000);
 
         Player player = new RolloutPlayer.Builder(model)
                 .evaluator(eval)

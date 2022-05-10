@@ -175,6 +175,7 @@ public class RolloutPlayer
     private final LongAdder tablebaseHits = new LongAdder();
     private final LongAdder tablebaseRolloutHits = new LongAdder();
     private final LongAdder solutionHits = new LongAdder();
+    private final LongAdder repetitionHits = new LongAdder();
     private final LongAdder transpositionHits = new LongAdder();
     private final LongAdder trajectoryCount = new LongAdder();
     private final LongAdder trajectoryLengthSum = new LongAdder();
@@ -431,6 +432,7 @@ public class RolloutPlayer
                     tablebaseHits,
                     tablebaseRolloutHits,
                     solutionHits,
+                    repetitionHits,
                     transpositionHits));
         }
 
@@ -516,25 +518,27 @@ public class RolloutPlayer
     ) {
         int bestMove = root.bestMove(state, isRepeat, history, historyIndex, store);
 
-        long trajectoryCountValue = trajectoryCount.longValue();
+        long trajectoryCountValue = trajectoryCount.sumThenReset();
         double averageSearchDepth =
                 trajectoryCountValue == 0
                 ? 0
-                : (double) trajectoryLengthSum.longValue() / trajectoryCountValue;
+                : (double) trajectoryLengthSum.sumThenReset() / trajectoryCountValue;
 
         String generalPrefix = String.format(
-                "%s - %s %d | c%d cL%d x%d t%d tR%d e%d eR%d s%d T%d n%d l%.2f | %s",
+//                "%s - %s %d | c%d cL%d x%d t%d tR%d e%d eR%d s%d T%d n%d l%.2f | %s",
+                "%s - %s %d | c%d x%d t%d e%d s%d r%d T%d n%d l%.2f | %s",
                 id,
                 model,
                 threads,
                 pool.cacheHits(),
-                pool.localCacheHits(),
+//                pool.localCacheHits(),
                 collisions.longValue(),
                 terminalHits.longValue(),
-                terminalRolloutHits.longValue(),
+//                terminalRolloutHits.longValue(),
                 tablebaseHits.longValue(),
-                tablebaseRolloutHits.longValue(),
+//                tablebaseRolloutHits.longValue(),
                 solutionHits.longValue(),
+                repetitionHits.longValue(),
                 transpositionHits.longValue(),
                 trajectoryCountValue,
                 averageSearchDepth,

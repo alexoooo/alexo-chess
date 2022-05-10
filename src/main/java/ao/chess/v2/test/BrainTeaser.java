@@ -2,6 +2,7 @@ package ao.chess.v2.test;
 
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.eval.StockfishEval;
+import ao.chess.v2.engine.eval.StockfishMain;
 import ao.chess.v2.engine.neuro.puct.PuctEnsembleModel;
 import ao.chess.v2.engine.neuro.puct.PuctModel;
 import ao.chess.v2.engine.neuro.rollout.RolloutPlayer;
@@ -11,7 +12,6 @@ import ao.chess.v2.state.State;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
@@ -33,10 +33,11 @@ import java.time.LocalDateTime;
  */
 public class BrainTeaser {
     //--------------------------------------------------------------------
+    private static final int flushFrequencyMillis = 5_000;
 //    private static final int flushFrequencyMillis = 10_000;
 //    private static final int flushFrequencyMillis = 60_000;
 //    private static final int flushFrequencyMillis = 10 * 60 * 1_000;
-    private static final int flushFrequencyMillis = 15 * 60 * 1_000;
+//    private static final int flushFrequencyMillis = 15 * 60 * 1_000;
 
 
     //--------------------------------------------------------------------
@@ -48,14 +49,15 @@ public class BrainTeaser {
 //        int time = 7_500;
 //        int time = 10 * 1000;
 //        int time = 15 * 1000;
+//        int time = 30 * 1000;
 //        int time = 45 * 1000;
 //        int time = 60 * 1000;
-//        int time = 10 * 60 * 1000;
+        int time = 10 * 60 * 1000;
 //        int time = 15 * 60 * 1000;
 //        int time = 60 * 60 * 1000;
 //        int time = 3 * 60 * 60 * 1000;
 //        int time = (int) (1.51 * 60 * 60 * 1000);
-        int time = 7 * 24 * 60 * 60 * 1000;
+//        int time = 7 * 24 * 60 * 60 * 1000;
 
 //        Player player = new ParallelMctsPlayer(
 //                "par",
@@ -160,11 +162,10 @@ public class BrainTeaser {
 ////                .store(new SynchronizedRolloutStore(new MapRolloutStore()))
 //                .build();
 
-        Path stockfishExe = Path.of("C:/~/prog/stockfish/stockfish_14_win_x64_avx2/stockfish_14_x64_avx2.exe");
-        StockfishController controller = StockfishController.builder(stockfishExe).build();
+        StockfishController controller = StockfishController.builder(StockfishMain.stockfishExe).build();
         StockfishEval eval = StockfishEval.create(
 //                controller, 24, 1024, 1_000_000);
-                controller, 24, 1024, 1_000_000);
+                controller, 24, 1024, 10_000);
         Player player = new RolloutPlayer.Builder(model)
                 .evaluator(eval)
 //                .threads(1)
@@ -298,8 +299,9 @@ public class BrainTeaser {
 //                "8/8/4kpp1/3p1b2/p6P/2B5/6P1/6K1 b - - 2 47"
 
                 // https://www.chessprogramming.org/Bratko-Kopec_Test
-//                "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - -"
-//                "3r1k2/4npp1/1ppr3p/p6P/P2PPPP1/1NR5/5K2/2R5 w - -"
+//                "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - -" // 106,566
+//                "3r1k2/4npp1/1ppr3p/p6P/P2PPPP1/1NR5/5K2/2R5 w - -" //
+//                "2q1rr1k/3bbnnp/p2p1pp1/2pPp3/PpP1P1P1/1P2BNNP/2BQ1PRK/7R b - -" // 1 million @0.87
 
 //                "2K1k1br/2qp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 w - - 0 14"
 //                "4k1br/2Kp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 b - - 0 14"
@@ -307,7 +309,7 @@ public class BrainTeaser {
 //                "2K1k1br/3p1n1r/2p2pN1/5N2/2p4P/8/P2P4/8 b - - 1 15"
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/2p4P/8/P2P4/8 w - d6 0 16"
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/P1p4P/8/3P4/8 b - a3 0 16" // 14b fail, 14 2-22 works!
-                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2p5/3P4/8 w - - 0 17"
+//                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2p5/3P4/8 w - - 0 17"
 //                "2K1k1br/5n1r/2p2pN1/3p1N2/P6P/2P5/8/8 b - - 0 17" // chess.com sees mate here
 //                "2K1k1br/5n1r/5pN1/2pp1N2/P6P/2P5/8/8 w - - 0 18"
 //                "2K1k1br/5n1r/5pN1/P1pp1N2/7P/2P5/8/8 b - - 0 18"
@@ -319,6 +321,18 @@ public class BrainTeaser {
 //                "Q1K1k1br/5n1r/5pN1/5N2/2p4P/2Pp4/8/8 b - - 0 21"
 //                "Q1K1k1br/5n1r/5pN1/5N2/2p4P/2P5/3p4/8 w - - 0 22"
 //                "2K1k1br/5n1r/5pN1/5N2/Q1p4P/2P5/3p4/8 b - - 1 22"
+
+                // Jared game
+//                "rnbqkbnr/pp1ppp1p/6p1/2p5/4P3/2N2N2/PPPP1PPP/R1BQKB1R b KQkq - 1 3"
+//                "rnbqk1nr/pp1pppbp/6p1/2p5/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 3 4"
+//                "r1bqk1nr/pp1pppbp/2n3p1/2p5/2B1P3/2NP1N2/PPP2PPP/R1BQK2R b KQkq - 0 5"
+//                "r1bqk1nr/pp1p1pbp/2n1p1p1/2p5/2B1P3/2NPBN2/PPP2PPP/R2QK2R b KQkq - 1 6"
+//                "r1bqk2r/pp1pnpbp/2n1p1p1/2B5/2B1P3/2NP1N2/PPP2PPP/R2QK2R b KQkq - 0 7"
+//                "r1bqk2r/pp2npbp/2npp1p1/8/2B1P3/2NPBN2/PPP2PPP/R2QK2R b KQkq - 1 8"
+//                "r1bqk2r/pp2npbp/2n1p1p1/3P4/2B5/2NPBN2/PPP2PPP/R2QK2R b KQkq - 0 9"
+//                "r1bqk2r/pp2npbp/2n3p1/3B4/8/2NPBN2/PPP2PPP/R2QK2R b KQkq - 0 10"
+//                "r1bqk2r/pp3pbp/2n3p1/3N4/8/3PBN2/PPP2PPP/R2QK2R b KQkq - 0 11"
+                "r1b1k2r/pp3pbp/2n3p1/3q4/8/3PBN2/PPP2PPP/R2Q1RK1 b kq - 1 12"
         );
 
 //        int move = player.move(state, time, time, 0);
@@ -347,7 +361,7 @@ public class BrainTeaser {
         }
 
         player.close();
-        System.out.println("Solved in " + stopwatch);
+        System.out.println("Solved (" + solved + ") in " + stopwatch);
         System.exit(0);
     }
 }

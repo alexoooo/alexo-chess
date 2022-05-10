@@ -13,6 +13,7 @@ import ao.chess.v2.state.Outcome;
 import ao.chess.v2.state.State;
 import com.google.common.base.Joiner;
 import com.google.common.primitives.Ints;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -212,9 +213,16 @@ public class RolloutNode {
         long transpositionThreshold = Math.max(transpositionMinimum, (long) Math.pow(rootCount, transpositionPower));
 
         List<RolloutNode> path = context.path;
+        LongSet pathHashes = context.pathHashes;
+        LongSet pathHashesAlt = context.pathHashesAlt;
+
         path.clear();
+        pathHashes.clear();
+        pathHashesAlt.clear();
 
         path.add(this);
+        pathHashes.add(state.staticHashCode());
+        pathHashesAlt.add(state.staticHashCodeAlt());
 
         double estimatedValue = Double.NaN;
 
@@ -264,7 +272,6 @@ public class RolloutNode {
 
                 child.incrementVisitCount(store);
                 if (Double.isNaN(knownValue)) {
-//                    estimatedValue = rolloutValue(childMoveCount, state, context);
                     estimatedValue = evaluator.evaluate(childMoveCount, state, context);
                 }
                 else {
@@ -277,6 +284,10 @@ public class RolloutNode {
             }
 
             path.add( child );
+
+            boolean unique = pathHashes.add(state.staticHashCode());
+            boolean uniqueAlt = pathHashesAlt.add(state.staticHashCodeAlt());
+            checkState(unique == uniqueAlt, "hash collision: %s", state);
 
             if (child.isValueKnown(store)) {
                 estimatedValue = child.knownValue(store);
@@ -293,12 +304,18 @@ public class RolloutNode {
             else if (selectionEnded) {
                 break;
             }
+            else if (! unique) {
+                // NB: we've seen this position before, treat as draw for 3-fold repetition
+                estimatedValue = 0.5;
+                context.repetitionHits.increment();
+                child.setKnownOutcome(KnownOutcome.Draw, store);
+                break;
+            }
         }
 
         checkState(! Double.isNaN(estimatedValue));
 
-        context.store.backupValue(path, estimatedValue);
-//        backupValue(path, estimatedValue, context);
+        store.backupValue(path, estimatedValue);
 
         return path.size();
     }
@@ -307,11 +324,6 @@ public class RolloutNode {
     private double knownValue(RolloutStore store) {
         return store.getKnownOutcome(index).toValue();
     }
-
-
-//    private KnownOutcome knownOutcome(RolloutStore store) {
-//        return store.getKnownOutcome(index);
-//    }
 
 
     private double expandChildAndGetKnownValue(

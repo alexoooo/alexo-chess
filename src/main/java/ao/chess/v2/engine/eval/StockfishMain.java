@@ -8,9 +8,11 @@ import java.nio.file.Path;
 
 
 public class StockfishMain {
-    public static void main(String[] args) {
-        Path stockfishExe = Path.of("C:/~/prog/stockfish/stockfish_14_win_x64_avx2/stockfish_14_x64_avx2.exe");
+    public static final Path stockfishExe = Path.of(
+//            "C:/~/prog/stockfish/stockfish_14.1_win_x64_avx2/stockfish_14.1_win_x64_avx2.exe");
+            "C:/~/prog/stockfish/stockfish_15_win_x64_avx2/stockfish_15_x64_avx2.exe");
 
+    public static void main(String[] args) {
         StockfishController controller = StockfishController
                 .builder(stockfishExe)
                 .build();
