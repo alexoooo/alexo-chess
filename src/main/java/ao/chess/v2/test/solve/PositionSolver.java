@@ -8,7 +8,6 @@ import ao.chess.v2.engine.neuro.puct.PuctEnsembleModel;
 import ao.chess.v2.engine.neuro.puct.PuctMixedModel;
 import ao.chess.v2.engine.neuro.puct.PuctModel;
 import ao.chess.v2.engine.neuro.rollout.RolloutPlayer;
-import ao.chess.v2.engine.neuro.rollout.store.SynchronizedRolloutStore;
 import ao.chess.v2.engine.neuro.rollout.store.TieredRolloutStore;
 import ao.chess.v2.engine.stockfish.StockfishController;
 import ao.chess.v2.state.Move;
@@ -27,12 +26,16 @@ import java.time.LocalDateTime;
 // https://chess.stackexchange.com/questions/5032/what-are-the-first-moves-chosen-white-by-brute-force-chess-engines
 public class PositionSolver {
     //-----------------------------------------------------------------------------------------------------------------
+//    public final static Path treeDir = Path.of("lookup/tree");
+    public final static Path treeDir = Path.of("E:/tree");
+//    public final static Path treeDir = Path.of("E:/tree/test-1");
+
 //    private static final int flushFrequencyMillis = 60 * 1_000;
 //    private static final int flushFrequencyMillis = 5 * 60 * 1_000;
 //    private static final int flushFrequencyMillis = 10 * 60 * 1_000;
 //    private static final int flushFrequencyMillis = 15 * 60 * 1_000;
-//    private static final int flushFrequencyMillis = 20 * 60 * 1_000;
-    private static final int flushFrequencyMillis = 30 * 60 * 1_000;
+    private static final int flushFrequencyMillis = 20 * 60 * 1_000;
+//    private static final int flushFrequencyMillis = 30 * 60 * 1_000;
     private static final long time = 365L * 7 * 24 * 60 * 60 * 1000;
 
 
@@ -95,13 +98,11 @@ public class PositionSolver {
 //                .threads(512)
 //                .stochastic(true)
 //                .store(new SynchronizedRolloutStore(new MapRolloutStore()))
-                .store(new SynchronizedRolloutStore(
-                        new TieredRolloutStore(
-                                Path.of("lookup/tree/root.bin"),
-                                Path.of("lookup/tree/root-transposition.h2")
-                        )))
+                .store(new TieredRolloutStore(
+                        treeDir.resolve("root.bin"),
+                        treeDir.resolve("root-transposition.h2"),
+                3))
                 .build();
-
 
         State state = State.fromFen(
                 // initial

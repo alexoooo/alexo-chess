@@ -2,42 +2,51 @@ package ao.chess.v2.engine.neuro.rollout.store;
 
 
 import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionInfo;
-import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionKey;
-import com.google.common.collect.AbstractIterator;
 
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.AbstractList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 public class TieredRolloutStore implements RolloutStore {
     //-----------------------------------------------------------------------------------------------------------------
-    private final FileRolloutStore backing;
+    private final FileRolloutWriteStore writer;
+    private final FileRolloutReadStore reader;
+    private final FileTranspositionStore transpositions;
     private final MapRolloutStore buffer;
-    private long nextIndex;
+    private final AtomicLong nextIndex;
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public TieredRolloutStore(Path file, Path transpositionFile) {
-        backing = new FileRolloutStore(file, transpositionFile);
+    public TieredRolloutStore(Path file, Path transpositionFile, int readerHandleCount) {
+        writer = new FileRolloutWriteStore(file, readerHandleCount);
+        reader = new FileRolloutReadStore(file, readerHandleCount);
+        transpositions = new FileTranspositionStore(transpositionFile);
         buffer = new MapRolloutStore();
-        nextIndex = backing.nextIndex();
+
+        reader.openIfRequired();
+        nextIndex = new AtomicLong(reader.nextIndex());
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
     @Override
-    public boolean initRootIfRequired(int moveCount) {
-        boolean empty = backing.initRootIfRequired(moveCount);
-
-        if (empty) {
-            buffer.initRootIfRequired(moveCount);
-            nextIndex = FileRolloutStore.sizeOf(moveCount);
-            return true;
+    public synchronized boolean initRootIfRequired(int moveCount) {
+        if (nextIndex.get() != RolloutStore.rootIndex) {
+            return false;
         }
 
-        return false;
+        reader.closeIfRequired();
+
+        writer.initRoot(moveCount);
+
+        buffer.initRootIfRequired(moveCount);
+        nextIndex.set(FileRolloutStore.sizeOf(moveCount));
+
+        reader.openIfRequired();
+
+        return true;
     }
 
 
@@ -63,7 +72,7 @@ public class TieredRolloutStore implements RolloutStore {
 
 
     @Override
-    public long expandChildIfMissing(long nodeIndex, int moveIndex, int childMoveCount) {
+    public synchronized long expandChildIfMissing(long nodeIndex, int moveIndex, int childMoveCount) {
         loadIfMissing(nodeIndex);
 
         long existingChildIndex = buffer.getChildIndex(nodeIndex, moveIndex);
@@ -71,11 +80,11 @@ public class TieredRolloutStore implements RolloutStore {
             return -(existingChildIndex + 1);
         }
 
-        long newIndex = nextIndex;
+        long newIndex = nextIndex.get();
         buffer.addNode(nodeIndex, moveIndex, newIndex, childMoveCount);
 
         int childSize = FileRolloutStore.sizeOf(childMoveCount);
-        nextIndex += childSize;
+        nextIndex.set(newIndex + childSize);
 
         return newIndex;
     }
@@ -83,8 +92,8 @@ public class TieredRolloutStore implements RolloutStore {
 
     //-----------------------------------------------------------------------------------------------------------------
     @Override
-    public long nextIndex() {
-        return nextIndex;
+    public synchronized long nextIndex() {
+        return nextIndex.get();
     }
 
 
@@ -137,7 +146,7 @@ public class TieredRolloutStore implements RolloutStore {
             return info;
         }
 
-        TranspositionInfo backingInfo = backing.getTranspositionOrNull(hashHigh, hashLow);
+        TranspositionInfo backingInfo = transpositions.getTranspositionOrNull(hashHigh, hashLow);
         if (backingInfo != null) {
             buffer.storeTransposition(hashHigh, hashHigh, backingInfo.nodeIndex(), backingInfo.valueSum(), backingInfo.visitCount());
         }
@@ -154,43 +163,42 @@ public class TieredRolloutStore implements RolloutStore {
     //-----------------------------------------------------------------------------------------------------------------
     private void loadIfMissing(long nodeIndex) {
         if (! buffer.contains(nodeIndex)) {
-            RolloutStoreNode node = backing.load(nodeIndex);
-            buffer.store(node);
+            RolloutStoreNode node = reader.load(nodeIndex);
+            buffer.storeIfRequired(node);
         }
     }
 
 
     @Override
-    public long flush() {
+    public synchronized long flush() {
         if (! buffer.modified()) {
             buffer.clear();
             return 0;
         }
 
-        long[] nodeIndexes = buffer.nodeIndexes().toLongArray();
+        long[] nodeIndexes = buffer.sortedNodeIndexes();
 
-        Arrays.parallelSort(nodeIndexes);
-
-        Iterator<RolloutStoreNode> nodeIterator = new AbstractIterator<>() {
-            private int next = 0;
+        List<RolloutStoreNode> sequencedNodes = new AbstractList<>() {
+            @Override
+            public int size() {
+                return nodeIndexes.length;
+            }
 
             @Override
-            protected RolloutStoreNode computeNext() {
-                if (next >= nodeIndexes.length) {
-                    return endOfData();
-                }
-                long nodeIndex = nodeIndexes[next++];
-                return buffer.load(nodeIndex);
+            public RolloutStoreNode get(int index) {
+                return buffer.load(nodeIndexes[index]);
             }
         };
 
-        backing.storeAll(nodeIterator);
+        reader.closeIfRequired();
 
-        Iterator<Map.Entry<TranspositionKey, TranspositionInfo>> transpositionIterator = buffer.transpositionIterator();
-        backing.storeAllTranspositions(transpositionIterator);
+        writer.storeAll(sequencedNodes);
+
+        transpositions.storeAllTranspositions(buffer::forEachTransposition);
+        transpositions.flush();
 
         buffer.clear();
-        backing.flush();
+        reader.openIfRequired();
 
         return nodeIndexes.length;
     }
@@ -199,5 +207,7 @@ public class TieredRolloutStore implements RolloutStore {
     @Override
     public void close() {
         flush();
+        reader.closeIfRequired();
+        transpositions.close();
     }
 }

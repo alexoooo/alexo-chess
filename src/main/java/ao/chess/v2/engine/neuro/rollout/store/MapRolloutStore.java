@@ -5,13 +5,12 @@ import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionInfo;
 import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionKey;
 import it.unimi.dsi.fastutil.longs.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Consumer;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
-
+// thread safe
 public class MapRolloutStore implements RolloutStore {
     //-----------------------------------------------------------------------------------------------------------------
     private final Long2LongMap counts = new Long2LongOpenHashMap();
@@ -29,7 +28,7 @@ public class MapRolloutStore implements RolloutStore {
 
     //-----------------------------------------------------------------------------------------------------------------
     @Override
-    public boolean initRootIfRequired(int moveCount) {
+    public synchronized boolean initRootIfRequired(int moveCount) {
         if (! counts.isEmpty()) {
             return false;
         }
@@ -40,7 +39,7 @@ public class MapRolloutStore implements RolloutStore {
 
 
     @Override
-    public void incrementVisitCount(long nodeIndex) {
+    public synchronized void incrementVisitCount(long nodeIndex) {
         long previousCount = counts.get(nodeIndex);
         counts.put(nodeIndex, previousCount + 1);
         modified = true;
@@ -48,7 +47,7 @@ public class MapRolloutStore implements RolloutStore {
 
 
     @Override
-    public void addValue(long nodeIndex, double value) {
+    public synchronized void addValue(long nodeIndex, double value) {
         valueSums.put(nodeIndex, valueSums.get(nodeIndex) + value);
         valueSquareSums.put(nodeIndex, valueSquareSums.get(nodeIndex) + value * value);
         modified = true;
@@ -56,14 +55,14 @@ public class MapRolloutStore implements RolloutStore {
 
 
     @Override
-    public void setKnownOutcome(long nodeIndex, KnownOutcome knownOutcome) {
+    public synchronized void setKnownOutcome(long nodeIndex, KnownOutcome knownOutcome) {
         knownOutcomes.put(nodeIndex, (byte) knownOutcome.ordinal());
         modified = true;
     }
 
 
     @Override
-    public long expandChildIfMissing(long nodeIndex, int moveIndex, int childMoveCount) {
+    public synchronized long expandChildIfMissing(long nodeIndex, int moveIndex, int childMoveCount) {
         long existingChildIndex = getChildIndex(nodeIndex, moveIndex);
         if (existingChildIndex != -1) {
             return -(existingChildIndex + 1);
@@ -77,7 +76,7 @@ public class MapRolloutStore implements RolloutStore {
 
 
     @Override
-    public long nextIndex() {
+    public synchronized long nextIndex() {
         return maxIndex + 1;
     }
 
@@ -91,7 +90,7 @@ public class MapRolloutStore implements RolloutStore {
 
     //-----------------------------------------------------------------------------------------------------------------
     @Override
-    public long getChildIndex(long nodeIndex, int moveIndex) {
+    public synchronized long getChildIndex(long nodeIndex, int moveIndex) {
         long offset = childMoveOffsets.get(nodeIndex);
         if (childMoves.size64() == (offset + moveIndex)) {
             return -1;
@@ -101,19 +100,19 @@ public class MapRolloutStore implements RolloutStore {
 
 
     @Override
-    public double getValueSum(long nodeIndex) {
+    public synchronized double getValueSum(long nodeIndex) {
         return valueSums.get(nodeIndex);
     }
 
 
     @Override
-    public double getValueSquareSum(long nodeIndex) {
+    public synchronized double getValueSquareSum(long nodeIndex) {
         return valueSquareSums.get(nodeIndex);
     }
 
 
     @Override
-    public double getAverageValue(long nodeIndex, double defaultValue) {
+    public synchronized double getAverageValue(long nodeIndex, double defaultValue) {
         long count = counts.get(nodeIndex);
         if (count == 0) {
             return defaultValue;
@@ -125,13 +124,13 @@ public class MapRolloutStore implements RolloutStore {
     }
 
     @Override
-    public long getVisitCount(long nodeIndex) {
+    public synchronized long getVisitCount(long nodeIndex) {
         return counts.get(nodeIndex);
     }
 
 
     @Override
-    public KnownOutcome getKnownOutcome(long nodeIndex) {
+    public synchronized KnownOutcome getKnownOutcome(long nodeIndex) {
         return KnownOutcome.values.get(knownOutcomes.get(nodeIndex));
     }
 
@@ -143,40 +142,45 @@ public class MapRolloutStore implements RolloutStore {
 
 
     @Override
-    public TranspositionInfo getTranspositionOrNull(long hashHigh, long hashLow) {
+    public synchronized TranspositionInfo getTranspositionOrNull(long hashHigh, long hashLow) {
         return transposition.get(new TranspositionKey(hashHigh, hashLow));
     }
 
 
     @Override
-    public void setTransposition(long hashHigh, long hashLow, long nodeIndex, double valueSum, long visitCount) {
+    public synchronized void setTransposition(long hashHigh, long hashLow, long nodeIndex, double valueSum, long visitCount) {
         storeTransposition(hashHigh, hashLow, nodeIndex, valueSum, visitCount);
         modified = true;
     }
 
 
-    public void storeTransposition(long hashHigh, long hashLow, long nodeIndex, double valueSum, long visitCount) {
+    public synchronized void storeTransposition(long hashHigh, long hashLow, long nodeIndex, double valueSum, long visitCount) {
         transposition.put(
                 new TranspositionKey(hashHigh, hashLow),
                 new TranspositionInfo(nodeIndex, valueSum, visitCount));
     }
 
 
-    public Iterator<Map.Entry<TranspositionKey, TranspositionInfo>> transpositionIterator() {
-        return transposition.entrySet().iterator();
+//    public synchronized Iterator<Map.Entry<TranspositionKey, TranspositionInfo>> transpositionIterator() {
+//        return transposition.entrySet().iterator();
+//    }
+    public synchronized void forEachTransposition(Consumer<Map.Entry<TranspositionKey, TranspositionInfo>> consumer) {
+        transposition.entrySet().forEach(consumer);
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public boolean contains(long nodeIndex) {
+    public synchronized boolean contains(long nodeIndex) {
         return counts.containsKey(nodeIndex);
     }
 
 
-    public void store(
+    public synchronized void storeIfRequired(
             RolloutStoreNode node
     ) {
-        checkArgument(! contains(node.index()));
+        if (contains(node.index())) {
+            return;
+        }
 
         long newMoveOffset = childMoves.size64();
 
@@ -196,7 +200,7 @@ public class MapRolloutStore implements RolloutStore {
     }
 
 
-    public void addNode(long parentIndex, int parentMoveIndex, long nodeIndex, int moveCount) {
+    public synchronized void addNode(long parentIndex, int parentMoveIndex, long nodeIndex, int moveCount) {
         addNode(nodeIndex, moveCount);
 
         long parentOffset = childMoveOffsets.get(parentIndex);
@@ -223,12 +227,14 @@ public class MapRolloutStore implements RolloutStore {
     }
 
 
-    public LongSet nodeIndexes() {
-        return counts.keySet();
+    public synchronized long[] sortedNodeIndexes() {
+        long[] nodeIndexes = counts.keySet().toLongArray();
+        Arrays.parallelSort(nodeIndexes);
+        return nodeIndexes;
     }
 
 
-    public RolloutStoreNode load(long nodeIndex) {
+    public synchronized RolloutStoreNode load(long nodeIndex) {
         int moveCount = Byte.toUnsignedInt(childMoveCounts.get(nodeIndex));
         long[] childIndexes = new long[moveCount];
 
@@ -248,7 +254,7 @@ public class MapRolloutStore implements RolloutStore {
     }
 
 
-    public void clear() {
+    public synchronized void clear() {
         counts.clear();
         valueSums.clear();
         valueSquareSums.clear();
@@ -264,9 +270,9 @@ public class MapRolloutStore implements RolloutStore {
 
     //-----------------------------------------------------------------------------------------------------------------
     @Override
-    public void close() {}
+    public synchronized void close() {}
 
-    public boolean modified() {
+    public synchronized boolean modified() {
         return modified;
     }
 }

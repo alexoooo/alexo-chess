@@ -268,7 +268,9 @@ public class RolloutNode {
                 selectionEnded = true;
 
                 child = node.childOrNull(moveIndex, store);
-                checkState(child != null);
+                if (child == null) {
+                    throw new IllegalStateException("Expanded child not found");
+                }
 
                 child.incrementVisitCount(store);
                 if (Double.isNaN(knownValue)) {

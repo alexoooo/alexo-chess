@@ -1,7 +1,18 @@
 package ao.chess.v2.engine.neuro.rollout.store;
 
 
+import java.util.Comparator;
+
+
 public class RolloutStoreNode {
+    //-----------------------------------------------------------------------------------------------------------------
+    public static final Comparator<RolloutStoreNode> byIndex = Comparator.comparingLong(RolloutStoreNode::index);
+
+    public static RolloutStoreNode emptyOfIndex(long index) {
+        return new RolloutStoreNode(index, 0, 0, 0, KnownOutcome.Unknown, new long[0]);
+    }
+
+
     //-----------------------------------------------------------------------------------------------------------------
     private final long index;
     private final long visitCount;
