@@ -3,15 +3,17 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.eval.StockfishEval;
 import ao.chess.v2.engine.eval.StockfishMain;
-import ao.chess.v2.engine.neuro.puct.PuctEnsembleModel;
+import ao.chess.v2.engine.neuro.puct.PuctMixedModel;
 import ao.chess.v2.engine.neuro.puct.PuctModel;
 import ao.chess.v2.engine.neuro.rollout.RolloutPlayer;
 import ao.chess.v2.engine.stockfish.StockfishController;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableRangeMap;
+import com.google.common.collect.Range;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
@@ -52,12 +54,12 @@ public class BrainTeaser {
 //        int time = 30 * 1000;
 //        int time = 45 * 1000;
 //        int time = 60 * 1000;
-        int time = 10 * 60 * 1000;
+//        int time = 10 * 60 * 1000;
 //        int time = 15 * 60 * 1000;
 //        int time = 60 * 60 * 1000;
 //        int time = 3 * 60 * 60 * 1000;
 //        int time = (int) (1.51 * 60 * 60 * 1000);
-//        int time = 7 * 24 * 60 * 60 * 1000;
+        int time = 7 * 24 * 60 * 60 * 1000;
 
 //        Player player = new ParallelMctsPlayer(
 //                "par",
@@ -121,24 +123,24 @@ public class BrainTeaser {
 ////                .stochastic(true)
 //                .build();
 
-//        PuctModel model = new PuctMixedModel(ImmutableRangeMap.<Integer, Path>builder()
-//                .put(Range.closed(2, 20),
-//                        Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
-//                .put(Range.closed(21, 28),
-//                        Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
-//                .put(Range.closed(29, 32),
-//                        Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
-//                .build());
+        PuctModel model = new PuctMixedModel(ImmutableRangeMap.<Integer, Path>builder()
+                .put(Range.closed(2, 20),
+                        Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
+                .put(Range.closed(21, 28),
+                        Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
+                .put(Range.closed(29, 32),
+                        Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
+                .build());
+//        PuctModel model = new PuctEnsembleModel(ImmutableList.of(
+//                Paths.get("lookup/nn/res_20_n1307.zip"),
+//                Paths.get("lookup/nn/res_20_b_n1008.zip")
+//        ));
 //        PuctModel model = new PuctMultiModel(ImmutableRangeMap.<Integer, Path>builder()
 //                .put(Range.closed(2, 22),
 //                        Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
 //                .put(Range.closed(23, 32),
 //                        Paths.get("lookup/nn/res_20_n1307.zip"))
 //                .build());
-        PuctModel model = new PuctEnsembleModel(ImmutableList.of(
-                Paths.get("lookup/nn/res_20_n1307.zip"),
-                Paths.get("lookup/nn/res_20_b_n1008.zip")
-        ));
 //        Player player = new RolloutPlayer.Builder(model)
 ////                .binerize(false)
 //                .binerize(true)
@@ -194,10 +196,6 @@ public class BrainTeaser {
 
                 // mate in 9 (17) - mid and big nets find it
 //                "1Nr1n3/p3p1q1/P2p1prk/4p3/1pB1n1P1/1P1R4/3b2KN/8 w"
-
-                // Travis (Queeen odds) attempts 3
-//                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR w KQkq - 0 1"
-//                "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNB1KB1R b KQkq - 0 1"
 
                 // https://github.com/LeelaChessZero/lc0/issues/1403
 //                "8/k2q4/2p1n2R/2bpP3/P7/1R1Q4/5rP1/3K4 b - - 4 40"
@@ -299,8 +297,8 @@ public class BrainTeaser {
 //                "8/8/4kpp1/3p1b2/p6P/2B5/6P1/6K1 b - - 2 47"
 
                 // https://www.chessprogramming.org/Bratko-Kopec_Test
-//                "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - -" // 106,566
-//                "3r1k2/4npp1/1ppr3p/p6P/P2PPPP1/1NR5/5K2/2R5 w - -" //
+//                "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - -" // 1,250 / 1,385
+                "3r1k2/4npp1/1ppr3p/p6P/P2PPPP1/1NR5/5K2/2R5 w - -" // d5 23m@0.82776 | 11m@0.86040
 //                "2q1rr1k/3bbnnp/p2p1pp1/2pPp3/PpP1P1P1/1P2BNNP/2BQ1PRK/7R b - -" // 1 million @0.87
 
 //                "2K1k1br/2qp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 w - - 0 14"
@@ -322,17 +320,8 @@ public class BrainTeaser {
 //                "Q1K1k1br/5n1r/5pN1/5N2/2p4P/2P5/3p4/8 w - - 0 22"
 //                "2K1k1br/5n1r/5pN1/5N2/Q1p4P/2P5/3p4/8 b - - 1 22"
 
-                // Jared game
-//                "rnbqkbnr/pp1ppp1p/6p1/2p5/4P3/2N2N2/PPPP1PPP/R1BQKB1R b KQkq - 1 3"
-//                "rnbqk1nr/pp1pppbp/6p1/2p5/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 3 4"
-//                "r1bqk1nr/pp1pppbp/2n3p1/2p5/2B1P3/2NP1N2/PPP2PPP/R1BQK2R b KQkq - 0 5"
-//                "r1bqk1nr/pp1p1pbp/2n1p1p1/2p5/2B1P3/2NPBN2/PPP2PPP/R2QK2R b KQkq - 1 6"
-//                "r1bqk2r/pp1pnpbp/2n1p1p1/2B5/2B1P3/2NP1N2/PPP2PPP/R2QK2R b KQkq - 0 7"
-//                "r1bqk2r/pp2npbp/2npp1p1/8/2B1P3/2NPBN2/PPP2PPP/R2QK2R b KQkq - 1 8"
-//                "r1bqk2r/pp2npbp/2n1p1p1/3P4/2B5/2NPBN2/PPP2PPP/R2QK2R b KQkq - 0 9"
-//                "r1bqk2r/pp2npbp/2n3p1/3B4/8/2NPBN2/PPP2PPP/R2QK2R b KQkq - 0 10"
-//                "r1bqk2r/pp3pbp/2n3p1/3N4/8/3PBN2/PPP2PPP/R2QK2R b KQkq - 0 11"
-                "r1b1k2r/pp3pbp/2n3p1/3q4/8/3PBN2/PPP2PPP/R2Q1RK1 b kq - 1 12"
+                // https://www.youtube.com/watch?v=4NFdWvip7Sg
+//                "8/p2P3k/n2K3p/2p3n1/pb4N1/p1p1p1P1/P7/3B4 w - - 18 10" // solved before 1m w 24 x SF @ 256
         );
 
 //        int move = player.move(state, time, time, 0);

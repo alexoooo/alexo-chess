@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+
 // thread safe
 public class MapRolloutStore implements RolloutStore {
     //-----------------------------------------------------------------------------------------------------------------
@@ -42,6 +43,14 @@ public class MapRolloutStore implements RolloutStore {
     public synchronized void incrementVisitCount(long nodeIndex) {
         long previousCount = counts.get(nodeIndex);
         counts.put(nodeIndex, previousCount + 1);
+        modified = true;
+    }
+
+
+    @Override
+    public synchronized void decrementVisitCount(long nodeIndex) {
+        long previousCount = counts.get(nodeIndex);
+        counts.put(nodeIndex, previousCount - 1);
         modified = true;
     }
 

@@ -116,6 +116,21 @@ public class FileRolloutStore implements RolloutStore {
 
 
     @Override
+    public void decrementVisitCount(long nodeIndex) {
+        try {
+            handle.seek(nodeIndex + countOffset);
+            long previousCount = handle.readLong();
+
+            handle.seek(nodeIndex + countOffset);
+            handle.writeLong(previousCount - 1);
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+
+    @Override
     public void addValue(long nodeIndex, double value) {
         if (value == 0) {
             return;

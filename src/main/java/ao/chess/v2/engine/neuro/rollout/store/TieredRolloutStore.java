@@ -2,11 +2,15 @@ package ao.chess.v2.engine.neuro.rollout.store;
 
 
 import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionInfo;
+import com.google.common.util.concurrent.Uninterruptibles;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.AbstractList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static com.google.common.base.Preconditions.checkState;
 
 
 public class TieredRolloutStore implements RolloutStore {
@@ -19,9 +23,14 @@ public class TieredRolloutStore implements RolloutStore {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public TieredRolloutStore(Path file, Path transpositionFile, int readerHandleCount) {
-        writer = new FileRolloutWriteStore(file, readerHandleCount);
-        reader = new FileRolloutReadStore(file, readerHandleCount);
+    public TieredRolloutStore(
+            Path file,
+            Path transpositionFile,
+            int readHandleCount,
+            int writeHandleCount
+    ) {
+        writer = new FileRolloutWriteStore(file, writeHandleCount);
+        reader = new FileRolloutReadStore(file, readHandleCount);
         transpositions = new FileTranspositionStore(transpositionFile);
         buffer = new MapRolloutStore();
 
@@ -53,6 +62,15 @@ public class TieredRolloutStore implements RolloutStore {
     @Override
     public void incrementVisitCount(long nodeIndex) {
         loadIfMissing(nodeIndex);
+        buffer.incrementVisitCount(nodeIndex);
+    }
+
+
+    @Override
+    public void decrementVisitCount(long nodeIndex) {
+        // NB: decrementing an ephemeral increment
+        checkState(buffer.contains(nodeIndex), "Decrement non-buffered: %s", nodeIndex);
+
         buffer.incrementVisitCount(nodeIndex);
     }
 
@@ -192,15 +210,31 @@ public class TieredRolloutStore implements RolloutStore {
 
         reader.closeIfRequired();
 
+        waitAfterDiskRead();
+
         writer.storeAll(sequencedNodes);
 
         transpositions.storeAllTranspositions(buffer::forEachTransposition);
         transpositions.flush();
 
+        waitAfterDiskWrite();
+
         buffer.clear();
         reader.openIfRequired();
 
         return nodeIndexes.length;
+    }
+
+
+    @SuppressWarnings("UnstableApiUsage")
+    private void waitAfterDiskRead() {
+        Uninterruptibles.sleepUninterruptibly(Duration.ofSeconds(5));
+    }
+
+
+    @SuppressWarnings("UnstableApiUsage")
+    private void waitAfterDiskWrite() {
+        Uninterruptibles.sleepUninterruptibly(Duration.ofSeconds(10));
     }
 
 

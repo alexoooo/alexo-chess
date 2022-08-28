@@ -94,6 +94,9 @@ public class RolloutNode {
 //    private final static double transpositionUseOver = 8;
 //    private final static double transpositionUseOver = 64;
 
+    private static final int eGreedyMinimumVisits = 4 * puctThreshold;
+    private static final double eGreedyProbability = 0.005;
+
 
     //-----------------------------------------------------------------------------------------------------------------
     public final long index;
@@ -144,6 +147,11 @@ public class RolloutNode {
 
 
     private void incrementVisitCount(RolloutStore store) {
+        store.incrementVisitCount(index);
+    }
+
+
+    private void decrementVisitCount(RolloutStore store) {
         store.incrementVisitCount(index);
     }
 
@@ -226,11 +234,26 @@ public class RolloutNode {
 
         double estimatedValue = Double.NaN;
 
+        int requestedRandomSamplePly;
+        if (context.random.nextDouble() < eGreedyProbability) {
+            double currentAverageSearchDepth = context.currentAverageSearchDepth();
+            int maxSamplePly = (int) (currentAverageSearchDepth - Math.sqrt(currentAverageSearchDepth));
+            requestedRandomSamplePly = context.random.nextInt(maxSamplePly + 1);
+        }
+        else {
+            requestedRandomSamplePly = -1;
+        }
+
+        int randomSampleIndex = -1;
         while (true)
         {
             int pathLength = path.size();
             RolloutNode node = path.get( pathLength - 1 );
             node.incrementVisitCount(store);
+
+            boolean randomSampleNext =
+                    (pathLength - 1) == requestedRandomSamplePly &&
+                    node.visitCount(store) > eGreedyMinimumVisits;
 
             int moveCount = state.legalMoves(context.movesA, context.movesC);
             if (moveCount <= 0) {
@@ -247,12 +270,16 @@ public class RolloutNode {
                     estimate.moveProbabilities,
                     transpositionThreshold,
                     state,
-                    context);
+                    context,
+                    randomSampleNext);
 
             if (node.isValueKnown(store)) {
                 estimatedValue = node.knownValue(store);
                 context.solutionHits.increment();
                 break;
+            }
+            else if (randomSampleNext) {
+                randomSampleIndex = pathLength - 1;
             }
 
             Move.apply(context.movesA[moveIndex], state);
@@ -317,7 +344,15 @@ public class RolloutNode {
 
         checkState(! Double.isNaN(estimatedValue));
 
-        store.backupValue(path, estimatedValue);
+        if (randomSampleIndex == -1) {
+            store.backupValue(path, estimatedValue);
+        }
+        else {
+            store.backupValue(path.subList(randomSampleIndex + 1, path.size()), estimatedValue);
+            for (int i = 0; i <= randomSampleIndex; i++) {
+                path.get(i).decrementVisitCount(store);
+            }
+        }
 
         return path.size();
     }
@@ -510,7 +545,8 @@ public class RolloutNode {
             double[] movePredictions,
             long transpositionThreshold,
             State state,
-            RolloutContext context)
+            RolloutContext context,
+            boolean randomSample)
     {
         if (moveCount == 0) {
             return -1;
@@ -543,7 +579,8 @@ public class RolloutNode {
                 parentVisitCount,
                 transpositionThreshold,
                 state,
-                context);
+                context,
+                randomSample);
     }
 
 
@@ -558,8 +595,14 @@ public class RolloutNode {
             long parentVisitCount,
             long transpositionThreshold,
             State state,
-            RolloutContext context)
+            RolloutContext context,
+            boolean randomSample)
     {
+        if (randomSample) {
+            context.eGreedyHits.increment();
+            return context.random.nextInt(moveCount);
+        }
+
         double maxScore = Double.NEGATIVE_INFINITY;
         int maxScoreIndex = 0;
         double moveUncertainty = estimateUncertainty / moveCount;
@@ -867,7 +910,8 @@ public class RolloutNode {
                 estimate.moveProbabilities,
                 transpositionThreshold,
                 state,
-                context);
+                context,
+                false);
         if (moveIndex == -1) {
             return;
         }

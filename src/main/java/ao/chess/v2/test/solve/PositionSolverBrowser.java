@@ -216,12 +216,30 @@ public class PositionSolverBrowser {
 //                "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.g3 Be7 5.Bg2 Nbd7 6.O-O O-O 7.Qc2 c6 8.Rd1 b6 9.b3 Ba6 10.Nbd2 Rc8 " +
 //                "11.e4 c5 12.e5 Ne8 13.dxc5 Bxc5 14.a3 Be7 15.Qb1 Bb7 16.Bb2 h6 17.Qd3 Nc5 18.Qc2 Nc7 " +
 //                "19.b4 Nd7 20.Qb3 Ba8 21.Nd4 a6 22.h4 Re8 23.f4 Bf8 24.Rac1 a5 25.b5"; // x
+//                "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.g3 Be7 5.Bg2 Nbd7 6.O-O O-O 7.Qc2 c6 8.Rd1 b6 9.b3 Ba6 10.Nbd2 Rc8 " +
+//                    "11.e4 c5 12.e5 Ne8 13.dxc5 Bxc5 14.a3 Be7 15.Qb1 Bb7 16.Bb2 h6 17.Qd3 Nc5 18.Qc2 Nc7 " +
+//                    "19.b4 Nd7 20.Qb3 Ba8 21.Nd4 a6 22.h4 dxc4 23.Nxc4 Bxg2 24.Kxg2 b5 25.Nd6 Bxd6 26.exd6 Ne8 " +
+//                    "27.a4 Nb6 28.axb5 axb5 29.Nxb5 Qd7 30.Ra7 Qxb5 31.d7 Nxd7 32.Raxd7 Rc4 33.Qd3 Rxb4 34.Ba3 Nf6 " +
+//                    "35.Ra7 Qxd3 36.Rxd3 Rbb8 37.Bxf8 Rxf8 38.Rb3 g6 39.Rbb7 Nd5 40.Kf3 Kg7 41.Ke4 Kf6 42.Ra3 Kg7 " +
+//                    "43.Ra6 Re8 44.Raa7 Rf8";
+//                "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.g3 Be7 5.Bg2 Nbd7 6.O-O O-O 7.Qc2 c6 8.Rd1 b6 9.b3 Ba6 10.Nbd2 Rc8 " +
+//                    "11.e4 c5 12.e5 Ne8 13.dxc5 Bxc5 14.a3 Be7 15.Qb1 Bb7 16.Bb2 h6 17.Qd3 Nc5 18.Qc2 Nc7 " +
+//                    "19.b4 Nd7 20.Qb3 Ba8 21.Nd4 a6 22.h4 dxc4 23.Nxc4 Bxg2 24.Kxg2 b5 25.Nd6 Bxd6 26.exd6 Ne8 " +
+//                    "27.a4 Nb6 28.axb5 axb5 29.Nxb5 Qd7 30.Ra7 Qxb5 31.d7 Nxd7 32.Raxd7 Rc4 33.Qd3 Rxb4 34.Ba3 Nf6 " +
+//                    "35.Ra7 Qxd3 36.Rxd3 Rbb8 37.Bxf8 Rxf8 38.Rb3 g6 39.Rbb7 Ng4 40.Kf3 h5 41.Kg2 Nf6 42.f3 Nd5"; // x
+//                "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.g3 Be7 5.Bg2 Nbd7 6.O-O O-O 7.Qc2 c6 8.Rd1 b6 9.b3 Ba6 10.Nbd2 Rc8 " +
+//                    "11.e4 c5 12.e5 Ne8 13.dxc5 Bxc5 14.a3 Be7 15.Qb1 Bb7 16.Bb2 h6 17.Qd3 Nc5 18.Qc2 Nc7 " +
+//                    "19.b4 Nd7 20.Qb3 a5 21.Nd4 Ba8 22.h3 Nxe5 23.Nxe6 fxe6 24.Bxe5 Qe8 25.Qe3 dxc4 26.Bxa8 Nxa8 " +
+//                    "27.Qe2 Nc7 28.Nxc4 Nd5 29.bxa5 bxa5 30.Rd4 Qc6 31.Bd6 Bf6 32.Qxe6 Rf7 33.Ne5 Bxe5 34.Qxe5 Nc3 " +
+//                    "35.Re1 Nb5";
+//                "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.g3 Be7 5.Bg2 Nbd7 6.O-O O-O 7.Qc2 c6 8.Rd1 b6 9.b3 Ba6 10.Nbd2 Rc8 " +
+//                    "11.e4 c5 12.e5 Ne8 13.dxc5 Bxc5 14.a3 Be7 15.Qb1 Bb7 16.Bb2 h6 17.Qd3 Nc5 18.Qc2 Nc7 " +
+//                    "19.b4 Nd7 20.Qb3 a5 21.Nd4 Ba8 22.h3 Nxe5 23.Nxe6 fxe6 24.Bxe5 Rf5 25.f4 Qf8 26.bxa5 bxa5 " +
+//                    "27.Qa4 h5 28.h4 g5 29.hxg5 h4 30.gxh4 Bc5 31.Kh1";
                 "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.g3 Be7 5.Bg2 Nbd7 6.O-O O-O 7.Qc2 c6 8.Rd1 b6 9.b3 Ba6 10.Nbd2 Rc8 " +
                     "11.e4 c5 12.e5 Ne8 13.dxc5 Bxc5 14.a3 Be7 15.Qb1 Bb7 16.Bb2 h6 17.Qd3 Nc5 18.Qc2 Nc7 " +
-                    "19.b4 Nd7 20.Qb3 Ba8 21.Nd4 a6 22.h4 dxc4 23.Nxc4 Bxg2 24.Kxg2 b5 25.Nd6 Bxd6 26.exd6 Ne8 " +
-                    "27.a4 Nb6 28.axb5 axb5 29.Nxb5 Qd7 30.Ra7 Qxb5 31.d7 Nxd7 32.Raxd7 Rc4 33.Qd3 Rxb4 34.Ba3 Nf6 " +
-                    "35.Ra7 Qxd3 36.Rxd3 Rbb8 37.Bxf8 Rxf8 38.Rb3 g6 39.Rbb7 Nd5 40.Kf3 Kg7 41.Ke4 Kf6 42.Kd4 Kg7 " +
-                    "43.Ra6"; // x
+                    "19.b4 Nd7 20.Qb3 a5 21.Nd4 Ba8 22.h3 Nxe5 23.Nxe6 fxe6 24.Bxe5 Rf5 25.Qe3 Rxe5 26.Qxe5 Bf6 " +
+                    "27.Qe2 Bxa1 28.Rxa1 dxc4 29.Nxc4 Bxg2 30.Kxg2 axb4 31.axb4";
 //                "1.d4 Nf6 2.Nf3 e6 3.c4 d5 4.g3 Be7 5.Bg2 O-O"; // z
 //                "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.g3 Be7 5.Bg2 Nbd7 6.O-O O-O 7.Qc2 c6 8.Rd1 b6 9.b3 Ba6 10.Nbd2 Rc8 " +
 //                    "11.e4 c5 12.e5 Ne8 13.Bb2 cxd4 14.Rac1 b5 15.Bf1 dxc4 16.bxc4 Nc7 17.Bxd4 Nd5 18.Qb3 bxc4 " +

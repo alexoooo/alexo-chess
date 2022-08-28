@@ -23,6 +23,9 @@ public interface RolloutStore extends AutoCloseable {
     void incrementVisitCount(long nodeIndex);
 
 
+    void decrementVisitCount(long nodeIndex);
+
+
     void addValue(long nodeIndex, double value);
 
 

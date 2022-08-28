@@ -46,7 +46,10 @@ public class RolloutContext {
     public final LongAdder solutionHits;
     public final LongAdder repetitionHits;
     public final LongAdder transpositionHits;
+    public final LongAdder eGreedyHits;
 
+    private final LongAdder trajectoryCount;
+    private final LongAdder trajectoryLengthSum;
 
     public RolloutContext(
             int index,
@@ -66,7 +69,11 @@ public class RolloutContext {
             LongAdder tablebaseRolloutHits,
             LongAdder solutionHits,
             LongAdder repetitionHits,
-            LongAdder transpositionHits)
+            LongAdder transpositionHits,
+            LongAdder eGreedyHits,
+
+            LongAdder trajectoryCount,
+            LongAdder trajectoryLengthSum)
     {
         this.index = index;
         this.threads = threads;
@@ -87,5 +94,17 @@ public class RolloutContext {
         this.solutionHits = solutionHits;
         this.repetitionHits = repetitionHits;
         this.transpositionHits = transpositionHits;
+        this.eGreedyHits = eGreedyHits;
+
+        this.trajectoryCount = trajectoryCount;
+        this.trajectoryLengthSum = trajectoryLengthSum;
+    }
+
+
+    public double currentAverageSearchDepth() {
+        long currentTrajectoryCountValue = trajectoryCount.longValue();
+        return currentTrajectoryCountValue == 0
+                ? 0
+                : (double) trajectoryLengthSum.longValue() / currentTrajectoryCountValue;
     }
 }

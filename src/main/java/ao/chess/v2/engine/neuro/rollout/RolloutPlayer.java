@@ -12,7 +12,6 @@ import ao.chess.v2.engine.neuro.puct.PuctModelPool;
 import ao.chess.v2.engine.neuro.rollout.store.KnownOutcome;
 import ao.chess.v2.engine.neuro.rollout.store.MapRolloutStore;
 import ao.chess.v2.engine.neuro.rollout.store.RolloutStore;
-import ao.chess.v2.engine.neuro.rollout.store.SynchronizedRolloutStore;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import ao.util.math.rand.Rand;
@@ -71,8 +70,7 @@ public class RolloutPlayer
     public static class Builder
     {
         private final PuctModel model;
-//        private RolloutStore store = new SynchronizedRolloutStore(new BigArrayRolloutStore());
-        private RolloutStore store = new SynchronizedRolloutStore(new MapRolloutStore());
+        private RolloutStore store = new MapRolloutStore();
         private int threads = 1;
         private int rolloutLength = 0;
 //        private int rolloutLength = 1;
@@ -177,6 +175,7 @@ public class RolloutPlayer
     private final LongAdder solutionHits = new LongAdder();
     private final LongAdder repetitionHits = new LongAdder();
     private final LongAdder transpositionHits = new LongAdder();
+    private final LongAdder eGreedyHits = new LongAdder();
     private final LongAdder trajectoryCount = new LongAdder();
     private final LongAdder trajectoryLengthSum = new LongAdder();
     private final Random random = new Random();
@@ -413,6 +412,7 @@ public class RolloutPlayer
 //            modelProto.load();
 
 //            double exploration = explorationMin + Math.abs(random.nextGaussian() * explorationVariance);
+            @SuppressWarnings("PointlessArithmeticExpression")
             double probabilityPower =
                     probabilityPowerMin + (probabilityPowerMax - probabilityPowerMin) * random.nextDouble();
 
@@ -433,7 +433,10 @@ public class RolloutPlayer
                     tablebaseRolloutHits,
                     solutionHits,
                     repetitionHits,
-                    transpositionHits));
+                    transpositionHits,
+                    eGreedyHits,
+                    trajectoryCount,
+                    trajectoryLengthSum));
         }
 
         MovePicker.init();
@@ -526,7 +529,7 @@ public class RolloutPlayer
 
         String generalPrefix = String.format(
 //                "%s - %s %d | c%d cL%d x%d t%d tR%d e%d eR%d s%d T%d n%d l%.2f | %s",
-                "%s - %s %d | c%d x%d t%d e%d s%d r%d T%d n%d l%.2f | %s",
+                "%s - %s %d | c%d x%d t%d e%d s%d r%d T%d E%d n%d l%.2f | %s",
                 id,
                 model,
                 threads,
@@ -540,6 +543,7 @@ public class RolloutPlayer
                 solutionHits.longValue(),
                 repetitionHits.longValue(),
                 transpositionHits.longValue(),
+                eGreedyHits.longValue(),
                 trajectoryCountValue,
                 averageSearchDepth,
                 Move.toString(bestMove));
