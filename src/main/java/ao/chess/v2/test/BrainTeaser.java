@@ -166,8 +166,9 @@ public class BrainTeaser {
 
         StockfishController controller = StockfishController.builder(StockfishMain.stockfishExe).build();
         StockfishEval eval = StockfishEval.create(
-//                controller, 24, 1024, 1_000_000);
                 controller, 24, 1024, 10_000);
+//                controller, 24, 1024, 250_000);
+//                controller, 24, 1024, 1_000_000);
         Player player = new RolloutPlayer.Builder(model)
                 .evaluator(eval)
 //                .threads(1)
@@ -298,8 +299,10 @@ public class BrainTeaser {
 
                 // https://www.chessprogramming.org/Bratko-Kopec_Test
 //                "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - -" // 1,250 / 1,385
-                "3r1k2/4npp1/1ppr3p/p6P/P2PPPP1/1NR5/5K2/2R5 w - -" // d5 23m@0.82776 | 11m@0.86040
+//                "3r1k2/4npp1/1ppr3p/p6P/P2PPPP1/1NR5/5K2/2R5 w - -" // d5 23m@0.82776 | 11m@0.86040
 //                "2q1rr1k/3bbnnp/p2p1pp1/2pPp3/PpP1P1P1/1P2BNNP/2BQ1PRK/7R b - -" // 1 million @0.87
+
+                "8/p2qk2p/1p3p2/4n1b1/P1p1Pp1r/2P5/1P2B1KN/R4Q1R b - - 0 1"
 
 //                "2K1k1br/2qp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 w - - 0 14"
 //                "4k1br/2Kp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 b - - 0 14"

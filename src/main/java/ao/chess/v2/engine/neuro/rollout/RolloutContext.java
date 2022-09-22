@@ -23,6 +23,7 @@ public class RolloutContext {
     public final boolean binerize;
     public final double certaintyLimit;
     public final double probabilityPower;
+    public final double eGreedyProbability;
 
     public final Random random = new Random();
     public final List<RolloutNode> path = new ArrayList<>();
@@ -62,6 +63,8 @@ public class RolloutContext {
             boolean binerize,
             double certaintyLimit,
             double probabilityPower,
+            double eGreedyProbability,
+
             LongAdder collisions,
             LongAdder terminalHits,
             LongAdder terminalRolloutHits,
@@ -85,6 +88,7 @@ public class RolloutContext {
         this.binerize = binerize;
         this.certaintyLimit = certaintyLimit;
         this.probabilityPower = probabilityPower;
+        this.eGreedyProbability = eGreedyProbability;
 
         this.collisions = collisions;
         this.terminalHits = terminalHits;

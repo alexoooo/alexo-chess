@@ -79,6 +79,7 @@ public class RolloutPlayer
         private boolean binerize = false;
         private double certaintyLimit = 0.97;
         private boolean useIo = false;
+        private double eGreedyProbability = 0.005;
         private PositionEvaluator evaluator = new PuctRolloutEval();
 
 
@@ -135,6 +136,12 @@ public class RolloutPlayer
         }
 
 
+        public Builder eGreedyProbability(double eGreedyProbability) {
+            this.eGreedyProbability = eGreedyProbability;
+            return this;
+        }
+
+
         public RolloutPlayer build()
         {
             return new RolloutPlayer(
@@ -147,6 +154,7 @@ public class RolloutPlayer
                     binerize,
                     certaintyLimit,
                     optimize,
+                    eGreedyProbability,
                     useIo);
         }
     }
@@ -165,6 +173,7 @@ public class RolloutPlayer
     private final boolean binerize;
     private final double certaintyLimit;
     private final boolean optimize;
+    private final double eGreedyProbability;
     private boolean train;
 
     private final LongAdder collisions = new LongAdder();
@@ -204,6 +213,7 @@ public class RolloutPlayer
             boolean binerize,
             double certaintyLimit,
             boolean optimize,
+            double eGreedyProbability,
             boolean useIo)
     {
         this.model = model;
@@ -215,6 +225,7 @@ public class RolloutPlayer
         this.binerize = binerize;
         this.certaintyLimit = certaintyLimit;
         this.optimize = optimize;
+        this.eGreedyProbability = eGreedyProbability;
         this.useIo = useIo;
 
         pool = new PuctModelPool(
@@ -426,6 +437,7 @@ public class RolloutPlayer
                     binerize,
                     certaintyLimit,
                     probabilityPower,
+                    eGreedyProbability,
                     collisions,
                     terminalHits,
                     terminalRolloutHits,

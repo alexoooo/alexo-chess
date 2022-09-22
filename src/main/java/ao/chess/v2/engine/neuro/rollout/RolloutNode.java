@@ -95,7 +95,7 @@ public class RolloutNode {
 //    private final static double transpositionUseOver = 64;
 
     private static final int eGreedyMinimumVisits = 4 * puctThreshold;
-    private static final double eGreedyProbability = 0.005;
+//    private static final double eGreedyProbability = 0.005;
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -235,7 +235,7 @@ public class RolloutNode {
         double estimatedValue = Double.NaN;
 
         int requestedRandomSamplePly;
-        if (context.random.nextDouble() < eGreedyProbability) {
+        if (context.random.nextDouble() < context.eGreedyProbability) {
             double currentAverageSearchDepth = context.currentAverageSearchDepth();
             int maxSamplePly = (int) (currentAverageSearchDepth - Math.sqrt(currentAverageSearchDepth));
             requestedRandomSamplePly = context.random.nextInt(maxSamplePly + 1);
@@ -943,8 +943,8 @@ public class RolloutNode {
         int[] moves = state.legalMoves();
         List<Integer> indexes = IntStream.range(0, moves.length).boxed().collect(Collectors.toList());
 
-        double parentSum = 0;
-        long parentCount = 0;
+//        double parentSum = 0;
+        long totalChildCount = 0;
         long[] counts = new long[moves.length];
         double[] values = new double[moves.length];
         for (int i = 0; i < counts.length; i++) {
@@ -956,8 +956,8 @@ public class RolloutNode {
             counts[i] = node.visitCount(store);
             values[i] = node.valueSum(store);
 
-            parentCount += counts[i];
-            parentSum += values[i];
+            totalChildCount += counts[i];
+//            parentSum += values[i];
         }
 
         indexes.sort((a, b) ->
@@ -965,12 +965,15 @@ public class RolloutNode {
                 ? -Long.compare(counts[a], counts[b])
                 : -Double.compare(values[a], values[b]));
 
+        long parentCount = visitCount(store);
+        double parentSum = valueSum(store);
+
         double parentValue =
                 isValueKnown(store)
                 ? knownValue(store)
                 : parentSum / parentCount;
 
-        long parentVisitCount = parentCount;
+//        long parentVisitCount = parentCount;
 
         String childSummary = indexes
                 .stream()
@@ -982,10 +985,10 @@ public class RolloutNode {
                 .collect(Collectors.joining(" | "));
 
         long bestChildVisitCount = counts[indexes.get(0)];
-        double bestChildConfidence = ((double) bestChildVisitCount) / parentVisitCount;
+        double bestChildConfidence = ((double) bestChildVisitCount) / totalChildCount;
 
         return String.format("%,d %.4f %d - %s",
-                parentVisitCount,
+                parentCount,
                 parentValue,
                 Math.round(bestChildConfidence * 1000),
                 childSummary);

@@ -69,8 +69,10 @@ public class PositionSolver {
                 .builder(StockfishMain.stockfishExe)
                 .build();
         StockfishEval eval = StockfishEval.create(
+//                controller, 24, 1024, 100_000);
+                controller, 24, 1024, 125_000);
+//                controller, 24, 1024, 250_000);
 //                controller, 24, 1024, 1_000_000);
-                controller, 24, 1024, 250_000);
 
         Player player = new RolloutPlayer.Builder(model)
                 .evaluator(eval)
@@ -83,28 +85,17 @@ public class PositionSolver {
 ////                .rolloutLength(1024)
 //                .rolloutLength(4196)
 
-//                .threads(1)
-//                .threads(2)
 //                .threads(48)
-//                .threads(52)
-//                .threads(64)
-//                .threads(96)
 //                .threads(128)
-//                .threads(160)
-//                .threads(192)
-//                .threads(224)
                 .threads(256)
-//                .threads(320)
-//                .threads(384)
-//                .threads(448)
 //                .threads(512)
 //                .stochastic(true)
-//                .store(new SynchronizedRolloutStore(new MapRolloutStore()))
+//                .eGreedyProbability(0.9)
                 .store(new TieredRolloutStore(
                         treeDir.resolve("root.bin"),
                         treeDir.resolve("root-transposition.h2"),
                         3,
-                        2))
+                        3))
                 .build();
 
         State state = State.fromFen(
