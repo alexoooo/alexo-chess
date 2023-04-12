@@ -707,7 +707,10 @@ public class RolloutNode {
             }
         }
 
-        double transpositionValue = transpositionValueSum / transpositionVisitCont;
+        double transpositionValue =
+                transpositionVisitCont == 0
+                ? 0
+                : transpositionValueSum / transpositionVisitCont;
         long cappedTranspositionCount = Math.min(transpositionVisitCont, transpositionMaximum);
 
         return (moveValueSum + transpositionValue * cappedTranspositionCount) /
