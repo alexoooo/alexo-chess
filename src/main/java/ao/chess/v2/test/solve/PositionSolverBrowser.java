@@ -16,7 +16,7 @@ import java.util.List;
 
 
 public class PositionSolverBrowser {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Throwable {
         State nextState = State.initial();
 
         String history = "" +
@@ -72,9 +72,6 @@ public class PositionSolverBrowser {
 //                "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.g3 dxc4 5.Bg2";
 //                "1.d4 Nf6 2.c4 e6 3.Nc3 Bb4 4.Nf3 O-O 5.Bg5";
 //                "1.d4 Nf6 2.c4 c6 4.Nf3 d5 5.Nc3 e6 6.e3 Nbd7";
-//                "1.Nf3 d5 2.d4 Nf6 3.c4 e6 4.Nc3";
-//                "1.Nf3 Nf6 2.c4";
-//                "1.Nf3 Nc6 2.e4 e5 3.d4 exd4 4.Nxd4 Nxd4";
 //                "1.d4 d5 2.c4 dxc4 3.e3 Nf6 4.Bxc4 c5 5.Nf3 e6";
 //                "1.d4 d5 2.Nf3 Nf6 3.c4 dxc4 4.e3 a6 5.Bxc4 b5 6.Bd3 Nbd7 a4";
 //                "1.d4 d5 2.Nf3 e6 3.c4 dxc4 4.e3 a6 5.Bxc4 Nf6 6.O-O c5 7.b3";
@@ -106,6 +103,20 @@ public class PositionSolverBrowser {
 //                "1.d4 d5 2.Nf3 e6 3.c4 dxc4 4.e3 c5 5.Bxc4 Nf6 6.O-O a6 7.Be2 Nbd7";
 //                "1.d4 d5 2.Nf3 e6 3.c4 dxc4 4.e3 c5 5.Bxc4 Nf6 6.O-O a6 7.a4 cxd4 8.exd4 Be7 9.Nc3 O-O 10.d5 Nxd5 " +
 //                    "11.Nxd5 exd5 12.Bxd5 Nd7 13.Be3 Nf6 14.Ba2 Bf5 15.Qb3 Be4 16.Rfd1";
+
+//                "1.Nf3 Nf6 2.c4 c5 3.g3 Nc6 4.Bg2 d5";
+//                "1.Nf3 c5 2.c4 g6 3.Nc3 Bg7";
+//                "1.Nf3 Nf6 2.c4 c5 3.e3 g6 4.Nc3 Bg7";
+//                "1.Nf3 Nf6 2.c4 c5 3.Nc3 Nc6 4.e3 e6 5.d4 d5";
+//                "1.Nf3 Nf6 2.c4 c5 3.Nc3 g6 4.e3 Bg7 5.d4";
+//                "1.Nf3 Nf6 2.c4 c5 3.Nc3 g6 4.g3 Nc6 5.Bg2 Bg7";
+//                "1.Nf3 d5 2.d4 c5 3.c4 cxd4 4.cxd5 Nf6";
+//                "1.Nf3 d5 2.d4 Nf6 3.c4 e6 4.Nc3";
+//                "1.Nf3 Nf6 2.c4 e6 3.g3 d5 4.d4 Be7 5.Bg2 Nbd7 6.O-O O-O";
+//                "1.Nf3 Nf6 2.g3 g6 3.Bg2 Bg7 4.O-O O-O 5.c4";
+//                "1.Nf3 Nf6 2.g3 e6 3.Bg2 Be7 4.O-O O-O 5.d4 d5 6.c4 Nbd7 7.Qc2";
+//                "1.Nf3 Nf6 2.g3 e6 3.Bg2 Be7 4.c4 d5 5.O-O O-O 6.d4 Nbd7 7.Qc2 c6"; // x
+//                "1.Nf3 Nc6 2.e4 e5 3.d4 exd4 4.Nxd4 Nxd4";
 
 //                "1.d4 d5 2.c4 e6 3.Nc3 Nf6";
 //                "1.d4 e6 2.c4 d5 3.Nc3 Nf6";
@@ -143,17 +154,10 @@ public class PositionSolverBrowser {
 //                "1.c4 Nf6 2.Nf3 c5 3.Nc3 Nc6";
 //                "1.c4 c5 2.Nf3 Nc6 3.e3 Nf6 4.h3";
 //                "1.c4 c5 2.Nf3 g6 3.Nc3 Bg7 4.e3 Nf6";
-//                "1.Nf3 d5 2.d4 c5 3.c4 cxd4 4.cxd5 Nf6";
 //                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.bxa6 d6 6.Nc3";
-//                "1.Nf3 Nf6 2.c4 c5 3.g3 Nc6 4.Bg2 d5";
-//                "1.Nf3 c5 2.c4 g6 3.Nc3 Bg7";
 //                "1.c4 c5 2.Nc3 g6 3.g3 Bg7 4.Bg2 Nc6";
 //                "1.c4 c5 2.Nc3 Nf6 3.Nf3 g6 4.g3 Nc6";
 //                "1.c4 c5 2.Nf3 g6 3.Nc3 Bg7 4.h3 Nf6";
-//                "1.Nf3 Nf6 2.c4 c5 3.e3 g6 4.Nc3 Bg7";
-//                "1.Nf3 Nf6 2.c4 c5 3.Nc3 Nc6 4.e3 e6 5.d4 d5";
-//                "1.Nf3 Nf6 2.c4 c5 3.Nc3 g6 4.e3 Bg7 5.d4";
-//                "1.Nf3 Nf6 2.c4 c5 3.Nc3 g6 4.g3 Nc6 5.Bg2 Bg7";
 //                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.bxa6 g6 6.a7 Ra7 7.Nc3";
 //                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.Nf3 b4 5.Nbd2 a5";
 //                "1.d4 Nf6 2.c4 c5 3.d5 b5 4.Nf3 g6 5.cxb5 a6 6.b6";
@@ -193,8 +197,8 @@ public class PositionSolverBrowser {
 //                "1.c4 e5 2.g3 Nf6 3.Bg2 Nc6 4.Nc3 h6";
 //                "1.c4 Nf6 2.Nf3 e6 3.g3 d5 4.Bg2 Be7 5.O-O O-O 6.d4 Nbd7 7.Qc2 c6"; // x
 //                "1.c4 Nf6 2.d e6 3.e3 Be7 4.d5";
-                "1.c4 Nf6 2.Nc3 e5 3.Nf3 Nc6 4.g3 Bb4 5.Nd5 e4 6.Nh4 O-O 7.Bg2 d6 8.Nxb4 Nxb4 9.a3 Na6 10.d3 exd3 " +
-                    "11.Qxd3 Nxc5 12.Qxc2 a5 13.a4 Nfd7 14.b3 Nb8 15.O-O";
+//                "1.c4 Nf6 2.Nc3 e5 3.Nf3 Nc6 4.g3 Bb4 5.Nd5 e4 6.Nh4 O-O 7.Bg2 d6 8.Nxb4 Nxb4 9.a3 Na6 10.d3 exd3 " +
+//                    "11.Qxd3 Nxc5 12.Qxc2 a5 13.a4 Nfd7 14.O-O Nb8 15.b3 Nc6";
 //                "1.c4 Nf6 2.g3 e6 3.Nf3 d5 4.Bg2 Be7 5.O-O O-O 6.d4 Nbd7 7.Qc2 c6 8.Rd1 b6 9.b3 Ba6";
 //                "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.g3 Be7 5.Bg2 Nbd7 6.O-O O-O 7.Qc2 c6 8.Rd1 b6 9.b3 Ba6 10.Nbd2 Rc8 " +
 //                    "11.e4 c5 12.e5 Ne8 13.dxc5 Bxc5 14.a3 Be7 15.Qb1 Bb7 16.Bb2 h6 17.Qd3 Nc5 18.Qc2 Nc7 " +
@@ -206,6 +210,10 @@ public class PositionSolverBrowser {
 //                    "19.b4 Nd7 20.Qb3 a5 21.Nd4 Ba8 22.h3 Nxe5 23.Nxe6 fxe6 24.Bxe5 Rf5 25.Qe3 Rxe5 26.Qxe5 Bf6 " +
 //                    "27.Qe2 Bxa1 28.Rxa1 dxc4 29.Nxc4 Bxg2 30.Kxg2 axb4 31.axb4 Qd5 32.Kh2 Rf8 33.Kg1 Rd8 " +
 //                    "34.Re1 Qb5 35.Rb1 Rd4 36.Rc1 Qxb4 37.Ne3 Qd6 38.Qc2"; // x
+                "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.g3 Be7 5.Bg2 Nbd7 6.O-O O-O 7.Qc2 c6 8.Rd1 b6 9.b3 Ba6 10.Nbd2 Rc8 " +
+                    "11.e4 c5 12.e5 Ne8 13.dxc5 Bxc5 14.a3 Be7 15.Qb1 Bb7 16.Bb2 h6 17.Qd3 Nc5 18.Qc2 Nc7 " +
+                    "19.b4 Nd7 20.Qb3 a5 21.Nd4 Ba8 22.h3 Nxe5 23.Nxe6 fxe6 24.Bxe5 Rf5 25.f4 Qf8 26.Kh2 dxc4 " +
+                    "27.Nxc4 Bxg2 28.Kxg2 Nd5 29.Rxd5";
 //                "1.d4 Nf6 2.c4 e6 3.e3 Be7 4.Nc3 d5";
 //                "1.e4 c5 2.Nf3 d6 3.Nc3 Nf6 4.d4 cxd4 5.Nxd4 a6 6.h3 b5 7.g4";
 //                "1.e4 c5 2.Nf3 d6 3.Nc3 e5 4.Bc4 Be7 5.d3 Nf6 6.O-O O-O";

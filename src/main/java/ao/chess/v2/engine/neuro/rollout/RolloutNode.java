@@ -93,6 +93,7 @@ public class RolloutNode {
 //    private final static double transpositionUseOver = 1;
 //    private final static double transpositionUseOver = 8;
 //    private final static double transpositionUseOver = 64;
+    private final static int transpositionMaximum = 32_000_000;
 
     private static final int eGreedyMinimumVisits = 4 * puctThreshold;
 //    private static final double eGreedyProbability = 0.005;
@@ -237,7 +238,8 @@ public class RolloutNode {
         int requestedRandomSamplePly;
         if (context.random.nextDouble() < context.eGreedyProbability) {
             double currentAverageSearchDepth = context.currentAverageSearchDepth();
-            int maxSamplePly = (int) (currentAverageSearchDepth - Math.sqrt(currentAverageSearchDepth));
+//            int maxSamplePly = (int) (currentAverageSearchDepth - Math.sqrt(currentAverageSearchDepth));
+            int maxSamplePly = (int) (2 * currentAverageSearchDepth);
             requestedRandomSamplePly = context.random.nextInt(maxSamplePly + 1);
         }
         else {
@@ -705,7 +707,11 @@ public class RolloutNode {
             }
         }
 
-        return (moveValueSum + transpositionValueSum) / (moveVisits + transpositionVisitCont);
+        double transpositionValue = transpositionValueSum / transpositionVisitCont;
+        long cappedTranspositionCount = Math.min(transpositionVisitCont, transpositionMaximum);
+
+        return (moveValueSum + transpositionValue * cappedTranspositionCount) /
+                (moveVisits + cappedTranspositionCount);
     }
 
 

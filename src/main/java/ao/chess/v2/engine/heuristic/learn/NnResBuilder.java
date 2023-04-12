@@ -298,8 +298,8 @@ public class NnResBuilder {
         conf.addLayer(layerHeadOutcome,
                 new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .activation(Activation.SOFTMAX)
-                        .nOut(Outcome.values.length)
                         .weightInit(WeightInit.XAVIER)
+                        .nOut(Outcome.values.length)
                         .build(),
                 denseBnName);
 //                denseName);
