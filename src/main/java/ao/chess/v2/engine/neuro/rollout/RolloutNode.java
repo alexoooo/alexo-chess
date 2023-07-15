@@ -93,7 +93,8 @@ public class RolloutNode {
 //    private final static double transpositionUseOver = 1;
 //    private final static double transpositionUseOver = 8;
 //    private final static double transpositionUseOver = 64;
-    private final static int transpositionMaximum = 32_000_000;
+//    private final static int transpositionMaximum = 32_000_000;
+    private final static int transpositionMaximum = 64_000_000;
 
     private static final int eGreedyMinimumVisits = 4 * puctThreshold;
 //    private static final double eGreedyProbability = 0.005;

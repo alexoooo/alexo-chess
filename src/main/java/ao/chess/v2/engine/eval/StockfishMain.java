@@ -11,7 +11,8 @@ public class StockfishMain {
     public static final Path stockfishExe = Path.of(
 //            "C:/~/prog/stockfish/stockfish_14.1_win_x64_avx2/stockfish_14.1_win_x64_avx2.exe");
 //            "C:/~/prog/stockfish/stockfish_15_win_x64_avx2/stockfish_15_x64_avx2.exe");
-            "C:/~/prog/stockfish/stockfish_15.1_win_x64_avx2/stockfish-windows-2022-x86-64-avx2.exe");
+//            "C:/~/prog/stockfish/stockfish_15.1_win_x64_avx2/stockfish-windows-2022-x86-64-avx2.exe");
+            "C:/~/prog/stockfish/stockfish_16_win_x64_avx2/stockfish-windows-x86-64-avx2.exe");
 
     public static void main(String[] args) {
         StockfishController controller = StockfishController
