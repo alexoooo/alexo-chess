@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 
+// TODO: rename and add Stockfish-based implementation
 public interface PuctModel {
     PuctModel prototype();
 

@@ -1,6 +1,7 @@
 package ao.chess.v2.engine.neuro.puct;
 
 
+// TODO: rename to MoveAndOutcomeProbability
 public class PuctEstimate {
     public final double[] moveProbabilities;
 

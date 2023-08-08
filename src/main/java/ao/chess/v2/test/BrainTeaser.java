@@ -282,7 +282,9 @@ public class BrainTeaser {
                 //"8/5p2/5P2/8/kp6/2pK2P1/pp3P1P/2RR4 w - - 4 37"
 
                 // https://www.youtube.com/watch?v=eHkFZU4WwaQ
-                "6k1/p4pb1/2p3p1/q1Nrp3/5n1P/1P2BP2/1PP2Q2/1K5R w - - 3 26"
+//                "6k1/p4pb1/2p3p1/q1Nrp3/5n1P/1P2BP2/1PP2Q2/1K5R w - - 3 26"
+
+                "r2qkb1r/pppbp3/2n4p/6p1/2QPpB2/2P5/PP2P1PP/2KR1BNR w kq - 0 11"
 
                 // http://www.talkchess.com/forum3/viewtopic.php?t=57603
 //                "8/8/8/1k6/8/8/8/RK6 w - -"

@@ -1,9 +1,14 @@
-package ao.chess.v2.engine.neuro.rollout.store;
+package ao.chess.v2.engine.neuro.rollout.store.compact;
 
 
+import ao.chess.v2.engine.neuro.rollout.store.FileTranspositionStore;
+import ao.chess.v2.engine.neuro.rollout.store.KnownOutcome;
+import ao.chess.v2.engine.neuro.rollout.store.RolloutStore;
+import ao.chess.v2.engine.neuro.rollout.store.RolloutStoreNode;
 import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionInfo;
 import ao.chess.v2.engine.neuro.rollout.store.transposition.TranspositionKey;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Iterators;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.h2.mvstore.MVMap;
 import org.h2.mvstore.MVStore;
@@ -23,17 +28,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 
-public class FileRolloutStore implements RolloutStore {
+public class CompactFileRolloutStore implements RolloutStore {
     //-----------------------------------------------------------------------------------------------------------------
-    private static final Logger logger = LoggerFactory.getLogger(FileRolloutStore.class);
+    private static final Logger logger = LoggerFactory.getLogger(CompactFileRolloutStore.class);
 
     public static final int countOffset = 0;
-    public static final int sumOffset = countOffset + Long.BYTES;
-    public static final int sumSquareOffset = sumOffset + Long.BYTES;
+    public static final int sumOffset = countOffset + CompactFileRolloutUtils.longBytes;
+    public static final int sumSquareOffset = sumOffset + CompactFileRolloutUtils.longBytes;
     public static final int outcomeOffset = sumSquareOffset + Double.BYTES;
     public static final int moveCountOffset = outcomeOffset + Byte.BYTES;
     public static final int childrenOffset = moveCountOffset + Byte.BYTES;
-    public static final int childSize = Long.BYTES;
+    public static final int childSize = CompactFileRolloutUtils.longBytes;
 
     public static final int bufferMargin = 1024;
     public static final int bufferSize = bufferMargin * 64;
@@ -56,7 +61,7 @@ public class FileRolloutStore implements RolloutStore {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public FileRolloutStore(Path file, Path transpositionFileOrNull) {
+    public CompactFileRolloutStore(Path file, Path transpositionFileOrNull) {
         try {
             Files.createDirectories(file.getParent());
             handle = new RandomAccessFile(file.toFile(), "rw");
@@ -103,10 +108,10 @@ public class FileRolloutStore implements RolloutStore {
     public void incrementVisitCount(long nodeIndex) {
         try {
             handle.seek(nodeIndex + countOffset);
-            long previousCount = handle.readLong();
+            long previousCount = CompactFileRolloutUtils.readLong40(handle);
 
             handle.seek(nodeIndex + countOffset);
-            handle.writeLong(previousCount + 1);
+            CompactFileRolloutUtils.writeLong40(handle, previousCount + 1);
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -118,10 +123,10 @@ public class FileRolloutStore implements RolloutStore {
     public void decrementVisitCount(long nodeIndex) {
         try {
             handle.seek(nodeIndex + countOffset);
-            long previousCount = handle.readLong();
+            long previousCount = CompactFileRolloutUtils.readLong40(handle);
 
             handle.seek(nodeIndex + countOffset);
-            handle.writeLong(previousCount - 1);
+            CompactFileRolloutUtils.writeLong40(handle, previousCount - 1);
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -168,15 +173,15 @@ public class FileRolloutStore implements RolloutStore {
 
         try {
             handle.seek(childOffset);
-            long existingChildIndex = handle.readLong();
-            if (existingChildIndex != -1) {
+            long existingChildIndex = CompactFileRolloutUtils.readLong40(handle);
+            if (existingChildIndex != CompactFileRolloutUtils.longMissing) {
                 return -(existingChildIndex + 1);
             }
 
             long newIndex = addNode(childMoveCount);
 
             handle.seek(childOffset);
-            handle.writeLong(newIndex);
+            CompactFileRolloutUtils.writeLong40(handle, newIndex);
 
             return newIndex;
         }
@@ -191,7 +196,7 @@ public class FileRolloutStore implements RolloutStore {
         handle.seek(newIndex);
 
         // count
-        handle.writeLong(0);
+        CompactFileRolloutUtils.writeLong40(handle, 0);
 
         // sum
         handle.writeDouble(0.0);
@@ -206,7 +211,7 @@ public class FileRolloutStore implements RolloutStore {
 
         // child indexes
         for (int i = 0; i < moveCount; i++) {
-            handle.writeLong(-1);
+            CompactFileRolloutUtils.writeLong40(handle, CompactFileRolloutUtils.longMissing);
         }
 
         return newIndex;
@@ -229,7 +234,7 @@ public class FileRolloutStore implements RolloutStore {
     public long getVisitCount(long nodeIndex) {
         try {
             handle.seek(nodeIndex + countOffset);
-            return handle.readLong();
+            return CompactFileRolloutUtils.readLong40(handle);
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -265,7 +270,7 @@ public class FileRolloutStore implements RolloutStore {
     public double getAverageValue(long nodeIndex, double defaultValue) {
         try {
             handle.seek(nodeIndex);
-            long count = handle.readLong();
+            long count = CompactFileRolloutUtils.readLong40(handle);
             double sum = handle.readDouble();
 
             return count == 0
@@ -296,7 +301,7 @@ public class FileRolloutStore implements RolloutStore {
 
         try {
             handle.seek(childOffset);
-            return handle.readLong();
+            return CompactFileRolloutUtils.readLong40(handle);
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -353,7 +358,7 @@ public class FileRolloutStore implements RolloutStore {
         try {
             handle.seek(nodeIndex);
 
-            long visitCount = handle.readLong();
+            long visitCount = CompactFileRolloutUtils.readLong40(handle);
             double valueSum = handle.readDouble();
             double valueSquareSum = handle.readDouble();
             KnownOutcome knownOutcome = KnownOutcome.values.get(handle.readByte());
@@ -361,7 +366,7 @@ public class FileRolloutStore implements RolloutStore {
 
             long[] childIndexes = new long[moveCount];
             for (int i = 0; i < moveCount; i++) {
-                childIndexes[i] = handle.readLong();
+                childIndexes[i] = CompactFileRolloutUtils.readLong40(handle);
             }
 
             return new RolloutStoreNode(
@@ -373,9 +378,9 @@ public class FileRolloutStore implements RolloutStore {
     }
 
 
-    public void storeAll(Iterator<RolloutStoreNode> nodes) {
+    public void store(RolloutStoreNode node) {
         try {
-            storeAllChecked(nodes);
+            storeAllChecked(Iterators.singletonIterator(node), false);
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -383,7 +388,17 @@ public class FileRolloutStore implements RolloutStore {
     }
 
 
-    private void storeAllChecked(Iterator<RolloutStoreNode> nodes) throws IOException {
+    public void storeAll(Iterator<RolloutStoreNode> nodes) {
+        try {
+            storeAllChecked(nodes, true);
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+
+    private void storeAllChecked(Iterator<RolloutStoreNode> nodes, boolean log) throws IOException {
         Stopwatch stopwatch = Stopwatch.createStarted();
         int writeCount = 0;
         int seekCount = 0;
@@ -408,14 +423,14 @@ public class FileRolloutStore implements RolloutStore {
                 seekCount++;
             }
 
-            buffer.putLong(node.visitCount());
+            CompactFileRolloutUtils.putLong40(buffer, node.visitCount());
             buffer.putDouble(node.valueSum());
             buffer.putDouble(node.valueSquareSum());
             buffer.put((byte) node.knownOutcome().ordinal());
             buffer.put((byte) node.moveCount());
 
             for (int i = 0; i < node.moveCount(); i++) {
-                buffer.putLong(node.childIndex(i));
+                CompactFileRolloutUtils.putLong40(buffer, node.childIndex(i));
             }
 
             int size = sizeOf(node.moveCount());
@@ -437,7 +452,9 @@ public class FileRolloutStore implements RolloutStore {
             writeCount++;
         }
 
-        logger.info("Storing | seek {} | write {} | took: {}", seekCount, writeCount, stopwatch);
+        if (log) {
+            logger.info("Storing | seek {} | write {} | took: {}", seekCount, writeCount, stopwatch);
+        }
     }
 
 
@@ -468,8 +485,10 @@ public class FileRolloutStore implements RolloutStore {
         }
         logger.info("Sync to disk took: {}", stopwatch);
 
-        transpositionStore.commit();
-        logger.info("Transposition commit took: {}", stopwatch);
+        if (transpositionStore != null) {
+            transpositionStore.commit();
+            logger.info("Transposition commit took: {}", stopwatch);
+        }
 
         return 0;
     }

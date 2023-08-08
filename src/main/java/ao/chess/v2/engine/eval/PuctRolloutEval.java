@@ -64,7 +64,6 @@ public class PuctRolloutEval implements PositionEvaluator {
 
             int bestMoveIndex = 0;
             double bestMoveScore = Double.NEGATIVE_INFINITY;
-
             double moveUncertainty = estimateUncertainty / nMoves;
 
             for (int i = 0; i < nMoves; i++) {
