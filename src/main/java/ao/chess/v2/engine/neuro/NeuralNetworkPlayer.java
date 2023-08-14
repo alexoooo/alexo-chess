@@ -3,8 +3,8 @@ package ao.chess.v2.engine.neuro;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
-import ao.chess.v2.engine.neuro.puct.PuctEstimate;
-import ao.chess.v2.engine.neuro.puct.PuctModel;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeProbability;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeModel;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -18,7 +18,7 @@ public class NeuralNetworkPlayer implements Player {
 
 
     public static NeuralNetworkPlayer load(
-            PuctModel puctModel,
+            MoveAndOutcomeModel puctModel,
             double estimateUncertainty/*,
             double underpromotionWeight*/)
     {
@@ -27,13 +27,13 @@ public class NeuralNetworkPlayer implements Player {
     }
 
 
-    private final PuctModel puctModel;
+    private final MoveAndOutcomeModel puctModel;
     private final double estimateUncertainty;
 //    private final double underpromotionWeight;
 
 
     public NeuralNetworkPlayer(
-            PuctModel puctModel,
+            MoveAndOutcomeModel puctModel,
             double estimateUncertainty/*,
             double underpromotionWeight*/
     ) {
@@ -58,7 +58,7 @@ public class NeuralNetworkPlayer implements Player {
         Colour pov = position.nextToAct();
 
         puctModel.prepare(position.pieceCount());
-        PuctEstimate estimate = puctModel.estimate(position, legalMoves);
+        MoveAndOutcomeProbability estimate = puctModel.estimate(position, legalMoves, legalMoves.length);
 
         double[] moveProbabilities = estimate.moveProbabilities;
 

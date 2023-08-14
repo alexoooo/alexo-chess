@@ -26,7 +26,7 @@ public class PuctPlayer
     //-----------------------------------------------------------------------------------------------------------------
     public static class Builder
     {
-        private PuctModel model;
+        private MoveAndOutcomeModel model;
         private int threads = 1;
         private double exploration = 1.25;
         private double explorationLog = 18432;
@@ -40,7 +40,7 @@ public class PuctPlayer
         private boolean useIo = false;
 
 
-        public Builder(PuctModel model) {
+        public Builder(MoveAndOutcomeModel model) {
             this.model = model;
         }
 
@@ -87,8 +87,8 @@ public class PuctPlayer
 
     //-----------------------------------------------------------------------------------------------------------------
     private final String id;
-    private final PuctModel model;
-    private final PuctModelPool pool;
+    private final MoveAndOutcomeModel model;
+    private final MoveAndOutcomeModelPool pool;
     private final int threads;
     private final double exploration;
     private final double explorationLog;
@@ -101,7 +101,7 @@ public class PuctPlayer
     private final boolean useIo;
     private boolean train;
 
-    private final ConcurrentHashMap<Long, PuctEstimate> nnCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, MoveAndOutcomeProbability> nnCache = new ConcurrentHashMap<>();
     private final LongAdder cacheHits = new LongAdder();
     private final LongAdder collisions = new LongAdder();
     private final LongAdder terminalHits = new LongAdder();
@@ -123,7 +123,7 @@ public class PuctPlayer
 
     //-----------------------------------------------------------------------------------------------------------------
     public PuctPlayer(
-            PuctModel model,
+            MoveAndOutcomeModel model,
             int threads,
             double exploration,
             double explorationLog,
@@ -149,7 +149,7 @@ public class PuctPlayer
         this.train = train;
         this.useIo = useIo;
 
-        pool = new PuctModelPool(threads, model);
+        pool = new MoveAndOutcomeModelPool(threads, model);
 
         contexts = new CopyOnWriteArrayList<>();
 
@@ -389,7 +389,7 @@ public class PuctPlayer
 
         int[] legalMoves = state.legalMoves();
 
-        PuctEstimate estimate = contexts.get(0).pool.estimateRoot(state, legalMoves);
+        MoveAndOutcomeProbability estimate = contexts.get(0).pool.estimateRoot(state, legalMoves);
 
         if (train) {
             double[] buffer = new double[estimate.moveProbabilities.length];

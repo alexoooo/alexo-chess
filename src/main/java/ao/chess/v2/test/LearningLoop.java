@@ -5,7 +5,7 @@ import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.heuristic.learn.NeuralUtils;
 import ao.chess.v2.engine.neuro.puct.PuctPlayer;
-import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
+import ao.chess.v2.engine.neuro.puct.NeuralSingleModel;
 import ao.chess.v2.engine.simple.RandomPlayer;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Outcome;
@@ -261,7 +261,7 @@ public class LearningLoop {
         {
             if (selfPlayThreads == 1) {
                 PuctPlayer a = new PuctPlayer(
-                        new PuctSingleModel(nnFile),
+                        new NeuralSingleModel(nnFile),
                         1,
                         thinkingExploration,
                         thinkingExplorationLog,
@@ -275,7 +275,7 @@ public class LearningLoop {
                         false);
 
                 PuctPlayer b = new PuctPlayer(
-                        new PuctSingleModel(nnFile),
+                        new NeuralSingleModel(nnFile),
                         1,
                         thinkingExploration,
                         thinkingExplorationLog,
@@ -360,7 +360,7 @@ public class LearningLoop {
     ) {
         Thread thread = new Thread(() -> {
             PuctPlayer a = new PuctPlayer(
-                    new PuctSingleModel(nnFile),
+                    new NeuralSingleModel(nnFile),
                     1,
                     thinkingExploration,
                     thinkingExplorationLog,
@@ -374,7 +374,7 @@ public class LearningLoop {
                     false);
 
             PuctPlayer b = new PuctPlayer(
-                    new PuctSingleModel(nnFile),
+                    new NeuralSingleModel(nnFile),
                     1,
                     thinkingExploration,
                     thinkingExplorationLog,
@@ -430,7 +430,7 @@ public class LearningLoop {
         Path nnFile = generationDir.resolve(nnFilename);
 
         Player a = new PuctPlayer.Builder(
-                new PuctSingleModel(nnFile)).build();
+                new NeuralSingleModel(nnFile)).build();
 
         Player b;
         if (previousGenerationDirs.isEmpty()) {
@@ -442,7 +442,7 @@ public class LearningLoop {
                     .resolve(nnFilename);
 
             b = new PuctPlayer.Builder(
-                    new PuctSingleModel(previousNnFile)).build();
+                    new NeuralSingleModel(previousNnFile)).build();
         }
 
         GameLoop gameLoop = new GameLoop();

@@ -1,6 +1,6 @@
 package ao.chess.v2.engine.neuro.rollout;
 
-import ao.chess.v2.engine.neuro.puct.PuctModelPool;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeModelPool;
 import ao.chess.v2.engine.neuro.rollout.store.RolloutStore;
 import ao.chess.v2.state.Move;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -17,7 +17,7 @@ public class RolloutContext {
     public final int threads;
     public final boolean optimize;
 
-    public final PuctModelPool pool;
+    public final MoveAndOutcomeModelPool pool;
     public final RolloutStore store;
     public final int rolloutLength;
     public final boolean binerize;
@@ -57,7 +57,7 @@ public class RolloutContext {
             int threads,
             int rolloutLength,
             boolean optimize,
-            PuctModelPool pool,
+            MoveAndOutcomeModelPool pool,
             RolloutStore store,
 
             boolean binerize,

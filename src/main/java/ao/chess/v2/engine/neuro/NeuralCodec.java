@@ -204,31 +204,31 @@ public enum NeuralCodec {
     }
 
 
-    public double[] decodeMoveMultiProbabilities(
-            INDArray outputFrom,
-            INDArray outputTo,
-            State state,
-            int[] legalMoves,
-            double[] fromScores,
-            double[] toScores
-    ) {
-        return decodeMoveMultiProbabilities(
-                outputFrom, outputTo, state, legalMoves, fromScores, toScores, 0);
-    }
-
-
-    public double[] decodeMoveMultiProbabilities(
-            INDArray outputFrom,
-            INDArray outputTo,
-            State state,
-            int[] legalMoves,
-            double[] fromScores,
-            double[] toScores,
-            int batchIndex
-    ) {
-        return decodeMoveMultiProbabilities(
-                outputFrom, outputTo, state, legalMoves, legalMoves.length, fromScores, toScores, batchIndex);
-    }
+//    public double[] decodeMoveMultiProbabilities(
+//            INDArray outputFrom,
+//            INDArray outputTo,
+//            State state,
+//            int[] legalMoves,
+//            double[] fromScores,
+//            double[] toScores
+//    ) {
+//        return decodeMoveMultiProbabilities(
+//                outputFrom, outputTo, state, legalMoves, fromScores, toScores, 0);
+//    }
+//
+//
+//    public double[] decodeMoveMultiProbabilities(
+//            INDArray outputFrom,
+//            INDArray outputTo,
+//            State state,
+//            int[] legalMoves,
+//            double[] fromScores,
+//            double[] toScores,
+//            int batchIndex
+//    ) {
+//        return decodeMoveMultiProbabilities(
+//                outputFrom, outputTo, state, legalMoves, legalMoves.length, fromScores, toScores, batchIndex);
+//    }
 
 
     public double[] decodeMoveMultiProbabilities(

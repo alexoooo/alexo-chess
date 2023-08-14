@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.LongAdder;
 import static com.google.common.base.Preconditions.checkState;
 
 
-public class PuctModelPool
+public class MoveAndOutcomeModelPool
         implements AutoCloseable
 {
     //-----------------------------------------------------------------------------------------------------------------
@@ -24,14 +24,14 @@ public class PuctModelPool
 
     //-----------------------------------------------------------------------------------------------------------------
     private final int batchSize;
-    private final PuctModel model;
+    private final MoveAndOutcomeModel model;
 
-    private final BlockingDeque<PuctQuery> queryQueue;
+    private final BlockingDeque<MoveAndOutcomeQuery> queryQueue;
     private Thread worker;
     private volatile boolean isRoot = false;
     private int previousPieceCount = -1;
 
-    private final Cache<CacheKey, PuctEstimate> cache = CacheBuilder.newBuilder()
+    private final Cache<CacheKey, MoveAndOutcomeProbability> cache = CacheBuilder.newBuilder()
             .concurrencyLevel(1)
 //            .maximumSize(1024 * 1024)
 //            .maximumSize(4 * 1024 * 1024)
@@ -44,9 +44,9 @@ public class PuctModelPool
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public PuctModelPool(
+    public MoveAndOutcomeModelPool(
             int batchSize,
-            PuctModel model)
+            MoveAndOutcomeModel model)
     {
         this.batchSize = batchSize;
         this.model = model;
@@ -101,8 +101,8 @@ public class PuctModelPool
     private void workerLoop() {
         model.load();
 
-        List<PuctQuery> buffer = new ArrayList<>();
-        LinkedList<PuctQuery> newQueries = new LinkedList<>();
+        List<MoveAndOutcomeQuery> buffer = new ArrayList<>();
+        LinkedList<MoveAndOutcomeQuery> newQueries = new LinkedList<>();
 
         long spinStart = -1;
 
@@ -133,7 +133,7 @@ public class PuctModelPool
             if (isRoot) {
                 buffer.addAll(newQueries);
                 checkState(buffer.size() == 1);
-                List<PuctEstimate> estimates = model.estimateAll(buffer);
+                List<MoveAndOutcomeProbability> estimates = model.estimateAll(buffer);
                 buffer.get(0).result.complete(estimates.get(0));
                 buffer.clear();
             }
@@ -143,7 +143,7 @@ public class PuctModelPool
             }
 
             while (! newQueries.isEmpty()) {
-                PuctQuery nextQuery = newQueries.removeFirst();
+                MoveAndOutcomeQuery nextQuery = newQueries.removeFirst();
 
 //                if (buffer.contains(query)) {
 //                    List<PuctEstimate> estimates = model.estimateAll(
@@ -161,12 +161,12 @@ public class PuctModelPool
     }
 
 
-    private void processBuffer(List<PuctQuery> buffer) {
-        List<PuctEstimate> estimates = model.estimateAll(buffer);
+    private void processBuffer(List<MoveAndOutcomeQuery> buffer) {
+        List<MoveAndOutcomeProbability> estimates = model.estimateAll(buffer);
 
         for (int i = 0; i < buffer.size(); i++) {
-            PuctQuery query = buffer.get(i);
-            PuctEstimate estimate = estimates.get(i);
+            MoveAndOutcomeQuery query = buffer.get(i);
+            MoveAndOutcomeProbability estimate = estimates.get(i);
             query.result.complete(estimate);
         }
 
@@ -174,10 +174,10 @@ public class PuctModelPool
     }
 
 
-    public PuctEstimate estimateRoot(
+    public MoveAndOutcomeProbability estimateRoot(
             State state, int[] legalMoves)
     {
-        PuctQuery query = new PuctQuery(state, legalMoves);
+        MoveAndOutcomeQuery query = new MoveAndOutcomeQuery(state, legalMoves);
 
         isRoot = true;
         queryQueue.add(query);
@@ -194,10 +194,10 @@ public class PuctModelPool
     }
 
 
-    public PuctEstimate estimateBlocking(
+    public MoveAndOutcomeProbability estimateBlocking(
             State state, int[] legalMoves, int moveCount)
     {
-        PuctQuery query = new PuctQuery(state, legalMoves, moveCount);
+        MoveAndOutcomeQuery query = new MoveAndOutcomeQuery(state, legalMoves, moveCount);
 
         queryQueue.add(query);
 
@@ -210,21 +210,21 @@ public class PuctModelPool
     }
 
 
-    public PuctEstimate estimateBlockingCached(
+    public MoveAndOutcomeProbability estimateBlockingCached(
             State state, int[] legalMoves, int moveCount)
     {
         CacheKey cacheKey = new CacheKey(state.staticHashCode(), model.nextPartition());
-        PuctEstimate cached = cache.getIfPresent(cacheKey);
+        MoveAndOutcomeProbability cached = cache.getIfPresent(cacheKey);
         if (cached != null) {
             cacheHits.increment();
             return cached;
         }
 
-        PuctQuery query = new PuctQuery(state, legalMoves, moveCount);
+        MoveAndOutcomeQuery query = new MoveAndOutcomeQuery(state, legalMoves, moveCount);
 
         queryQueue.add(query);
 
-        PuctEstimate result;
+        MoveAndOutcomeProbability result;
         try {
             result = query.result.get();
         }
@@ -238,21 +238,21 @@ public class PuctModelPool
     }
 
 
-    public PuctEstimate estimateBlockingLocalCached(
-            State state, int[] legalMoves, int moveCount, Map<CacheKey, PuctEstimate> localCache)
+    public MoveAndOutcomeProbability estimateBlockingLocalCached(
+            State state, int[] legalMoves, int moveCount, Map<CacheKey, MoveAndOutcomeProbability> localCache)
     {
         CacheKey cacheKey = new CacheKey(state.staticHashCode(), model.nextPartition());
-        PuctEstimate cached = localCache.get(cacheKey);
+        MoveAndOutcomeProbability cached = localCache.get(cacheKey);
         if (cached != null) {
             localCacheHits.increment();
             return cached;
         }
 
-        PuctQuery query = new PuctQuery(state, legalMoves, moveCount);
+        MoveAndOutcomeQuery query = new MoveAndOutcomeQuery(state, legalMoves, moveCount);
 
         queryQueue.add(query);
 
-        PuctEstimate result;
+        MoveAndOutcomeProbability result;
         try {
             result = query.result.get();
         }

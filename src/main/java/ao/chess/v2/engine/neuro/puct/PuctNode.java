@@ -315,9 +315,9 @@ class PuctNode {
 
         Long positionKey = state.staticHashCode();
 
-        PuctEstimate cached = context.nnCache.get(positionKey);
+        MoveAndOutcomeProbability cached = context.nnCache.get(positionKey);
 
-        PuctEstimate estimate;
+        MoveAndOutcomeProbability estimate;
         if (cached == null) {
             estimate = context.pool.estimateBlocking(
                     state, legalMoves, legalMoves.length);

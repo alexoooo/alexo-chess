@@ -1,7 +1,7 @@
 package ao.chess.v2.engine.heuristic.learn;
 
 import ao.chess.v2.engine.neuro.meta.MetaEstimate;
-import ao.chess.v2.engine.neuro.puct.PuctEstimate;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeProbability;
 import com.google.common.collect.Lists;
 import org.deeplearning4j.nn.api.NeuralNetwork;
 import org.deeplearning4j.nn.graph.ComputationGraph;
@@ -454,7 +454,7 @@ public class MoveTrainer {
                 }
             }
             else {
-                List<PuctEstimate> predictions = testExampleAll((ComputationGraph) nn, inputMoves);
+                List<MoveAndOutcomeProbability> predictions = testExampleAll((ComputationGraph) nn, inputMoves);
                 for (int i = 0; i < inputMoves.size(); i++)
                 {
                     double[] errors = measureError(predictions.get(i), inputMoves.get(i));
@@ -492,23 +492,23 @@ public class MoveTrainer {
     }
 
 
-    private static PuctEstimate testExample(NeuralNetwork nn, MoveHistory example) {
+    private static MoveAndOutcomeProbability testExample(NeuralNetwork nn, MoveHistory example) {
         return testExampleGraph((ComputationGraph) nn, example);
     }
 
 
-    private static PuctEstimate testExampleGraph(ComputationGraph nn, MoveHistory example) {
+    private static MoveAndOutcomeProbability testExampleGraph(ComputationGraph nn, MoveHistory example) {
         return encoder.estimate(example, nn);
     }
 
 
-    private static List<PuctEstimate> testExampleAll(ComputationGraph nn, List<MoveHistory> examples) {
+    private static List<MoveAndOutcomeProbability> testExampleAll(ComputationGraph nn, List<MoveHistory> examples) {
         MoveTrainerEncoder testEncoder =
                 miniBatchSize == testBatchSize
                 ? encoder
                 : new MoveTrainerEncoder(testBatchSize);
 
-        List<PuctEstimate> all = new ArrayList<>();
+        List<MoveAndOutcomeProbability> all = new ArrayList<>();
         for (var batch : Lists.partition(examples, testBatchSize))
         {
             if (batch.size() == testBatchSize) {
@@ -542,7 +542,7 @@ public class MoveTrainer {
 
 
     private static double[] measureError(
-            PuctEstimate prediction,
+            MoveAndOutcomeProbability prediction,
             MoveHistory example)
     {
         double predictedOutcome = prediction.expectedValue();

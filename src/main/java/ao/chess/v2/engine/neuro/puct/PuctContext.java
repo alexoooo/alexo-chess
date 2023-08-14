@@ -14,7 +14,7 @@ class PuctContext {
     public final int threads;
 
 //    public final PuctModel model;
-    public final PuctModelPool pool;
+    public final MoveAndOutcomeModelPool pool;
 
     public final Random random = new Random();
     public final List<PuctNode> path = new ArrayList<>();
@@ -37,7 +37,7 @@ class PuctContext {
     public double estimatedValue;
 
 
-    public final ConcurrentHashMap<Long, PuctEstimate> nnCache;
+    public final ConcurrentHashMap<Long, MoveAndOutcomeProbability> nnCache;
     public final LongAdder cacheHits;
     public final LongAdder collisions;
     public final LongAdder terminalHits;
@@ -48,14 +48,14 @@ class PuctContext {
     public PuctContext(
             int index,
             int threads,
-            PuctModelPool pool,
+            MoveAndOutcomeModelPool pool,
             double exploration,
             double explorationLog,
             double firstPlayDiscount,
             boolean randomize,
             boolean tablebase,
 //            double predictionUncertainty,
-            ConcurrentHashMap<Long, PuctEstimate> nnCache,
+            ConcurrentHashMap<Long, MoveAndOutcomeProbability> nnCache,
             LongAdder cacheHits,
             LongAdder collisions,
             LongAdder terminalHits,

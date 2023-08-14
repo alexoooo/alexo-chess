@@ -3,10 +3,10 @@ package ao.chess.v2.engine.heuristic.learn;
 
 import ao.chess.v2.engine.endgame.tablebase.DeepOracle;
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
-import ao.chess.v2.engine.neuro.puct.PuctEstimate;
-import ao.chess.v2.engine.neuro.puct.PuctModel;
-import ao.chess.v2.engine.neuro.puct.PuctModelPool;
-import ao.chess.v2.engine.neuro.puct.PuctMultiModel;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeProbability;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeModel;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeModelPool;
+import ao.chess.v2.engine.neuro.puct.NeuralMultiModel;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -115,14 +115,14 @@ public class RolloutTester {
 
     public static void main(String[] args) throws InterruptedException
     {
-        PuctModel model = new PuctMultiModel(ImmutableRangeMap.<Integer, Path>builder()
+        MoveAndOutcomeModel model = new NeuralMultiModel(ImmutableRangeMap.<Integer, Path>builder()
                 .put(Range.closed(2, 22),
                         Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
                 .put(Range.closed(23, 32),
                         Paths.get("lookup/nn/res_20_n1307.zip"))
                 .build());
 
-        PuctModelPool pool = new PuctModelPool(modelBatchSize, model);
+        MoveAndOutcomeModelPool pool = new MoveAndOutcomeModelPool(modelBatchSize, model);
         pool.restart(32);
 
         DoubleSummaryStatistics globalOutcomeStats = new DoubleSummaryStatistics();
@@ -152,7 +152,7 @@ public class RolloutTester {
     }
 
 
-    private static DoubleSummaryStatistics test(PuctModelPool model, List<MoveHistory> examples) {
+    private static DoubleSummaryStatistics test(MoveAndOutcomeModelPool model, List<MoveHistory> examples) {
         DoubleSummaryStatistics outcomeStats = new DoubleSummaryStatistics();
 
         List<Future<Double>> rolloutValues = new ArrayList<>();
@@ -198,7 +198,7 @@ public class RolloutTester {
     }
 
 
-    private static double rollout(int index, State state, PuctModelPool model) {
+    private static double rollout(int index, State state, MoveAndOutcomeModelPool model) {
         double valueSum = 0;
         for (int i = 0; i < rolloutCount; i++) {
 //            System.out.println("Started " + index + "-" + i);
@@ -213,7 +213,7 @@ public class RolloutTester {
     }
 
 
-    private static double rolloutOne(State state, PuctModelPool model) {
+    private static double rolloutOne(State state, MoveAndOutcomeModelPool model) {
         Colour fromPov = state.nextToAct();
 
         int[] pseudoMoves = new int[Move.MAX_PER_PLY];
@@ -233,7 +233,7 @@ public class RolloutTester {
 
         rollout:
         while (true) {
-            PuctEstimate estimate = model.estimateBlocking(state, moves, nMoves);
+            MoveAndOutcomeProbability estimate = model.estimateBlocking(state, moves, nMoves);
 
             rolloutLength++;
             rolloutValueSum +=

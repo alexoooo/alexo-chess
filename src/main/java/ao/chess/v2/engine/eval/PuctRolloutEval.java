@@ -3,8 +3,8 @@ package ao.chess.v2.engine.eval;
 
 import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
 import ao.chess.v2.engine.endgame.v2.EfficientDeepOracle;
-import ao.chess.v2.engine.neuro.puct.PuctEstimate;
-import ao.chess.v2.engine.neuro.puct.PuctModelPool;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeProbability;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeModelPool;
 import ao.chess.v2.engine.neuro.rollout.RolloutContext;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
@@ -46,12 +46,12 @@ public class PuctRolloutEval implements PositionEvaluator {
         double nextDiscount = 1.0;
         double discountSum = 0;
 
-        Map<PuctModelPool.CacheKey, PuctEstimate> localCache = new HashMap<>();
+        Map<MoveAndOutcomeModelPool.CacheKey, MoveAndOutcomeProbability> localCache = new HashMap<>();
 
         rollout:
         for (int rolloutLength = 0; rolloutLength <= context.rolloutLength; rolloutLength++) {
 //            PuctEstimate estimate = context.pool.estimateBlocking(state, moves, nMoves);
-            PuctEstimate estimate = context.pool.estimateBlockingLocalCached(state, moves, nMoves, localCache);
+            MoveAndOutcomeProbability estimate = context.pool.estimateBlockingLocalCached(state, moves, nMoves, localCache);
 
             double stateValue =
                     state.nextToAct() == fromPov

@@ -1,8 +1,7 @@
 package ao.chess.v2.engine.neuro.puct;
 
 
-// TODO: rename to MoveAndOutcomeProbability
-public class PuctEstimate {
+public class MoveAndOutcomeProbability {
     public final double[] moveProbabilities;
 
     public final double winProbability;
@@ -11,7 +10,7 @@ public class PuctEstimate {
 //    public final double winProbability;
 
 
-    public PuctEstimate(
+    public MoveAndOutcomeProbability(
             double[] moveProbabilities,
             double winProbability,
             double drawProbability

@@ -7,8 +7,8 @@ import ao.chess.v2.engine.endgame.tablebase.DeepOutcome;
 import ao.chess.v2.engine.endgame.v2.EfficientDeepOracle;
 import ao.chess.v2.engine.eval.PositionEvaluator;
 import ao.chess.v2.engine.eval.PuctRolloutEval;
-import ao.chess.v2.engine.neuro.puct.PuctModel;
-import ao.chess.v2.engine.neuro.puct.PuctModelPool;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeModel;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeModelPool;
 import ao.chess.v2.engine.neuro.rollout.store.KnownOutcome;
 import ao.chess.v2.engine.neuro.rollout.store.MapRolloutStore;
 import ao.chess.v2.engine.neuro.rollout.store.RolloutStore;
@@ -69,7 +69,7 @@ public class RolloutPlayer
     //-----------------------------------------------------------------------------------------------------------------
     public static class Builder
     {
-        private final PuctModel model;
+        private final MoveAndOutcomeModel model;
         private RolloutStore store = new MapRolloutStore();
         private int threads = 1;
         private int rolloutLength = 0;
@@ -83,7 +83,7 @@ public class RolloutPlayer
         private PositionEvaluator evaluator = new PuctRolloutEval();
 
 
-        public Builder(PuctModel model) {
+        public Builder(MoveAndOutcomeModel model) {
             this.model = model;
         }
 
@@ -164,8 +164,8 @@ public class RolloutPlayer
     private final String id;
     private final RolloutStore store;
     private final PositionEvaluator evaluator;
-    private final PuctModel model;
-    private final PuctModelPool pool;
+    private final MoveAndOutcomeModel model;
+    private final MoveAndOutcomeModelPool pool;
     private final int threads;
     private final int rolloutLength;
     private final int minimumTrajectories;
@@ -204,7 +204,7 @@ public class RolloutPlayer
 
     //-----------------------------------------------------------------------------------------------------------------
     public RolloutPlayer(
-            PuctModel model,
+            MoveAndOutcomeModel model,
             RolloutStore store,
             PositionEvaluator evaluator,
             int threads,
@@ -228,7 +228,7 @@ public class RolloutPlayer
         this.eGreedyProbability = eGreedyProbability;
         this.useIo = useIo;
 
-        pool = new PuctModelPool(
+        pool = new MoveAndOutcomeModelPool(
                 threads, model);
 
         contexts = new CopyOnWriteArrayList<>();

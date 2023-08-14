@@ -8,9 +8,9 @@ import ao.chess.v1.old.Mediocre;
 import ao.chess.v1.util.Io;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
-import ao.chess.v2.engine.neuro.puct.PuctModel;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeModel;
 import ao.chess.v2.engine.neuro.puct.PuctPlayer;
-import ao.chess.v2.engine.neuro.puct.PuctSingleModel;
+import ao.chess.v2.engine.neuro.puct.NeuralSingleModel;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -56,7 +56,7 @@ public class AlexoChess
 //                Paths.get("lookup/nn/res_10_20191226.zip");
                 Paths.get("lookup/nn/res_5a_head.zip");
 
-        PuctModel puctModel = new PuctSingleModel(
+        MoveAndOutcomeModel puctModel = new NeuralSingleModel(
                 nnPath);
 
         try

@@ -4,9 +4,9 @@ package ao.chess.v2.test.solve;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.eval.StockfishEval;
 import ao.chess.v2.engine.eval.StockfishMain;
-import ao.chess.v2.engine.neuro.puct.PuctEnsembleModel;
-import ao.chess.v2.engine.neuro.puct.PuctMixedModel;
-import ao.chess.v2.engine.neuro.puct.PuctModel;
+import ao.chess.v2.engine.neuro.puct.NeuralEnsembleModel;
+import ao.chess.v2.engine.neuro.puct.NeuralMixedModel;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeModel;
 import ao.chess.v2.engine.neuro.rollout.RolloutPlayer;
 import ao.chess.v2.engine.neuro.rollout.store.TieredRolloutStore;
 import ao.chess.v2.engine.stockfish.StockfishController;
@@ -48,14 +48,14 @@ public class PositionSolver {
         boolean ensemble = Math.random() <= 0.66;
         System.out.println("Ensemble: " + ensemble + " " + LocalDateTime.now());
 
-        PuctModel model;
+        MoveAndOutcomeModel model;
         if (ensemble) {
-            model = new PuctEnsembleModel(ImmutableList.of(
+            model = new NeuralEnsembleModel(ImmutableList.of(
                     Paths.get("lookup/nn/res_20_n1307.zip"),
                     Paths.get("lookup/nn/res_20_b_n1008.zip")));
         }
         else {
-            model = new PuctMixedModel(ImmutableRangeMap.<Integer, Path>builder()
+            model = new NeuralMixedModel(ImmutableRangeMap.<Integer, Path>builder()
                     .put(Range.closed(2, 20),
                             Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
                     .put(Range.closed(21, 28),
@@ -70,7 +70,7 @@ public class PositionSolver {
                 .build();
         StockfishEval eval = StockfishEval.create(
 //                controller, 24, 1024, 100_000);
-                controller, 24, 1024, 125_000);
+                controller, 24, 1024, 125_000, false, 10_000);
 //                controller, 24, 1024, 250_000);
 //                controller, 24, 1024, 1_000_000);
 

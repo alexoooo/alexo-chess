@@ -19,15 +19,15 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkArgument;
 
 
-public class PuctMultiModel
-        implements PuctModel
+public class NeuralMultiModel
+        implements MoveAndOutcomeModel
 {
     //-----------------------------------------------------------------------------------------------------------------
     private static class Partition {
         List<PartitionPointer> pointers = new ArrayList<>();
         int size = 0;
 
-        public void add(PuctQuery query, int index) {
+        public void add(MoveAndOutcomeQuery query, int index) {
             PartitionPointer pointer;
             if (pointers.size() <= size) {
                 pointer = new PartitionPointer();
@@ -52,10 +52,10 @@ public class PuctMultiModel
 
 
     private static class PartitionPointer {
-        PuctQuery query;
+        MoveAndOutcomeQuery query;
         int index = -1;
 
-        public void set(PuctQuery query, int index) {
+        public void set(MoveAndOutcomeQuery query, int index) {
             this.query = query;
             this.index = index;
         }
@@ -71,7 +71,7 @@ public class PuctMultiModel
     private final ImmutableRangeMap<Integer, Path> savedNeuralNetworks;
     private final int[] pieceCountToIndex;
     private final List<Partition> partitions;
-    private final List<PuctEstimate> outputBuffer = new ArrayList<>();
+    private final List<MoveAndOutcomeProbability> outputBuffer = new ArrayList<>();
     private final int[] hitCount;
 
     private final ComputationGraph[] nn;
@@ -86,7 +86,7 @@ public class PuctMultiModel
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public PuctMultiModel(
+    public NeuralMultiModel(
             RangeMap<Integer, Path> savedNeuralNetworks)
     {
         this.savedNeuralNetworks = ImmutableRangeMap.copyOf(savedNeuralNetworks);
@@ -118,9 +118,9 @@ public class PuctMultiModel
 
     //-----------------------------------------------------------------------------------------------------------------
     @Override
-    public PuctModel prototype()
+    public MoveAndOutcomeModel prototype()
     {
-        return new PuctMultiModel(savedNeuralNetworks);
+        return new NeuralMultiModel(savedNeuralNetworks);
     }
 
 
@@ -162,7 +162,7 @@ public class PuctMultiModel
 
 
     @Override
-    public PuctEstimate estimate(State state, int[] legalMoves)
+    public MoveAndOutcomeProbability estimate(State state, int[] legalMoves, int moveCount)
     {
         NeuralCodec.INSTANCE.encodeMultiState(
                 state, features, propAttacks, oppAttacks);
@@ -178,23 +178,25 @@ public class PuctMultiModel
                 outputs[1],
                 state,
                 legalMoves,
+                moveCount,
                 fromScores,
-                toScores);
+                toScores,
+                0);
 
         double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeWin(outputs[2]);
         double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeDraw(outputs[2]);
 
-        return new PuctEstimate(
+        return new MoveAndOutcomeProbability(
                 moveProbabilities, winProbability, drawProbability);
     }
 
 
     @Override
-    public ImmutableList<PuctEstimate> estimateAll(
-            List<PuctQuery> queries)
+    public ImmutableList<MoveAndOutcomeProbability> estimateAll(
+            List<MoveAndOutcomeQuery> queries)
     {
         for (int i = 0; i < queries.size(); i++) {
-            PuctQuery query = queries.get(i);
+            MoveAndOutcomeQuery query = queries.get(i);
 //            int pieceCount = query.state.pieceCount();
             int nnIndex = pieceCountIndex(/*pieceCount*/);
             hitCount[nnIndex]++;
@@ -221,7 +223,7 @@ public class PuctMultiModel
             INDArray sizedFeatures = batchFeatures.get(size - 1);
 
             for (int i = 0; i < size; i++) {
-                PuctQuery query = partition.pointers.get(i).query;
+                MoveAndOutcomeQuery query = partition.pointers.get(i).query;
                 NeuralCodec.INSTANCE.encodeMultiState(
                         query.state, sizedFeatures, propAttacks, oppAttacks, i);
             }
@@ -230,7 +232,7 @@ public class PuctMultiModel
 
             for (int i = 0; i < size; i++) {
                 PartitionPointer pointer = partition.pointers.get(i);
-                PuctQuery query = pointer.query;
+                MoveAndOutcomeQuery query = pointer.query;
 
                 double[] moveProbabilities = NeuralCodec.INSTANCE.decodeMoveMultiProbabilities(
                         outputs[0],
@@ -245,7 +247,7 @@ public class PuctMultiModel
                 double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeWin(outputs[2], i);
                 double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeDraw(outputs[2], i);
 
-                PuctEstimate estimate = new PuctEstimate(
+                MoveAndOutcomeProbability estimate = new MoveAndOutcomeProbability(
                         moveProbabilities, winProbability, drawProbability);
 
                 outputBuffer.set(pointer.index, estimate);
@@ -254,7 +256,7 @@ public class PuctMultiModel
             partition.clear();
         }
 
-        ImmutableList<PuctEstimate> output = ImmutableList.copyOf(outputBuffer);
+        ImmutableList<MoveAndOutcomeProbability> output = ImmutableList.copyOf(outputBuffer);
         outputBuffer.clear();
         return output;
     }

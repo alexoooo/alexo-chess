@@ -4,8 +4,6 @@ package ao.chess.v2.engine.stockfish;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static com.google.common.base.Preconditions.checkState;
-
 
 // https://lichess.org/blog/W3WeMyQAACQAdfAL/7-piece-syzygy-tablebases-are-complete
 // https://www.chessprogramming.org/Pawn_Advantage,_Win_Percentage,_and_Elo
@@ -22,7 +20,7 @@ public class StockfishController {
 
         private Path syzygy;
 
-        private boolean built;
+//        private boolean built;
 
 
         private Builder(Path executable) {
@@ -32,14 +30,15 @@ public class StockfishController {
 
         public Builder syzygyPath(Path syzygy) {
             this.syzygy = syzygy;
-            return setCheck();
-        }
-
-
-        private Builder setCheck() {
-            checkState(built);
+//            return setCheck();
             return this;
         }
+
+
+//        private Builder setCheck() {
+//            checkState(built);
+//            return this;
+//        }
 
 
         public StockfishController build() {
@@ -59,12 +58,12 @@ public class StockfishController {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public StockfishInstance start(int threads, int hashMb, int nodes) {
+    public StockfishInstance start(int threads, int hashMb) {
         ProcessBuilder processBuilder = new ProcessBuilder(builder.executable.toString());
 
         try {
             Process process = processBuilder.start();
-            StockfishInstance instance = new StockfishInstance(process, nodes);
+            StockfishInstance instance = new StockfishInstance(process);
             instance.sendCommand("setoption name Threads value " + threads);
             instance.sendCommand("setoption name Hash value " + hashMb);
             instance.sendCommand("setoption name UCI_ShowWDL value true");

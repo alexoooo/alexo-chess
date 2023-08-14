@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class PuctSingleModel
-        implements PuctModel
+public class NeuralSingleModel
+        implements MoveAndOutcomeModel
 {
     private final Path savedNeuralNetwork;
 
@@ -30,7 +30,7 @@ public class PuctSingleModel
     private List<INDArray> batchFeatures;
 
 
-    public PuctSingleModel(
+    public NeuralSingleModel(
             Path savedNeuralNetwork)
     {
         this.savedNeuralNetwork = savedNeuralNetwork;
@@ -38,9 +38,9 @@ public class PuctSingleModel
 
 
     @Override
-    public PuctModel prototype()
+    public MoveAndOutcomeModel prototype()
     {
-        return new PuctSingleModel(savedNeuralNetwork);
+        return new NeuralSingleModel(savedNeuralNetwork);
     }
 
 
@@ -70,7 +70,7 @@ public class PuctSingleModel
 
 
     @Override
-    public PuctEstimate estimate(State state, int[] legalMoves)
+    public MoveAndOutcomeProbability estimate(State state, int[] legalMoves, int moveCount)
     {
         NeuralCodec.INSTANCE.encodeMultiState(
                 state, features, propAttacks, oppAttacks);
@@ -83,19 +83,21 @@ public class PuctSingleModel
                         outputs[1],
                         state,
                         legalMoves,
+                        moveCount,
                         fromScores,
-                        toScores);
+                        toScores,
+                        0);
 
         double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeWin(outputs[2]);
         double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeDraw(outputs[2]);
 
-        return new PuctEstimate(moveProbabilities, winProbability, drawProbability);
+        return new MoveAndOutcomeProbability(moveProbabilities, winProbability, drawProbability);
     }
 
 
     @Override
-    public ImmutableList<PuctEstimate> estimateAll(
-            List<PuctQuery> queries)
+    public ImmutableList<MoveAndOutcomeProbability> estimateAll(
+            List<MoveAndOutcomeQuery> queries)
     {
         int size = queries.size();
         while (batchFeatures.size() < size)
@@ -106,12 +108,12 @@ public class PuctSingleModel
             batchFeatures.add(nextFeatures);
         }
 
-        ImmutableList.Builder<PuctEstimate> all = ImmutableList.builder();
+        ImmutableList.Builder<MoveAndOutcomeProbability> all = ImmutableList.builder();
 
         INDArray sizedFeatures = batchFeatures.get(size - 1);
 
         for (int i = 0; i < size; i++) {
-            PuctQuery query = queries.get(i);
+            MoveAndOutcomeQuery query = queries.get(i);
             NeuralCodec.INSTANCE.encodeMultiState(
                     query.state, sizedFeatures, propAttacks, oppAttacks, i);
         }
@@ -119,7 +121,7 @@ public class PuctSingleModel
         INDArray[] outputs = ((ComputationGraph) nn).output(sizedFeatures);
 
         for (int i = 0; i < size; i++) {
-            PuctQuery query = queries.get(i);
+            MoveAndOutcomeQuery query = queries.get(i);
 
             double[] moveProbabilities = NeuralCodec.INSTANCE.decodeMoveMultiProbabilities(
                     outputs[0],
@@ -134,7 +136,7 @@ public class PuctSingleModel
             double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2], i);
             double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2], i);
 
-            PuctEstimate estimate = new PuctEstimate(
+            MoveAndOutcomeProbability estimate = new MoveAndOutcomeProbability(
                     moveProbabilities, winProbability, drawProbability);
             all.add(estimate);
         }

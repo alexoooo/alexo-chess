@@ -4,7 +4,7 @@ package ao.chess.v2.engine.heuristic.learn;
 import ao.chess.v2.data.Location;
 import ao.chess.v2.engine.neuro.NeuralCodec;
 import ao.chess.v2.engine.neuro.meta.MetaEstimate;
-import ao.chess.v2.engine.neuro.puct.PuctEstimate;
+import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeProbability;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.piece.Figure;
 import ao.chess.v2.state.Move;
@@ -149,7 +149,7 @@ public class MoveTrainerEncoder
     }
 
 
-    public PuctEstimate estimate(MoveHistory example, ComputationGraph nn)
+    public MoveAndOutcomeProbability estimate(MoveHistory example, ComputationGraph nn)
     {
         NeuralCodec.INSTANCE.encodeMultiState(
                 example.state(), featuresSingle, propAttacks, oppAttacks);
@@ -161,17 +161,19 @@ public class MoveTrainerEncoder
                 outputs[1],
                 example.state(),
                 example.legalMoves(),
+                example.legalMoves().length,
                 fromScores,
-                toScores);
+                toScores,
+                0);
 
         double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeWin(outputs[2]);
         double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeDraw(outputs[2]);
 
-        return new PuctEstimate(moveProbabilities, winProbability, drawProbability);
+        return new MoveAndOutcomeProbability(moveProbabilities, winProbability, drawProbability);
     }
 
 
-    public List<PuctEstimate> estimateAll(
+    public List<MoveAndOutcomeProbability> estimateAll(
             List<MoveHistory> examples, ComputationGraph nn)
     {
         Preconditions.checkArgument(examples.size() == batchSize);
@@ -186,15 +188,17 @@ public class MoveTrainerEncoder
 
         INDArray[] outputs = nn.output(features);
 
-        List<PuctEstimate> estimates = new ArrayList<>();
+        List<MoveAndOutcomeProbability> estimates = new ArrayList<>();
 
         for (int batchIndex = 0; batchIndex < batchSize; batchIndex++)
         {
+            int[] legalMoves = examples.get(batchIndex).legalMoves();
             double[] moveProbabilities = NeuralCodec.INSTANCE.decodeMoveMultiProbabilities(
                     outputs[0],
                     outputs[1],
                     examples.get(batchIndex).state(),
-                    examples.get(batchIndex).legalMoves(),
+                    legalMoves,
+                    legalMoves.length,
                     fromScores,
                     toScores,
                     batchIndex);
@@ -202,7 +206,7 @@ public class MoveTrainerEncoder
             double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeWin(outputs[2], batchIndex);
             double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeDraw(outputs[2], batchIndex);
 
-            estimates.add(new PuctEstimate(moveProbabilities, winProbability, drawProbability));
+            estimates.add(new MoveAndOutcomeProbability(moveProbabilities, winProbability, drawProbability));
         }
 
         return estimates;

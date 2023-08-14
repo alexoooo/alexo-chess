@@ -6,17 +6,16 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 
-// TODO: rename and add Stockfish-based implementation
-public interface PuctModel {
-    PuctModel prototype();
+public interface MoveAndOutcomeModel {
+    MoveAndOutcomeModel prototype();
 
     void load();
 
     void prepare(int pieceCount);
 
-    PuctEstimate estimate(State state, int[] legalMoves);
+    MoveAndOutcomeProbability estimate(State state, int[] legalMoves, int moveCount);
 
-    ImmutableList<PuctEstimate> estimateAll(List<PuctQuery> queries);
+    ImmutableList<MoveAndOutcomeProbability> estimateAll(List<MoveAndOutcomeQuery> queries);
 
 
     default int nextPartition() {

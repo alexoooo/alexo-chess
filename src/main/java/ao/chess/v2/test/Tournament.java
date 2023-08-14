@@ -4,7 +4,7 @@ import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.heuristic.learn.MoveHistory;
 import ao.chess.v2.engine.mcts.player.ScoredPlayer;
 import ao.chess.v2.engine.neuro.NeuralNetworkPlayer;
-import ao.chess.v2.engine.neuro.puct.PuctMixedModel;
+import ao.chess.v2.engine.neuro.puct.NeuralMixedModel;
 import ao.chess.v2.piece.Colour;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.Outcome;
@@ -135,7 +135,7 @@ public class Tournament
 //                        .put(Range.closed(29, 32),
 //                                Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
 //                        .build()),
-                new PuctMixedModel(ImmutableRangeMap.<Integer, Path>builder()
+                new NeuralMixedModel(ImmutableRangeMap.<Integer, Path>builder()
                         .put(Range.closed(2, 20),
                                 Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
                         .put(Range.closed(21, 32),
@@ -147,7 +147,7 @@ public class Tournament
         );
 
         Player b = NeuralNetworkPlayer.load(
-                new PuctMixedModel(ImmutableRangeMap.<Integer, Path>builder()
+                new NeuralMixedModel(ImmutableRangeMap.<Integer, Path>builder()
 //                        .put(Range.closed(2, 8),
 //                                Paths.get("lookup/nn/res_7_p_2_12_n634.zip"))
 //                        .put(Range.closed(9, 20),

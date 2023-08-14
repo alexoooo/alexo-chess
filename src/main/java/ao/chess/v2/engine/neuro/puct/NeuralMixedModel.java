@@ -19,15 +19,15 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkArgument;
 
 
-public class PuctMixedModel
-        implements PuctModel
+public class NeuralMixedModel
+        implements MoveAndOutcomeModel
 {
     //-----------------------------------------------------------------------------------------------------------------
     private static class Partition {
         List<PartitionPointer> pointers = new ArrayList<>();
         int size = 0;
 
-        public void add(PuctQuery query, int index) {
+        public void add(MoveAndOutcomeQuery query, int index) {
             PartitionPointer pointer;
             if (pointers.size() <= size) {
                 pointer = new PartitionPointer();
@@ -52,10 +52,10 @@ public class PuctMixedModel
 
 
     private static class PartitionPointer {
-        PuctQuery query;
+        MoveAndOutcomeQuery query;
         int index = -1;
 
-        public void set(PuctQuery query, int index) {
+        public void set(MoveAndOutcomeQuery query, int index) {
             this.query = query;
             this.index = index;
         }
@@ -71,7 +71,7 @@ public class PuctMixedModel
     private final ImmutableRangeMap<Integer, Path> savedNeuralNetworks;
     private final int[] pieceCountToIndex;
     private final List<Partition> partitions;
-    private final List<PuctEstimate> outputBuffer = new ArrayList<>();
+    private final List<MoveAndOutcomeProbability> outputBuffer = new ArrayList<>();
     private final int[] hitCount;
 
     private final ComputationGraph[] nn;
@@ -86,7 +86,7 @@ public class PuctMixedModel
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    public PuctMixedModel(
+    public NeuralMixedModel(
             RangeMap<Integer, Path> savedNeuralNetworks)
     {
         this.savedNeuralNetworks = ImmutableRangeMap.copyOf(savedNeuralNetworks);
@@ -118,9 +118,9 @@ public class PuctMixedModel
 
     //-----------------------------------------------------------------------------------------------------------------
     @Override
-    public PuctModel prototype()
+    public MoveAndOutcomeModel prototype()
     {
-        return new PuctMixedModel(savedNeuralNetworks);
+        return new NeuralMixedModel(savedNeuralNetworks);
     }
 
 
@@ -163,7 +163,7 @@ public class PuctMixedModel
 
 
     @Override
-    public PuctEstimate estimate(State state, int[] legalMoves)
+    public MoveAndOutcomeProbability estimate(State state, int[] legalMoves, int moveCount)
     {
         NeuralCodec.INSTANCE.encodeMultiState(
                 state, features, propAttacks, oppAttacks);
@@ -179,13 +179,15 @@ public class PuctMixedModel
                 outputs[1],
                 state,
                 legalMoves,
+                moveCount,
                 fromScores,
-                toScores);
+                toScores,
+                0);
 
         double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeWin(outputs[2]);
         double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeDraw(outputs[2]);
 
-        return new PuctEstimate(
+        return new MoveAndOutcomeProbability(
                 moveProbabilities,
                 winProbability,
                 drawProbability
@@ -194,11 +196,11 @@ public class PuctMixedModel
 
 
     @Override
-    public ImmutableList<PuctEstimate> estimateAll(
-            List<PuctQuery> queries)
+    public ImmutableList<MoveAndOutcomeProbability> estimateAll(
+            List<MoveAndOutcomeQuery> queries)
     {
         for (int i = 0; i < queries.size(); i++) {
-            PuctQuery query = queries.get(i);
+            MoveAndOutcomeQuery query = queries.get(i);
             int pieceCount = query.state.pieceCount();
             int nnIndex = pieceCountIndex(pieceCount);
             hitCount[nnIndex]++;
@@ -225,7 +227,7 @@ public class PuctMixedModel
             INDArray sizedFeatures = batchFeatures.get(size - 1);
 
             for (int i = 0; i < size; i++) {
-                PuctQuery query = partition.pointers.get(i).query;
+                MoveAndOutcomeQuery query = partition.pointers.get(i).query;
                 NeuralCodec.INSTANCE.encodeMultiState(
                         query.state, sizedFeatures, propAttacks, oppAttacks, i);
             }
@@ -234,7 +236,7 @@ public class PuctMixedModel
 
             for (int i = 0; i < size; i++) {
                 PartitionPointer pointer = partition.pointers.get(i);
-                PuctQuery query = pointer.query;
+                MoveAndOutcomeQuery query = pointer.query;
 
                 double[] moveProbabilities = NeuralCodec.INSTANCE
                         .decodeMoveMultiProbabilities(
@@ -250,7 +252,7 @@ public class PuctMixedModel
                 double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeWin(outputs[2], i);
                 double drawProbability = NeuralCodec.INSTANCE.decodeMultiOutcomeDraw(outputs[2], i);
 
-                PuctEstimate estimate = new PuctEstimate(
+                MoveAndOutcomeProbability estimate = new MoveAndOutcomeProbability(
                         moveProbabilities, winProbability, drawProbability);
 
                 outputBuffer.set(pointer.index, estimate);
@@ -259,7 +261,7 @@ public class PuctMixedModel
             partition.clear();
         }
 
-        ImmutableList<PuctEstimate> output = ImmutableList.copyOf(outputBuffer);
+        ImmutableList<MoveAndOutcomeProbability> output = ImmutableList.copyOf(outputBuffer);
         outputBuffer.clear();
         return output;
     }
