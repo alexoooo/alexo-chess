@@ -289,8 +289,10 @@ public class MoveTrainerEncoder
                         outputs[1],
                         example.state(),
                         example.legalMoves(),
+                        example.legalMoves().length,
                         fromScores,
-                        toScores);
+                        toScores,
+                        0);
 
         double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2]);
         double winError = outputs[3].getDouble(0, 0);
@@ -318,12 +320,14 @@ public class MoveTrainerEncoder
 
         for (int batchIndex = 0; batchIndex < batchSize; batchIndex++)
         {
+            int[] legalMoves = examples.get(batchIndex).legalMoves();
             double[] moveProbabilities = NeuralCodec.INSTANCE
                     .decodeMoveMultiProbabilities(
                             outputs[0],
                             outputs[1],
                             examples.get(batchIndex).state(),
-                            examples.get(batchIndex).legalMoves(),
+                            legalMoves,
+                            legalMoves.length,
                             fromScores,
                             toScores,
                             batchIndex);

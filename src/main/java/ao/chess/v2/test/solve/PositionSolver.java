@@ -45,35 +45,37 @@ public class PositionSolver {
 
 //        boolean ensemble = true;
 //        boolean ensemble = false;
-        boolean ensemble = Math.random() <= 0.66;
-        System.out.println("Ensemble: " + ensemble + " " + LocalDateTime.now());
-
-        MoveAndOutcomeModel model;
-        if (ensemble) {
-            model = new NeuralEnsembleModel(ImmutableList.of(
-                    Paths.get("lookup/nn/res_20_n1307.zip"),
-                    Paths.get("lookup/nn/res_20_b_n1008.zip")));
-        }
-        else {
-            model = new NeuralMixedModel(ImmutableRangeMap.<Integer, Path>builder()
-                    .put(Range.closed(2, 20),
-                            Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
-                    .put(Range.closed(21, 28),
-                            Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
-                    .put(Range.closed(29, 32),
-                            Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
-                    .build());
-        }
+//        boolean ensemble = Math.random() <= 0.66;
+//        System.out.println("Ensemble: " + ensemble + " " + LocalDateTime.now());
+//
+//        MoveAndOutcomeModel model;
+//        if (ensemble) {
+//            model = new NeuralEnsembleModel(ImmutableList.of(
+//                    Paths.get("lookup/nn/res_20_n1307.zip"),
+//                    Paths.get("lookup/nn/res_20_b_n1008.zip")));
+//        }
+//        else {
+//            model = new NeuralMixedModel(ImmutableRangeMap.<Integer, Path>builder()
+//                    .put(Range.closed(2, 20),
+//                            Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
+//                    .put(Range.closed(21, 28),
+//                            Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
+//                    .put(Range.closed(29, 32),
+//                            Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
+//                    .build());
+//        }
 
         StockfishController controller = StockfishController
                 .builder(StockfishMain.stockfishExe)
                 .build();
         StockfishEval eval = StockfishEval.create(
 //                controller, 24, 1024, 100_000);
-                controller, 24, 1024, 125_000, false, 10_000);
+//                controller, 24, 1024, 125_000, false, 10_000);
+                controller, 10, 512, 32_000, true, 10_000);
 //                controller, 24, 1024, 250_000);
 //                controller, 24, 1024, 1_000_000);
 
+        MoveAndOutcomeModel model = eval;
         Player player = new RolloutPlayer.Builder(model)
                 .evaluator(eval)
 
@@ -85,9 +87,10 @@ public class PositionSolver {
 ////                .rolloutLength(1024)
 //                .rolloutLength(4196)
 
+                .threads(16)
 //                .threads(48)
 //                .threads(128)
-                .threads(256)
+//                .threads(256)
 //                .threads(512)
 //                .stochastic(true)
 //                .eGreedyProbability(0.9)

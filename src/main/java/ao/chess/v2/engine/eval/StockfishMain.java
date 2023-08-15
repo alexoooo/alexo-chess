@@ -12,7 +12,8 @@ public class StockfishMain {
 //            "C:/~/prog/stockfish/stockfish_14.1_win_x64_avx2/stockfish_14.1_win_x64_avx2.exe");
 //            "C:/~/prog/stockfish/stockfish_15_win_x64_avx2/stockfish_15_x64_avx2.exe");
 //            "C:/~/prog/stockfish/stockfish_15.1_win_x64_avx2/stockfish-windows-2022-x86-64-avx2.exe");
-            "C:/~/prog/stockfish/stockfish_16_win_x64_avx2/stockfish-windows-x86-64-avx2.exe");
+//            "C:/~/prog/stockfish/stockfish_16_win_x64_avx2/stockfish-windows-x86-64-avx2.exe");
+            "C:/~/prog/stockfish/stockfish-windows-x86-64-avx2/stockfish-windows-x86-64-avx2.exe");
 
     public static void main(String[] args) {
         StockfishController controller = StockfishController
@@ -21,7 +22,7 @@ public class StockfishMain {
 
         try (StockfishEval eval = StockfishEval.create(
 //                controller, 1, 1024, 1_000_000)
-                controller, 1, 1024, 1_000_000)
+                controller, 1, 1024, 1_000_000, false, 10_000)
 //                controller, 1, 1024, 100_000_000)
         ) {
 //            State state = State.fromFen("r2q1rk1/p2nppbp/3p1np1/2pP4/2P1P3/5N2/P2N1PPP/1RBQ1RK1 w - - 1 12");

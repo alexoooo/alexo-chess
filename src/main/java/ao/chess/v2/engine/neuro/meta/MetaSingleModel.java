@@ -77,8 +77,10 @@ public class MetaSingleModel
                         outputs[1],
                         state,
                         legalMoves,
+                        legalMoves.length,
                         fromScores,
-                        toScores);
+                        toScores,
+                        0);
 
         double winProbability = NeuralCodec.INSTANCE.decodeMultiOutcome(outputs[2]);
         double winError = outputs[3].getDouble(0, 0);
@@ -127,6 +129,7 @@ public class MetaSingleModel
                             outputs[1],
                             query.state,
                             query.legalMoves,
+                            query.legalMoves.length,
                             fromScores,
                             toScores,
                             i);

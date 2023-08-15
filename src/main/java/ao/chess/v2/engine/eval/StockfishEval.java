@@ -125,7 +125,7 @@ public class StockfishEval
                 localCache.put(key, estimate);
             }
 
-            int bestMoveIndex = estimate.move();
+            int bestMoveIndex = estimate.moveIndex();
 
             Move.apply(moves[bestMoveIndex], state);
 
@@ -273,5 +273,12 @@ public class StockfishEval
         for (StockfishInstance instance : all) {
             instance.close();
         }
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    @Override
+    public String toString() {
+        return "[SF " + nodesPerEval + " " + (evalRollout ? "t" : "f") + " " + nodesPerEstimate + "]";
     }
 }

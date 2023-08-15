@@ -24,10 +24,12 @@ public class StockfishInstance implements AutoCloseable
     public static class OutcomeAndMove {
         private final WinDrawLoss outcome;
         private final int move;
+        private final int moveIndex;
 
-        OutcomeAndMove(WinDrawLoss value, int move) {
+        OutcomeAndMove(WinDrawLoss value, int move, int moveIndex) {
             this.outcome = value;
             this.move = move;
+            this.moveIndex = moveIndex;
         }
 
         public WinDrawLoss outcome() {
@@ -36,6 +38,10 @@ public class StockfishInstance implements AutoCloseable
 
         public int move() {
             return move;
+        }
+
+        public int moveIndex() {
+            return moveIndex;
         }
     }
 
@@ -180,13 +186,16 @@ public class StockfishInstance implements AutoCloseable
 
         String bestMoveLine = lines.get(lines.size() - 1);
         int endOfBestMove = bestMoveLine.indexOf(' ', bestMovePrefix.length());
-        String bestMoveText = bestMoveLine.substring(bestMovePrefix.length(), endOfBestMove);
+        String bestMoveText =
+                endOfBestMove == -1
+                ? bestMoveLine.substring(bestMovePrefix.length())
+                : bestMoveLine.substring(bestMovePrefix.length(), endOfBestMove);
 
         for (int i = 0; i < moveCount; i++) {
             int move = legalMoves[i];
             String moveNotation = Move.toInputNotation(move);
             if (bestMoveText.equals(moveNotation)) {
-                return new OutcomeAndMove(winDrawLoss, move);
+                return new OutcomeAndMove(winDrawLoss, move, i);
             }
         }
 

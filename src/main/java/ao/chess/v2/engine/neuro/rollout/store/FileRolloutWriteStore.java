@@ -161,8 +161,12 @@ public class FileRolloutWriteStore {
 
 
     private List<Iterable<RolloutStoreNode>> partition(List<RolloutStoreNode> overwriteSequencedNodes) {
-        List<List<RolloutStoreNode>> overwriteSequencedNodePartitions =
-                Lists.partition(overwriteSequencedNodes, overwriteSequencedNodes.size() / fileHandleCount);
+        if (overwriteSequencedNodes.isEmpty()) {
+            return List.of();
+        }
+
+        int size = Math.max(1, overwriteSequencedNodes.size() / fileHandleCount);
+        List<List<RolloutStoreNode>> overwriteSequencedNodePartitions = Lists.partition(overwriteSequencedNodes, size);
 
         List<Iterable<RolloutStoreNode>> adjustedOverwriteSequencedNodePartitions = new ArrayList<>(
                 overwriteSequencedNodePartitions);
