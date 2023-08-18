@@ -4,22 +4,15 @@ package ao.chess.v2.test.solve;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.eval.StockfishEval;
 import ao.chess.v2.engine.eval.StockfishMain;
-import ao.chess.v2.engine.neuro.puct.NeuralEnsembleModel;
-import ao.chess.v2.engine.neuro.puct.NeuralMixedModel;
 import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeModel;
 import ao.chess.v2.engine.neuro.rollout.RolloutPlayer;
 import ao.chess.v2.engine.neuro.rollout.store.TieredRolloutStore;
 import ao.chess.v2.engine.stockfish.StockfishController;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableRangeMap;
-import com.google.common.collect.Range;
 import com.google.common.primitives.Ints;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
 
 
 // https://chess.stackexchange.com/questions/23480/have-engines-refuted-any-established-openings
@@ -71,7 +64,10 @@ public class PositionSolver {
         StockfishEval eval = StockfishEval.create(
 //                controller, 24, 1024, 100_000);
 //                controller, 24, 1024, 125_000, false, 10_000);
-                controller, 10, 512, 32_000, true, 10_000);
+//                controller, 10, 512, 32_000, true, 10_000);
+//                controller, 24, 512, 32_000, true, 16_000);
+//                controller, 24, 512, 64_000, true, 64_000);
+                controller, 28, 512, 64_000, true, 64_000);
 //                controller, 24, 1024, 250_000);
 //                controller, 24, 1024, 1_000_000);
 
@@ -87,8 +83,11 @@ public class PositionSolver {
 ////                .rolloutLength(1024)
 //                .rolloutLength(4196)
 
-                .threads(16)
+//                .threads(16)
+//                .threads(24)
+                .threads(32)
 //                .threads(48)
+//                .threads(64)
 //                .threads(128)
 //                .threads(256)
 //                .threads(512)

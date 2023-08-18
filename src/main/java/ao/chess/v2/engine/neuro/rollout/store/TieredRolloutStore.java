@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.AbstractList;
 import java.util.List;
+import java.util.RandomAccess;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -196,7 +197,7 @@ public class TieredRolloutStore implements RolloutStore {
 
         long[] nodeIndexes = buffer.sortedNodeIndexes();
 
-        List<RolloutStoreNode> sequencedNodes = new AbstractList<>() {
+        class SequenceNodeList extends AbstractList<RolloutStoreNode> implements RandomAccess {
             @Override
             public int size() {
                 return nodeIndexes.length;
@@ -206,7 +207,8 @@ public class TieredRolloutStore implements RolloutStore {
             public RolloutStoreNode get(int index) {
                 return buffer.load(nodeIndexes[index]);
             }
-        };
+        }
+        List<RolloutStoreNode> sequencedNodes = new SequenceNodeList();
 
         reader.closeIfRequired();
 

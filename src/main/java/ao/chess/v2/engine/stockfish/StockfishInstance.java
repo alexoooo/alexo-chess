@@ -26,7 +26,7 @@ public class StockfishInstance implements AutoCloseable
         private final int move;
         private final int moveIndex;
 
-        OutcomeAndMove(WinDrawLoss value, int move, int moveIndex) {
+        public OutcomeAndMove(WinDrawLoss value, int move, int moveIndex) {
             this.outcome = value;
             this.move = move;
             this.moveIndex = moveIndex;
@@ -51,26 +51,34 @@ public class StockfishInstance implements AutoCloseable
         public static final WinDrawLoss pureDraw = new WinDrawLoss(0, 1000, 0);
         public static final WinDrawLoss pureLoss = new WinDrawLoss(0, 0, 1000);
 
+        public static WinDrawLoss parse(String infoLine) {
+            try {
+                int startOfWinIndex = infoLine.indexOf(wdlPrefix) + wdlPrefix.length();
+                int endOfWinIndex = infoLine.indexOf(" ", startOfWinIndex);
+                String winText = infoLine.substring(startOfWinIndex, endOfWinIndex);
+                int winMills = Integer.parseInt(winText);
+
+                int startOfDrawIndex = endOfWinIndex + 1;
+                int endOfDrawIndex = infoLine.indexOf(" ", startOfDrawIndex);
+                String drawText = infoLine.substring(startOfDrawIndex, endOfDrawIndex);
+                int drawMills = Integer.parseInt(drawText);
+
+                int startOfLossIndex = endOfDrawIndex + 1;
+                int endOfLossIndex = infoLine.indexOf(" ", startOfLossIndex);
+                String lossText = infoLine.substring(startOfLossIndex, endOfLossIndex);
+                int lossMills = Integer.parseInt(lossText);
+
+                return new WinDrawLoss(winMills, drawMills, lossMills);
+            }
+            catch (Throwable t) {
+                t.printStackTrace();
+                throw new IllegalArgumentException("parse failed: " + infoLine);
+            }
+        }
+
         private final int winMills;
         private final int drawMills;
         private final int lossMills;
-
-        WinDrawLoss(String infoLine) {
-            int startOfWinIndex = infoLine.indexOf(wdlPrefix) + wdlPrefix.length();
-            int endOfWinIndex = infoLine.indexOf(" ", startOfWinIndex);
-            String winText = infoLine.substring(startOfWinIndex, endOfWinIndex);
-            winMills = Integer.parseInt(winText);
-
-            int startOfDrawIndex = endOfWinIndex + 1;
-            int endOfDrawIndex = infoLine.indexOf(" ", startOfDrawIndex);
-            String drawText = infoLine.substring(startOfDrawIndex, endOfDrawIndex);
-            drawMills = Integer.parseInt(drawText);
-
-            int startOfLossIndex = endOfDrawIndex + 1;
-            int endOfLossIndex = infoLine.indexOf(" ", startOfLossIndex);
-            String lossText = infoLine.substring(startOfLossIndex, endOfLossIndex);
-            lossMills = Integer.parseInt(lossText);
-        }
 
         WinDrawLoss(int winMills, int drawMills, int lossMills) {
             this.winMills = winMills;
@@ -139,13 +147,13 @@ public class StockfishInstance implements AutoCloseable
     }
 
 
-    private List<String> awaitBestMove(State state) {
+    private List<String> awaitBestMove(String fen) {
         List<String> lines = new ArrayList<>();
         try {
             while (true) {
                 String line = reader.readLine();
                 if (line == null) {
-                    throw new IllegalStateException("Crash: " + state.toFen());
+                    throw new IllegalStateException("Crash: " + fen);
                 }
 
                 lines.add(line);
@@ -162,27 +170,29 @@ public class StockfishInstance implements AutoCloseable
 
 
     public WinDrawLoss evaluate(State state, int nodes) {
-        sendCommand("position fen " + state.toFen());
+        String fen = state.toFen();
+        sendCommand("position fen " + fen);
         sendCommand("go nodes " + nodes);
 
-        List<String> lines = awaitBestMove(state);
+        List<String> lines = awaitBestMove(fen);
         String lastInfoLine = lines.get(lines.size() - 2);
 
         @SuppressWarnings("UnnecessaryLocalVariable")
-        WinDrawLoss winDrawLoss = new WinDrawLoss(lastInfoLine);
+        WinDrawLoss winDrawLoss = WinDrawLoss.parse(lastInfoLine);
 
         return winDrawLoss;
     }
 
 
     public OutcomeAndMove bestMove(State state, int[] legalMoves, int moveCount, int nodes) {
-        sendCommand("position fen " + state.toFen());
+        String fen = state.toFen();
+        sendCommand("position fen " + fen);
         sendCommand("go nodes " + nodes);
 
-        List<String> lines = awaitBestMove(state);
+        List<String> lines = awaitBestMove(fen);
 
         String lastInfoLine = lines.get(lines.size() - 2);
-        WinDrawLoss winDrawLoss = new WinDrawLoss(lastInfoLine);
+        WinDrawLoss winDrawLoss = WinDrawLoss.parse(lastInfoLine);
 
         String bestMoveLine = lines.get(lines.size() - 1);
         int endOfBestMove = bestMoveLine.indexOf(' ', bestMovePrefix.length());

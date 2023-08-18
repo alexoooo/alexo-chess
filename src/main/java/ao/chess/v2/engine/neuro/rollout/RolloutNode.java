@@ -370,7 +370,7 @@ public class RolloutNode {
             State state, int moveCount, int moveIndex, RolloutContext context
     ) {
         if (moveCount == 0 || moveCount == -1 || state.isDrawnBy50MovesRule()) {
-            Outcome outcome = state.knownOutcomeOrNull();
+            Outcome outcome = state.knownOutcomeOrNull(moveCount);
             KnownOutcome knownOutcome = KnownOutcome.ofOutcome(outcome, state.nextToAct());
 
             long childIndex = context.store.expandChildIfMissing(index, moveIndex, 0);

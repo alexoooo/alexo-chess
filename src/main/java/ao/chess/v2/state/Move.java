@@ -532,8 +532,24 @@ public class Move
 
         String promoteToInput =
                 (promoteTo == 0)
-                ? "" : Figure.VALUES[ promoteTo ]
-                .toString().substring(0, 1).toLowerCase();
+                ? ""
+                : Figure.VALUES[ promoteTo ].toString().substring(0, 1).toLowerCase();
+
+        return String.valueOf(State.FILES.charAt(Location.fileIndex(to))) +
+                (Location.rankIndex(to) + 1) +
+                promoteToInput;
+    }
+
+
+    public static String toPgnNotationDestination(int move)
+    {
+        int to = toSquareIndex(move);
+        int promoteTo = promotion(move);
+
+        String promoteToInput =
+                (promoteTo == 0)
+                ? ""
+                : "=" + Figure.VALUES[ promoteTo ].symbol();
 
         return String.valueOf(State.FILES.charAt(Location.fileIndex(to))) +
                 (Location.rankIndex(to) + 1) +

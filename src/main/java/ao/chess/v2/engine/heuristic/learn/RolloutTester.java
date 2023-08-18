@@ -250,13 +250,14 @@ public class RolloutTester {
                 byte reversibleMoves = state.reversibleMoves();
                 byte castles = state.castles();
                 long castlePath = state.castlePath();
+                byte enPassant = state.enPassant();
 
                 int move = Move.apply(moves[ i ], state);
                 int opponentMoveCount = state.legalMoves(nextMoves, pseudoMoves);
                 Outcome moveOutcome = state.knownOutcomeOrNull(opponentMoveCount);
                 Move.unApply(move, state);
 
-                state.restore(reversibleMoves, castles, castlePath);
+                state.restore(reversibleMoves, castles, castlePath, enPassant);
 
                 if (moveOutcome != null) {
                     if (moveOutcome.loser() == state.nextToAct()) {
@@ -337,13 +338,14 @@ public class RolloutTester {
                 byte reversibleMoves = state.reversibleMoves();
                 byte castles = state.castles();
                 long castlePath = state.castlePath();
+                byte enPassant = state.enPassant();
 
                 int move = Move.apply(moves[ i ], state);
                 int opponentMoveCount = state.legalMoves(nextMoves, pseudoMoves);
                 Outcome moveOutcome = state.knownOutcomeOrNull(opponentMoveCount);
                 Move.unApply(move, state);
 
-                state.restore(reversibleMoves, castles, castlePath);
+                state.restore(reversibleMoves, castles, castlePath, enPassant);
 
                 if (moveOutcome != null) {
                     if (moveOutcome.loser() == state.nextToAct()) {

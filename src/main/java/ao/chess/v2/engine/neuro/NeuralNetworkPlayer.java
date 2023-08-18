@@ -72,6 +72,7 @@ public class NeuralNetworkPlayer implements Player {
             byte reversibleMoves = position.reversibleMoves();
             byte castles = position.castles();
             long castlePath = position.castlePath();
+            byte enPassant = position.enPassant();
 
             int move = Move.apply(legalMoves[i], position);
             int[] opponentLegalMoves = position.legalMoves();
@@ -95,7 +96,7 @@ public class NeuralNetworkPlayer implements Player {
             }
 
             Move.unApply(move, position);
-            position.restore(reversibleMoves, castles, castlePath);
+            position.restore(reversibleMoves, castles, castlePath, enPassant);
 
             if (moveOutcome != null) {
                 if (moveOutcome.loser() == pov) {

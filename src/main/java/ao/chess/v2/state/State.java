@@ -286,8 +286,7 @@ public class State
         }
 
         int nextMoveIndex = 0;
-        for (int i = 0; i < nPseudoMoves; i++)
-        {
+        for (int i = 0; i < nPseudoMoves; i++) {
             int pseudoMove = pseudoMoves[ i ];
             int undoable   = Move.apply(pseudoMove, this);
 
@@ -297,6 +296,7 @@ public class State
 
             Move.unApply(undoable, this);
         }
+
         return nextMoveIndex;
     }
 
@@ -1211,14 +1211,19 @@ public class State
     /**
      * calling legalMoves destroys undo-information, use this to fix it up
      */
-    public void restore(byte reversibleMoves, byte castles, long castlePath) {
+    public void restore(byte reversibleMoves, byte castles, long castlePath, byte enPassant) {
         this.reversibleMoves = reversibleMoves;
         this.castles = castles;
         this.castlePath = castlePath;
+        this.enPassant = enPassant;
     }
 
     public CastleType.Set castlesAvailable() {
         return new CastleType.Set(castles);
+    }
+
+    public byte enPassant() {
+        return enPassant;
     }
 
     public byte enPassantFile() {
@@ -1228,7 +1233,7 @@ public class State
 
 
     public boolean isDrawnBy50MovesRule() {
-        return reversibleMoves > 100;
+        return reversibleMoves >= 100;
     }
 
 

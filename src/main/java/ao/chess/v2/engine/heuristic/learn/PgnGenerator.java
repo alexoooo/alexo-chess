@@ -67,7 +67,7 @@ public class PgnGenerator {
     }
 
 
-    private static String toPgn(int move, State to)
+    public static String toPgn(int move, State to)
     {
         if (Move.isCastle(move)) {
             return Move.castleType(move) == CastleType.KING_SIDE
@@ -86,7 +86,7 @@ public class PgnGenerator {
         return figurePrefix +
                 Move.toInputNotationSource(move) +
                 captureInfix +
-                Move.toInputNotationDestination(move) +
+                Move.toPgnNotationDestination(move) +
                 checkSuffix;
     }
 }
