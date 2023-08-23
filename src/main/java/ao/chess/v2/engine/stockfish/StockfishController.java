@@ -3,6 +3,9 @@ package ao.chess.v2.engine.stockfish;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 // https://lichess.org/blog/W3WeMyQAACQAdfAL/7-piece-syzygy-tablebases-are-complete
@@ -18,7 +21,7 @@ public class StockfishController {
     public static class Builder {
         private final Path executable;
 
-        private Path syzygy;
+        private final List<Path> syzygyFolders = new ArrayList<>();
 
 //        private boolean built;
 
@@ -28,8 +31,8 @@ public class StockfishController {
         }
 
 
-        public Builder syzygyPath(Path syzygy) {
-            this.syzygy = syzygy;
+        public Builder addSyzygyFolders(List<Path> syzygyFolders) {
+            this.syzygyFolders.addAll(syzygyFolders);
 //            return setCheck();
             return this;
         }
@@ -67,8 +70,12 @@ public class StockfishController {
             instance.sendCommand("setoption name Threads value " + threads);
             instance.sendCommand("setoption name Hash value " + hashMb);
             instance.sendCommand("setoption name UCI_ShowWDL value true");
-            if (builder.syzygy != null) {
-                instance.sendCommand("setoption name SyzygyPath value " + builder.syzygy);
+            if (! builder.syzygyFolders.isEmpty()) {
+                String folders = builder.syzygyFolders
+                        .stream()
+                        .map(Path::toString)
+                        .collect(Collectors.joining(";"));
+                instance.sendCommand("setoption name SyzygyPath value " + folders);
             }
             return instance;
         }

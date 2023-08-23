@@ -71,8 +71,11 @@ public class RolloutNode {
 
     private static final double fpuDiscount = 0.25;
 //    private static final int puctThreshold = 4 * 1024;
-    private static final int puctThreshold = 16 * 1024;
+//    private static final int puctThreshold = 16 * 1024;
+//    private static final int puctThreshold = 32 * 1024;
+    private static final int puctThreshold = 64 * 1024;
 //    private static final int puctThreshold = 128 * 1024;
+
     private static final double puctExplorationLog = 18432;
 
     private final static double explorationMin = 0.75;

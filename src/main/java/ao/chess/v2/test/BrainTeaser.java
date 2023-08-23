@@ -3,18 +3,13 @@ package ao.chess.v2.test;
 import ao.chess.v2.engine.Player;
 import ao.chess.v2.engine.eval.StockfishEval;
 import ao.chess.v2.engine.eval.StockfishMain;
-import ao.chess.v2.engine.neuro.puct.NeuralMixedModel;
 import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeModel;
 import ao.chess.v2.engine.neuro.rollout.RolloutPlayer;
 import ao.chess.v2.engine.stockfish.StockfishController;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableRangeMap;
-import com.google.common.collect.Range;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 
@@ -35,8 +30,9 @@ import java.time.LocalDateTime;
  */
 public class BrainTeaser {
     //--------------------------------------------------------------------
-    private static final int flushFrequencyMillis = 5_000;
+//    private static final int flushFrequencyMillis = 5_000;
 //    private static final int flushFrequencyMillis = 10_000;
+    private static final int flushFrequencyMillis = 30_000;
 //    private static final int flushFrequencyMillis = 60_000;
 //    private static final int flushFrequencyMillis = 10 * 60 * 1_000;
 //    private static final int flushFrequencyMillis = 15 * 60 * 1_000;
@@ -123,24 +119,24 @@ public class BrainTeaser {
 ////                .stochastic(true)
 //                .build();
 
-        MoveAndOutcomeModel model = new NeuralMixedModel(ImmutableRangeMap.<Integer, Path>builder()
-                .put(Range.closed(2, 20),
-                        Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
-                .put(Range.closed(21, 28),
-                        Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
-                .put(Range.closed(29, 32),
-                        Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
-                .build());
-//        PuctModel model = new PuctEnsembleModel(ImmutableList.of(
-//                Paths.get("lookup/nn/res_20_n1307.zip"),
-//                Paths.get("lookup/nn/res_20_b_n1008.zip")
-//        ));
-//        PuctModel model = new PuctMultiModel(ImmutableRangeMap.<Integer, Path>builder()
-//                .put(Range.closed(2, 22),
+//        MoveAndOutcomeModel model = new NeuralMixedModel(ImmutableRangeMap.<Integer, Path>builder()
+//                .put(Range.closed(2, 20),
 //                        Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
-//                .put(Range.closed(23, 32),
-//                        Paths.get("lookup/nn/res_20_n1307.zip"))
+//                .put(Range.closed(21, 28),
+//                        Paths.get("lookup/nn/res_14_p_16_28_n1209.zip"))
+//                .put(Range.closed(29, 32),
+//                        Paths.get("lookup/nn/res_14_p_23_32_n956.zip"))
 //                .build());
+////        PuctModel model = new PuctEnsembleModel(ImmutableList.of(
+////                Paths.get("lookup/nn/res_20_n1307.zip"),
+////                Paths.get("lookup/nn/res_20_b_n1008.zip")
+////        ));
+////        PuctModel model = new PuctMultiModel(ImmutableRangeMap.<Integer, Path>builder()
+////                .put(Range.closed(2, 22),
+////                        Paths.get("lookup/nn/res_14_p_2_22_n1220.zip"))
+////                .put(Range.closed(23, 32),
+////                        Paths.get("lookup/nn/res_20_n1307.zip"))
+////                .build());
 //        Player player = new RolloutPlayer.Builder(model)
 ////                .binerize(false)
 //                .binerize(true)
@@ -164,15 +160,22 @@ public class BrainTeaser {
 ////                .store(new SynchronizedRolloutStore(new MapRolloutStore()))
 //                .build();
 
-        StockfishController controller = StockfishController.builder(StockfishMain.stockfishExe).build();
+        StockfishController controller = StockfishController
+                .builder(StockfishMain.stockfishExe)
+                .addSyzygyFolders(StockfishMain.syzygyFolders)
+                .build();
         StockfishEval eval = StockfishEval.create(
-                controller, 24, 1024, 100_000, false, 10_000);
+//                controller, 24, 1024, 100_000, false, 10_000);
+                controller, 28, 512, 65_000, true, 100_000);
 //                controller, 24, 1024, 250_000);
 //                controller, 24, 1024, 1_000_000);
+        MoveAndOutcomeModel model = eval;
+
         Player player = new RolloutPlayer.Builder(model)
                 .evaluator(eval)
 //                .threads(1)
 //                .threads(2)
+                .threads(32)
 //                .threads(48)
 //                .threads(52)
 //                .threads(64)
@@ -181,12 +184,15 @@ public class BrainTeaser {
 //                .threads(160)
 //                .threads(192)
 //                .threads(224)
-                .threads(256)
+//                .threads(256)
 //                .threads(384)
 //                .threads(512)
                 .build();
 
         State state = State.fromFen(
+                // sees Nf3 which is strong, but not optimal Ke7 which is mate in 20
+//                "3K1B2/1p6/pp6/rk2N3/b1p5/1pP5/1P2P3/8 w - - 0 1"
+
                 // https://www.youtube.com/watch?v=TdcPgTzSTnM
 //                "2r4q/p4pk1/3pb1p1/N7/1PPp2n1/P3b1PB/2R1P1K1/3NQR2 b - - 0 1"
 
@@ -273,7 +279,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pp2pppp/2np4/2p5/4P3/3P1N2/PPP2PPP/RNBQKB1R w KQkq - 1 4"
 
                 // "simple draw"?
-//                "8/1p1b4/8/P7/3BPk2/7p/6pK/8 b - - 0 1"
+                "8/1p1b4/8/P7/3BPk2/7p/6pK/8 b - - 0 1"
 
                 // https://www.youtube.com/watch?v=PxUBFl18cP0
 //                "rnbq1rk1/p1p1ppbp/1p1p1np1/8/3PPP2/2N2N2/PPPB2PP/R2QKB1R w KQ - 0 7"
@@ -284,7 +290,7 @@ public class BrainTeaser {
                 // https://www.youtube.com/watch?v=eHkFZU4WwaQ
 //                "6k1/p4pb1/2p3p1/q1Nrp3/5n1P/1P2BP2/1PP2Q2/1K5R w - - 3 26"
 
-                "r2qkb1r/pppbp3/2n4p/6p1/2QPpB2/2P5/PP2P1PP/2KR1BNR w kq - 0 11"
+//                "r2qkb1r/pppbp3/2n4p/6p1/2QPpB2/2P5/PP2P1PP/2KR1BNR w kq - 0 11"
 
                 // http://www.talkchess.com/forum3/viewtopic.php?t=57603
 //                "8/8/8/1k6/8/8/8/RK6 w - -"

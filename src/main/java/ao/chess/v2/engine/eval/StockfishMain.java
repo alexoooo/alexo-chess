@@ -5,6 +5,7 @@ import ao.chess.v2.engine.stockfish.StockfishController;
 import ao.chess.v2.state.State;
 
 import java.nio.file.Path;
+import java.util.List;
 
 
 public class StockfishMain {
@@ -15,13 +16,19 @@ public class StockfishMain {
             "C:/~/prog/stockfish/stockfish_16_win_x64_avx2/stockfish-windows-x86-64-avx2.exe");
 //            "C:/~/prog/stockfish/stockfish-windows-x86-64-avx2/stockfish-windows-x86-64-avx2.exe");
 
+
+    public static final List<Path> syzygyFolders = List.of(
+            Path.of("C:/~/prog/syzygy"));
+
+
     public static void main(String[] args) {
         StockfishController controller = StockfishController
                 .builder(stockfishExe)
+                .addSyzygyFolders(syzygyFolders)
                 .build();
 
-        int rolloutNodes = 32_000;
-//        int rolloutNodes = 64_000;
+//        int rolloutNodes = 32_000;
+        int rolloutNodes = 64_000;
         System.out.println("rolloutNodes: " + rolloutNodes);
 
         try (StockfishEval eval = StockfishEval.create(
@@ -33,9 +40,9 @@ public class StockfishMain {
         ) {
 //            State state = State.fromFen("r2q1rk1/p2nppbp/3p1np1/2pP4/2P1P3/5N2/P2N1PPP/1RBQ1RK1 w - - 1 12");
             State state = State.fromFen(
-//                    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+                    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 //                    "b7/5k2/6p1/6P1/8/8/7K/2B5 b - - 99 199"
-                    "8/5p2/2R5/6pk/7p/7P/5PPK/3r4 w - - 4 n"
+//                    "8/5p2/2R5/6pk/7p/7P/5PPK/3r4 w - - 4 n"
 
 //                    "2q1nk1r/4Rp2/1ppp1P2/6Pp/3p1B2/3P3P/PPP1Q3/6K1 w"
 

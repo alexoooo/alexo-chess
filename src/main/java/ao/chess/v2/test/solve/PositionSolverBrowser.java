@@ -20,7 +20,9 @@ public class PositionSolverBrowser {
         State nextState = State.initial();
 
         String history = "" +
-                "1.e4 c5 2.Nf3 Nc6";
+//                "1.e4 c5 2.Nf3 Nc6";
+//                "1.e4 Nc6 2.Nf3 e5";
+                "1.e4 e6 2.d4 d5";
 
 //                "1.c4 Nf6 2.g3 e6 3.Bg2 d5 4.Nf3 Be7 5.O-O O-O 6.d4 Nbd7"; // x
 //                "1.c4 Nf6 2.g3 e6 3.Nf3 d5 4.Bg2 Be7 5.O-O O-O 6.d4 Nbd7 7.Qc2 c6 8.Rd1 b6 9.b3 Ba6";

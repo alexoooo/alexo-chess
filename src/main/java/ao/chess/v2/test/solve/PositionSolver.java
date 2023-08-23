@@ -60,6 +60,7 @@ public class PositionSolver {
 
         StockfishController controller = StockfishController
                 .builder(StockfishMain.stockfishExe)
+                .addSyzygyFolders(StockfishMain.syzygyFolders)
                 .build();
         StockfishEval eval = StockfishEval.create(
 //                controller, 24, 1024, 100_000);
@@ -67,7 +68,8 @@ public class PositionSolver {
 //                controller, 10, 512, 32_000, true, 10_000);
 //                controller, 24, 512, 32_000, true, 16_000);
 //                controller, 24, 512, 64_000, true, 64_000);
-                controller, 28, 512, 64_000, true, 64_000);
+//                controller, 28, 512, 64_000, true, 64_000);
+                controller, 28, 512, 65_000, true, 100_000);
 //                controller, 24, 1024, 250_000);
 //                controller, 24, 1024, 1_000_000);
 

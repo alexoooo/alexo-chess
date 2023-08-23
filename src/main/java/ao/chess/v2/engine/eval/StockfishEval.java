@@ -28,7 +28,8 @@ public class StockfishEval
         implements PositionEvaluator, MoveAndOutcomeModel, AutoCloseable
 {
     //-----------------------------------------------------------------------------------------------------------------
-    private static final double moveProbabilityFromValueSoftmaxFactor = 15.0;
+//    private static final double moveProbabilityFromValueSoftmaxFactor = 15.0;
+    private static final double moveProbabilityFromValueSoftmaxFactor = 20.0;
 
 
     public static StockfishEval create(
@@ -86,10 +87,7 @@ public class StockfishEval
         this.nodesPerEval = nodesPerEval;
         this.evalRollout = evalRollout;
         this.nodesPerEstimate = nodesPerEstimate;
-        executor = new ThreadPoolExecutor(
-                0, all.size(),
-                60L, TimeUnit.SECONDS,
-                new SynchronousQueue<>());
+        executor = Executors.newCachedThreadPool();
     }
 
 
