@@ -22,7 +22,17 @@ public class PositionSolverBrowser {
         String history = "" +
 //                "1.e4 c5 2.Nf3 Nc6";
 //                "1.e4 Nc6 2.Nf3 e5";
-                "1.e4 e6 2.d4 d5";
+//                "1.e4 e6 2.d4 d5 3.Nc3 Nf6 4.e5 Nfd7";
+//                "1.e4 e6 2.d4 d5 3.Nd2 c5 4.Ngf3";
+//            "1.e4 e5 2.Nf3 Nf6 3.Nxe5 d6 4.Nf3 Nxe4";
+
+//            "1.c4 c5 2.Nf3 Nf6 3.Nc3 d5 4.cxd5 Nxd5";
+            "1.c4 c5 2.g3 d5 3.cxd5 Nf6 4.e4 e6 5.dxe6 Bxe6";
+//            "1.c4 Nf6 2.d4 e6 3.Nf3 d5 4.g3 dxc4";
+
+//            "1.d4 d5 2.Nf3 c5 3.c4 dxc4 4.d5 Nf6";
+//            "1.d4 d5 2.Nf3 Nf6 3.Bf4 c5 4.dxc5 e6";
+
 
 //                "1.c4 Nf6 2.g3 e6 3.Bg2 d5 4.Nf3 Be7 5.O-O O-O 6.d4 Nbd7"; // x
 //                "1.c4 Nf6 2.g3 e6 3.Nf3 d5 4.Bg2 Be7 5.O-O O-O 6.d4 Nbd7 7.Qc2 c6 8.Rd1 b6 9.b3 Ba6";

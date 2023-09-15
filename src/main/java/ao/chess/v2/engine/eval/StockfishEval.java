@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -37,6 +38,7 @@ public class StockfishEval
             int processes,
             int hashMbPerThread,
             int nodesPerEval,
+            int randomNodesPerEval,
             boolean evalRollout,
             int nodesPerEstimate
     ) {
@@ -48,7 +50,8 @@ public class StockfishEval
             available.add(new StockfishContext(instance));
         }
 
-        return new StockfishEval(available, nodesPerEval, evalRollout, nodesPerEstimate);
+        return new StockfishEval(
+                available, nodesPerEval, randomNodesPerEval, evalRollout, nodesPerEstimate);
     }
 
 
@@ -67,6 +70,7 @@ public class StockfishEval
 
     //-----------------------------------------------------------------------------------------------------------------
     private final int nodesPerEval;
+    private final int randomNodesPerEval;
     private final boolean evalRollout;
     private final int nodesPerEstimate;
 
@@ -79,12 +83,14 @@ public class StockfishEval
     private StockfishEval(
             BlockingQueue<StockfishContext> available,
             int nodesPerEval,
+            int randomNodesPerEval,
             boolean evalRollout,
             int nodesPerEstimate
     ) {
         all = new ArrayList<>(available);
         this.available = available;
         this.nodesPerEval = nodesPerEval;
+        this.randomNodesPerEval = randomNodesPerEval;
         this.evalRollout = evalRollout;
         this.nodesPerEstimate = nodesPerEstimate;
         executor = Executors.newCachedThreadPool();
@@ -104,7 +110,7 @@ public class StockfishEval
 
             double value =
                     evalRollout
-                    ? evaluateRollout(state, context)
+                    ? evaluateRollout(state.prototype(), context)
                     : context.instance.evaluate(state, nodesPerEval).value();
 
             available.add(context);
@@ -157,7 +163,9 @@ public class StockfishEval
 //                }
             }
             else {
-                estimate = context.instance.bestMove(state, moves, nMoves, nodesPerEval);
+                int nextNodesPerEval = (int) Math.round(nodesPerEval + Math.random() * randomNodesPerEval);
+//                int nextNodesPerEval = nodesPerEval;
+                estimate = context.instance.bestMove(state, moves, nMoves, nextNodesPerEval);
             }
 
             int bestMoveIndex = estimate.moveIndex();
@@ -177,7 +185,7 @@ public class StockfishEval
 
             if (state.pieceCount() <= EfficientDeepOracle.pieceCount) {
                 DeepOutcome deepOutcome = EfficientDeepOracle.getOrNull(state);
-                outcome = deepOutcome.outcome();
+                outcome = Objects.requireNonNull(deepOutcome).outcome();
                 break;
             }
 

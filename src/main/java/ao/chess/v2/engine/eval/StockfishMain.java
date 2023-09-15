@@ -3,8 +3,10 @@ package ao.chess.v2.engine.eval;
 
 import ao.chess.v2.engine.stockfish.StockfishController;
 import ao.chess.v2.state.State;
+import com.google.common.base.Stopwatch;
 
 import java.nio.file.Path;
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
 
 
@@ -28,14 +30,16 @@ public class StockfishMain {
                 .build();
 
 //        int rolloutNodes = 32_000;
-        int rolloutNodes = 64_000;
+        int rolloutNodes = 65_000;
+//        int rolloutRandomNodes = 0;
+        int rolloutRandomNodes = 10_000;
         System.out.println("rolloutNodes: " + rolloutNodes);
 
         try (StockfishEval eval = StockfishEval.create(
 //                controller, 1, 1024, 1_000_000)
 //                controller, 1, 1024, 1_000_000, false, 10_000)
 //                controller, 1, 1024, 32_000, false, 10_000)
-                controller, 1, 512, rolloutNodes, true, rolloutNodes)
+                controller, 1, 512, rolloutNodes, rolloutRandomNodes, true, rolloutNodes)
 //                controller, 1, 1024, 100_000_000)
         ) {
 //            State state = State.fromFen("r2q1rk1/p2nppbp/3p1np1/2pP4/2P1P3/5N2/P2N1PPP/1RBQ1RK1 w - - 1 12");
@@ -63,8 +67,16 @@ public class StockfishMain {
 //                "2K1k1br/P4n1r/5pN1/5N2/2p4P/2Pp4/8/8 w - - 0 21"
 //                "Q1K1k1br/5n1r/5pN1/5N2/2p4P/2Pp4/8/8 b - - 0 21"
             );
-            double value = eval.evaluate(state);
-            System.out.println("value: " + value);
+            System.out.println(state);
+
+            Stopwatch stopwatch = Stopwatch.createStarted();
+            DoubleSummaryStatistics stats = new DoubleSummaryStatistics();
+            for (int i = 0; i < 1_000; i++) {
+                double value = eval.evaluate(state);
+                stats.accept(value);
+                System.out.println("value " + i + ": " + value + " avg " + stats.getAverage() + " took " + stopwatch);
+                stopwatch.reset().start();
+            }
         }
     }
 }
