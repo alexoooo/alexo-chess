@@ -24,6 +24,7 @@ public class RolloutContext {
     public final double certaintyLimit;
     public final double probabilityPower;
     public final double eGreedyProbability;
+    public final RolloutSolutionThreshold rolloutSolutionThreshold;
 
     public final Random random = new Random();
     public final List<RolloutNode> path = new ArrayList<>();
@@ -64,6 +65,7 @@ public class RolloutContext {
             double certaintyLimit,
             double probabilityPower,
             double eGreedyProbability,
+            RolloutSolutionThreshold rolloutSolutionThreshold,
 
             LongAdder collisions,
             LongAdder terminalHits,
@@ -89,6 +91,7 @@ public class RolloutContext {
         this.certaintyLimit = certaintyLimit;
         this.probabilityPower = probabilityPower;
         this.eGreedyProbability = eGreedyProbability;
+        this.rolloutSolutionThreshold = rolloutSolutionThreshold;
 
         this.collisions = collisions;
         this.terminalHits = terminalHits;

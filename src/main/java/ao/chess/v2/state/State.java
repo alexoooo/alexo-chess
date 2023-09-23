@@ -503,7 +503,7 @@ public class State
         toggleCastle(type);
 
         castles         = prevCastles;
-        enPassant = prevEnPassant;
+        enPassant       = prevEnPassant;
         reversibleMoves = prevReversibleMoves;
         castlePath      = prevCastlePath;
     }
@@ -1205,6 +1205,31 @@ public class State
 
     public long castlePath() {
         return castlePath;
+    }
+
+
+    public StateUndo move(int move) {
+        byte reversibleMoves = this.reversibleMoves;
+        byte castles = this.castles;
+        long castlePath = this.castlePath;
+        byte enPassant = this.enPassant;
+
+        int moveUndo = Move.apply(move, this);
+
+        return new StateUndo(
+                moveUndo,
+                reversibleMoves,
+                castles,
+                castlePath,
+                enPassant);
+    }
+
+    public void undo(StateUndo stateUndo) {
+        Move.apply(stateUndo.moveUndo(), this);
+        restore(stateUndo.reversibleMoves(),
+                stateUndo.castles(),
+                stateUndo.castlePath(),
+                stateUndo.enPassant());
     }
 
 

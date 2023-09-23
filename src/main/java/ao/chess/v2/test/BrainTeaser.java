@@ -5,6 +5,7 @@ import ao.chess.v2.engine.eval.StockfishEval;
 import ao.chess.v2.engine.eval.StockfishMain;
 import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeModel;
 import ao.chess.v2.engine.neuro.rollout.RolloutPlayer;
+import ao.chess.v2.engine.neuro.rollout.RolloutSolutionThreshold;
 import ao.chess.v2.engine.stockfish.StockfishController;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
@@ -187,11 +188,15 @@ public class BrainTeaser {
 //                .threads(256)
 //                .threads(384)
 //                .threads(512)
+
+                .rolloutSolutionThreshold(
+                        new RolloutSolutionThreshold(1_000, 0.01))
+
                 .build();
 
         State state = State.fromFen(
                 // https://www.youtube.com/watch?v=X944zggxuc8
-                "1kn2B2/2R1RP2/2P5/7r/8/1P1p2q1/K7/2N5 w - - 0 1"
+//                "1kn2B2/2R1RP2/2P5/7r/8/1P1p2q1/K7/2N5 w - - 0 1"
 
                 // sees Nf3 which is strong, but not optimal Ke7 which is mate in 20
 //                "3K1B2/1p6/pp6/rk2N3/b1p5/1pP5/1P2P3/8 w - - 0 1"
@@ -282,7 +287,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pp2pppp/2np4/2p5/4P3/3P1N2/PPP2PPP/RNBQKB1R w KQkq - 1 4"
 
                 // "simple draw"?
-//                "8/1p1b4/8/P7/3BPk2/7p/6pK/8 b - - 0 1"
+                "8/1p1b4/8/P7/3BPk2/7p/6pK/8 b - - 0 1"
 
                 // https://www.youtube.com/watch?v=PxUBFl18cP0
 //                "rnbq1rk1/p1p1ppbp/1p1p1np1/8/3PPP2/2N2N2/PPPB2PP/R2QKB1R w KQ - 0 7"
@@ -351,6 +356,7 @@ public class BrainTeaser {
 //        Move.apply(move, state);
 //        player.move(state, time, time, 0);
 
+        System.out.println(state.toFen());
         System.out.println(state);
         Stopwatch stopwatch = Stopwatch.createStarted();
 
@@ -362,6 +368,7 @@ public class BrainTeaser {
 
             if (player.isSolved(state) || state.knownOutcomeOrNull() != null) {
                 solved = true;
+                player.showSolution(state);
                 break;
             }
         }

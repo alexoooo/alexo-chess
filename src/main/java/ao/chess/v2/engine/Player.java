@@ -24,4 +24,6 @@ public interface Player extends AutoCloseable
     default boolean isSolved(State position) {
         return false;
     }
+
+    default void showSolution(State position) {}
 }

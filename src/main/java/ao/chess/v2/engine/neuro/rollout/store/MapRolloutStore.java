@@ -104,6 +104,9 @@ public class MapRolloutStore implements RolloutStore {
         if (childMoves.size64() == (offset + moveIndex)) {
             return -1;
         }
+        if (childMoves.size64() < (offset + moveIndex)) {
+            System.out.println("foo");
+        }
         return childMoves.getLong(offset + moveIndex);
     }
 

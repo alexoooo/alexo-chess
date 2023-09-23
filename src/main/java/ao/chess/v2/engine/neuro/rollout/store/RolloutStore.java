@@ -109,34 +109,25 @@ public interface RolloutStore extends AutoCloseable {
         int nonWinKnownCount = 0;
         for (int i = 0; i < moveCount; i++) {
             long childIndex = getChildIndex(index, i);
-//            RolloutNode child = childOrNull(i, store);
 
             long childVisitCount;
             double childValueSum;
             double childValueSquareSum;
 
             if (childIndex == -1) {
-//            if (child == null) {
                 childValueSum = 0;
                 childValueSquareSum = 0;
                 childVisitCount = 0;
             }
             else {
                 childValueSum = getValueSum(childIndex);
-//                childValueSum = child.valueSum(store);
-
                 childValueSquareSum = getValueSquareSum(childIndex);
-//                childValueSquareSum = child.valueSquareSum(store);
-
                 childVisitCount = getVisitCount(childIndex);
-//                childVisitCount = child.visitCount(store);
 
                 double known = getKnownOutcome(childIndex).toValue();
-//                double known = child.knownValue(store);
 
                 if (! Double.isNaN(known)) {
                     if (known == 0.0) {
-//                        setKnownOutcome(KnownOutcome.Win, store);
                         setKnownOutcome(index, KnownOutcome.Win);
                         return i;
                     }
@@ -153,23 +144,19 @@ public interface RolloutStore extends AutoCloseable {
         }
 
         if (nonWinKnownCount == moveCount) {
-            KnownOutcome bestChildOutcome = KnownOutcome.Win;
+            KnownOutcome bestOutcome = KnownOutcome.Loss;
             int moveIndex = 0;
             for (int i = 0; i < moveCount; i++) {
                 long childIndex = getChildIndex(index, i);
-//                RolloutNode child = childOrNull(i, store);
-
                 KnownOutcome value = getKnownOutcome(childIndex);
-//                KnownOutcome value = child.knownOutcome(store);
-
                 if (value == KnownOutcome.Draw) {
-                    bestChildOutcome = value;
+                    bestOutcome = value;
                     moveIndex = i;
+                    break;
                 }
             }
 
-            setKnownOutcome(index, bestChildOutcome.reverse());
-//            setKnownOutcome(bestChildOutcome.reverse(), store);
+            setKnownOutcome(index, bestOutcome);
 
             return moveIndex;
         }

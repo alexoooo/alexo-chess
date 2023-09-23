@@ -369,6 +369,11 @@ public class RolloutNode {
     }
 
 
+    private double averageValueReversedOrNan(RolloutStore store) {
+        return 1.0 - store.getAverageValue(index, Double.NaN);
+    }
+
+
     private double expandChildAndGetKnownValue(
             State state, int moveCount, int moveIndex, RolloutContext context
     ) {
@@ -456,6 +461,12 @@ public class RolloutNode {
             parentVisitCount += moveVisitCounts[i];
         }
 
+        setSolutionBasedOnThreshold(
+                parentVisitCount,
+                moveCount,
+                moveVisitCounts,
+                context);
+
         return banditChild(
                 moveCount,
                 valuePrediction,
@@ -469,6 +480,34 @@ public class RolloutNode {
                 state,
                 context,
                 randomSample);
+    }
+
+
+    private void setSolutionBasedOnThreshold(
+            long parentVisitCount,
+            int moveCount,
+            long[] moveVisitCounts,
+            RolloutContext context
+    ) {
+        RolloutSolutionThreshold solutionThreshold = context.rolloutSolutionThreshold;
+        double uncertaintyPercent = solutionThreshold.uncertaintyPercent();
+        if (uncertaintyPercent == 0 || parentVisitCount < solutionThreshold.minimumVisitCount()) {
+            return;
+        }
+
+        for (int i = 0; i < moveCount; i++) {
+            if (moveVisitCounts[i] >= solutionThreshold.minimumVisitCount()) {
+                return;
+            }
+        }
+
+        RolloutStore store = context.store;
+        double valueOrNan = averageValueReversedOrNan(store);
+        KnownOutcome knownOutcome = solutionThreshold.checkKnownOutcome(valueOrNan);
+
+        if (knownOutcome != KnownOutcome.Unknown) {
+            setKnownOutcome(knownOutcome, store);
+        }
     }
 
 
@@ -575,10 +614,13 @@ public class RolloutNode {
         double transpositionValueSum = 0;
         long transpositionVisitCont = 0;
         if (moveVisits >= transpositionThreshold) {
+            // TODO: using StateUndo here causes errors with BrainTeaser
+//            StateUndo undo = state.move(context.movesA[moveIndex]);
             int move = Move.apply(context.movesA[moveIndex], state);
             long hashHigh = state.longHashCode();
             long hashLow = state.longHashCodeAlt();
             Move.unApply(move, state);
+//            state.undo(undo);
 
             TranspositionInfo moveTransposition = context.store.getTranspositionOrNull(hashHigh, hashLow);
             if (moveTransposition == null || moveVisits > moveTransposition.visitCount()) {
@@ -623,19 +665,22 @@ public class RolloutNode {
                 return -1;
             }
 
-            double minChildValue = 1.0;
-            int minChildIndex = 0;
+            double minChildKnownValue = 1.0;
+            int minChildKnownIndex = -1;
             for (int i = 0; i < moves.length; i++) {
                 RolloutNode child = childOrNull(i, store);
                 if (child == null) {
                     continue;
                 }
-                if (minChildValue > child.knownValue(store)) {
-                    minChildValue = child.knownValue(store);
-                    minChildIndex = i;
+                double childKnownValueOrNan = child.knownValue(store);
+                if (minChildKnownValue > childKnownValueOrNan) {
+                    minChildKnownValue = childKnownValueOrNan;
+                    minChildKnownIndex = i;
                 }
             }
-            return moves[minChildIndex];
+            if (minChildKnownIndex != -1) {
+                return moves[minChildKnownIndex];
+            }
         }
 
         int contenderCount = 0;
@@ -646,6 +691,9 @@ public class RolloutNode {
                 isRepeat
                 ? state.prototype()
                 : null;
+
+        long parentVisitCount = visitCount(store);
+        long averageVisitCount = parentVisitCount / moves.length - 1;
 
         for (int i = 0; i < moves.length; i++) {
             boolean moveRepeat = false;
@@ -665,19 +713,25 @@ public class RolloutNode {
             }
 
             long moveVisits = visitCount(i, store);
+            double moveValue = expectedValue(i, store);
 
             long moveScore;
             if (moveRepeat) {
-                double moveValue = expectedValue(i, store);
                 if (moveValue > 0.5) {
                     moveScore = 0;
                 }
                 else {
-                    moveScore = moveVisits;
+//                moveScore = moveVisits;
+                    moveScore = moveVisits > averageVisitCount
+                            ? (long) (moveValue * 1_000_000)
+                            : 0;
                 }
             }
             else {
-                moveScore = moveVisits;
+//                moveScore = moveVisits;
+                moveScore = moveVisits >= averageVisitCount
+                        ? (long) (moveValue * 1_000_000)
+                        : 0;
             }
 
             if (repeatCursorOrNull != null) {

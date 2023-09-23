@@ -77,6 +77,10 @@ public class PositionSolver {
         Player player = new RolloutPlayer.Builder(model)
                 .evaluator(eval)
 
+//                .rolloutSolutionThreshold(
+////                        new RolloutSolutionThreshold(1_000, 0.04))
+//                        new RolloutSolutionThreshold(1_000, 0.1))
+
 ////                .binerize(true)
 //
 //                .certaintyLimit(0.9)

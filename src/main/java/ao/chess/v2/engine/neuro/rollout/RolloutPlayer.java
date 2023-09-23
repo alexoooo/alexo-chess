@@ -80,6 +80,7 @@ public class RolloutPlayer
         private double certaintyLimit = 0.97;
         private boolean useIo = false;
         private double eGreedyProbability = 0.005;
+        private RolloutSolutionThreshold rolloutSolutionThreshold = RolloutSolutionThreshold.zero;
         private PositionEvaluator evaluator = new PuctRolloutEval();
 
 
@@ -90,6 +91,11 @@ public class RolloutPlayer
 
         public Builder evaluator(PositionEvaluator evaluator) {
             this.evaluator = evaluator;
+            return this;
+        }
+
+        public Builder rolloutSolutionThreshold(RolloutSolutionThreshold rolloutSolutionThreshold) {
+            this.rolloutSolutionThreshold = rolloutSolutionThreshold;
             return this;
         }
 
@@ -155,6 +161,7 @@ public class RolloutPlayer
                     certaintyLimit,
                     optimize,
                     eGreedyProbability,
+                    rolloutSolutionThreshold,
                     useIo);
         }
     }
@@ -174,6 +181,7 @@ public class RolloutPlayer
     private final double certaintyLimit;
     private final boolean optimize;
     private final double eGreedyProbability;
+    private final RolloutSolutionThreshold rolloutSolutionThreshold;
     private boolean train;
 
     private final LongAdder collisions = new LongAdder();
@@ -214,6 +222,7 @@ public class RolloutPlayer
             double certaintyLimit,
             boolean optimize,
             double eGreedyProbability,
+            RolloutSolutionThreshold rolloutSolutionThreshold,
             boolean useIo)
     {
         this.model = model;
@@ -226,6 +235,7 @@ public class RolloutPlayer
         this.certaintyLimit = certaintyLimit;
         this.optimize = optimize;
         this.eGreedyProbability = eGreedyProbability;
+        this.rolloutSolutionThreshold = rolloutSolutionThreshold;
         this.useIo = useIo;
 
         pool = new MoveAndOutcomeModelPool(
@@ -438,6 +448,7 @@ public class RolloutPlayer
                     certaintyLimit,
                     probabilityPower,
                     eGreedyProbability,
+                    rolloutSolutionThreshold,
                     collisions,
                     terminalHits,
                     terminalRolloutHits,
@@ -611,6 +622,7 @@ public class RolloutPlayer
             Stopwatch stopwatch = Stopwatch.createStarted();
             long flushed = store.flush();
             log(id + " - flushed " + flushed + " - took: " + stopwatch);
+
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -621,6 +633,17 @@ public class RolloutPlayer
     @Override
     public boolean isSolved(State position) {
         return store.getKnownOutcome(RolloutStore.rootIndex) != KnownOutcome.Unknown;
+    }
+
+
+    @Override
+    public void showSolution(State state) {
+        KnownOutcome knownOutcome = store.getKnownOutcome(RolloutStore.rootIndex);
+        System.out.println("Solution: " + knownOutcome);
+
+        RolloutNode root = new RolloutNode(RolloutStore.rootIndex);
+        root.initRoot(store);
+        reportProgress(root, state, false);
     }
 
 
