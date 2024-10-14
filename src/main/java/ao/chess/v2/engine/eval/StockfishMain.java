@@ -15,8 +15,9 @@ public class StockfishMain {
 //            "C:/~/prog/stockfish/stockfish_14.1_win_x64_avx2/stockfish_14.1_win_x64_avx2.exe");
 //            "C:/~/prog/stockfish/stockfish_15_win_x64_avx2/stockfish_15_x64_avx2.exe");
 //            "C:/~/prog/stockfish/stockfish_15.1_win_x64_avx2/stockfish-windows-2022-x86-64-avx2.exe");
-            "C:/~/prog/stockfish/stockfish_16_win_x64_avx2/stockfish-windows-x86-64-avx2.exe");
-//            "C:/~/prog/stockfish/stockfish-windows-x86-64-avx2/stockfish-windows-x86-64-avx2.exe");
+//            "C:/~/prog/stockfish/stockfish_16_win_x64_avx2/stockfish-windows-x86-64-avx2.exe");
+//            "C:/~/prog/stockfish/stockfish_16.1_win_x64_avx2/stockfish-windows-x86-64-avx2.exe");
+            "C:/~/prog/stockfish/stockfish_17_win_x64_avx2/stockfish-windows-x86-64-avx2.exe");
 
 
     public static final List<Path> syzygyFolders = List.of(

@@ -5,7 +5,6 @@ import ao.chess.v2.engine.eval.StockfishEval;
 import ao.chess.v2.engine.eval.StockfishMain;
 import ao.chess.v2.engine.neuro.puct.MoveAndOutcomeModel;
 import ao.chess.v2.engine.neuro.rollout.RolloutPlayer;
-import ao.chess.v2.engine.neuro.rollout.RolloutSolutionThreshold;
 import ao.chess.v2.engine.stockfish.StockfishController;
 import ao.chess.v2.state.Move;
 import ao.chess.v2.state.State;
@@ -189,8 +188,8 @@ public class BrainTeaser {
 //                .threads(384)
 //                .threads(512)
 
-                .rolloutSolutionThreshold(
-                        new RolloutSolutionThreshold(1_000, 0.01))
+//                .rolloutSolutionThreshold(
+//                        new RolloutSolutionThreshold(10_000, 0.01))
 
                 .build();
 
@@ -287,7 +286,7 @@ public class BrainTeaser {
 //                "r1bqkbnr/pp2pppp/2np4/2p5/4P3/3P1N2/PPP2PPP/RNBQKB1R w KQkq - 1 4"
 
                 // "simple draw"?
-                "8/1p1b4/8/P7/3BPk2/7p/6pK/8 b - - 0 1"
+//                "8/1p1b4/8/P7/3BPk2/7p/6pK/8 b - - 0 1"
 
                 // https://www.youtube.com/watch?v=PxUBFl18cP0
 //                "rnbq1rk1/p1p1ppbp/1p1p1np1/8/3PPP2/2N2N2/PPPB2PP/R2QKB1R w KQ - 0 7"
@@ -328,6 +327,33 @@ public class BrainTeaser {
 //                "2q1rr1k/3bbnnp/p2p1pp1/2pPp3/PpP1P1P1/1P2BNNP/2BQ1PRK/7R b - -" // 1 million @0.87
 
 //                "8/p2qk2p/1p3p2/4n1b1/P1p1Pp1r/2P5/1P2B1KN/R4Q1R b - - 0 1"
+
+                // https://www.youtube.com/watch?v=_Annr5vPSYs
+//                "rnk5/p2p3p/p1pPp3/2P1Pp2/5P2/6p1/6Pb/3NBK2 w - - 0 1"
+
+                // https://www.youtube.com/watch?v=X_3-pYMKRh8
+//                "1r4k1/4rqpp/R4p2/1pb1p2P/3pP1Q1/1R1P2P1/1P1NKP2/8 b - - 1 40"
+
+                // d5 0.9 value after 8k eval
+//                "rnbqkbnr/pppppppp/8/8/6P1/8/PPPPPP1P/RNBQKBNR b KQkq - 0 1"
+
+                // reached in long PositionSolver run
+//                "b1rq2k1/2n1b1p1/1p2p2p/p2pBr2/1PP5/PQ4PP/3N1PB1/R2R2K1 w - - 1 25"
+
+                // https://www.youtube.com/watch?v=jjc_U1K6mng
+//                "2rq1rk1/3nbppp/bpn1p3/p1ppP3/3P1N2/2P2N2/PP3PPP/RBBQR1K1 w - - 6 13"
+
+                // https://www.youtube.com/watch?v=DKCttVReA5k
+//                "r3r1k1/4bp2/3p4/1PpPp3/2P2p2/7P/3B1P2/RR4K1 w - - 2 34"
+
+                // https://www.youtube.com/watch?v=oiQeePWjHTI
+//                "rnbq3r/pppp4/3b1pkp/5p2/2BP4/4P3/PPP2PPP/RN1QK2R w KQ - 0 1" // finds approximate mate
+//                "n1QBq1k1/5p1p/5KP1/p7/8/8/8/8 w - - 0 1" // finds approximate mate
+//                "r2q1r2/1b2bpkp/n3p1p1/2ppP1P1/p6R/1PN1BQR1/NPP2P1P/4K3 w - - 0 1" // sees slight advantage to white, but no win
+//                "8/8/8/2p5/1pp5/brpp4/qpprpK1P/1nkbn3 w - - 0 1" // mate in 31 ply (16 moves)
+//                "8/3P3k/n2K3p/2p3n1/1b4N1/2p1p1P1/8/3B4 w - - 0 1" // > 90% after 55k
+
+                "r2qk2r/pb1n1pbp/1p2pp2/8/3p1B2/2PB1N2/PP2QPPP/R3K2R w KQkq - 0 12"
 
 //                "2K1k1br/2qp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 w - - 0 14"
 //                "4k1br/2Kp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 b - - 0 14"

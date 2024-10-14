@@ -78,8 +78,7 @@ public class PositionSolver {
                 .evaluator(eval)
 
 //                .rolloutSolutionThreshold(
-////                        new RolloutSolutionThreshold(1_000, 0.04))
-//                        new RolloutSolutionThreshold(1_000, 0.1))
+//                        new RolloutSolutionThreshold(10_000, 0.01))
 
 ////                .binerize(true)
 //

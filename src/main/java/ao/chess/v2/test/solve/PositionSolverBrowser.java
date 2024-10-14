@@ -20,19 +20,57 @@ public class PositionSolverBrowser {
         State nextState = State.initial();
 
         String history = "" +
-//                "1.e4 c5 2.Nf3 Nc6";
-//                "1.e4 Nc6 2.Nf3 e5";
-//                "1.e4 e6 2.d4 d5 3.Nc3 Nf6 4.e5 Nfd7";
-//                "1.e4 e6 2.d4 d5 3.Nd2 c5 4.Ngf3";
+//            "1.e4 c5 2.Nf3 Nc6";
+//            "1.e4 Nc6 2.Nf3 e5";
+//            "1.e4 e6 2.d4 d5 3.Nc3 Nf6 4.e5 Nfd7";
+//            "1.e4 e6 2.d4 d5 3.Nd2 c5 4.Ngf3";
 //            "1.e4 e5 2.Nf3 Nf6 3.Nxe5 d6 4.Nf3 Nxe4";
+//            "1.e4 e5 2.Nf3 Nc6 3.Bb5 Nf6 4.d3 Bc5 5.c3 O-O";
 
+//            "1.c4 c5 2.Nf3 Nf6 3.g3 d5 4.cxd5 Nxd5 5.Bg2 Nc6 6.Nc3 g6";
+//            "1.c4 c5 2.Nf3 Nf6 3.Nc3 e6 4.g3 Be7 5.Bg2 d5 6.d4 cxd4";
+//            "1.c4 c5 2.Nf3 Nf6 3.g3 b6 4.Bg2 Bb7";
 //            "1.c4 c5 2.Nf3 Nf6 3.Nc3 d5 4.cxd5 Nxd5";
 //            "1.c4 c5 2.Nc3 e6 3.e4 Nc6 4.g3 Nge7";
 //            "1.c4 c5 2.g3 d5 3.cxd5 Nf6 4.e4 e6 5.dxe6 Bxe6";
-            "1.c4 Nf6 2.d4 e6 3.Nf3 d5 4.g3 Be7";
+//            "1.c4 Nf6 2.d4 e6 3.Nf3 d5 4.g3 Be7";
 
-//            "1.d4 d5 2.Nf3 c5 3.c4 dxc4 4.d5 Nf6";
+
+//            "1.d4 d5 2.c4 e6 3.Nf3 dxc4 4.e3 Nf6 5.Bc4 a6 6.O-O c5";
+            "1.d4 d5 2.c4 e6 3.Nf3 Nf6 4.g3 Bb4 5.Bd2 Be7 6.Bg2 Nbd7 7.O-O c6";
+//            "1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.cxd5 exd5 5.Bg5 Be7 6.e3 c6";
+//            "1.d4 d5 2.c4 e6 3.Nf3 Nf6 4.g3 Be7 5.Bg2 O-O 6.O-O";
+//                "1.d4 d5 2.c4 e6 3.Nf3 Nf6 4.g3 Bb4 5.Bd2 Be7";
+//            "1.d4 d5 2.c4 e6 3.Nf3 Nf6 4.g3 Be7 5.Bg2 Nbd7 6.Qc2";
+//            "1.d4 d5 2.c4 e6 3.g3 dxc4 4.Nf3 c5 4.Nbd2";
+//            "1.d4 d5 2.c4 Nf6 3.cxd5 Qxd5 4.Nc3 Qa5 5.Bd2";
+//            "1.d4 d5 2.c4 e6 3.Nf3 Nf6 4.Nc3 c5 5.cxd5 cxd4 6.Qxd4 exd5";
+//            "1.d4 d5 2.c4 e6 3.Nf3 c5 4.cxd5 exd5";
+//                "1.d4 Nf6 2.c4 e6 3.g3 Bb4 4.Nd2 O-O 5.Bg2 d5 6.Nf3 Be7 7.O-O";
+//            "1.d4 Nf6 2.c4 e6 3.g3 d5 4.Bg2 Bb4 5.Nd2 O-O 6.Nf3 a5";
+
+//            "1.d4 Nf6 2.c4 e6 3.g3 d5 4.Bg2 Be7 5.Nf3 O-O 6.O-O dxc4 7.Qc2 a6";
+//            "1.d4 Nf6 2.c4 e6 3.g3 Be7 4.Bg2 d5 5.Nf3 O-O 6.O-O c5";
+
+//            "1.d4 Nf6 2.c4 e6 3.g3 Bb4 4.Bd2 Be7 5.Nf3 d5 6.Bg2 O-O";
+//            "1.d4 Nf6 2.c4 e6 3.g3 Bb4 4.Bd2 Be7 5.Nf3 O-O 6.Qc2";
+//            "1.d4 Nf6 2.c4 e6 3.g3 Bb4 4.Bd2 Be7 5.Nf3 c6 6.Bg2 d5";
+//            "1.d4 Nf6 2.c4 e6 3.g3 Bb4 4.Nd2 d5 5.Bg2 O-O 6.Nf3 b6 7.Rb1";
+//            "1.d4 Nf6 2.c4 e6 3.g3 d5 4.Bg2 dxc4 5.Nf3 Nc6 6.Qa4 Bb4 7.Bd2 Nd5 8.Bxb4 Ndxb4 9.O-O Rb8 10.Na3";
+//            "1.d4 Nf6 2.c4 e6 3.g3 d5 4.Bg2 dxc4 5.Nf3 Bb4 6.Bd2 a5 7.Qc1 b6";
+//            "1.d4 Nf6 2.c4 e6 3.g3 d5 4.Bg2 dxc4 5.Nf3 Bb4 6.Bd2 a5 7.Qc2 Bxd2 8.Qxd2";
+//            "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.Nc3 Nbd7";
+//            "1.d4 Nf6 2.Nf3 d5 3.c4 dxc4 4.e3 a6";
 //            "1.d4 d5 2.Nf3 Nf6 3.Bf4 c5 4.dxc5 e6";
+//            "1.d4 d5 2.Nf3 c5 3.c4 dxc4 4.d5 Nf6";
+
+//            "1.Nf3 d5 2.g3 c5 3.Bg2 Nf6 4.O-O e6 5.d3 Nc6";
+//            "1.Nf3 d5 2.g3 c5 3.Bg2 Nc6 4.d4 Nf6 5.O-O cxd4";
+//            "1.Nf3 d5 2.g3 c5 3.Bg2 Nc6 4.d4 e6 5.O-O Nf6";
+//            "1.Nf3 d5 2.g3 Nf6 3.Bg2 c5 4.O-O e6";
+//            "1.Nf3 d5 2.d4 Nf6 3.e3 e6 4.Bd3 b6";
+//            "1.Nf3 d5 2.d4 Nf6 3.c4 c5 4.cxd5 cxd4";
+//            "1.Nf3 Nf6 2.c4 c5 3.g3 d5 4.cxd5 Nxd5";
 
 
 //                "1.c4 Nf6 2.g3 e6 3.Bg2 d5 4.Nf3 Be7 5.O-O O-O 6.d4 Nbd7"; // x
@@ -149,7 +187,7 @@ public class PositionSolverBrowser {
             int move = PgnGenerator.findMove(nextState, moveState);
             int moveIndex = Ints.indexOf(nextState.legalMoves(), move);
 
-            System.out.println(i + "\t" + Move.toInputNotation(move) + "\t" + Move.toString(move));
+            System.out.println(i + "\t" + Move.toInputNotation(move) + "\t" + Move.toString(move) + "\t" + moveState.toFen());
 
             nextIndex = store.getChildIndex(nextIndex, moveIndex);
             nextState = moveState;

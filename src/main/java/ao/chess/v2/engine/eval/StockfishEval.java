@@ -31,7 +31,8 @@ public class StockfishEval
     //-----------------------------------------------------------------------------------------------------------------
 //    private static final double moveProbabilityFromValueSoftmaxFactor = 15.0;
 //    private static final double moveProbabilityFromValueSoftmaxFactor = 20.0;
-    private static final double moveProbabilityFromValueSoftmaxFactor = 25.0;
+//    private static final double moveProbabilityFromValueSoftmaxFactor = 25.0;
+    private static final double moveProbabilityFromValueSoftmaxFactor = 27.5;
 
 
     public static StockfishEval create(

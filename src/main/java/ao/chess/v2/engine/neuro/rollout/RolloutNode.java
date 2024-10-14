@@ -73,8 +73,10 @@ public class RolloutNode {
 //    private static final int puctThreshold = 4 * 1024;
 //    private static final int puctThreshold = 16 * 1024;
 //    private static final int puctThreshold = 32 * 1024;
-    private static final int puctThreshold = 64 * 1024;
+//    private static final int puctThreshold = 64 * 1024;
 //    private static final int puctThreshold = 128 * 1024;
+    private static final int puctThreshold = 500_000;
+//    private static final int puctThreshold = 1_000_000;
 
     private static final double puctExplorationLog = 18432;
 
