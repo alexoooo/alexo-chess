@@ -20,6 +20,11 @@ public class PositionSolverBrowser {
         State nextState = State.initial();
 
         String history = "" +
+            "1.g3 d5 2.Nf3 c5 3.Bg2 Nf6 4.O-O e6";
+
+//            "1.d4 Nf6 2.c4 e6 3.g3 d5 4.Bg2 Be7 5.Nf3 O-O 6.O-O dxc4 7.Qc2 a6";
+//            "1.d4 Nf6 2.c4 e6 3.g3 Be7 4.Bg2 d5 5.Nf3 O-O 6.O-O c5";
+
 //            "1.e4 c5 2.Nf3 Nc6";
 //            "1.e4 Nc6 2.Nf3 e5";
 //            "1.e4 e6 2.d4 d5 3.Nc3 Nf6 4.e5 Nfd7";
@@ -37,7 +42,8 @@ public class PositionSolverBrowser {
 
 
 //            "1.d4 d5 2.c4 e6 3.Nf3 dxc4 4.e3 Nf6 5.Bc4 a6 6.O-O c5";
-            "1.d4 d5 2.c4 e6 3.Nf3 Nf6 4.g3 Bb4 5.Bd2 Be7 6.Bg2 Nbd7 7.O-O c6";
+//            "1.d4 d5 2.c4 e6 3.Nf3 Nf6 4.g3 Bb4 5.Bd2 Be7 6.Bg2 Nbd7 7.O-O c6";
+//            "1.d4 d5 2.c4 e6 3.Nf3 c5 4.cxd5 exd5 5.g3";
 //            "1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.cxd5 exd5 5.Bg5 Be7 6.e3 c6";
 //            "1.d4 d5 2.c4 e6 3.Nf3 Nf6 4.g3 Be7 5.Bg2 O-O 6.O-O";
 //                "1.d4 d5 2.c4 e6 3.Nf3 Nf6 4.g3 Bb4 5.Bd2 Be7";
@@ -49,8 +55,6 @@ public class PositionSolverBrowser {
 //                "1.d4 Nf6 2.c4 e6 3.g3 Bb4 4.Nd2 O-O 5.Bg2 d5 6.Nf3 Be7 7.O-O";
 //            "1.d4 Nf6 2.c4 e6 3.g3 d5 4.Bg2 Bb4 5.Nd2 O-O 6.Nf3 a5";
 
-//            "1.d4 Nf6 2.c4 e6 3.g3 d5 4.Bg2 Be7 5.Nf3 O-O 6.O-O dxc4 7.Qc2 a6";
-//            "1.d4 Nf6 2.c4 e6 3.g3 Be7 4.Bg2 d5 5.Nf3 O-O 6.O-O c5";
 
 //            "1.d4 Nf6 2.c4 e6 3.g3 Bb4 4.Bd2 Be7 5.Nf3 d5 6.Bg2 O-O";
 //            "1.d4 Nf6 2.c4 e6 3.g3 Bb4 4.Bd2 Be7 5.Nf3 O-O 6.Qc2";

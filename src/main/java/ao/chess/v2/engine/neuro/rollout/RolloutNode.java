@@ -78,6 +78,9 @@ public class RolloutNode {
     private static final int puctThreshold = 500_000;
 //    private static final int puctThreshold = 1_000_000;
 
+    private static final int ucbVarianceThreshold = puctThreshold * 2;
+    private static final int ucbPriorThreshold = puctThreshold * 4;
+
     private static final double puctExplorationLog = 18432;
 
     private final static double explorationMin = 0.75;
@@ -437,7 +440,7 @@ public class RolloutNode {
     private int selectChild(
             int moveCount,
             double valuePrediction,
-            double[] movePredictions,
+            double[] moveProbabilities,
             long transpositionThreshold,
             State state,
             RolloutContext context,
@@ -472,7 +475,7 @@ public class RolloutNode {
         return banditChild(
                 moveCount,
                 valuePrediction,
-                movePredictions,
+                moveProbabilities,
                 moveValueSums,
                 moveValueSquareSums,
                 moveVisitCounts,
@@ -516,7 +519,7 @@ public class RolloutNode {
     private int banditChild(
             int moveCount,
             double valuePrediction,
-            double[] movePredictions,
+            double[] moveProbabilities,
             double[] moveValueSums,
             double[] moveValueSquareSums,
             long[] moveVisitCounts,
@@ -540,7 +543,7 @@ public class RolloutNode {
 
         for (int i = 0; i < moveCount; i++) {
             long moveVisits = moveVisitCounts[i];
-            double prior = (movePredictions[i] + moveUncertainty) / estimateUncertaintyDenominator;
+            double prior = (moveProbabilities[i] + moveUncertainty) / estimateUncertaintyDenominator;
 
             double averageOutcome = averageOutcome(
                     moveVisits,
@@ -557,8 +560,7 @@ public class RolloutNode {
             if (moveVisits == 0) {
                 ucbExploration =
                         exploration *
-                        (Math.sqrt(Math.log(parentVisitCount)) +
-                                prior);
+                        Math.sqrt(Math.log(parentVisitCount));
             }
             else {
                 double averageSquareOutcome = moveValueSquareSums[i] / moveVisits;
@@ -566,10 +568,25 @@ public class RolloutNode {
                         averageSquareOutcome
                         - averageOutcome * averageOutcome
                         + Math.sqrt(2 * Math.log(parentVisitCount) / moveVisits)));
+
+                // in the limit, use proven convergence of raw UCB (which doesn't work with variance)
+                double discountedVariance =
+                        parentVisitCount >= ucbVarianceThreshold
+                        ? 1
+                        : parentVisitCount >= puctThreshold
+                        ? Math.max(variance, (double) (parentVisitCount - puctThreshold) / (ucbVarianceThreshold - puctThreshold))
+                        : variance;
+
+                // after done with PUCT, taper down on prior towards raw UCB for convergence
+                double discountedPrior =
+                        parentVisitCount >= puctThreshold
+                        ? (1.0 - (double) Math.min(parentVisitCount, ucbPriorThreshold) / ucbPriorThreshold) * prior
+                        : prior;
+
                 ucbExploration =
                         exploration *
-                        (Math.sqrt(Math.log(parentVisitCount) / moveVisits * variance) +
-                                prior / Math.sqrt(moveVisits));
+                        (Math.sqrt(Math.log(parentVisitCount) / moveVisits * discountedVariance) +
+                                discountedPrior / Math.sqrt(moveVisits));
             }
 
             double unvisitedBonus;

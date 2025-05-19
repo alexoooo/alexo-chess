@@ -70,6 +70,8 @@ public class PositionSolver {
 //                controller, 24, 512, 64_000, true, 64_000);
 //                controller, 28, 512, 64_000, true, 64_000);
                 controller, 28, 512, 65_000, 10_000, true, 100_000);
+//                controller, 28, 512, 85_000, 10_000, true, 120_000);
+//                controller, 28, 512, 120_000, 10_000, true, 200_000);
 //                controller, 24, 1024, 250_000);
 //                controller, 24, 1024, 1_000_000);
 

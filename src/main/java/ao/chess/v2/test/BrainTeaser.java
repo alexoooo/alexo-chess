@@ -166,7 +166,9 @@ public class BrainTeaser {
                 .build();
         StockfishEval eval = StockfishEval.create(
 //                controller, 24, 1024, 100_000, false, 10_000);
-                controller, 28, 512, 65_000, 10_000, true, 100_000);
+//                controller, 28, 512, 65_000, 10_000, true, 100_000);
+                controller, 28, 512, 120_000, 10_000, true, 200_000);
+//                controller, 28, 512, 240_000, 10_000, true, 400_000);
 //                controller, 24, 1024, 250_000);
 //                controller, 24, 1024, 1_000_000);
         MoveAndOutcomeModel model = eval;
@@ -353,7 +355,10 @@ public class BrainTeaser {
 //                "8/8/8/2p5/1pp5/brpp4/qpprpK1P/1nkbn3 w - - 0 1" // mate in 31 ply (16 moves)
 //                "8/3P3k/n2K3p/2p3n1/1b4N1/2p1p1P1/8/3B4 w - - 0 1" // > 90% after 55k
 
-                "r2qk2r/pb1n1pbp/1p2pp2/8/3p1B2/2PB1N2/PP2QPPP/R3K2R w KQkq - 0 12"
+                // https://www.youtube.com/watch?v=-kowQwu2sRQ
+                "6k1/1Q6/6p1/p4r1p/P3K2P/8/8/8 w - - 77 142"
+
+//                "r2qk2r/pb1n1pbp/1p2pp2/8/3p1B2/2PB1N2/PP2QPPP/R3K2R w KQkq - 0 12"
 
 //                "2K1k1br/2qp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 w - - 0 14"
 //                "4k1br/2Kp1n1r/2p2pN1/3p1N2/2P4P/8/P2P4/8 b - - 0 14"
